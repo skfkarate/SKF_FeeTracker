@@ -4,17 +4,13 @@ import {
   FEETRACK_SESSION_COOKIE,
   readFeeTrackSession,
 } from "@/lib/server/session";
+import { karateBackendUrl } from "@/lib/server/backend";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function backendReceiptUrl(receiptId: string) {
-  const base =
-    process.env.FEETRACK_BACKEND_URL ||
-    process.env.SKF_KARATE_BACKEND_URL ||
-    process.env.NEXT_PUBLIC_SKF_KARATE_URL;
-  if (!base) throw new Error("FEETRACK_BACKEND_URL is required.");
-  return new URL(`/api/integrations/feetrack/receipts/${encodeURIComponent(receiptId)}`, base);
+  return karateBackendUrl(`/api/integrations/feetrack/receipts/${encodeURIComponent(receiptId)}`);
 }
 
 export async function GET(

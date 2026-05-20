@@ -6,22 +6,43 @@ type BackendPayload = Record<string, unknown> & {
 };
 
 const BACKEND_TIMEOUT_MS = 6_500;
+const PRODUCTION_SKF_KARATE_URL = "https://www.skfkarate.org";
 
 type BackendCallOptions = {
   timeoutMs?: number;
 };
 
-function backendUrl() {
+function isLocalBackendUrl(url: URL) {
+  return ["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(url.hostname);
+}
+
+function backendBaseUrl() {
   const base =
     process.env.FEETRACK_BACKEND_URL ||
     process.env.SKF_KARATE_BACKEND_URL ||
-    process.env.NEXT_PUBLIC_SKF_KARATE_URL;
+    process.env.NEXT_PUBLIC_SKF_KARATE_URL ||
+    (process.env.NODE_ENV === "production" ? PRODUCTION_SKF_KARATE_URL : "");
 
   if (!base) {
     throw new Error("FEETRACK_BACKEND_URL is required.");
   }
 
-  return new URL("/api/integrations/feetrack", base);
+  let url: URL;
+  try {
+    url = new URL(base);
+  } catch {
+    throw new Error(`FEETRACK_BACKEND_URL is invalid: ${base}`);
+  }
+
+  if (process.env.NODE_ENV === "production" && isLocalBackendUrl(url)) {
+    return new URL(PRODUCTION_SKF_KARATE_URL);
+  }
+
+  return url;
+}
+
+export function karateBackendUrl(path: string) {
+  return new URL(path, backendBaseUrl());
 }
 
 export async function callKarateBackend<T>(
@@ -33,7 +54,7 @@ export async function callKarateBackend<T>(
     throw new Error("FEETRACK_API_KEY is required.");
   }
 
-  const url = backendUrl();
+  const url = karateBackendUrl("/api/integrations/feetrack");
   const timeoutMs = options.timeoutMs || BACKEND_TIMEOUT_MS;
   let response: Response;
 

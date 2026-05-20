@@ -82,6 +82,9 @@ const isHiddenFromStudentList = (student: Student) =>
   normalizeStudentStatus(student.monthStatus) === "n/a" ||
   normalizeStudentStatus(student.status) === "waived";
 
+const isLocalPublicUrl = (value: string) =>
+  /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(?::|\/|$)/i.test(value);
+
 const getStudentListOrder = (student: Student) => {
   if (isDiscontinuedStudent(student)) return 3;
   if (isBreakStudent(student)) return 2;
@@ -422,7 +425,12 @@ export default function StudentList({ branch }: { branch: string }) {
   const branchName =
     branch === "MPSC" ? "MP SPORTS CLUB" : branch?.toUpperCase();
   const adminStudentsUrl = useMemo(() => {
-    const base = process.env.NEXT_PUBLIC_SKF_KARATE_URL?.trim();
+    const configuredBase = process.env.NEXT_PUBLIC_SKF_KARATE_URL?.trim();
+    const base =
+      !configuredBase ||
+      (process.env.NODE_ENV === "production" && isLocalPublicUrl(configuredBase))
+        ? "https://www.skfkarate.org"
+        : configuredBase;
     if (!base) return "";
     try {
       return new URL("/admin/students/new", base).toString();
