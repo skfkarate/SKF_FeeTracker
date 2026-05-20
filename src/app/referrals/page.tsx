@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, Gift, X, Zap, Wallet, Trophy } from "lucide-react";
 import {
   getReferralCredits,
@@ -11,6 +10,8 @@ import {
   ReferralCredit,
   Student,
 } from "@/lib/api";
+import { useFeeTrackAuth } from "@/lib/client-auth";
+import { getCurrentFeeYear } from "@/lib/fee-year";
 import Navbar from "@/components/common/Navbar";
 
 const MONTHS = [
@@ -19,7 +20,8 @@ const MONTHS = [
 ];
 
 export default function ReferralCreditsPage() {
-  const router = useRouter();
+  const { user, checking } = useFeeTrackAuth();
+  const feeYear = getCurrentFeeYear();
   const [branch, setBranch] = useState("Herohalli");
   const [data, setData] = useState<ReferralCreditsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,19 +43,8 @@ export default function ReferralCreditsPage() {
   // Detail Modal
   const [selectedCredit, setSelectedCredit] = useState<ReferralCredit | null>(null);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("skf_user");
-    const loginTime = localStorage.getItem("skf_login_time");
-    if (
-      !storedUser ||
-      !loginTime ||
-      Date.now() - parseInt(loginTime) > 30 * 60 * 1000
-    ) {
-      // router.push("/"); // Commented out to prevent redirect loop during debugging if needed
-    }
-  }, [router]);
-
   const loadData = useCallback(async () => {
+    if (!user || checking) return;
     setLoading(true);
     setError("");
     try {
@@ -64,17 +55,19 @@ export default function ReferralCreditsPage() {
     } finally {
       setLoading(false);
     }
-  }, [branch]);
+  }, [branch, checking, user]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (!checking && user) {
+      loadData();
+    }
+  }, [checking, loadData, user]);
 
   const openAddModal = async () => {
     setShowAddModal(true);
     setLoadingStudents(true);
     try {
-      const studentList = await getStudents(branch, new Date().getMonth());
+      const studentList = await getStudents(branch, new Date().getMonth(), false, feeYear);
       setStudents(studentList.filter((s) => s.status === "Active"));
     } catch {
       alert("Failed to load students");
@@ -109,6 +102,7 @@ export default function ReferralCreditsPage() {
         newCredit.description, // description
         usedMonth,
         usedDate,
+        feeYear,
       );
       setShowAddModal(false);
       setNewCredit({ studentId: "", amount: 500, reason: "", description: "", usedInMonth: "" });
@@ -131,6 +125,8 @@ export default function ReferralCreditsPage() {
 
     return { total, totalAmount, active, activeAmount, redeemed, redeemedAmount };
   }, [data]);
+
+  if (checking || !user) return null;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
@@ -240,7 +236,7 @@ export default function ReferralCreditsPage() {
             <div className="animate-fade-in" style={{ animationDelay: "100ms" }}>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider">
-                  All Credits
+                  Credit Ledger
                 </p>
                 <button
                   onClick={openAddModal}
@@ -273,12 +269,12 @@ export default function ReferralCreditsPage() {
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-[family-name:var(--font-space)] tracking-wide truncate text-sm text-white group-hover:text-green-200 transition-colors">
+                            <div className="flex flex-col items-start gap-1.5 mb-1.5">
+                              <p className="font-[family-name:var(--font-space)] tracking-wide text-sm text-white group-hover:text-green-200 transition-colors leading-snug">
                                 {credit.studentName}
                               </p>
                               <span
-                                className={`text-[10px] px-2 py-0.5 border rounded-full ${credit.isUsed
+                                className={`text-[10px] px-2 py-0.5 border rounded-full whitespace-nowrap flex-shrink-0 ${credit.isUsed
                                   ? "bg-amber-600/10 text-amber-500 border-amber-600/30"
                                   : "bg-green-600/20 text-green-400 border-green-600/50"
                                   }`}
@@ -425,7 +421,7 @@ export default function ReferralCreditsPage() {
                     <option value="">Not Used Yet</option>
                     {MONTHS.map((m, idx) => (
                       <option key={m} value={idx}>
-                        {m} 2026
+                        {m} {feeYear}
                       </option>
                     ))}
                   </select>

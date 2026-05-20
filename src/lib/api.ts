@@ -1,7 +1,8 @@
-// SKF Karate API - Connect to Google Sheets
+// SKF Karate FeeTrack API - same-origin proxy to the SKF-Karate backend.
 
-const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbyV8zmUVUsY1vZRUoXEGhkeBzI-yLC_M36yLsC-leJHjwPOx8jqNYXa_au6mZ50mt36oQ/exec"; // <-- PASTE YOUR SCRIPT URL HERE
+import { getCurrentFeeYear } from "@/lib/fee-year";
+
+const API_URL = "/api/feetrack/data";
 
 interface StudentData {
   id: string;
@@ -12,7 +13,7 @@ interface StudentData {
   joinMonth: number;
 }
 
-// Empty mock data - real data comes from Google Sheets
+// Empty mock data - retained only for local fallback shape.
 const MOCK_STUDENTS: Record<string, StudentData[]> = {
   Herohalli: [],
   MPSC: [],
@@ -32,28 +33,22 @@ export interface Student {
   dateOfBirth: string;
   email: string;
   paid: boolean;
-  monthStatus: "Paid" | "Pending" | "Break" | "Discontinued" | "N/A";
+  monthStatus: "Paid" | "Pending" | "Break" | "Discontinued" | "N/A" | "Pending Verification";
   joinMonth: number;
   originalFee?: number;
   creditApplied?: number;
+  trainingMonths?: number;
+  trainingExperience?: string;
+  receiptId?: string | null;
+  paidDate?: string | null;
   // New Fee Fields
   admissionFee?: number;
   admissionStatus?: "Paid" | "Pending";
+  admissionReceiptId?: string | null;
   dressFee?: number;
   dressCost?: number;
   dressStatus?: "Paid" | "Pending";
-}
-
-export interface BirthdayStudent {
-  id: string;
-  name: string;
-  branch: string;
-  date: string;
-  originalDate: string;
-  day: number;
-  month: string; // Short month name (e.g. "Feb")
-  turningAge: number;
-  daysUntil: number;
+  dressReceiptId?: string | null;
 }
 
 export interface DashboardStats {
@@ -66,7 +61,7 @@ export interface DashboardStats {
   pendingAmount: number;
 }
 
-const isMockData = () => !SCRIPT_URL;
+const isMockData = () => false;
 
 // ============================================
 // FETCH HELPERS - Timeout & Retry
@@ -117,13 +112,16 @@ async function fetchWithRetry(
         return response;
       }
 
-      // Server error - retry
+      // Server error - retry, but return the final response so callers can read its JSON error body.
+      if (attempt === retries) {
+        return response;
+      }
       throw new Error(`Server error: ${response.status}`);
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
 
-      // Don't retry on abort (timeout) or if it's the last attempt
-      if (attempt === retries) {
+      // Timeouts already waited for the full timeout window; fail fast with a clear error.
+      if (lastError.name === "AbortError" || attempt === retries) {
         break;
       }
 
@@ -134,6 +132,54 @@ async function fetchWithRetry(
   }
 
   throw lastError || new Error("Request failed after retries");
+}
+
+type ApiEnvelope<T = unknown> = {
+  success?: boolean;
+  error?: string;
+  data?: T;
+  [key: string]: unknown;
+};
+
+async function readJsonResponse(response: Response): Promise<ApiEnvelope> {
+  const text = await response.text();
+  if (!text) return {};
+
+  try {
+    return JSON.parse(text) as ApiEnvelope;
+  } catch {
+    return {
+      success: false,
+      error: text || `FeeTrack request failed (${response.status})`,
+    };
+  }
+}
+
+function clearExpiredClientSession() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("skf_user");
+  localStorage.removeItem("skf_login_time");
+}
+
+async function apiAction<T>(
+  action: string,
+  payload: Record<string, unknown> = {},
+): Promise<T> {
+  const response = await fetchWithRetry(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action, ...payload }),
+  });
+
+  const data = await readJsonResponse(response);
+  if (response.status === 401) {
+    clearExpiredClientSession();
+  }
+
+  if (!response.ok || data.success === false) {
+    throw new Error(data.error || `FeeTrack request failed (${response.status})`);
+  }
+  return data as T;
 }
 
 // ============================================
@@ -147,6 +193,7 @@ interface CacheEntry<T> {
 
 // In-memory cache store
 const cache = new Map<string, CacheEntry<unknown>>();
+const pendingFetches = new Map<string, Promise<unknown>>();
 
 // Cache durations (in milliseconds)
 const CACHE_TTL = {
@@ -202,12 +249,19 @@ function setCache<T>(key: string, data: T): void {
 export function invalidateCache(pattern?: string): void {
   if (!pattern) {
     cache.clear();
+    pendingFetches.clear();
     return;
   }
 
   for (const key of cache.keys()) {
     if (key.includes(pattern)) {
       cache.delete(key);
+    }
+  }
+
+  for (const key of pendingFetches.keys()) {
+    if (key.includes(pattern)) {
+      pendingFetches.delete(key);
     }
   }
 }
@@ -225,10 +279,42 @@ async function cachedFetch<T>(
     return cachedData;
   }
 
-  // No valid cache — fetch fresh
-  const freshData = await fetcher();
-  setCache(cacheKey, freshData);
-  return freshData;
+  const pending = pendingFetches.get(cacheKey) as Promise<T> | undefined;
+  if (pending) return pending;
+
+  const request = fetcher()
+    .then((freshData) => {
+      setCache(cacheKey, freshData);
+      return freshData;
+    })
+    .finally(() => {
+      pendingFetches.delete(cacheKey);
+    });
+
+  pendingFetches.set(cacheKey, request);
+  return request;
+}
+
+function invalidateFinancialCaches(branch: string, year: number) {
+  invalidateCache(`financial:${branch}:${year}`);
+  invalidateCache(`financial:Overall:${year}`);
+  invalidateCache(`financeCommand:${branch}:${year}`);
+  invalidateCache(`financeCommand:Overall:${year}`);
+}
+
+type StudentsResponse = {
+  students?: Student[];
+  data?: Student[] | { students?: Student[] };
+};
+
+function extractStudents(response: StudentsResponse) {
+  if (Array.isArray(response.students)) return response.students;
+  if (Array.isArray(response.data)) return response.data;
+  if (response.data && Array.isArray(response.data.students)) {
+    return response.data.students;
+  }
+
+  throw new Error("FeeTrack backend returned an invalid student list.");
 }
 
 // ============================================
@@ -239,6 +325,7 @@ export async function getStudents(
   branch: string,
   month: number,
   forceRefresh = false,
+  year = getCurrentFeeYear(),
 ): Promise<Student[]> {
   if (isMockData()) {
     await new Promise((r) => setTimeout(r, 500));
@@ -270,7 +357,7 @@ export async function getStudents(
   // No need to adjust month anymore, backend handles 0-based index correctly now
   const adjustedMonth = month;
 
-  const cacheKey = `students:${branch}:${month}`; // Keep cache key based on requested month
+  const cacheKey = `students:${branch}:${year}:${month}`; // Keep cache key based on requested month/year
 
   // Force-invalidate on month switch to prevent stale data from wrong month
   if (forceRefresh) {
@@ -278,11 +365,12 @@ export async function getStudents(
   }
 
   return cachedFetch(cacheKey, async () => {
-    // Use adjustedMonth for the fetch
-    const response = await fetchWithRetry(`${SCRIPT_URL}?branch=${branch}&month=${adjustedMonth}`);
-    const data = await response.json();
-    if (!data.success) throw new Error(data.error || "Failed to fetch students");
-    return data.students;
+    const data = await apiAction<StudentsResponse>("get_students", {
+      branch,
+      month: adjustedMonth,
+      year,
+    });
+    return extractStudents(data);
   });
 }
 
@@ -290,29 +378,39 @@ export async function markPaid(
   id: string,
   branch: string,
   month: number,
-): Promise<void> {
+  year = getCurrentFeeYear(),
+): Promise<{ receiptId?: string | null }> {
   if (isMockData()) {
     await new Promise((r) => setTimeout(r, 300));
     paidStatus[`${branch}-${month}-${id}`] = true;
-    return;
+    return {};
   }
 
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "mark_paid", id, branch, month }),
+  const data = await apiAction<{
+    data?: {
+      receipt?: { receiptId?: string | null };
+      entry?: { receiptId?: string | null };
+    };
+  }>("mark_paid", {
+    id,
+    branch,
+    month,
+    year,
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to mark as paid");
 
   // Invalidate student and financial caches
-  invalidateCache(`students:${branch}:${month}`);
-  invalidateCache(`financial:${branch}`);
+  invalidateCache(`students:${branch}:${year}:${month}`);
+  invalidateFinancialCaches(branch, year);
+  return {
+    receiptId: data.data?.receipt?.receiptId || data.data?.entry?.receiptId || null,
+  };
 }
 
 export async function markBreak(
   id: string,
   branch: string,
   month: number,
+  year = getCurrentFeeYear(),
 ): Promise<void> {
   if (isMockData()) {
     await new Promise((r) => setTimeout(r, 300));
@@ -320,34 +418,31 @@ export async function markBreak(
     return;
   }
 
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "mark_break", id, branch, month }),
+  await apiAction("mark_break", {
+    id,
+    branch,
+    month,
+    year,
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to mark as break");
 
   // Invalidate caches - break affects this month's data
-  invalidateCache(`students:${branch}:${month}`);
-  invalidateCache(`financial:${branch}`);
+  invalidateCache(`students:${branch}:${year}:${month}`);
+  invalidateFinancialCaches(branch, year);
 }
 
 export async function markDiscontinued(
   id: string,
   branch: string,
   month: number,
+  year = getCurrentFeeYear(),
 ): Promise<void> {
   if (isMockData()) return;
-  const formData = new FormData();
-  formData.append("action", "mark_discontinued");
-  formData.append("id", id);
-  formData.append("branch", branch);
-  formData.append("month", month.toString());
-  await fetchWithRetry(SCRIPT_URL, { method: "POST", body: formData });
+  await apiAction("mark_discontinued", { id, branch, month, year });
 
   // Invalidate ALL month caches for this branch - discontinued affects all future months
   invalidateCache(`students:${branch}`);
-  invalidateCache(`financial:${branch}`);
+  invalidateFinancialCaches(branch, year);
+  invalidateCache('branchCounts');
 }
 
 /**
@@ -356,95 +451,37 @@ export async function markDiscontinued(
 export async function markNonRecurringFeePaid(
   studentId: string,
   branch: string,
-  feeType: "Admission" | "Dress"
-): Promise<void> {
-  if (isMockData()) return;
-  const formData = new FormData();
-  formData.append("action", "mark_non_recurring_paid");
-  formData.append("studentId", studentId);
-  formData.append("branch", branch);
-  formData.append("feeType", feeType);
-  await fetchWithRetry(SCRIPT_URL, { method: "POST", body: formData });
-}
-
-
-export async function getUpcomingBirthdays(): Promise<BirthdayStudent[]> {
-  if (isMockData()) {
-    await new Promise((r) => setTimeout(r, 500));
-    const today = new Date();
-    const mocks: BirthdayStudent[] = [];
-
-    // Student 1: Birthday Today
-    mocks.push({
-      id: "SKF005",
-      name: "Rahul Kumar",
-      branch: "Herohalli",
-      date: new Date().toISOString(),
-      originalDate: "2010-01-01",
-      day: today.getDate(),
-      month: today.toLocaleString('default', { month: 'short' }),
-      turningAge: 16,
-      daysUntil: 0
-    });
-
-    // Student 2: Birthday in 2 days
-    const next2 = new Date();
-    next2.setDate(today.getDate() + 2);
-    mocks.push({
-      id: "SKF012",
-      name: "Sneha Reddy",
-      branch: "MPSC",
-      date: next2.toISOString(),
-      originalDate: "2012-05-15",
-      day: next2.getDate(),
-      month: next2.toLocaleString('default', { month: 'short' }),
-      turningAge: 14,
-      daysUntil: 2
-    });
-
-    return mocks;
-  }
-
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "get_upcoming_birthdays" }),
+  feeType: "Admission" | "Dress",
+  month: number,
+  year = getCurrentFeeYear(),
+): Promise<{ receiptId?: string | null }> {
+  if (isMockData()) return {};
+  const data = await apiAction<{
+    data?: {
+      receipt?: { receiptId?: string | null };
+      entry?: { receiptId?: string | null };
+    };
+  }>("mark_non_recurring_paid", {
+    studentId,
+    branch,
+    feeType,
+    month,
+    year,
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to fetch birthdays");
-  return data.data;
-}
-
-export interface SpecialDay {
-  name: string;
-  date: string;
-  day: number;
-  month: string;
-  category: string;
-  notes: string;
-  daysUntil: number;
-}
-
-export async function getUpcomingSpecialDays(): Promise<SpecialDay[]> {
-  if (isMockData()) {
-    await new Promise((r) => setTimeout(r, 300));
-    return [];
-  }
-
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "get_upcoming_special_days" }),
-  });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to fetch special days");
-  return data.data;
+  invalidateCache(`students:${branch}:${year}:${month}`);
+  invalidateFinancialCaches(branch, year);
+  return {
+    receiptId: data.data?.receipt?.receiptId || data.data?.entry?.receiptId || null,
+  };
 }
 
 export async function getDashboardStats(
   branch: string,
   month: number,
   forceRefresh = false,
+  year = getCurrentFeeYear(),
 ): Promise<DashboardStats> {
-  const students = await getStudents(branch, month, forceRefresh);
+  const students = await getStudents(branch, month, forceRefresh, year);
   const active = students.filter((s) => s.status === "Active");
   const paid = active.filter((s) => s.paid);
 
@@ -475,37 +512,31 @@ export async function addStudent(
   dressFee?: number,
   dressCost?: number,
   dressPaid?: boolean,
+  year = getCurrentFeeYear(),
 ): Promise<{ id: string; name: string }> {
   if (isMockData()) {
     // Mock implementation omitted for brevity
     return { id, name };
   }
 
-  const formData = new FormData();
-  formData.append("action", "add_student");
-  formData.append("branch", branch);
-  formData.append("id", id);
-  formData.append("name", name);
-  formData.append("fee", fee.toString());
-  formData.append("phone", phone);
-  formData.append("joinMonth", joinMonth.toString());
-
-  if (admissionFee !== undefined) formData.append("admissionFee", admissionFee.toString());
-  if (admissionPaid !== undefined) formData.append("admissionPaid", admissionPaid.toString());
-  if (dressFee !== undefined) formData.append("dressFee", dressFee.toString());
-  if (dressCost !== undefined) formData.append("dressCost", dressCost.toString());
-  if (dressPaid !== undefined) formData.append("dressPaid", dressPaid.toString());
-
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: formData,
+  const data = await apiAction<{ data: { id: string; name: string } }>("add_student", {
+    branch,
+    id,
+    name,
+    fee,
+    phone,
+    joinMonth,
+    admissionFee,
+    admissionPaid,
+    dressFee,
+    dressCost,
+    dressPaid,
+    year,
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to add student");
 
   // Invalidate ALL student caches for this branch - new student appears in all months from joinMonth onwards
   invalidateCache(`students:${branch}`);
-  invalidateCache(`financial:${branch}`);
+  invalidateFinancialCaches(branch, year);
   invalidateCache('branchCounts');
 
   return data.data;
@@ -526,14 +557,68 @@ export async function getBranchCounts(): Promise<{
   const cacheKey = 'branchCounts';
 
   return cachedFetch(cacheKey, async () => {
-    const response = await fetchWithRetry(SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "get_branch_counts" }),
-    });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.error || "Failed to get branch counts");
+    const data = await apiAction<{ data: { herohalli: number; mp: number } }>("get_branch_counts");
     return data.data;
   });
+}
+
+// ============================================
+// PAYMENT VERIFICATIONS
+// ============================================
+
+export interface PaymentVerification {
+  id: string;
+  studentId: string;
+  studentName: string;
+  branch: string;
+  amount: number;
+  submittedAt: string;
+  paymentReference: string;
+  proofUrl: string;
+  proofFilename: string;
+  feeType: string;
+  month: number | null;
+  monthName: string;
+  year: number;
+  status: string;
+}
+
+export async function getPaymentVerifications(
+  branch = "Overall",
+): Promise<PaymentVerification[]> {
+  const data = await apiAction<{ data: { verifications: PaymentVerification[] } }>(
+    "get_payment_verifications",
+    { branch },
+  );
+  return data.data.verifications;
+}
+
+export async function approvePaymentVerification(
+  proofId: string,
+  note = "",
+): Promise<{ receiptId?: string | null }> {
+  const data = await apiAction<{
+    data?: {
+      receipt?: { receiptId?: string | null };
+    };
+  }>("approve_payment_verification", { proofId, note });
+
+  invalidateCache("students:");
+  invalidateCache("financial:");
+  invalidateCache("financeCommand:");
+
+  return { receiptId: data.data?.receipt?.receiptId || null };
+}
+
+export async function rejectPaymentVerification(
+  proofId: string,
+  note: string,
+): Promise<void> {
+  await apiAction("reject_payment_verification", { proofId, note });
+
+  invalidateCache("students:");
+  invalidateCache("financial:");
+  invalidateCache("financeCommand:");
 }
 
 // ============================================
@@ -543,8 +628,8 @@ export async function getBranchCounts(): Promise<{
 export interface MonthlyDevFund {
   month: number;
   year: string;
-  collected: number; // Total fees collected
-  devFund: number; // 30% allocation
+  collected: number; // Gross income: fee cash + admission collected + dress profit
+  devFund: number; // 30% allocation from gross income
   spent: number; // Expenses this month
   carryForward: number; // Running balance
 }
@@ -575,7 +660,7 @@ const MOCK_DEV_FUND_DATA: DevelopmentFundData = {
   branch: "Herohalli",
   monthlyBreakdown: Array.from({ length: 12 }, (_, i) => ({
     month: i,
-    year: "2026",
+    year: String(getCurrentFeeYear()),
     collected: 0,
     devFund: 0,
     spent: 0,
@@ -587,21 +672,20 @@ const MOCK_DEV_FUND_DATA: DevelopmentFundData = {
   availableBalance: 0,
 };
 
-export async function getDevelopmentFundData(): Promise<DevelopmentFundData> {
+export async function getDevelopmentFundData(
+  year = getCurrentFeeYear(),
+): Promise<DevelopmentFundData> {
   if (isMockData()) {
     await new Promise((r) => setTimeout(r, 300));
     return { ...MOCK_DEV_FUND_DATA, branch: "All" };
   }
 
-  const cacheKey = 'devFund:all';
+  const cacheKey = `devFund:all:${year}`;
 
   return cachedFetch(cacheKey, async () => {
-    const response = await fetchWithRetry(SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "get_dev_fund" }),
+    const data = await apiAction<{ data: DevelopmentFundData }>("get_dev_fund", {
+      year,
     });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.error || "Failed to get development fund data");
     return data.data;
   });
 }
@@ -612,13 +696,14 @@ export async function addDevelopmentExpense(
   description: string,
   scope: string,
   amount: number,
+  year = getCurrentFeeYear(),
 ): Promise<DevExpense> {
   if (isMockData()) {
     await new Promise((r) => setTimeout(r, 300));
     const newExpense: DevExpense = {
       id: `DEV-${Date.now()}`,
       month,
-      year: "2026",
+      year: String(year),
       title,
       description,
       scope,
@@ -628,23 +713,19 @@ export async function addDevelopmentExpense(
     return newExpense;
   }
 
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "add_dev_expense",
-      month,
-      title,
-      description,
-      scope,
-      amount,
-    }),
+  const data = await apiAction<{ data: DevExpense }>("add_dev_expense", {
+    month,
+    title,
+    description,
+    scope,
+    amount,
+    year,
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to add expense");
 
   // Invalidate dev fund and financial caches
   invalidateCache('devFund');
-  invalidateCache('financial');
+  invalidateCache('financial:');
+  invalidateCache('financeCommand:');
 
   return data.data;
 }
@@ -657,19 +738,12 @@ export async function deleteDevelopmentExpense(
     return { success: true };
   }
 
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "delete_dev_expense",
-      expenseId,
-    }),
-  });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to delete expense");
+  await apiAction("delete_dev_expense", { expenseId });
 
   // Invalidate dev fund and financial caches
   invalidateCache('devFund');
-  invalidateCache('financial');
+  invalidateCache('financial:');
+  invalidateCache('financeCommand:');
 
   return { success: true };
 }
@@ -710,13 +784,14 @@ export async function getReferralCredits(
     return { credits: [], totalUnused: 0, totalUsed: 0 };
   }
 
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "get_referral_credits", branch }),
+  const cacheKey = `referral:${branch}`;
+
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: ReferralCreditsData }>("get_referral_credits", {
+      branch,
+    });
+    return data.data;
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to get referral credits");
-  return data.data;
 }
 
 export async function addReferralCredit(
@@ -727,6 +802,7 @@ export async function addReferralCredit(
   description?: string,
   usedInMonth?: number,
   usedDate?: string,
+  year = getCurrentFeeYear(),
 ): Promise<{
   id: string;
   studentId: string;
@@ -749,22 +825,38 @@ export async function addReferralCredit(
     };
   }
 
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "add_referral_credit",
-      branch,
-      studentId,
-      amount,
-      reason,
-      description,
-      usedInMonth,
-      usedDate,
-    }),
+  const data = await apiAction<{ data: {
+    id: string;
+    skf_id?: string;
+    athleteName?: string;
+    amount: number;
+    reason?: string;
+    created_at?: string;
+    status?: string;
+  } }>("add_referral_credit", {
+    branch,
+    studentId,
+    amount,
+    reason,
+    description,
+    usedInMonth,
+    usedDate,
+    year,
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to add referral credit");
-  return data.data;
+  invalidateCache(`referral:${branch}`);
+  if (usedInMonth !== undefined) {
+    invalidateCache(`students:${branch}:${year}:${usedInMonth}`);
+    invalidateFinancialCaches(branch, year);
+  }
+  return {
+    id: data.data.id,
+    studentId,
+    studentName: data.data.athleteName || "SKF Athlete",
+    amount: data.data.amount,
+    reason: data.data.reason || reason,
+    dateEarned: data.data.created_at || new Date().toISOString(),
+    isUsed: data.data.status === "used",
+  };
 }
 
 export async function getStudentAvailableCredits(
@@ -776,12 +868,10 @@ export async function getStudentAvailableCredits(
     return { credits: [], totalAvailable: 0 };
   }
 
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "get_student_credits", studentId, branch }),
+  const data = await apiAction<{ data: StudentCredits }>("get_student_credits", {
+    studentId,
+    branch,
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to get student credits");
   return data.data;
 }
 
@@ -790,24 +880,31 @@ export async function markPaidWithCredit(
   branch: string,
   month: number,
   creditId: string,
-): Promise<void> {
+  year = getCurrentFeeYear(),
+): Promise<{ receiptId?: string | null }> {
   if (isMockData()) {
     await new Promise((r) => setTimeout(r, 300));
-    return;
+    return {};
   }
 
-  const response = await fetchWithRetry(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "mark_paid_with_credit",
-      id,
-      branch,
-      month,
-      creditId,
-    }),
+  const data = await apiAction<{
+    data?: {
+      receipt?: { receiptId?: string | null };
+      entry?: { receiptId?: string | null };
+    };
+  }>("mark_paid_with_credit", {
+    id,
+    branch,
+    month,
+    creditId,
+    year,
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error || "Failed to mark paid with credit");
+  invalidateCache(`students:${branch}:${year}:${month}`);
+  invalidateFinancialCaches(branch, year);
+  invalidateCache(`referral:${branch}`);
+  return {
+    receiptId: data.data?.receipt?.receiptId || data.data?.entry?.receiptId || null,
+  };
 }
 
 // ============================================
@@ -842,6 +939,7 @@ export interface FinancialSummary {
     date: string;
   }[];
   actualReceived: number;
+  actualBankBalance?: number;
   devFundAllocation: number;
   devFundSpent: number;
   devFundBalance: number;
@@ -854,13 +952,86 @@ export interface FinancialSummary {
   // New Fields
   admissionCollected?: number;
   dressProfit?: number;
+  grossIncome?: number;
   reserveUsed?: number;
+}
+
+export interface FinanceBreakdownItem {
+  key: string;
+  label: string;
+  amount: number;
+  formula: string;
+}
+
+export interface FinanceCashFlowMonth {
+  month: number;
+  year: number;
+  income: number;
+  developmentFundContribution: number;
+  expenses: number;
+  net: number;
+  balance: number;
+  developmentFundBalance: number;
+}
+
+export interface FinanceLedgerRow {
+  id: string;
+  date: string;
+  month: number;
+  year: number;
+  branch: string;
+  label: string;
+  category: string;
+  type: "income" | "expense" | "credit" | "pending";
+  amount: number;
+  studentId: string;
+  studentName: string;
+  receiptId: string;
+  status: string;
+  formulaKey: string;
+}
+
+export interface FinanceWarning {
+  level: "info" | "warning" | "danger";
+  message: string;
+}
+
+export interface FinanceCommandCenterData {
+  month: number;
+  year: number;
+  periodLabel: string;
+  branch: string;
+  summary: {
+    activeStudents: number;
+    paidStudents: number;
+    pendingStudents: number;
+    expected: number;
+    collected: number;
+    pending: number;
+    creditsApplied: number;
+    monthlyFeeCash: number;
+    admissionCollected: number;
+    dressProfit: number;
+    grossIncome: number;
+    developmentFundContribution: number;
+    developmentExpenses: number;
+    developmentFundBalance: number;
+    availableBalance: number;
+    collectionRate: number;
+  };
+  incomeBreakdown: FinanceBreakdownItem[];
+  expenseBreakdown: FinanceBreakdownItem[];
+  cashFlowByMonth: FinanceCashFlowMonth[];
+  ledgerRows: FinanceLedgerRow[];
+  warnings: FinanceWarning[];
+  formulas: Record<string, string>;
 }
 
 export async function getFinancialSummary(
   branch: string,
   month: number,
   forceRefresh = false,
+  year = getCurrentFeeYear(),
 ): Promise<FinancialSummary> {
   if (isMockData()) {
     await new Promise((r) => setTimeout(r, 300));
@@ -888,19 +1059,43 @@ export async function getFinancialSummary(
     };
   }
 
-  const cacheKey = `financial:${branch}:${month}`;
+  const cacheKey = `financial:${branch}:${year}:${month}`;
 
   if (forceRefresh) {
     invalidateCache(cacheKey);
   }
 
   return cachedFetch(cacheKey, async () => {
-    const response = await fetchWithRetry(SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "get_financial_summary", branch, month }),
+    const data = await apiAction<{ data: FinancialSummary }>("get_financial_summary", {
+      branch,
+      month,
+      year,
     });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.error || "Failed to get financial summary");
+    return data.data;
+  });
+}
+
+export async function getFinanceCommandCenter(
+  branch: string,
+  month: number,
+  forceRefresh = false,
+  year = getCurrentFeeYear(),
+): Promise<FinanceCommandCenterData> {
+  const cacheKey = `financeCommand:${branch}:${year}:${month}`;
+
+  if (forceRefresh) {
+    invalidateCache(cacheKey);
+  }
+
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: FinanceCommandCenterData }>(
+      "get_finance_command_center",
+      {
+        branch,
+        month,
+        year,
+      },
+    );
     return data.data;
   });
 }

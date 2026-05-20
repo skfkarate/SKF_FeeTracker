@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
-  ArrowLeft,
   HelpCircle,
   X,
   Send,
@@ -16,6 +13,9 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { getStudents, Student } from "@/lib/api";
+import { useFeeTrackAuth } from "@/lib/client-auth";
+import { getCurrentFeeYear } from "@/lib/fee-year";
+import Navbar from "@/components/common/Navbar";
 
 const MONTHS = [
   "January",
@@ -98,8 +98,8 @@ Thank you,
 SKF Karate - {branch}`;
 
 export default function MessagesPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<string | null>(null);
+  const { user, checking } = useFeeTrackAuth();
+  const feeYear = getCurrentFeeYear();
   const [messageTemplate, setMessageTemplate] = useState(DEFAULT_TEMPLATE);
   const [selectedBranch, setSelectedBranch] = useState("Herohalli");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
@@ -118,30 +118,12 @@ export default function MessagesPage() {
     total: 0,
   });
 
-  // Auth check
-  useEffect(() => {
-    const storedUser = localStorage.getItem("skf_user");
-    const loginTime = localStorage.getItem("skf_login_time");
-
-    if (
-      !storedUser ||
-      !loginTime ||
-      Date.now() - parseInt(loginTime) > 30 * 60 * 1000
-    ) {
-      router.push("/");
-      return;
-    }
-    if (storedUser !== user) {
-      setUser(storedUser);
-    }
-  }, [router, user]);
-
   // Fetch students when branch/month changes
   useEffect(() => {
     const fetchStudents = async () => {
       setLoading(true);
       try {
-        const data = await getStudents(selectedBranch, selectedMonth);
+        const data = await getStudents(selectedBranch, selectedMonth, false, feeYear);
         setStudents(data);
         // Auto-select pending students if toggle is on
         if (selectAllPending) {
@@ -161,10 +143,10 @@ export default function MessagesPage() {
       }
     };
 
-    if (user) {
+    if (!checking && user) {
       fetchStudents();
     }
-  }, [selectedBranch, selectedMonth, user, selectAllPending]);
+  }, [checking, selectedBranch, selectedMonth, user, selectAllPending, feeYear]);
 
   // Filter pending students - STRICT FILTER
   // ONLY show students where monthStatus is EXACTLY "Pending"
@@ -340,25 +322,15 @@ export default function MessagesPage() {
     setSending(false);
   };
 
-  if (!user) return null;
+  if (checking || !user) return null;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
       {/* Header */}
-      <header className="header-glass px-4 py-4">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/dashboard"
-              className="text-[var(--text-muted)] hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="font-[family-name:var(--font-space)] text-xl font-bold tracking-wider flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-cyan-400" />
-              MESSAGE CENTER
-            </h1>
-          </div>
+      <Navbar
+        title="FEE REMINDERS"
+        showBack
+        rightContent={
           <button
             onClick={() => setShowHelpModal(true)}
             className="text-[var(--text-muted)] hover:text-cyan-400 transition-colors p-2"
@@ -366,15 +338,16 @@ export default function MessagesPage() {
           >
             <HelpCircle className="w-5 h-5" />
           </button>
-        </div>
-      </header>
+        }
+      />
 
-      <main className="max-w-2xl mx-auto p-4 space-y-6">
+      <main className="max-w-2xl mx-auto p-4 pt-24 space-y-6">
         {/* Message Template Section */}
         <section className="glass-card p-4 animate-fade-in">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-[family-name:var(--font-space)] text-lg tracking-wider text-white">
-              📝 COMPOSE MESSAGE
+            <h2 className="font-[family-name:var(--font-space)] text-lg tracking-wider text-white flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-cyan-400" />
+              COMPOSE MESSAGE
             </h2>
             <button
               onClick={() => setShowHelpModal(true)}
@@ -444,7 +417,7 @@ export default function MessagesPage() {
               >
                 {MONTHS_SHORT.map((m, i) => (
                   <option key={m} value={i}>
-                    {m} 2026
+                    {m} {feeYear}
                   </option>
                 ))}
               </select>
@@ -479,7 +452,7 @@ export default function MessagesPage() {
             </div>
           ) : pendingStudents.length === 0 ? (
             <div className="text-center py-8 text-[var(--text-muted)] text-sm">
-              No pending students for this month! 🎉
+              No pending students for this month.
             </div>
           ) : (
             <div className="max-h-60 overflow-y-auto space-y-2 border border-[var(--border)] rounded-lg p-2 bg-[#000000]/20">

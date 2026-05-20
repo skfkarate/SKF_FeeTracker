@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import {
   Package,
   PiggyBank,
@@ -19,6 +18,8 @@ import {
   DevelopmentFundData,
   DevExpense,
 } from "@/lib/api";
+import { useFeeTrackAuth } from "@/lib/client-auth";
+import { getCurrentFeeYear } from "@/lib/fee-year";
 import MonthSelector from "@/components/common/MonthSelector";
 import Navbar from "@/components/common/Navbar";
 
@@ -44,8 +45,38 @@ const SCOPE_OPTIONS = [
   { value: "Others", label: "Others" },
 ];
 
+function balanceTextClass(amount: number) {
+  return amount < 0 ? "text-red-400" : "text-green-400";
+}
+
+function formatCurrency(amount: number) {
+  const rounded = Math.round(Number(amount) || 0);
+  const prefix = rounded < 0 ? "-₹" : "₹";
+  return `${prefix}${Math.abs(rounded).toLocaleString("en-IN")}`;
+}
+
+function numericYear(year: string | number) {
+  const value = Number(year);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function dateValue(value: string) {
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function sortExpensesByTimeline(a: DevExpense, b: DevExpense) {
+  return (
+    numericYear(b.year) - numericYear(a.year) ||
+    b.month - a.month ||
+    dateValue(b.dateAdded) - dateValue(a.dateAdded) ||
+    b.id.localeCompare(a.id)
+  );
+}
+
 export default function DevelopmentFundPage() {
-  const router = useRouter();
+  const { user, checking } = useFeeTrackAuth();
+  const feeYear = getCurrentFeeYear();
   const [data, setData] = useState<DevelopmentFundData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -73,34 +104,25 @@ export default function DevelopmentFundPage() {
 
 
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("skf_user");
-    const loginTime = localStorage.getItem("skf_login_time");
-    if (
-      !storedUser ||
-      !loginTime ||
-      Date.now() - parseInt(loginTime) > 30 * 60 * 1000
-    ) {
-      router.push("/");
-    }
-  }, [router]);
-
   const loadData = useCallback(async () => {
+    if (!user || checking) return;
     setLoading(true);
     setError("");
     try {
-      const result = await getDevelopmentFundData();
+      const result = await getDevelopmentFundData(feeYear);
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load data");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [checking, feeYear, user]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (!checking && user) {
+      loadData();
+    }
+  }, [checking, loadData, user]);
 
 
 
@@ -139,7 +161,8 @@ export default function DevelopmentFundPage() {
         newExpense.title.trim(),
         newExpense.description.trim(),
         finalScope,
-        newExpense.amount
+        newExpense.amount,
+        feeYear,
       );
       setShowConfirmModal(false);
       setShowAddModal(false);
@@ -194,18 +217,35 @@ export default function DevelopmentFundPage() {
 
   const filteredExpenses = useMemo(() => {
     if (!data) return [];
-    if (filter === "all") return data.expenses;
-    return data.expenses.filter((e) => e.month === filter);
+    const expenses =
+      filter === "all"
+        ? data.expenses
+        : data.expenses.filter((e) => e.month === filter);
+    return [...expenses].sort(sortExpensesByTimeline);
   }, [data, filter]);
+
+  const monthlyTimeline = useMemo(() => {
+    if (!data) return [];
+    return data.monthlyBreakdown
+      .filter((m) => m.collected > 0 || m.spent > 0)
+      .sort(
+        (a, b) =>
+          numericYear(b.year) - numericYear(a.year) ||
+          b.month - a.month,
+      );
+  }, [data]);
 
   const filteredStats = useMemo(() => {
     if (!data) return { allocated: 0, spent: 0, balance: 0 };
 
     if (filter === "all") {
+      const allocated = data.monthlyBreakdown.reduce((sum, row) => sum + row.devFund, 0);
+      const spent = data.monthlyBreakdown.reduce((sum, row) => sum + row.spent, 0);
+
       return {
-        allocated: data.totalContributions,
-        spent: data.totalSpent,
-        balance: data.availableBalance,
+        allocated,
+        spent,
+        balance: allocated - spent,
       };
     }
 
@@ -213,7 +253,7 @@ export default function DevelopmentFundPage() {
     return {
       allocated: monthData ? monthData.devFund : 0,
       spent: monthData ? monthData.spent : 0,
-      balance: monthData ? monthData.devFund - monthData.spent : 0,
+      balance: monthData ? monthData.carryForward : 0,
     };
   }, [data, filter]);
 
@@ -235,6 +275,8 @@ export default function DevelopmentFundPage() {
     }
   };
 
+  if (checking || !user) return null;
+
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
       {/* Header */}
@@ -243,7 +285,7 @@ export default function DevelopmentFundPage() {
         showBack
         rightContent={
           <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider hidden sm:block">
-            30% Allocation
+            30% Income Fund
           </div>
         }
       />
@@ -276,6 +318,7 @@ export default function DevelopmentFundPage() {
             <div className="animate-slide-up">
               <MonthSelector
                 selectedMonth={filter as number}
+                year={feeYear}
                 onMonthChange={(m: number) => setFilter(m)}
                 className="max-w-xs mx-auto"
               />
@@ -305,111 +348,114 @@ export default function DevelopmentFundPage() {
         {!loading && !error && data && (
           <>
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 animate-fade-in">
-              <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(59, 130, 246, 0.25)" }}>
-                <div className="absolute top-0 right-0 p-2 opacity-10">
-                  <PiggyBank className="w-12 h-12 text-blue-400" />
-                </div>
-                <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <PiggyBank className="w-3 h-3" /> Total Fund (30%)
-                </p>
-                <p className="font-[family-name:var(--font-space)] text-lg sm:text-xl text-blue-400">
-                  ₹{filteredStats.allocated.toLocaleString()}
-                </p>
-                <p className="text-[10px] text-[var(--text-muted)] mt-1 opacity-70">
-                  Allocated from collected fees
-                </p>
+            <section className="card-panel p-6 mb-6">
+              <div className="flex items-center gap-2 mb-6">
+                <PiggyBank className="w-5 h-5 text-blue-400" />
+                <h2 className="text-white text-lg font-medium tracking-wide">Fund Overview</h2>
               </div>
-              <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(245, 158, 11, 0.25)" }}>
-                <div className="absolute top-0 right-0 p-2 opacity-10">
-                  <Package className="w-12 h-12 text-amber-400" />
-                </div>
-                <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Package className="w-3 h-3" /> Total Spent
-                </p>
-                <p className="font-[family-name:var(--font-space)] text-lg sm:text-xl text-amber-400">
-                  ₹{filteredStats.spent.toLocaleString()}
-                </p>
-                <p className="text-[10px] text-[var(--text-muted)] mt-1 opacity-70">
-                  Across all branches
-                </p>
-              </div>
-              <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(34, 197, 94, 0.25)" }}>
-                <div className="absolute top-0 right-0 p-2 opacity-10">
-                  <TrendingUp className="w-12 h-12 text-green-400" />
-                </div>
-                <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <TrendingUp className="w-3 h-3" /> Available Balance
-                </p>
-                <p className="font-[family-name:var(--font-space)] text-lg sm:text-xl text-green-400">
-                  ₹{filteredStats.balance.toLocaleString()}
-                </p>
-                {filter === "all" && data?.reserveUsed && data.reserveUsed > 0 && (
-                  <div className="flex items-center gap-1.5 mt-1 text-[10px] text-amber-400/90 font-medium animate-pulse">
-                    <Zap className="w-3 h-3" />
-                    <span>Includes ₹{data.reserveUsed.toLocaleString()} Reserve</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 animate-fade-in">
+                <div className="bg-zinc-900/50 border border-blue-500/20 rounded-xl p-5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-2 opacity-10">
+                    <PiggyBank className="w-12 h-12 text-blue-400" />
                   </div>
-                )}
-                <p className="text-[10px] text-[var(--text-muted)] mt-1 opacity-70">
-                  Remaining fund
-                </p>
+                  <p className="text-zinc-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <PiggyBank className="w-3 h-3" /> Total Fund (30%)
+                  </p>
+                  <p className="font-[family-name:var(--font-space)] text-xl sm:text-2xl text-blue-400 mt-2">
+                    ₹{filteredStats.allocated.toLocaleString()}
+                  </p>
+                  <p className="text-[10px] text-zinc-500 mt-1 opacity-70">
+                    From fees, admission and dress profit
+                  </p>
+                </div>
+                <div className="bg-zinc-900/50 border border-amber-500/20 rounded-xl p-5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-2 opacity-10">
+                    <Package className="w-12 h-12 text-amber-400" />
+                  </div>
+                  <p className="text-zinc-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <Package className="w-3 h-3" /> Total Spent
+                  </p>
+                  <p className="font-[family-name:var(--font-space)] text-xl sm:text-2xl text-amber-400 mt-2">
+                    ₹{filteredStats.spent.toLocaleString()}
+                  </p>
+                  <p className="text-[10px] text-zinc-500 mt-1 opacity-70">
+                    {filter === "all" ? "Across all months" : "Selected month"}
+                  </p>
+                </div>
+                <div className="bg-zinc-900/50 border border-green-500/20 rounded-xl p-5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-2 opacity-10">
+                    <TrendingUp className="w-12 h-12 text-green-400" />
+                  </div>
+                  <p className="text-zinc-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" /> Running Balance
+                  </p>
+                  <p className={`font-[family-name:var(--font-space)] text-xl sm:text-2xl mt-2 ${balanceTextClass(filteredStats.balance)}`}>
+                    {formatCurrency(filteredStats.balance)}
+                  </p>
+                  {filter === "all" && data?.reserveUsed && data.reserveUsed > 0 && (
+                    <div className="flex items-center gap-1.5 mt-1 text-[10px] text-amber-400/90 font-medium animate-pulse">
+                      <Zap className="w-3 h-3" />
+                      <span>Includes ₹{data.reserveUsed.toLocaleString()} Reserve</span>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-zinc-500 mt-1 opacity-70">
+                    {filter === "all" ? "End of year-to-date position" : `After ${MONTHS[filter]}`}
+                  </p>
+                </div>
               </div>
-            </div>
+            </section>
 
             {/* Monthly Breakdown - ONLY show if filter is ALL */}
             {filter === "all" && (
-              <div className="mb-6 animate-fade-in" style={{ animationDelay: "100ms" }}>
-                <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-3">
-                  Monthly Breakdown
-                </p>
-                <div className="glass-card overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+              <section className="card-panel p-6 mb-6 animate-fade-in" style={{ animationDelay: "100ms" }}>
+                <div className="flex items-center gap-2 mb-6">
+                  <TrendingUp className="w-5 h-5 text-zinc-400" />
+                  <h2 className="text-white text-lg font-medium tracking-wide">Monthly Breakdown</h2>
+                </div>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
+                  <div className="overflow-x-auto scrollbar-hide">
+                    <table className="w-full text-sm min-w-[600px]">
                       <thead>
-                        <tr className="border-b border-[var(--border)] text-[var(--text-muted)] text-[10px] uppercase tracking-wider">
-                          <th className="text-left p-3">Month</th>
-                          <th className="text-right p-3">Collected</th>
-                          <th className="text-right p-3">30% Fund</th>
-                          <th className="text-right p-3">Spent</th>
-                          <th className="text-right p-3">Balance</th>
+                        <tr className="border-b border-zinc-800 text-zinc-500 text-[10px] uppercase tracking-wider bg-zinc-900/30">
+                          <th className="text-left p-4">Month</th>
+                          <th className="text-right p-4">Income</th>
+                          <th className="text-right p-4">30% Fund</th>
+                          <th className="text-right p-4">Spent</th>
+                          <th className="text-right p-4">Running Balance</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {data.monthlyBreakdown
-                          .filter((m) => m.collected > 0 || m.spent > 0)
-                          .map((m) => (
+                        {monthlyTimeline.map((m) => (
                             <tr
                               key={m.month}
-                              className="border-b border-[var(--border)]/50 hover:bg-white/[0.02] transition-colors"
+                              className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors"
                             >
-                              <td className="p-3 font-[family-name:var(--font-space)] tracking-wider text-sm">
+                              <td className="p-4 font-[family-name:var(--font-space)] tracking-wider text-sm text-zinc-300">
                                 {MONTHS[m.month]}
                               </td>
-                              <td className="p-3 text-right text-[var(--text-secondary)]">
+                              <td className="p-4 text-right text-zinc-400">
                                 ₹{m.collected.toLocaleString()}
                               </td>
-                              <td className="p-3 text-right text-blue-400">
+                              <td className="p-4 text-right text-blue-400 font-medium">
                                 ₹{m.devFund.toLocaleString()}
                               </td>
-                              <td className="p-3 text-right text-amber-400">
+                              <td className="p-4 text-right text-amber-400 font-medium">
                                 {m.spent > 0
                                   ? `₹${m.spent.toLocaleString()}`
                                   : "-"}
                               </td>
-                              <td className="p-3 text-right text-green-400 font-medium">
-                                ₹{(m.devFund - m.spent).toLocaleString()}
+                              <td className={`p-4 text-right font-medium ${balanceTextClass(m.carryForward)}`}>
+                                {formatCurrency(m.carryForward)}
                               </td>
                             </tr>
                           ))}
-                        {data.monthlyBreakdown.every(
-                          (m) => m.collected === 0 && m.spent === 0
-                        ) && (
+                        {monthlyTimeline.length === 0 && (
                             <tr>
                               <td
                                 colSpan={5}
-                                className="p-6 text-center text-[var(--text-muted)]"
+                                className="p-8 text-center text-zinc-500 text-sm"
                               >
-                                No fee payments or expenses recorded yet
+                                No income or expenses recorded yet
                               </td>
                             </tr>
                           )}
@@ -417,50 +463,50 @@ export default function DevelopmentFundPage() {
                     </table>
                   </div>
                 </div>
-              </div>
+              </section>
             )}
 
             {/* EXPENSES LIST */}
-            <div className="animate-fade-in" style={{ animationDelay: "200ms" }}>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider">
-                  Expenses{" "}
-                  {filter !== "all" ? `(${MONTHS[filter]})` : "(All Time)"}
-                </p>
+            <section className="card-panel p-6 animate-fade-in" style={{ animationDelay: "200ms" }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-2">
+                  <Package className="w-5 h-5 text-zinc-400" />
+                  <h2 className="text-white text-lg font-medium tracking-wide">
+                    Expenses <span className="text-zinc-500 font-normal text-sm ml-1">{filter !== "all" ? `(${MONTHS[filter]})` : `(${feeYear})`}</span>
+                  </h2>
+                </div>
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="px-4 py-2 text-sm rounded-lg border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white transition-all duration-200 font-medium tracking-wide"
+                  className="px-4 py-2.5 text-sm rounded-lg border border-green-600/30 bg-green-600/10 text-green-400 hover:bg-green-600 hover:text-white transition-all duration-200 font-medium tracking-wide w-full sm:w-auto text-center"
                 >
                   + Add Expense
                 </button>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {filteredExpenses.length === 0 ? (
-                  <div className="glass-card p-6 text-center text-[var(--text-muted)] text-sm">
+                  <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
                     No expenses recorded for this period
                   </div>
                 ) : (
-                  filteredExpenses
-                    .sort((a, b) => b.id.localeCompare(a.id))
-                    .map((expense) => (
+                  filteredExpenses.map((expense) => (
                       <div
                         key={expense.id}
                         onClick={() => setSelectedExpense(expense)}
-                        className="glass-card p-4 cursor-pointer hover:border-red-600/30 transition-all duration-200"
+                        className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 cursor-pointer hover:border-red-600/30 hover:bg-zinc-800/50 transition-all duration-200"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-[family-name:var(--font-space)] tracking-wide truncate text-sm">
+                            <div className="flex flex-col items-start gap-1.5 mb-1.5">
+                              <p className="font-[family-name:var(--font-space)] tracking-wide text-sm text-zinc-200 leading-snug">
                                 {expense.title || expense.description}
                               </p>
                               <span
-                                className={`text-[10px] px-2 py-0.5 border rounded-full ${getScopeBadgeColor(expense.scope || "Both")}`}
+                                className={`text-[10px] px-2 py-0.5 border rounded-md font-medium whitespace-nowrap flex-shrink-0 ${getScopeBadgeColor(expense.scope || "Both")}`}
                               >
                                 {getScopeLabel(expense.scope || "Both")}
                               </span>
                             </div>
-                            <p className="text-[var(--text-muted)] text-xs">
+                            <p className="text-zinc-500 text-xs">
                               {MONTHS[expense.month]} {expense.year} •{" "}
                               {expense.dateAdded}
                             </p>
@@ -473,7 +519,7 @@ export default function DevelopmentFundPage() {
                     ))
                 )}
               </div>
-            </div>
+            </section>
 
 
           </>
@@ -557,7 +603,7 @@ export default function DevelopmentFundPage() {
                   >
                     {MONTHS.map((m, i) => (
                       <option key={i} value={i}>
-                        {m} 2026
+                        {m} {feeYear}
                       </option>
                     ))}
                   </select>
@@ -664,7 +710,7 @@ export default function DevelopmentFundPage() {
                 </div>
                 <div>
                   <p className="text-[var(--text-muted)] text-[10px] uppercase">Month</p>
-                  <p className="text-white text-sm">{MONTHS[newExpense.month]} 2026</p>
+                  <p className="text-white text-sm">{MONTHS[newExpense.month]} {feeYear}</p>
                 </div>
                 <div>
                   <p className="text-[var(--text-muted)] text-[10px] uppercase">Title</p>

@@ -11,6 +11,8 @@ import {
   TrendingDown,
   Search,
   Filter,
+  Download,
+  ExternalLink,
 
   CheckCircle2,
   Clock,
@@ -27,13 +29,14 @@ import {
   markPaid,
   markBreak,
   markDiscontinued,
-  addStudent,
   getStudentAvailableCredits,
   markPaidWithCredit,
   Student,
   StudentCredits,
   markNonRecurringFeePaid,
 } from "@/lib/api";
+import { useFeeTrackAuth } from "@/lib/client-auth";
+import { normalizeFeeYear } from "@/lib/fee-year";
 
 import MonthlyFeeReceipt from "@/components/receipts/MonthlyFeeReceipt";
 import MonthSelector from "@/components/common/MonthSelector";
@@ -54,9 +57,43 @@ const MONTHS = [
   "Dec",
 ];
 
+const normalizeStudentStatus = (status?: string | null) =>
+  status?.trim().toLowerCase() ?? "";
+
+const isBreakStudent = (student: Student) =>
+  normalizeStudentStatus(student.monthStatus) === "break" ||
+  normalizeStudentStatus(student.status) === "break";
+
+const isDiscontinuedStudent = (student: Student) =>
+  normalizeStudentStatus(student.monthStatus) === "discontinued" ||
+  normalizeStudentStatus(student.status) === "discontinued";
+
+const isFeeActiveStudent = (student: Student) =>
+  normalizeStudentStatus(student.status) === "active" &&
+  !isBreakStudent(student) &&
+  !isDiscontinuedStudent(student);
+
+const isUncollectedStudent = (student: Student) => {
+  const status = normalizeStudentStatus(student.monthStatus);
+  return status === "pending" || status === "pending verification";
+};
+
+const isHiddenFromStudentList = (student: Student) =>
+  normalizeStudentStatus(student.monthStatus) === "n/a" ||
+  normalizeStudentStatus(student.status) === "waived";
+
+const getStudentListOrder = (student: Student) => {
+  if (isDiscontinuedStudent(student)) return 3;
+  if (isBreakStudent(student)) return 2;
+  if (student.monthStatus === "Paid") return 1;
+  if (isUncollectedStudent(student)) return 0;
+  return 4;
+};
+
 export default function StudentList({ branch }: { branch: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user, checking } = useFeeTrackAuth();
   // branch is passed as prop, so no state needed for it, but we used it in logic.
   // Actually, let's keep it simple. It's passed as prop.
 
@@ -75,24 +112,13 @@ export default function StudentList({ branch }: { branch: string }) {
   const [loadingCredits, setLoadingCredits] = useState(false);
   const [selectedCreditId, setSelectedCreditId] = useState<string | null>(null);
 
-  // Add Student Modal
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newStudent, setNewStudent] = useState({
-    skfId: "",
-    name: "",
-    fee: 500,
-    phone: "",
-    joinMonth: 0,
-    admissionFee: 1000, // Default Admission Fee
-    admissionPaid: true,
-    dressFee: 1500, // Default Dress Fee
-    dressCost: 1000, // Default Dress Cost
-    dressPaid: true,
-  });
-  const [adding, setAdding] = useState(false);
-
   // Receipt Modal
   const [receiptStudent, setReceiptStudent] = useState<Student | null>(null);
+  const [nonRecurringReceipt, setNonRecurringReceipt] = useState<{
+    receiptId: string;
+    studentName: string;
+    type: "Admission" | "Dress";
+  } | null>(null);
 
   // Long-press menu state
   const [longPressStudent, setLongPressStudent] = useState<Student | null>(
@@ -122,64 +148,53 @@ export default function StudentList({ branch }: { branch: string }) {
   const month = parseInt(
     searchParams.get("month") || new Date().getMonth().toString(),
   );
+  const selectedYear = normalizeFeeYear(searchParams.get("year"));
 
   // Track previous month to detect actual month changes (for cache invalidation)
-  const prevMonthRef = useRef(month);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("skf_user");
-    const loginTime = localStorage.getItem("skf_login_time");
-    if (
-      !storedUser ||
-      !loginTime ||
-      Date.now() - parseInt(loginTime) > 30 * 60 * 1000
-    ) {
-      router.push("/");
-    }
-  }, [router]);
+  const prevPeriodRef = useRef(`${selectedYear}-${month}`);
 
   const loadStudents = useCallback(async (forceRefresh = false) => {
-    if (!branch) return;
+    if (!branch || !user || checking) return;
     setLoading(true);
     setError("");
     try {
-      const data = await getStudents(branch, month, forceRefresh);
+      const data = await getStudents(branch, month, forceRefresh, selectedYear);
       setStudents(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load students");
     } finally {
       setLoading(false);
     }
-  }, [branch, month]);
+  }, [branch, checking, month, selectedYear, user]);
 
   // Force-refresh when month changes to prevent stale data from wrong month
   useEffect(() => {
-    const monthChanged = prevMonthRef.current !== month;
-    prevMonthRef.current = month;
-    loadStudents(monthChanged);
-  }, [loadStudents, month]);
+    if (!user || checking) return;
+    const periodKey = `${selectedYear}-${month}`;
+    const periodChanged = prevPeriodRef.current !== periodKey;
+    prevPeriodRef.current = periodKey;
+    loadStudents(periodChanged);
+  }, [checking, loadStudents, month, selectedYear, user]);
 
   // Stats calculation - exclude Break and Discontinued from pending
   const stats = useMemo(() => {
-    const active = students.filter((s) => s.status === "Active");
+    const active = students.filter(isFeeActiveStudent);
     const paid = active.filter((s) => s.monthStatus === "Paid");
-    const pending = active.filter((s) => s.monthStatus === "Pending");
-    const onBreak = active.filter((s) => s.monthStatus === "Break");
-    const discontinued = active.filter((s) => s.monthStatus === "Discontinued");
+    const pending = active.filter(isUncollectedStudent);
+    const onBreak = students.filter(isBreakStudent);
+    const discontinued = students.filter(isDiscontinuedStudent);
     return {
       totalStudents: active.length,
       paidCount: paid.length,
       pendingCount: pending.length,
       onBreakCount: onBreak.length,
       discontinuedCount: discontinued.length,
-      expectedAmount:
-        pending.reduce((sum, s) => sum + (s.fee || 0), 0) +
-        paid.reduce((sum, s) => sum + (s.fee || 0), 0),
+      expectedAmount: active.reduce((sum, s) => sum + (s.fee || 0), 0),
       collectedAmount: paid.reduce((sum, s) => sum + (s.fee || 0), 0),
       pendingAmount: pending.reduce((sum, s) => sum + (s.fee || 0), 0),
       collectionRate:
-        pending.length + paid.length > 0
-          ? Math.round((paid.length / (pending.length + paid.length)) * 100)
+        active.length > 0
+          ? Math.round((paid.length / active.length) * 100)
           : 0,
     };
   }, [students]);
@@ -209,26 +224,43 @@ export default function StudentList({ branch }: { branch: string }) {
     setMarkingPaid(confirmStudent.id);
     setConfirmStudent(null);
     try {
+      let paymentResult: { receiptId?: string | null } | undefined;
+      const appliedCredit =
+        selectedCreditId && studentCredits
+          ? Math.min(confirmStudent.fee, studentCredits.totalAvailable)
+          : 0;
       if (selectedCreditId) {
-        await markPaidWithCredit(
+        paymentResult = await markPaidWithCredit(
           confirmStudent.id,
           branch,
           month,
           selectedCreditId,
+          selectedYear,
         );
       } else {
-        await markPaid(confirmStudent.id, branch, month);
+        paymentResult = await markPaid(confirmStudent.id, branch, month, selectedYear);
       }
+      const paidStudent = {
+        ...confirmStudent,
+        paid: true,
+        monthStatus: "Paid" as const,
+        receiptId: paymentResult?.receiptId || confirmStudent.receiptId || null,
+        originalFee:
+          appliedCredit > 0
+            ? confirmStudent.originalFee ?? confirmStudent.fee
+            : confirmStudent.originalFee,
+        creditApplied: appliedCredit || confirmStudent.creditApplied,
+      };
       setStudents((prev) =>
         prev.map((s) =>
           s.id === confirmStudent.id
-            ? { ...s, paid: true, monthStatus: "Paid" as const }
+            ? paidStudent
             : s,
         ),
       );
 
       // Auto-show receipt
-      setReceiptStudent(confirmStudent);
+      setReceiptStudent(paidStudent);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to mark as paid");
     } finally {
@@ -273,7 +305,7 @@ export default function StudentList({ branch }: { branch: string }) {
     setMarkingStatus(confirmBreakStudent.id);
     setConfirmBreakStudent(null);
     try {
-      await markBreak(confirmBreakStudent.id, branch, month);
+      await markBreak(confirmBreakStudent.id, branch, month, selectedYear);
       setStudents((prev) =>
         prev.map((s) =>
           s.id === confirmBreakStudent.id
@@ -293,7 +325,7 @@ export default function StudentList({ branch }: { branch: string }) {
     setMarkingStatus(confirmDiscontinuedStudent.id);
     setConfirmDiscontinuedStudent(null);
     try {
-      await markDiscontinued(confirmDiscontinuedStudent.id, branch, month);
+      await markDiscontinued(confirmDiscontinuedStudent.id, branch, month, selectedYear);
       setStudents((prev) =>
         prev.map((s) =>
           s.id === confirmDiscontinuedStudent.id
@@ -317,16 +349,42 @@ export default function StudentList({ branch }: { branch: string }) {
     setConfirmFeePayment(null);
 
     try {
-      await markNonRecurringFeePaid(student.id, branch, type);
+      const result = await markNonRecurringFeePaid(
+        student.id,
+        branch,
+        type,
+        month,
+        selectedYear,
+      );
+      const receiptId = result.receiptId || null;
       setStudents((prev) =>
         prev.map((s) => {
           if (s.id === student.id) {
-            if (type === "Admission") return { ...s, admissionStatus: "Paid" };
-            if (type === "Dress") return { ...s, dressStatus: "Paid" };
+            if (type === "Admission") {
+              return {
+                ...s,
+                admissionStatus: "Paid",
+                admissionReceiptId: receiptId || s.admissionReceiptId || null,
+              };
+            }
+            if (type === "Dress") {
+              return {
+                ...s,
+                dressStatus: "Paid",
+                dressReceiptId: receiptId || s.dressReceiptId || null,
+              };
+            }
           }
           return s;
         })
       );
+      if (receiptId) {
+        setNonRecurringReceipt({
+          receiptId,
+          studentName: student.name,
+          type,
+        });
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to mark as paid");
     } finally {
@@ -334,91 +392,50 @@ export default function StudentList({ branch }: { branch: string }) {
     }
   };
 
-  // Add new student
-  const handleAddStudent = async () => {
-    if (!newStudent.skfId.trim()) {
-      alert("Please enter SKF ID");
-      return;
-    }
-    if (!newStudent.name.trim()) {
-      alert("Please enter student name");
-      return;
-    }
-    setAdding(true);
-    try {
-      await addStudent(
-        branch,
-        newStudent.skfId,
-        newStudent.name,
-        newStudent.fee,
-        newStudent.phone,
-        newStudent.joinMonth,
-        newStudent.admissionFee,
-        newStudent.admissionPaid,
-        newStudent.dressFee,
-        newStudent.dressCost,
-        newStudent.dressPaid
-      );
-      setShowAddModal(false);
-      setNewStudent({
-        skfId: "",
-        name: "",
-        fee: 500,
-        phone: "",
-        joinMonth: month,
-        admissionFee: 1000,
-        admissionPaid: true,
-        dressFee: 1500,
-        dressCost: 1000,
-        dressPaid: true,
-      });
-      loadStudents(); // Reload list
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to add student");
-    } finally {
-      setAdding(false);
-    }
-  };
-
   const filteredStudents = students.filter((s) => {
+    if (isHiddenFromStudentList(s)) return false;
+
     const matchesSearch =
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.id.toLowerCase().includes(search.toLowerCase());
-    const matchesPending = !showPendingOnly || s.monthStatus === "Pending";
-    const isActive = s.status === "Active";
-    return matchesSearch && matchesPending && isActive;
+    const matchesPending =
+      !showPendingOnly || (isUncollectedStudent(s) && isFeeActiveStudent(s));
+    return matchesSearch && matchesPending;
   });
 
-  // Sort students: First by SKF ID, then by status (Pending -> Paid -> Break -> Discontinued)
+  // Sort students by fee status, then SKF ID. Break/Discontinued stay visible at the bottom.
   const sortedStudents = useMemo(() => {
-    const statusOrder: Record<string, number> = {
-      Pending: 0,
-      Paid: 1,
-      Break: 2,
-      Discontinued: 3,
-      "N/A": 4,
-    };
     return [...filteredStudents].sort((a, b) => {
-      // First sort by SKF ID
+      const statusCompare = getStudentListOrder(a) - getStudentListOrder(b);
+      if (statusCompare !== 0) return statusCompare;
+
       const idCompare = a.id.localeCompare(b.id, undefined, {
         numeric: true,
         sensitivity: "base",
       });
       if (idCompare !== 0) return idCompare;
-      // Then by status
-      const aOrder = statusOrder[a.monthStatus] ?? 4;
-      const bOrder = statusOrder[b.monthStatus] ?? 4;
-      return aOrder - bOrder;
+
+      return a.name.localeCompare(b.name);
     });
   }, [filteredStudents]);
 
   const branchName =
     branch === "MPSC" ? "MP SPORTS CLUB" : branch?.toUpperCase();
+  const adminStudentsUrl = useMemo(() => {
+    const base = process.env.NEXT_PUBLIC_SKF_KARATE_URL?.trim();
+    if (!base) return "";
+    try {
+      return new URL("/admin/students/new", base).toString();
+    } catch {
+      return "";
+    }
+  }, []);
 
   // Generate and download PDF receipt logic moved to MonthlyFeeReceipt.tsx
+  if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
+    <div className="min-h-screen bg-black text-zinc-300">
       {/* Header */}
       <Navbar
         title={branchName}
@@ -426,8 +443,8 @@ export default function StudentList({ branch }: { branch: string }) {
         rightContent={
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex flex-col items-end mr-2">
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
-                {MONTHS[month]} 2026
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
+                {MONTHS[month]} {selectedYear}
               </span>
               <span className="text-green-400 font-bold text-xs font-[family-name:var(--font-space)]">
                 {stats.paidCount}/{stats.totalStudents} Paid
@@ -435,9 +452,11 @@ export default function StudentList({ branch }: { branch: string }) {
             </div>
             <MonthSelector
               selectedMonth={month}
+              year={selectedYear}
               onMonthChange={(m: number) => {
                 const params = new URLSearchParams(searchParams.toString());
                 params.set("month", m.toString());
+                params.set("year", String(selectedYear));
                 router.push(`/students/${branch}?${params.toString()}`);
               }}
               className="scale-90 origin-right"
@@ -451,99 +470,126 @@ export default function StudentList({ branch }: { branch: string }) {
         {!loading && !error && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 animate-fade-in">
             {/* Expected */}
-            <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(59, 130, 246, 0.25)" }}>
-              <div className="absolute top-0 right-0 p-2 opacity-10">
-                <Target className="w-12 h-12 text-blue-400" />
+            <div className="card-panel p-4 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                <Target className="w-12 h-12 text-zinc-400" />
               </div>
-              <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                <Target className="w-3 h-3" /> Expected
+              <p className="text-zinc-500 text-[10px] uppercase tracking-widest mb-2 flex items-center gap-1.5 font-semibold">
+                <Target className="w-3 h-3 text-zinc-400" /> Expected
               </p>
-              <p className="font-[family-name:var(--font-space)] text-lg sm:text-xl text-blue-400">
-                ₹{stats.expectedAmount.toLocaleString()}
+              <p className="font-[family-name:var(--font-space)] text-xl sm:text-2xl text-zinc-100 font-medium tracking-tight">
+                <span className="text-zinc-500 mr-1">₹</span>{stats.expectedAmount.toLocaleString()}
               </p>
             </div>
 
             {/* Collected */}
-            <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(34, 197, 94, 0.25)" }}>
-              <div className="absolute top-0 right-0 p-2 opacity-10">
-                <CheckCircle2 className="w-12 h-12 text-green-400" />
+            <div className="card-panel p-4 relative overflow-hidden group border-emerald-500/20 bg-emerald-500/5">
+              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                <CheckCircle2 className="w-12 h-12 text-emerald-400" />
               </div>
-              <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+              <p className="text-emerald-500 text-[10px] uppercase tracking-widest mb-2 flex items-center gap-1.5 font-semibold">
                 <CheckCircle2 className="w-3 h-3" /> Collected
               </p>
-              <p className="font-[family-name:var(--font-space)] text-lg sm:text-xl text-green-400">
-                ₹{stats.collectedAmount.toLocaleString()}
+              <p className="font-[family-name:var(--font-space)] text-xl sm:text-2xl text-emerald-400 font-medium tracking-tight">
+                <span className="text-emerald-500/50 mr-1">₹</span>{stats.collectedAmount.toLocaleString()}
               </p>
             </div>
 
             {/* Pending */}
-            <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(245, 158, 11, 0.25)" }}>
-              <div className="absolute top-0 right-0 p-2 opacity-10">
+            <div className="card-panel p-4 relative overflow-hidden group border-amber-500/20 bg-amber-500/5">
+              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
                 <Clock className="w-12 h-12 text-amber-400" />
               </div>
-              <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+              <p className="text-amber-500 text-[10px] uppercase tracking-widest mb-2 flex items-center gap-1.5 font-semibold">
                 <Clock className="w-3 h-3" /> Pending
               </p>
-              <p className="font-[family-name:var(--font-space)] text-lg sm:text-xl text-amber-400">
-                ₹{stats.pendingAmount.toLocaleString()}
+              <p className="font-[family-name:var(--font-space)] text-xl sm:text-2xl text-amber-400 font-medium tracking-tight">
+                <span className="text-amber-500/50 mr-1">₹</span>{stats.pendingAmount.toLocaleString()}
               </p>
             </div>
 
             {/* Rate */}
-            <div className="glass-card p-4 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-2 opacity-10">
-                <TrendingDown className="w-12 h-12 text-white" />
+            <div className="card-panel p-4 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                <TrendingDown className="w-12 h-12 text-zinc-400" />
               </div>
-              <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                <TrendingDown className="w-3 h-3" /> Efficiency
+              <p className="text-zinc-500 text-[10px] uppercase tracking-widest mb-2 flex items-center gap-1.5 font-semibold">
+                <TrendingDown className="w-3 h-3 text-zinc-400" /> Rate
               </p>
               <p
-                className={`font-[family-name:var(--font-space)] text-lg sm:text-xl ${stats.collectionRate >= 80
-                  ? "text-green-400"
-                  : stats.collectionRate >= 50
-                    ? "text-yellow-400"
+                className={`font-[family-name:var(--font-space)] text-xl sm:text-2xl font-medium tracking-tight ${
+                  stats.collectionRate >= 80
+                    ? "text-zinc-100"
+                    : stats.collectionRate >= 50
+                    ? "text-amber-400"
                     : "text-red-400"
-                  }`}
+                }`}
               >
-                {stats.collectionRate}%
+                {stats.collectionRate}<span className="text-zinc-600 text-base ml-0.5">%</span>
               </p>
             </div>
+          </div>
+        )}
+
+        {!loading && !error && (stats.onBreakCount > 0 || stats.discontinuedCount > 0) && (
+          <div className="mb-6 -mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-wider text-zinc-500 animate-fade-in">
+            {stats.onBreakCount > 0 && (
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-amber-400">
+                {stats.onBreakCount} break excluded
+              </span>
+            )}
+            {stats.discontinuedCount > 0 && (
+              <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-red-400">
+                {stats.discontinuedCount} discontinued final month
+              </span>
+            )}
           </div>
         )}
 
         {/* Search & Actions */}
         <div className="mb-6 space-y-3">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search student..."
-              className="w-full bg-black/20 border border-white/5 rounded-xl py-3 pl-11 pr-4 text-white text-sm focus:outline-none focus:border-white/15 transition-all placeholder:text-[var(--text-muted)]"
+              className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-3 pl-11 pr-4 text-white text-sm focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-500"
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={() => setShowPendingOnly(!showPendingOnly)}
               className={`flex-1 px-4 py-2.5 text-sm rounded-lg border transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-2 ${showPendingOnly
                 ? "bg-amber-600/20 border-amber-500/50 text-amber-400"
-                : "bg-white/5 border-white/5 text-[var(--text-secondary)] hover:bg-white/10"
+                : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
                 }`}
             >
               <Filter className="w-3 h-3" />
               {showPendingOnly ? "Pending View" : "All Students"}
             </button>
-            <button
-              onClick={() => {
-                setNewStudent({ ...newStudent, joinMonth: month });
-                setShowAddModal(true);
-              }}
-              className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-green-600/30 bg-green-600/10 text-green-400 hover:bg-green-600 hover:text-white transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-2"
-            >
-              <span>+ Add Student</span>
-            </button>
+            {adminStudentsUrl ? (
+              <a
+                href={adminStudentsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-green-600/30 bg-green-600/10 text-green-400 hover:bg-green-600 hover:text-white transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-2"
+              >
+                <ExternalLink className="w-3 h-3" />
+                <span>Add in Admin</span>
+              </a>
+            ) : (
+              <button
+                disabled
+                className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-500 font-medium tracking-wide flex items-center justify-center gap-2 cursor-not-allowed"
+                title="Student creation is managed in SKF-Karate admin."
+              >
+                <ExternalLink className="w-3 h-3" />
+                <span>Add in Admin</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -551,7 +597,7 @@ export default function StudentList({ branch }: { branch: string }) {
         {loading && (
           <div className="text-center py-16">
             <div className="spinner mx-auto mb-4" />
-            <p className="text-[var(--text-muted)] text-sm">Loading students...</p>
+            <p className="text-zinc-500 text-sm">Loading students...</p>
           </div>
         )}
 
@@ -572,21 +618,27 @@ export default function StudentList({ branch }: { branch: string }) {
         {!loading && !error && (
           <div className="space-y-2">
             {sortedStudents.length === 0 ? (
-              <p className="text-center text-[var(--text-muted)] py-16 text-sm">
+              <p className="text-center text-zinc-500 py-16 text-sm">
                 No students found
               </p>
             ) : (
               sortedStudents.map((student, index) => {
-                const isBreak = student.monthStatus === "Break";
-                const isDiscontinued = student.monthStatus === "Discontinued";
+                const isBreak = isBreakStudent(student);
+                const isDiscontinued = isDiscontinuedStudent(student);
                 const isInactive = isBreak || isDiscontinued;
+                const statusStyle = isDiscontinued
+                  ? {
+                    background: "rgba(127, 29, 29, 0.18)",
+                    borderColor: "rgba(239, 68, 68, 0.45)",
+                  }
+                  : {};
 
                 return (
                   <div
                     key={student.id}
                     onClick={() => {
                       if (isLongPressActive.current) return;
-                      setDetailStudent(student);
+                      router.push(`/students/${branch}/${encodeURIComponent(student.id)}`);
                     }}
                     onMouseDown={() => handleLongPressStart(student)}
                     onMouseUp={handleLongPressEnd}
@@ -594,33 +646,32 @@ export default function StudentList({ branch }: { branch: string }) {
                     onTouchStart={() => handleLongPressStart(student)}
                     onTouchEnd={handleLongPressEnd}
                     onTouchMove={handleLongPressEnd}
-                    className={`glass-card p-4 transition-all duration-200 animate-slide-up hover:border-white/10 group cursor-pointer select-none ${isDiscontinued
-                      ? "opacity-40 grayscale"
-                      : isBreak
-                        ? "opacity-60"
-                        : ""
-                      }`}
-                    style={{ animationDelay: `${Math.min(index * 30, 300)}ms`, animationFillMode: "backwards", WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
+                    className="card-panel p-4 animate-slide-up hover:border-white/10 group cursor-pointer select-none"
+                    style={{ ...statusStyle, animationDelay: `${Math.min(index * 30, 300)}ms`, animationFillMode: "both", WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-[family-name:var(--font-space)] text-base tracking-wide text-white group-hover:text-amber-400 transition-colors truncate">
+                          <h3 className={`font-[family-name:var(--font-space)] text-base tracking-wide transition-colors truncate ${
+                            isBreak
+                              ? "text-white/45 group-hover:text-white/55"
+                              : "text-white group-hover:text-amber-400"
+                          }`}>
                             {student.name}
                           </h3>
                           {/* Status Tags */}
                           {isBreak && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded border border-yellow-500/50 text-yellow-500 uppercase tracking-wider">Break</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded border border-zinc-700 text-zinc-500 uppercase tracking-wider">Break</span>
                           )}
                           {isDiscontinued && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded border border-red-500/50 text-red-500 uppercase tracking-wider">Left</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded border border-red-500/50 text-red-400 uppercase tracking-wider">Discontinued</span>
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 text-[var(--text-muted)] text-xs">
+                        <div className="flex items-center gap-2 text-zinc-500 text-xs">
                           <span className="font-mono opacity-70">{student.id}</span>
                           <span className="flex items-center gap-1">
-                            <IndianRupee className="w-3 h-3" /> ₹{student.fee}
+                            <IndianRupee className="w-3 h-3" /> {student.fee}
                           </span>
                         </div>
 
@@ -666,7 +717,7 @@ export default function StudentList({ branch }: { branch: string }) {
                             </svg>
                           </button>
                         ) : isInactive ? (
-                          <div className="w-9 h-9 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-[var(--text-muted)]">
+                          <div className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
                             <AlertCircle className="w-4 h-4" />
                           </div>
                         ) : (
@@ -677,7 +728,7 @@ export default function StudentList({ branch }: { branch: string }) {
                               markingStatus === student.id
                             }
                             className={`w-9 h-9 rounded-full flex items-center justify-center transition-all select-none ${markingPaid === student.id || markingStatus === student.id
-                              ? "bg-white/5 text-[var(--text-muted)]"
+                              ? "bg-zinc-900 text-zinc-500"
                               : "bg-white text-black hover:bg-gray-200 shadow-[0_0_12px_rgba(255,255,255,0.15)]"
                               }`}
                             title="Mark Paid"
@@ -701,22 +752,22 @@ export default function StudentList({ branch }: { branch: string }) {
 
       {/* Confirm Payment Modal (Keep existing logic, just check styles if needed) */}
       {confirmStudent && (
-        <div className="glass-modal-overlay">
-          <div className="glass-modal">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="card-panel max-w-sm w-full p-6">
             <div className="p-6">
               <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider mb-4 text-center">
                 CONFIRM PAYMENT
               </h2>
-              <div className="glass-surface p-4 mb-4">
-                <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
+              <div className="surface-glass p-4 mb-4">
+                <p className="text-zinc-500 text-xs mb-1">Student</p>
                 <p className="font-[family-name:var(--font-space)] text-lg">
                   {confirmStudent.name}
                 </p>
-                <p className="text-[var(--text-muted)] text-xs font-mono">
+                <p className="text-zinc-500 text-xs font-mono">
                   {confirmStudent.id}
                 </p>
                 <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">Original Fee</p>
+                  <p className="text-zinc-500 text-xs mb-1">Original Fee</p>
                   <p className="text-xl font-bold text-white">
                     ₹{confirmStudent.fee}
                   </p>
@@ -725,7 +776,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 {/* Referral Credit Section */}
                 {loadingCredits ? (
                   <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                    <p className="text-[var(--text-muted)] text-sm">
+                    <p className="text-zinc-500 text-sm">
                       Checking for credits...
                     </p>
                   </div>
@@ -748,7 +799,7 @@ export default function StudentList({ branch }: { branch: string }) {
                           }
                           className="w-4 h-4 accent-purple-600 rounded"
                         />
-                        <span className="text-sm text-[var(--text-secondary)]">Apply</span>
+                        <span className="text-sm text-zinc-400">Apply</span>
                       </label>
                     </div>
                     <p className="text-purple-400 font-bold">
@@ -776,7 +827,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </div>
                 <div className="mt-3 pt-3 border-t border-[var(--border)]">
                   <p className="text-[var(--text-muted)] text-xs mb-1">Month</p>
-                  <p className="text-white">{MONTHS[month]} 2026</p>
+                  <p className="text-white">{MONTHS[month]} {selectedYear}</p>
                 </div>
               </div>
               <p className="text-[var(--text-secondary)] text-center text-sm mb-4">
@@ -807,222 +858,10 @@ export default function StudentList({ branch }: { branch: string }) {
         </div>
       )}
 
-      {/* Add Student Modal */}
-      {showAddModal && (
-        <div className="glass-modal-overlay">
-          <div className="glass-modal">
-            <div className="p-6">
-              <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider mb-6 text-center">
-                ADD NEW STUDENT
-              </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
-                    SKF ID *
-                  </label>
-                  <input
-                    type="text"
-                    value={newStudent.skfId}
-                    onChange={(e) =>
-                      setNewStudent({
-                        ...newStudent,
-                        skfId: e.target.value.toUpperCase(),
-                      })
-                    }
-                    placeholder="e.g., HERO-001 or MP-001"
-                    className="input-field font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
-                    Student Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={newStudent.name}
-                    onChange={(e) =>
-                      setNewStudent({ ...newStudent, name: e.target.value })
-                    }
-                    placeholder="Enter full name"
-                    className="input-field"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
-                    Monthly Fee (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={newStudent.fee}
-                    onChange={(e) =>
-                      setNewStudent({
-                        ...newStudent,
-                        fee: parseInt(e.target.value) || 500,
-                      })
-                    }
-                    className="input-field"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={newStudent.phone}
-                    onChange={(e) =>
-                      setNewStudent({ ...newStudent, phone: e.target.value })
-                    }
-                    placeholder="Optional"
-                    className="input-field"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
-                    Joining Month *
-                  </label>
-                  <select
-                    value={newStudent.joinMonth}
-                    onChange={(e) =>
-                      setNewStudent({
-                        ...newStudent,
-                        joinMonth: parseInt(e.target.value),
-                      })
-                    }
-                    className="input-field"
-                  >
-                    {MONTHS.map((m, i) => (
-                      <option key={i} value={i}>
-                        {m} 2026
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-[var(--text-muted)] text-xs mt-2">
-                    Fees will only be calculated from this month onwards
-                  </p>
-                </div>
-
-                {/* Admission Fee */}
-                <div className="flex gap-4 p-3 bg-white/5 rounded-lg border border-white/5">
-                  <div className="flex-1">
-                    <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
-                      Admission Fee
-                    </label>
-                    <input
-                      type="number"
-                      value={newStudent.admissionFee}
-                      onChange={(e) =>
-                        setNewStudent({
-                          ...newStudent,
-                          admissionFee: parseInt(e.target.value) || 0,
-                        })
-                      }
-                      className="input-field"
-                    />
-                  </div>
-                  <div className="flex items-end mb-2">
-                    <label className="flex items-center gap-2 cursor-pointer bg-black/40 px-3 py-2 rounded-md border border-white/10 hover:bg-black/60 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={newStudent.admissionPaid}
-                        onChange={(e) =>
-                          setNewStudent({
-                            ...newStudent,
-                            admissionPaid: e.target.checked,
-                          })
-                        }
-                        className="w-4 h-4 accent-green-500 rounded cursor-pointer"
-                      />
-                      <span className="text-sm">Paid Now?</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Dress Fee */}
-                <div className="flex flex-col gap-3 p-3 bg-white/5 rounded-lg border border-white/5">
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
-                        Dress Fee
-                      </label>
-                      <input
-                        type="number"
-                        value={newStudent.dressFee}
-                        onChange={(e) =>
-                          setNewStudent({
-                            ...newStudent,
-                            dressFee: parseInt(e.target.value) || 0,
-                          })
-                        }
-                        className="input-field"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium text-amber-500">
-                        Dress Cost
-                      </label>
-                      <input
-                        type="number"
-                        value={newStudent.dressCost}
-                        onChange={(e) =>
-                          setNewStudent({
-                            ...newStudent,
-                            dressCost: parseInt(e.target.value) || 0,
-                          })
-                        }
-                        className="input-field !border-amber-500/30 focus:!border-amber-500/60"
-                        placeholder="Cost"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <label className="flex items-center gap-2 cursor-pointer bg-black/40 px-3 py-2 rounded-md border border-white/10 hover:bg-black/60 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={newStudent.dressPaid}
-                        onChange={(e) =>
-                          setNewStudent({
-                            ...newStudent,
-                            dressPaid: e.target.checked,
-                          })
-                        }
-                        className="w-4 h-4 accent-green-500 rounded cursor-pointer"
-                      />
-                      <span className="text-sm">Paid Now?</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-sm"
-                >
-                  CANCEL
-                </button>
-                <button
-                  onClick={handleAddStudent}
-                  disabled={adding || !newStudent.name.trim()}
-                  className="flex-1 py-3 bg-green-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-green-500 transition-colors disabled:opacity-50"
-                >
-                  {adding ? "..." : "+ ADD"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Student Detail Modal */}
       {detailStudent && (
-        <div className="glass-modal-overlay" onClick={() => setDetailStudent(null)}>
-          <div className="glass-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setDetailStudent(null)}>
+          <div className="card-panel max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider text-white">
@@ -1061,7 +900,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </a>
               </div>
 
-              <div className="glass-surface p-4 space-y-3">
+              <div className="surface-glass p-4 space-y-3">
                 <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-[var(--text-muted)] text-sm">Parent</span>
                   <span className="text-white text-sm font-medium">{detailStudent.parentName || "-"}</span>
@@ -1075,12 +914,29 @@ export default function StudentList({ branch }: { branch: string }) {
                   <span className="text-white text-sm font-medium">{MONTHS[detailStudent.joinMonth] ?? '-'}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
+                  <span className="text-[var(--text-muted)] text-sm">Training Experience</span>
+                  <span className="text-white text-sm font-medium">{detailStudent.trainingExperience || "0m"}</span>
+                </div>
+                <div className="flex justify-between border-b border-white/5 pb-2">
                   <span className="text-[var(--text-muted)] text-sm">Monthly Fee</span>
                   <span className="text-white text-sm font-medium">₹{detailStudent.fee ?? 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[var(--text-muted)] text-sm">Status</span>
-                  <span className={`text-sm font-medium ${detailStudent.status === 'Active' ? 'text-green-400' : 'text-red-400'}`}>{detailStudent.status}</span>
+                  <span className={`text-sm font-medium ${isDiscontinuedStudent(detailStudent)
+                    ? "text-red-400"
+                    : isBreakStudent(detailStudent)
+                      ? "text-amber-400"
+                      : normalizeStudentStatus(detailStudent.status) === "active"
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}>
+                    {isDiscontinuedStudent(detailStudent)
+                      ? "Discontinued"
+                      : isBreakStudent(detailStudent)
+                        ? "Break"
+                        : detailStudent.status}
+                  </span>
                 </div>
               </div>
             </div>
@@ -1091,7 +947,7 @@ export default function StudentList({ branch }: { branch: string }) {
       {/* Long Press Status Menu */}
       {showStatusMenu && longPressStudent && (
         <div
-          className="glass-modal-overlay"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
           onClick={() => setShowStatusMenu(false)}
         >
           <div
@@ -1156,6 +1012,46 @@ export default function StudentList({ branch }: { branch: string }) {
               </button>
             )}
 
+            {longPressStudent.admissionStatus === "Paid" && longPressStudent.admissionReceiptId && (
+              <a
+                href={`/api/feetrack/receipts/${encodeURIComponent(longPressStudent.admissionReceiptId)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full text-left px-4 py-4 text-blue-300 hover:bg-white/5 transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+                onClick={() => setShowStatusMenu(false)}
+              >
+                <Download className="w-5 h-5" />
+                <div>
+                  <p className="font-[family-name:var(--font-space)] tracking-wider text-sm">
+                    ADMISSION RECEIPT
+                  </p>
+                  <p className="text-[var(--text-muted)] text-xs">
+                    {longPressStudent.admissionReceiptId}
+                  </p>
+                </div>
+              </a>
+            )}
+
+            {longPressStudent.dressStatus === "Paid" && longPressStudent.dressReceiptId && (
+              <a
+                href={`/api/feetrack/receipts/${encodeURIComponent(longPressStudent.dressReceiptId)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full text-left px-4 py-4 text-pink-300 hover:bg-white/5 transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+                onClick={() => setShowStatusMenu(false)}
+              >
+                <Download className="w-5 h-5" />
+                <div>
+                  <p className="font-[family-name:var(--font-space)] tracking-wider text-sm">
+                    DRESS RECEIPT
+                  </p>
+                  <p className="text-[var(--text-muted)] text-xs">
+                    {longPressStudent.dressReceiptId}
+                  </p>
+                </div>
+              </a>
+            )}
+
             <button
               onClick={handleDiscontinuedClick}
               className="w-full text-left px-4 py-4 text-gray-400 hover:bg-white/5 transition-colors flex items-center gap-3 border-t border-[var(--border)]"
@@ -1176,13 +1072,13 @@ export default function StudentList({ branch }: { branch: string }) {
 
       {/* Confirm Break Modal */}
       {confirmBreakStudent && (
-        <div className="glass-modal-overlay">
-          <div className="glass-modal">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="card-panel max-w-sm w-full p-6">
             <div className="p-6">
               <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider mb-4 text-center text-amber-400">
                 MARK AS BREAK
               </h2>
-              <div className="glass-surface p-4 mb-6">
+              <div className="surface-glass p-4 mb-6">
                 <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
                 <p className="font-[family-name:var(--font-space)] text-lg">
                   {confirmBreakStudent.name}
@@ -1192,7 +1088,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </p>
                 <div className="mt-3 pt-3 border-t border-[var(--border)]">
                   <p className="text-[var(--text-muted)] text-xs mb-1">Month</p>
-                  <p className="text-white">{MONTHS[month]} 2026</p>
+                  <p className="text-white">{MONTHS[month]} {selectedYear}</p>
                 </div>
               </div>
               <p className="text-[var(--text-secondary)] text-center text-sm mb-6">
@@ -1219,13 +1115,13 @@ export default function StudentList({ branch }: { branch: string }) {
 
       {/* Confirm Discontinued Modal */}
       {confirmDiscontinuedStudent && (
-        <div className="glass-modal-overlay">
-          <div className="glass-modal">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="card-panel max-w-sm w-full p-6">
             <div className="p-6">
               <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider mb-4 text-center text-gray-400">
                 MARK AS DISCONTINUED
               </h2>
-              <div className="glass-surface p-4 mb-6">
+              <div className="surface-glass p-4 mb-6">
                 <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
                 <p className="font-[family-name:var(--font-space)] text-lg">
                   {confirmDiscontinuedStudent.name}
@@ -1235,7 +1131,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </p>
                 <div className="mt-3 pt-3 border-t border-[var(--border)]">
                   <p className="text-[var(--text-muted)] text-xs mb-1">From Month</p>
-                  <p className="text-white">{MONTHS[month]} 2026</p>
+                  <p className="text-white">{MONTHS[month]} {selectedYear}</p>
                 </div>
               </div>
               <p className="text-[var(--text-secondary)] text-center text-sm mb-6">
@@ -1266,6 +1162,7 @@ export default function StudentList({ branch }: { branch: string }) {
         <MonthlyFeeReceipt
           student={receiptStudent}
           month={month}
+          year={selectedYear}
           branch={branch}
           onClose={() => {
             setReceiptStudent(null);
@@ -1274,13 +1171,13 @@ export default function StudentList({ branch }: { branch: string }) {
       )}
       {/* Confirm Fee Payment Modal */}
       {confirmFeePayment && (
-        <div className="glass-modal-overlay">
-          <div className="glass-modal">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="card-panel max-w-sm w-full p-6">
             <div className="p-6">
               <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider mb-4 text-center">
                 CONFIRM {confirmFeePayment.type.toUpperCase()} FEE
               </h2>
-              <div className="glass-surface p-4 mb-6">
+              <div className="surface-glass p-4 mb-6">
                 <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
                 <p className="font-[family-name:var(--font-space)] text-lg">
                   {confirmFeePayment.student.name}
@@ -1310,7 +1207,46 @@ export default function StudentList({ branch }: { branch: string }) {
           </div>
         </div>
       )}
+      {nonRecurringReceipt && (
+        <div className="glass-modal-overlay">
+          <div className="glass-modal !max-w-sm">
+            <div className="p-6">
+              <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider mb-4 text-center text-green-400">
+                {nonRecurringReceipt.type.toUpperCase()} PAID
+              </h2>
+              <div className="glass-surface p-4 mb-6">
+                <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
+                <p className="font-[family-name:var(--font-space)] text-lg">
+                  {nonRecurringReceipt.studentName}
+                </p>
+                <div className="mt-4 pt-4 border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-1">Receipt</p>
+                  <p className="text-white text-sm font-mono break-all">
+                    {nonRecurringReceipt.receiptId}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setNonRecurringReceipt(null)}
+                  className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-sm"
+                >
+                  CLOSE
+                </button>
+                <a
+                  href={`/api/feetrack/receipts/${encodeURIComponent(nonRecurringReceipt.receiptId)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-3 bg-green-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-green-500 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  RECEIPT
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

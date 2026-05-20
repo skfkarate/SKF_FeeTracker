@@ -15,16 +15,16 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "SKF KARATE",
   description: "Fee Management System",
-  manifest: "/SKF-FEETRACK/manifest.json",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "SKF Fees",
   },
   icons: {
-    icon: "/SKF-FEETRACK/icon.png",
-    shortcut: "/SKF-FEETRACK/icon.png",
-    apple: "/SKF-FEETRACK/icon.png",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
 };
 
@@ -36,9 +36,6 @@ export const viewport = {
   userScalable: false, // Prevent zooming for "app-like" feel
 };
 
-import BirthdayWidget from "@/components/common/BirthdayWidget";
-import SpecialDaysWidget from "@/components/common/SpecialDaysWidget";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -48,8 +45,6 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${manrope.variable} ${spaceGrotesk.variable} antialiased`}>
         {children}
-        <BirthdayWidget />
-        <SpecialDaysWidget />
       </body>
     </html>
   );

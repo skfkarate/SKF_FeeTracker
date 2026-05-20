@@ -11,6 +11,7 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "check_braces.js",
     "next-env.d.ts",
   ]),
 ]);

@@ -4,12 +4,12 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
+import GlobalSearch from "./GlobalSearch";
 
 interface NavbarProps {
     title?: string;
     showBack?: boolean;
     rightContent?: React.ReactNode;
-    isDashboard?: boolean;
     className?: string;
 }
 
@@ -17,53 +17,55 @@ export default function Navbar({
     title,
     showBack = false,
     rightContent,
-    isDashboard = false,
     className = "",
 }: NavbarProps) {
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isDashboard ? "py-3" : "py-2"} ${className}`}
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 surface-glass ${className}`}
         >
-            <div className="max-w-2xl mx-auto px-3">
-                <div className="glass-surface rounded-2xl px-3 py-2.5 flex items-center justify-between shadow-2xl backdrop-blur-xl bg-[#0a0a0a]/80 border border-white/10">
-                    {/* Left Section */}
-                    <div className="flex items-center gap-2.5 min-w-0">
-                        {showBack ? (
-                            <Link
-                                href="/dashboard"
-                                className="p-1.5 rounded-full hover:bg-white/10 text-[var(--text-muted)] hover:text-white transition-colors flex-shrink-0"
-                            >
-                                <ArrowLeft className="w-5 h-5" />
-                            </Link>
-                        ) : isDashboard ? (
+            <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+                
+                {/* Left Section */}
+                <div className="flex items-center gap-4">
+                    {showBack ? (
+                        <Link
+                            href="/dashboard"
+                            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                        </Link>
+                    ) : (
+                        <Link href="/dashboard" className="flex items-center gap-3">
                             <Image
-                                src="https://skfkarate.github.io/SKF-FEETRACK/logo.png"
+                                src="/logo.png"
                                 alt="SKF"
-                                width={32}
-                                height={32}
-                                className="w-8 h-8 object-contain rounded-full flex-shrink-0"
+                                width={24}
+                                height={24}
+                                priority
+                                className="rounded-full grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all"
                             />
-                        ) : null}
+                            <span className="font-[family-name:var(--font-space)] font-semibold text-sm tracking-widest text-zinc-200">
+                                SKF<span className="text-zinc-600">.</span>
+                            </span>
+                        </Link>
+                    )}
 
-                        {/* Title */}
-                        {title && (
-                            <h1 className={`font-[family-name:var(--font-space)] font-bold text-white tracking-wider truncate ${isDashboard ? "text-base" : "text-sm"}`}>
-                                {isDashboard ? (
-                                    <span>
-                                        SKF <span className="text-red-500">KARATE</span>
-                                    </span>
-                                ) : (
-                                    title
-                                )}
+                    {title && (
+                        <>
+                            <div className="w-px h-4 bg-zinc-800 hidden sm:block" />
+                            <h1 className="text-sm font-medium text-zinc-400 hidden sm:block">
+                                {title}
                             </h1>
-                        )}
-                    </div>
-
-                    {/* Right Section */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                        {rightContent}
-                    </div>
+                        </>
+                    )}
                 </div>
+
+                {/* Right Section */}
+                <div className="flex items-center gap-4">
+                    <GlobalSearch />
+                    {rightContent}
+                </div>
+                
             </div>
         </nav>
     );

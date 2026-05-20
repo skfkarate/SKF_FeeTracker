@@ -1,433 +1,202 @@
 "use client";
 
 import { Student } from "@/lib/api";
-import { useRef, useMemo, useState } from "react";
+import {
+  formatReceiptDate,
+  formatReceiptTime,
+  getBranchName,
+  getReceiptAmounts,
+  getReceiptFileName,
+  getReceiptNumber,
+  getReceiptPurpose,
+} from "@/lib/receipts/monthly";
+import { Download, Loader2 } from "lucide-react";
 import NextImage from "next/image";
-const BASE_PATH = "https://skfkarate.github.io/SKF-FEETRACK"; // Hardcoded absolute URL
-
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+import { useMemo, useState, type ReactNode } from "react";
 
 interface MonthlyFeeReceiptProps {
   student: Student;
   month: number;
+  year: number;
   branch: string;
   onClose: () => void;
+}
+
+function inputDateValue(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function inputTimeValue(date: Date) {
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function parseReceiptDate(value?: string | null) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function PreviewRow({
+  label,
+  children,
+  vertical = "middle",
+}: {
+  label: string;
+  children: ReactNode;
+  vertical?: "middle" | "top";
+}) {
+  return (
+    <tr>
+      <td
+        style={{
+          color: "#4b5563",
+          fontWeight: 700,
+          fontSize: "11px",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          padding: "4px 0",
+          verticalAlign: vertical,
+          width: "42%",
+        }}
+      >
+        {label}
+      </td>
+      <td
+        style={{
+          color: "#1a1f2e",
+          fontWeight: 700,
+          fontSize: "14px",
+          textAlign: "right",
+          padding: "4px 0",
+          verticalAlign: vertical,
+          width: "58%",
+        }}
+      >
+        {children}
+      </td>
+    </tr>
+  );
+}
+
+async function responseError(response: Response) {
+  const contentType = response.headers.get("Content-Type") || "";
+  if (contentType.includes("application/json")) {
+    const data = await response.json().catch(() => null);
+    return data?.error || `Receipt download failed (${response.status}).`;
+  }
+
+  const text = await response.text().catch(() => "");
+  return text || `Receipt download failed (${response.status}).`;
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
 }
 
 export default function MonthlyFeeReceipt({
   student,
   month,
+  year,
   branch,
   onClose,
 }: MonthlyFeeReceiptProps) {
-  const receiptRef = useRef<HTMLDivElement>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [receiptDate, setReceiptDate] = useState<Date | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [pickerDate, setPickerDate] = useState(() => inputDateValue(new Date()));
+  const [pickerTime, setPickerTime] = useState(() => inputTimeValue(new Date()));
 
-  // Date picker form state (defaults to now)
-  const now = new Date();
-  const [pickerDate, setPickerDate] = useState(
-    `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
+  const officialReceiptId = student.receiptId?.trim();
+  const previewDate = receiptDate || parseReceiptDate(student.paidDate) || new Date();
+  const branchName = getBranchName(branch);
+  const receiptNo = getReceiptNumber(student, branch, month, year);
+  const purpose = getReceiptPurpose(month);
+  const { baseFee, creditApplied, amountReceived, amountWords } = useMemo(
+    () => getReceiptAmounts(student),
+    [student],
   );
-  const [pickerTime, setPickerTime] = useState(
-    `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`
-  );
+  const date = formatReceiptDate(previewDate);
+  const timeStr = formatReceiptTime(previewDate);
 
-  const branchName =
-    branch === "MPSC" ? "MP Sports Club" : branch?.toUpperCase();
+  const executeDownload = async (dateToUse?: Date) => {
+    setDownloadError(null);
+    setIsDownloading(true);
 
-  // eslint-disable-next-line react-hooks/purity -- receipt ID needs a unique suffix per mount
-  const receiptSuffix = useMemo(() => Math.floor(Math.random() * 10000).toString().padStart(4, '0'), []);
+    try {
+      const response = officialReceiptId
+        ? await fetch(`/api/feetrack/receipts/${encodeURIComponent(officialReceiptId)}`, {
+            cache: "no-store",
+          })
+        : await fetch(
+            `/api/feetrack/receipts/monthly?${new URLSearchParams({
+              branch,
+              month: String(month),
+              year: String(year),
+              paidDate: inputDateValue(dateToUse || new Date()),
+              paidTime: inputTimeValue(dateToUse || new Date()),
+              studentId: student.id,
+            })}`,
+            { cache: "no-store" },
+          );
 
-  // Use receiptDate if set, else current date
-  const displayDate = receiptDate || new Date();
+      if (!response.ok) {
+        throw new Error(await responseError(response));
+      }
 
-  const { receiptNo, date, purpose, amountWords } = useMemo(() => {
-    return {
-      receiptNo: `SKF-${branch.substring(0, 1).toUpperCase()}-${receiptSuffix}`,
-      date: displayDate.toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }),
-      purpose: `${new Date(2026, month, 1).toLocaleDateString("en-IN", {
-        month: "long",
-      })} Monthly Training Fee`,
-      amountWords: `Rupees ${student.fee.toLocaleString()} Only`,
-    };
-  }, [branch, month, student.fee, receiptSuffix, displayDate]);
-
-  // Format time for display
-  const timeStr = displayDate.toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-
-  // Handle download click — show date picker first time
-  const handleDownloadClick = () => {
-    if (!receiptDate) {
-      // First download — ask for date/time
-      setShowDatePicker(true);
-    } else {
-      // Date already confirmed — download directly
-      executeDownload();
+      const blob = await response.blob();
+      downloadBlob(blob, getReceiptFileName(student.id, month, year));
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Receipt download failed.";
+      setDownloadError(message);
+      alert(message);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
-  // Confirm date and download
+  const handleDownloadClick = () => {
+    if (officialReceiptId) {
+      void executeDownload();
+      return;
+    }
+
+    if (!receiptDate) {
+      setShowDatePicker(true);
+      return;
+    }
+
+    void executeDownload(receiptDate);
+  };
+
   const confirmDateAndDownload = () => {
+    if (!pickerDate || !pickerTime) {
+      const message = "Select a receipt date and time.";
+      setDownloadError(message);
+      alert(message);
+      return;
+    }
+
     const [year, mon, day] = pickerDate.split("-").map(Number);
     const [hours, minutes] = pickerTime.split(":").map(Number);
     const chosen = new Date(year, mon - 1, day, hours, minutes);
     setReceiptDate(chosen);
     setShowDatePicker(false);
-
-    // Small delay to let state update before download
-    setTimeout(() => {
-      executeDownloadWithDate(chosen);
-    }, 100);
-  };
-
-  const executeDownloadWithDate = (dateToUse: Date) => {
-    const formattedDate = dateToUse.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-    const formattedTime = dateToUse.toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-    generateReceipt(formattedDate, formattedTime);
-  };
-
-  const executeDownload = () => {
-    executeDownloadWithDate(displayDate);
-  };
-
-  // Use browser's native print for PERFECT visual match
-  const generateReceipt = (formattedDate: string, formattedTime: string) => {
-    const printWindow = window.open("", "_blank", "width=600,height=800");
-    if (!printWindow) {
-      alert("Please allow popups to download the receipt.");
-      return;
-    }
-
-    const receiptHTML = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>${student.id}_${MONTHS[month]}2026_Fee</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    @page {
-      size: A4 portrait;
-      margin: 0;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: white;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      height: 100vh;
-      display: flex;
-      align-items: center; /* Center vertically */
-      justify-content: center; /* Center horizontally */
-    }
-    
-    .receipt {
-      width: 100%;
-      max-width: 210mm;
-      height: 297mm; /* Force full height */
-      margin: 0 auto;
-      background: white;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between; /* Distribute vertical space */
-    }
-    
-    .header {
-      background: linear-gradient(135deg, #1a1f2e, #0f1419);
-      padding: 40px;
-      text-align: center;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    
-    .logo {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: contain;
-      border: 2px solid rgba(212, 175, 55, 0.5);
-      background: rgba(255, 255, 255, 0.05);
-      margin-bottom: 20px;
-    }
-    
-    .header h1 {
-      color: white;
-      font-size: 42px;
-      font-weight: 900;
-      letter-spacing: 0.25em;
-    }
-    
-    .header p {
-      color: #d4af37;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.15em;
-      margin-top: 12px;
-    }
-    
-    .section {
-      padding: 32px 48px;
-      border-bottom: 1px solid #e5e7eb;
-      flex: 1; /* Allow sections to grow */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    
-    .section:last-of-type {
-      border-bottom: none;
-    }
-    
-    .title {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-    
-    .title h2 {
-      color: #1a1f2e;
-      font-size: 20px;
-      font-weight: 900;
-    }
-    
-    .title p {
-      color: #6b7280;
-      font-size: 14px;
-      margin-top: 4px;
-    }
-    
-    .row {
-      display: table;
-      width: 100%;
-      margin-bottom: 12px;
-    }
-    
-    .row:last-child {
-      margin-bottom: 0;
-    }
-    
-    .label {
-      display: table-cell;
-      color: #4b5563;
-      font-weight: 700;
-      font-size: 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      width: 40%;
-      vertical-align: middle;
-      padding-right: 20px;
-    }
-    
-    .value {
-      display: table-cell;
-      color: #1a1f2e;
-      font-weight: 700;
-      font-size: 20px;
-      text-align: right;
-      width: 60%;
-      vertical-align: middle;
-    }
-    
-    .id-badge {
-      background: #b8860b;
-      color: white;
-      font-size: 9px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 700;
-      display: inline-block;
-      margin-top: 4px;
-    }
-    
-    .amount-box {
-      margin-top: 20px;
-      padding: 16px;
-      border-radius: 12px;
-      border: 2px solid #d4af37;
-      background: linear-gradient(135deg, #fafbfc, #f3f4f6);
-      text-align: center;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    
-    .amount-box .amount {
-      font-size: 40px;
-      font-weight: 900;
-      color: #1a1f2e;
-    }
-    
-    .amount-box .words {
-      font-size: 16px;
-      font-style: italic;
-      color: #6b7280;
-      margin-top: 12px;
-    }
-    
-    .status {
-      margin-top: 24px;
-      text-align: center;
-      font-weight: 700;
-      font-size: 16px;
-      color: #16a34a;
-    }
-    
-    .stamp {
-      text-align: center;
-      margin-top: 8px;
-    }
-    
-    .stamp img {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-      transform: rotate(-12deg);
-    }
-    
-    .footer {
-      background: linear-gradient(135deg, #1a1f2e, #0f1419);
-      padding: 12px;
-      text-align: center;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    
-    .footer p {
-      color: #d1d5db;
-      font-size: 8px;
-    }
-    
-    @media print {
-      body { background: white; }
-      .receipt { box-shadow: none; }
-    }
-  </style>
-</head>
-<body>
-  <div class="receipt">
-    <div class="header">
-      <img src="${BASE_PATH}/logo.png" alt="SKF" class="logo">
-      <h1>S K F</h1>
-      <p>Sports Karate-do Fitness & Self Defence Association ®</p>
-    </div>
-    
-    <div class="section">
-      <div class="title">
-        <h2>Monthly Fee Receipt</h2>
-        <p>Payment confirmation</p>
-      </div>
-      
-      <div class="row">
-        <span class="label">Branch</span>
-        <span class="value">${branchName}</span>
-      </div>
-      <div class="row">
-        <span class="label">Receipt No</span>
-        <span class="value">${receiptNo}</span>
-      </div>
-      <div class="row">
-        <span class="label">Date</span>
-        <span class="value">${formattedDate}</span>
-      </div>
-      <div class="row">
-        <span class="label">Time</span>
-        <span class="value">${formattedTime}</span>
-      </div>
-    </div>
-    
-    <div class="section">
-      <div class="row">
-        <span class="label">Parent / Guardian</span>
-        <span class="value">${student.parentName || "N/A"}</span>
-      </div>
-      <div class="row">
-        <span class="label">Student Name</span>
-        <span class="value">
-          ${student.name}<br>
-          <span class="id-badge">${student.id}</span>
-        </span>
-      </div>
-      <div class="row">
-        <span class="label">Purpose</span>
-        <span class="value">${purpose}</span>
-      </div>
-      
-      <div class="amount-box">
-        <div class="amount">₹ ${student.fee.toLocaleString()}</div>
-        <div class="words">${amountWords}</div>
-      </div>
-      
-      <div class="status">✔ Payment Received with Thanks</div>
-      
-      <div class="stamp">
-        <img src="${BASE_PATH}/stamp.png" alt="PAID">
-      </div>
-    </div>
-    
-    <div class="footer">
-      <p>This receipt is issued for confirmation and record purposes only.</p>
-    </div>
-  </div>
-  
-  <script>
-    window.onload = function() {
-      setTimeout(function() {
-        window.print();
-        window.onafterprint = function() { window.close(); };
-      }, 500);
-    };
-  </script>
-</body>
-</html>
-    `;
-
-    printWindow.document.write(receiptHTML);
-    printWindow.document.close();
+    void executeDownload(chosen);
   };
 
   return (
     <div className="glass-modal-overlay" style={{ zIndex: 100 }}>
-      {/* Scrollable Container */}
       <div className="w-full max-w-[520px] max-h-[90vh] overflow-y-auto px-4 custom-scrollbar">
-        {/* Receipt Card (Preview) */}
         <div
-          ref={receiptRef}
           style={{
             backgroundColor: "#ffffff",
             color: "#1a1f2e",
@@ -436,7 +205,6 @@ export default function MonthlyFeeReceipt({
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
           }}
         >
-          {/* HEADER */}
           <div
             style={{
               background: "linear-gradient(135deg, #1a1f2e, #0f1419)",
@@ -452,7 +220,7 @@ export default function MonthlyFeeReceipt({
               }}
             >
               <NextImage
-                src="https://skfkarate.github.io/SKF-FEETRACK/logo.png"
+                src="/logo.png"
                 alt="SKF"
                 width={70}
                 height={70}
@@ -483,7 +251,6 @@ export default function MonthlyFeeReceipt({
             </p>
           </div>
 
-          {/* INFO SECTION */}
           <div style={{ padding: "24px", borderBottom: "1px solid #e5e7eb" }}>
             <div style={{ textAlign: "center", marginBottom: "16px" }}>
               <h2
@@ -505,214 +272,42 @@ export default function MonthlyFeeReceipt({
 
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <tbody>
-                <tr>
-                  <td
-                    style={{
-                      color: "#4b5563",
-                      fontWeight: 700,
-                      fontSize: "11px",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      padding: "4px 0",
-                    }}
-                  >
-                    Branch
-                  </td>
-                  <td
-                    style={{
-                      color: "#1a1f2e",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      textAlign: "right",
-                      padding: "4px 0",
-                    }}
-                  >
-                    {branchName}
-                  </td>
-                </tr>
-                <tr>
-                  <td
-                    style={{
-                      color: "#4b5563",
-                      fontWeight: 700,
-                      fontSize: "11px",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      padding: "4px 0",
-                    }}
-                  >
-                    Receipt No
-                  </td>
-                  <td
-                    style={{
-                      color: "#1a1f2e",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      textAlign: "right",
-                      padding: "4px 0",
-                    }}
-                  >
-                    {receiptNo}
-                  </td>
-                </tr>
-                <tr>
-                  <td
-                    style={{
-                      color: "#4b5563",
-                      fontWeight: 700,
-                      fontSize: "11px",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      padding: "4px 0",
-                    }}
-                  >
-                    Date
-                  </td>
-                  <td
-                    style={{
-                      color: "#1a1f2e",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      textAlign: "right",
-                      padding: "4px 0",
-                    }}
-                  >
-                    {date}
-                  </td>
-                </tr>
-                <tr>
-                  <td
-                    style={{
-                      color: "#4b5563",
-                      fontWeight: 700,
-                      fontSize: "11px",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      padding: "4px 0",
-                    }}
-                  >
-                    Time
-                  </td>
-                  <td
-                    style={{
-                      color: "#1a1f2e",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      textAlign: "right",
-                      padding: "4px 0",
-                    }}
-                  >
-                    {timeStr}
-                  </td>
-                </tr>
+                <PreviewRow label="Branch">{branchName}</PreviewRow>
+                <PreviewRow label="Receipt No">{receiptNo}</PreviewRow>
+                <PreviewRow label="Date">{date}</PreviewRow>
+                <PreviewRow label="Time">{timeStr}</PreviewRow>
               </tbody>
             </table>
           </div>
 
-          {/* DETAILS SECTION */}
           <div style={{ padding: "24px", position: "relative" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <tbody>
-                <tr>
-                  <td
+                <PreviewRow label="Parent / Guardian">
+                  {student.parentName || "N/A"}
+                </PreviewRow>
+                <PreviewRow label="Student Name" vertical="top">
+                  {student.name}
+                  <br />
+                  <span
                     style={{
-                      color: "#4b5563",
+                      backgroundColor: "#b8860b",
+                      color: "#ffffff",
+                      fontSize: "10px",
+                      padding: "2px 8px",
+                      borderRadius: "4px",
                       fontWeight: 700,
-                      fontSize: "11px",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      padding: "4px 0",
-                      verticalAlign: "middle",
+                      display: "inline-block",
+                      marginTop: "4px",
                     }}
                   >
-                    Parent / Guardian
-                  </td>
-                  <td
-                    style={{
-                      color: "#1a1f2e",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      textAlign: "right",
-                      padding: "4px 0",
-                      verticalAlign: "middle",
-                    }}
-                  >
-                    {student.parentName || "N/A"}
-                  </td>
-                </tr>
-                <tr>
-                  <td
-                    style={{
-                      color: "#4b5563",
-                      fontWeight: 700,
-                      fontSize: "11px",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      padding: "4px 0",
-                      verticalAlign: "top",
-                    }}
-                  >
-                    Student Name
-                  </td>
-                  <td
-                    style={{
-                      color: "#1a1f2e",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      textAlign: "right",
-                      padding: "4px 0",
-                      verticalAlign: "top",
-                    }}
-                  >
-                    {student.name}
-                    <br />
-                    <span
-                      style={{
-                        backgroundColor: "#b8860b",
-                        color: "#ffffff",
-                        fontSize: "10px",
-                        padding: "2px 8px",
-                        borderRadius: "4px",
-                        fontWeight: 700,
-                        display: "inline-block",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {student.id}
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td
-                    style={{
-                      color: "#4b5563",
-                      fontWeight: 700,
-                      fontSize: "11px",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      padding: "4px 0",
-                      verticalAlign: "middle",
-                    }}
-                  >
-                    Purpose
-                  </td>
-                  <td
-                    style={{
-                      color: "#1a1f2e",
-                      fontWeight: 700,
-                      fontSize: "14px",
-                      textAlign: "right",
-                      padding: "4px 0",
-                      verticalAlign: "middle",
-                    }}
-                  >
-                    {purpose}
-                  </td>
-                </tr>
+                    {student.id}
+                  </span>
+                </PreviewRow>
+                <PreviewRow label="Purpose">{purpose}</PreviewRow>
               </tbody>
             </table>
 
-            {/* Amount Box */}
             <div
               style={{
                 marginTop: "24px",
@@ -723,10 +318,29 @@ export default function MonthlyFeeReceipt({
                 textAlign: "center",
               }}
             >
+              {creditApplied > 0 && (
+                <div
+                  style={{
+                    marginBottom: "10px",
+                    color: "#4b5563",
+                    fontSize: "11px",
+                    textAlign: "left",
+                  }}
+                >
+                  <div className="flex justify-between">
+                    <span>Monthly fee</span>
+                    <span>₹ {baseFee.toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-green-700">
+                    <span>Referral credit</span>
+                    <span>- ₹ {creditApplied.toLocaleString("en-IN")}</span>
+                  </div>
+                </div>
+              )}
               <div
                 style={{ fontSize: "28px", fontWeight: 900, color: "#1a1f2e" }}
               >
-                ₹ {student.fee.toLocaleString()}
+                ₹ {amountReceived.toLocaleString("en-IN")}
               </div>
               <div
                 style={{
@@ -740,7 +354,6 @@ export default function MonthlyFeeReceipt({
               </div>
             </div>
 
-            {/* Status */}
             <div
               style={{
                 marginTop: "16px",
@@ -750,10 +363,9 @@ export default function MonthlyFeeReceipt({
                 color: "#16a34a",
               }}
             >
-              ✔ Payment Received with Thanks
+              Payment Received with Thanks
             </div>
 
-            {/* Stamp Overlay */}
             <div
               style={{
                 display: "flex",
@@ -763,7 +375,7 @@ export default function MonthlyFeeReceipt({
               }}
             >
               <NextImage
-                src="https://skfkarate.github.io/SKF-FEETRACK/stamp.png"
+                src="/stamp.png"
                 alt="PAID"
                 width={96}
                 height={96}
@@ -772,7 +384,6 @@ export default function MonthlyFeeReceipt({
             </div>
           </div>
 
-          {/* FOOTER */}
           <div
             style={{
               background: "linear-gradient(135deg, #1a1f2e, #0f1419)",
@@ -786,7 +397,12 @@ export default function MonthlyFeeReceipt({
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {downloadError && (
+          <p className="mt-3 text-center text-xs text-red-300">
+            {downloadError}
+          </p>
+        )}
+
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
@@ -794,16 +410,31 @@ export default function MonthlyFeeReceipt({
           >
             CLOSE
           </button>
+          {student.receiptId && (
+            <a
+              href={`/api/feetrack/receipts/${encodeURIComponent(student.receiptId)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-center"
+            >
+              OFFICIAL PDF
+            </a>
+          )}
           <button
             onClick={handleDownloadClick}
-            className="btn-primary flex-1 font-[family-name:var(--font-space)] tracking-wider flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 border-none text-white"
+            disabled={isDownloading}
+            className="btn-primary flex-1 font-[family-name:var(--font-space)] tracking-wider flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed border-none text-white"
           >
-            ⬇ DOWNLOAD
+            {isDownloading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            DOWNLOAD
           </button>
         </div>
       </div>
 
-      {/* Date/Time Picker Modal */}
       {showDatePicker && (
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
@@ -813,7 +444,6 @@ export default function MonthlyFeeReceipt({
             className="bg-[#0a0a0a] border border-white/10 rounded-2xl w-full max-w-sm p-6 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="text-center mb-6">
               <h3 className="font-[family-name:var(--font-space)] text-lg font-bold text-white tracking-wider">
                 RECEIPT DATE & TIME
@@ -823,7 +453,6 @@ export default function MonthlyFeeReceipt({
               </p>
             </div>
 
-            {/* Date Input */}
             <div className="mb-4">
               <label className="text-white/50 text-[10px] uppercase tracking-wider font-bold block mb-2">
                 Payment Date
@@ -837,7 +466,6 @@ export default function MonthlyFeeReceipt({
               />
             </div>
 
-            {/* Time Input */}
             <div className="mb-6">
               <label className="text-white/50 text-[10px] uppercase tracking-wider font-bold block mb-2">
                 Payment Time
@@ -851,7 +479,6 @@ export default function MonthlyFeeReceipt({
               />
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDatePicker(false)}
@@ -861,9 +488,10 @@ export default function MonthlyFeeReceipt({
               </button>
               <button
                 onClick={confirmDateAndDownload}
-                className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-[family-name:var(--font-space)] tracking-wider transition-all font-bold shadow-lg shadow-green-900/30"
+                disabled={isDownloading}
+                className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-[family-name:var(--font-space)] tracking-wider transition-all font-bold shadow-lg shadow-green-900/30"
               >
-                ✓ CONFIRM & DOWNLOAD
+                CONFIRM & DOWNLOAD
               </button>
             </div>
           </div>
