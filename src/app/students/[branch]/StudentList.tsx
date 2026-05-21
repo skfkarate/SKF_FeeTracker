@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 import {
   Gift,
@@ -23,6 +24,7 @@ import {
   MessageCircle,
   RotateCcw,
   X,
+  ChevronDown,
 } from "lucide-react";
 
 import {
@@ -87,13 +89,7 @@ const isHiddenFromStudentList = (student: Student) =>
 const isLocalPublicUrl = (value: string) =>
   /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(?::|\/|$)/i.test(value);
 
-const getStudentListOrder = (student: Student) => {
-  if (isDiscontinuedStudent(student)) return 3;
-  if (isBreakStudent(student)) return 2;
-  if (student.monthStatus === "Paid") return 1;
-  if (isUncollectedStudent(student)) return 0;
-  return 4;
-};
+
 
 export default function StudentList({ branch }: { branch: string }) {
   const router = useRouter();
@@ -107,6 +103,7 @@ export default function StudentList({ branch }: { branch: string }) {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [showPendingOnly, setShowPendingOnly] = useState(false);
+  const [showDiscontinued, setShowDiscontinued] = useState(false);
   const [markingPaid, setMarkingPaid] = useState<string | null>(null);
   const [confirmStudent, setConfirmStudent] = useState<Student | null>(null);
 
@@ -435,21 +432,36 @@ export default function StudentList({ branch }: { branch: string }) {
     return matchesSearch && matchesPending;
   });
 
-  // Sort students by fee status, then SKF ID. Break/Discontinued stay visible at the bottom.
-  const sortedStudents = useMemo(() => {
-    return [...filteredStudents].sort((a, b) => {
-      const statusCompare = getStudentListOrder(a) - getStudentListOrder(b);
-      if (statusCompare !== 0) return statusCompare;
-
-      const idCompare = a.id.localeCompare(b.id, undefined, {
-        numeric: true,
-        sensitivity: "base",
-      });
+  // Split active, break, and discontinued students, then sort each group by SKF ID.
+  const { activeStudents, breakStudents, discontinuedStudents } = useMemo(() => {
+    const active: typeof filteredStudents = [];
+    const onBreak: typeof filteredStudents = [];
+    const discontinued: typeof filteredStudents = [];
+    for (const s of filteredStudents) {
+      if (isDiscontinuedStudent(s)) {
+        discontinued.push(s);
+      } else if (isBreakStudent(s)) {
+        onBreak.push(s);
+      } else {
+        active.push(s);
+      }
+    }
+    const sortById = (a: typeof filteredStudents[0], b: typeof filteredStudents[0]) => {
+      const idCompare = a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: "base" });
       if (idCompare !== 0) return idCompare;
-
       return a.name.localeCompare(b.name);
-    });
+    };
+    active.sort(sortById);
+    onBreak.sort(sortById);
+    discontinued.sort(sortById);
+    return {
+      activeStudents: active,
+      breakStudents: onBreak,
+      discontinuedStudents: discontinued,
+    };
   }, [filteredStudents]);
+  const visibleStudentsCount =
+    activeStudents.length + breakStudents.length + discontinuedStudents.length;
 
   const branchName =
     branch === "MPSC" ? "MP SPORTS CLUB" : branch?.toUpperCase();
@@ -467,6 +479,134 @@ export default function StudentList({ branch }: { branch: string }) {
       return "";
     }
   }, []);
+
+  const renderStudentCard = (student: Student, index: number) => {
+    const isBreak = isBreakStudent(student);
+    const isDiscontinued = isDiscontinuedStudent(student);
+    const isInactive = isBreak || isDiscontinued;
+    const statusStyle = isDiscontinued
+      ? {
+        background: "rgba(127, 29, 29, 0.18)",
+        borderColor: "rgba(239, 68, 68, 0.45)",
+      }
+      : {};
+
+    return (
+      <div
+        key={student.id}
+        onClick={() => {
+          if (isLongPressActive.current) return;
+          router.push(`/students/${branch}/${encodeURIComponent(student.id)}`);
+        }}
+        onMouseDown={() => handleLongPressStart(student)}
+        onMouseUp={handleLongPressEnd}
+        onMouseLeave={handleLongPressEnd}
+        onTouchStart={() => handleLongPressStart(student)}
+        onTouchEnd={handleLongPressEnd}
+        onTouchMove={handleLongPressEnd}
+        className="card-panel p-4 animate-slide-up hover:border-white/10 group cursor-pointer select-none"
+        style={{ ...statusStyle, animationDelay: `${Math.min(index * 30, 300)}ms`, animationFillMode: "both", WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className={`font-[family-name:var(--font-space)] text-base tracking-wide transition-colors truncate ${
+                isBreak
+                  ? "text-white/45 group-hover:text-white/55"
+                  : "text-white group-hover:text-amber-400"
+              }`}>
+                {student.name}
+              </h3>
+              {/* Status Tags */}
+              {isBreak && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded border border-zinc-700 text-zinc-500 uppercase tracking-wider">Break</span>
+              )}
+              {isDiscontinued && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded border border-red-500/50 text-red-400 uppercase tracking-wider">Discontinued</span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 text-zinc-500 text-xs">
+              <span className="font-mono opacity-70">{student.id}</span>
+              <span className="flex items-center gap-1">
+                <IndianRupee className="w-3 h-3" /> {student.fee}
+              </span>
+            </div>
+
+            {(student.creditApplied || 0) > 0 && (
+              <div className="mt-2 inline-flex items-center gap-1.5 text-[10px] bg-purple-500/10 text-purple-300 px-2 py-1 rounded-md border border-purple-500/20">
+                <Gift className="w-3 h-3" />
+                <span>Credit Applied: ₹{student.creditApplied}</span>
+              </div>
+            )}
+
+            {/* Pending Admission/Dress Badges */}
+            {(student.admissionStatus === "Pending" || student.dressStatus === "Pending") && (
+              <div className="mt-2 flex gap-2 flex-wrap">
+                {student.admissionStatus === "Pending" && (
+                  <div className="inline-flex items-center gap-1.5 text-[10px] bg-blue-500/10 text-blue-300 px-2 py-1 rounded-md border border-blue-500/20">
+                    <Ticket className="w-3 h-3" />
+                    <span>Adm Due</span>
+                  </div>
+                )}
+                {student.dressStatus === "Pending" && (
+                  <div className="inline-flex items-center gap-1.5 text-[10px] bg-pink-500/10 text-pink-300 px-2 py-1 rounded-md border border-pink-500/20">
+                    <Shirt className="w-3 h-3" />
+                    <span>Dress Due</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Action Button */}
+          <div className="flex-shrink-0">
+            {student.monthStatus === "Paid" ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setReceiptStudent(student);
+                }}
+                className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-400 transition-all shadow-md shadow-green-900/40"
+                title="View Receipt"
+              >
+                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </button>
+            ) : student.monthStatus === "Pending Verification" ? (
+              <Link href="/verifications" className="w-9 h-9 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center text-blue-400 hover:bg-blue-500/30 transition-colors" title="Pending Verification (Check Action Inbox)">
+                <Clock className="w-4 h-4 animate-pulse" />
+              </Link>
+            ) : isInactive ? (
+              <div className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
+                <AlertCircle className="w-4 h-4" />
+              </div>
+            ) : (
+              <button
+                onClick={(e) => handleMarkPaidClick(e, student)}
+                disabled={
+                  markingPaid === student.id ||
+                  markingStatus === student.id
+                }
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all select-none ${markingPaid === student.id || markingStatus === student.id
+                  ? "bg-zinc-900 text-zinc-500"
+                  : "bg-white text-black hover:bg-gray-200 shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                  }`}
+                title="Mark Paid"
+              >
+                {markingPaid === student.id || markingStatus === student.id ? (
+                  <div className="spinner !w-4 !h-4" />
+                ) : (
+                  <IndianRupee className="w-4 h-4" />
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Generate and download PDF receipt logic moved to MonthlyFeeReceipt.tsx
   if (checking || !user) return null;
@@ -568,18 +708,11 @@ export default function StudentList({ branch }: { branch: string }) {
           </div>
         )}
 
-        {!loading && !error && (stats.onBreakCount > 0 || stats.discontinuedCount > 0) && (
+        {!loading && !error && stats.onBreakCount > 0 && (
           <div className="mb-6 -mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-wider text-zinc-500 animate-fade-in">
-            {stats.onBreakCount > 0 && (
-              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-amber-400">
-                {stats.onBreakCount} break excluded
-              </span>
-            )}
-            {stats.discontinuedCount > 0 && (
-              <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-red-400">
-                {stats.discontinuedCount} discontinued excluded
-              </span>
-            )}
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-amber-400">
+              {stats.onBreakCount} break excluded
+            </span>
           </div>
         )}
 
@@ -654,134 +787,85 @@ export default function StudentList({ branch }: { branch: string }) {
         {/* Student List */}
         {!loading && !error && (
           <div className="space-y-2">
-            {sortedStudents.length === 0 ? (
+            {visibleStudentsCount === 0 ? (
               <p className="text-center text-zinc-500 py-16 text-sm">
                 No students found
               </p>
             ) : (
-              sortedStudents.map((student, index) => {
-                const isBreak = isBreakStudent(student);
-                const isDiscontinued = isDiscontinuedStudent(student);
-                const isInactive = isBreak || isDiscontinued;
-                const statusStyle = isDiscontinued
-                  ? {
-                    background: "rgba(127, 29, 29, 0.18)",
-                    borderColor: "rgba(239, 68, 68, 0.45)",
-                  }
-                  : {};
-
-                return (
-                  <div
-                    key={student.id}
-                    onClick={() => {
-                      if (isLongPressActive.current) return;
-                      router.push(`/students/${branch}/${encodeURIComponent(student.id)}`);
-                    }}
-                    onMouseDown={() => handleLongPressStart(student)}
-                    onMouseUp={handleLongPressEnd}
-                    onMouseLeave={handleLongPressEnd}
-                    onTouchStart={() => handleLongPressStart(student)}
-                    onTouchEnd={handleLongPressEnd}
-                    onTouchMove={handleLongPressEnd}
-                    className="card-panel p-4 animate-slide-up hover:border-white/10 group cursor-pointer select-none"
-                    style={{ ...statusStyle, animationDelay: `${Math.min(index * 30, 300)}ms`, animationFillMode: "both", WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className={`font-[family-name:var(--font-space)] text-base tracking-wide transition-colors truncate ${
-                            isBreak
-                              ? "text-white/45 group-hover:text-white/55"
-                              : "text-white group-hover:text-amber-400"
-                          }`}>
-                            {student.name}
-                          </h3>
-                          {/* Status Tags */}
-                          {isBreak && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded border border-zinc-700 text-zinc-500 uppercase tracking-wider">Break</span>
-                          )}
-                          {isDiscontinued && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded border border-red-500/50 text-red-400 uppercase tracking-wider">Discontinued</span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-2 text-zinc-500 text-xs">
-                          <span className="font-mono opacity-70">{student.id}</span>
-                          <span className="flex items-center gap-1">
-                            <IndianRupee className="w-3 h-3" /> {student.fee}
-                          </span>
-                        </div>
-
-                        {(student.creditApplied || 0) > 0 && (
-                          <div className="mt-2 inline-flex items-center gap-1.5 text-[10px] bg-purple-500/10 text-purple-300 px-2 py-1 rounded-md border border-purple-500/20">
-                            <Gift className="w-3 h-3" />
-                            <span>Credit Applied: ₹{student.creditApplied}</span>
-                          </div>
-                        )}
-
-                        {/* Pending Admission/Dress Badges */}
-                        {(student.admissionStatus === "Pending" || student.dressStatus === "Pending") && (
-                          <div className="mt-2 flex gap-2 flex-wrap">
-                            {student.admissionStatus === "Pending" && (
-                              <div className="inline-flex items-center gap-1.5 text-[10px] bg-blue-500/10 text-blue-300 px-2 py-1 rounded-md border border-blue-500/20">
-                                <Ticket className="w-3 h-3" />
-                                <span>Adm Due</span>
-                              </div>
-                            )}
-                            {student.dressStatus === "Pending" && (
-                              <div className="inline-flex items-center gap-1.5 text-[10px] bg-pink-500/10 text-pink-300 px-2 py-1 rounded-md border border-pink-500/20">
-                                <Shirt className="w-3 h-3" />
-                                <span>Dress Due</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Action Button */}
-                      <div className="flex-shrink-0">
-                        {student.monthStatus === "Paid" ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setReceiptStudent(student);
-                            }}
-                            className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-400 transition-all shadow-md shadow-green-900/40"
-                            title="View Receipt"
-                          >
-                            <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                          </button>
-                        ) : isInactive ? (
-                          <div className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
-                            <AlertCircle className="w-4 h-4" />
-                          </div>
-                        ) : (
-                          <button
-                            onClick={(e) => handleMarkPaidClick(e, student)}
-                            disabled={
-                              markingPaid === student.id ||
-                              markingStatus === student.id
-                            }
-                            className={`w-9 h-9 rounded-full flex items-center justify-center transition-all select-none ${markingPaid === student.id || markingStatus === student.id
-                              ? "bg-zinc-900 text-zinc-500"
-                              : "bg-white text-black hover:bg-gray-200 shadow-[0_0_12px_rgba(255,255,255,0.15)]"
-                              }`}
-                            title="Mark Paid"
-                          >
-                            {markingPaid === student.id || markingStatus === student.id ? (
-                              <div className="spinner !w-4 !h-4" />
-                            ) : (
-                              <IndianRupee className="w-4 h-4" />
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    </div>
+              <>
+                {activeStudents.map((student, index) => renderStudentCard(student, index))}
+                {breakStudents.length > 0 && (
+                  <div className={activeStudents.length > 0 ? "pt-4 space-y-2" : "space-y-2"}>
+                    {breakStudents.map((student, index) =>
+                      renderStudentCard(student, activeStudents.length + index),
+                    )}
                   </div>
-                );
-              })
+                )}
+
+                {/* Discontinued Students Collapsible */}
+                {discontinuedStudents.length > 0 && (
+                  <div className="mt-4">
+                    <button
+                      onClick={() => setShowDiscontinued((v) => !v)}
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 transition-colors text-sm"
+                    >
+                      <span className="flex items-center gap-2 text-red-400 font-medium">
+                        <AlertCircle className="w-4 h-4" />
+                        Discontinued ({discontinuedStudents.length})
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-red-400 transition-transform duration-200 ${showDiscontinued ? "rotate-180" : ""}`} />
+                    </button>
+                    {showDiscontinued && (
+                      <div className="space-y-2 mt-2">
+                        {discontinuedStudents.map((student, index) => (
+                          <div
+                            key={student.id}
+                            onClick={() => {
+                              if (isLongPressActive.current) return;
+                              router.push(`/students/${branch}/${encodeURIComponent(student.id)}`);
+                            }}
+                            onMouseDown={() => handleLongPressStart(student)}
+                            onMouseUp={handleLongPressEnd}
+                            onMouseLeave={handleLongPressEnd}
+                            onTouchStart={() => handleLongPressStart(student)}
+                            onTouchEnd={handleLongPressEnd}
+                            onTouchMove={handleLongPressEnd}
+                            className="card-panel p-4 animate-slide-up hover:border-white/10 group cursor-pointer select-none"
+                            style={{
+                              background: "rgba(127, 29, 29, 0.18)",
+                              borderColor: "rgba(239, 68, 68, 0.45)",
+                              animationDelay: `${Math.min(index * 30, 300)}ms`,
+                              animationFillMode: "both",
+                              WebkitTouchCallout: "none",
+                              WebkitUserSelect: "none",
+                            }}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h3 className="font-[family-name:var(--font-space)] text-base tracking-wide text-white/45 group-hover:text-white/55 transition-colors truncate">
+                                    {student.name}
+                                  </h3>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-red-500/50 text-red-400 uppercase tracking-wider">Discontinued</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-zinc-500 text-xs">
+                                  <span className="font-mono opacity-70">{student.id}</span>
+                                  <span className="flex items-center gap-1"><IndianRupee className="w-3 h-3" /> {student.fee}</span>
+                                </div>
+                              </div>
+                              <div className="flex-shrink-0">
+                                <div className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
+                                  <AlertCircle className="w-4 h-4" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}

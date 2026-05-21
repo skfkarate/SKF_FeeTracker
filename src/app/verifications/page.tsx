@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CheckCircle2, Bell, MessageCircle, AlertCircle, ArrowRight, ExternalLink, XCircle } from "lucide-react";
 import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
@@ -15,6 +15,9 @@ import {
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import Link from "next/link";
 
+// Auto-refresh every 7 minutes to keep signed proof URLs fresh (they expire in 10 min)
+const AUTO_REFRESH_MS = 7 * 60 * 1000;
+
 export default function VerificationsPage() {
   const { user, checking } = useFeeTrackAuth();
   const [verifications, setVerifications] = useState<PaymentVerification[]>([]);
@@ -22,10 +25,19 @@ export default function VerificationsPage() {
   const [loading, setLoading] = useState(true);
   const [actioning, setActioning] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const loadInbox = useCallback(async () => {
+  const showToast = useCallback((message: string, type: "success" | "error" = "success") => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ message, type });
+    toastTimerRef.current = setTimeout(() => setToast(null), 3000);
+  }, []);
+
+  const loadInbox = useCallback(async (silent = false) => {
     if (checking || !user) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     setError("");
     const currentMonth = new Date().getMonth();
 
@@ -44,23 +56,50 @@ export default function VerificationsPage() {
       setVerifications(verificationRows);
       setOverdueStudents(overdue);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load action inbox");
+      if (!silent) setError(err instanceof Error ? err.message : "Failed to load action inbox");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [checking, user]);
 
+  // Initial load
   useEffect(() => {
     void loadInbox();
   }, [loadInbox]);
 
+  // Auto-refresh timer to keep signed URLs alive
+  useEffect(() => {
+    if (checking || !user) return;
+    refreshTimerRef.current = setInterval(() => {
+      void loadInbox(true);
+    }, AUTO_REFRESH_MS);
+    return () => {
+      if (refreshTimerRef.current) clearInterval(refreshTimerRef.current);
+    };
+  }, [checking, user, loadInbox]);
+
+  // Cleanup toast timer on unmount
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
   const handleApprove = async (proofId: string) => {
+    // Optimistic removal
+    const prevVerifications = verifications;
+    setVerifications(v => v.filter(p => p.id !== proofId));
     setActioning(proofId);
     try {
       await approvePaymentVerification(proofId);
-      await loadInbox();
+      showToast("Payment approved successfully");
+      // Background sync to pick up any new verifications or updated overdue lists
+      void loadInbox(true);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to approve payment proof");
+      // Rollback optimistic update on failure
+      setVerifications(prevVerifications);
+      const msg = err instanceof Error ? err.message : "Failed to approve payment proof";
+      showToast(msg, "error");
     } finally {
       setActioning(null);
     }
@@ -70,12 +109,20 @@ export default function VerificationsPage() {
     const note = window.prompt("Reason for rejecting this payment proof?");
     if (!note?.trim()) return;
 
+    // Optimistic removal
+    const prevVerifications = verifications;
+    setVerifications(v => v.filter(p => p.id !== proofId));
     setActioning(proofId);
     try {
       await rejectPaymentVerification(proofId, note.trim());
-      await loadInbox();
+      showToast("Payment proof rejected");
+      // Background sync
+      void loadInbox(true);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to reject payment proof");
+      // Rollback optimistic update on failure
+      setVerifications(prevVerifications);
+      const msg = err instanceof Error ? err.message : "Failed to reject payment proof";
+      showToast(msg, "error");
     } finally {
       setActioning(null);
     }
@@ -244,6 +291,24 @@ export default function VerificationsPage() {
         )}
 
       </main>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl text-sm font-medium shadow-2xl backdrop-blur-md border transition-all animate-slide-up ${
+          toast.type === "success"
+            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+            : "bg-red-500/20 text-red-300 border-red-500/30"
+        }`}>
+          <div className="flex items-center gap-2">
+            {toast.type === "success" ? (
+              <CheckCircle2 className="w-4 h-4" />
+            ) : (
+              <AlertCircle className="w-4 h-4" />
+            )}
+            {toast.message}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
