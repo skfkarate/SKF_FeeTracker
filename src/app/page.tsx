@@ -8,7 +8,7 @@ import { fetchFeeTrackSession, storeFeeTrackSession } from "@/lib/client-auth";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
-
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -23,14 +23,15 @@ export default function LoginPage() {
 
   const handleLogin = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!username.trim()) return;
+    if (!username.trim() || !password) return;
 
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const response = await fetch("/api/feetrack/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim() }),
+        body: JSON.stringify({ username: username.trim(), password }),
       });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.error || "Invalid credentials");
@@ -69,7 +70,7 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="space-y-4 animate-slide-up delay-100">
           <div>
             <label className="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-widest text-center">
-              Access Code
+              Username
             </label>
             <input
               type="text"
@@ -78,8 +79,21 @@ export default function LoginPage() {
               placeholder=""
               className="input-minimal text-center font-[family-name:var(--font-space)] text-lg"
               autoCapitalize="none"
-              autoComplete="off"
+              autoComplete="username"
               autoFocus
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-widest text-center">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setError(""); }}
+              placeholder=""
+              className="input-minimal text-center font-[family-name:var(--font-space)] text-lg"
+              autoComplete="current-password"
             />
           </div>
 
@@ -92,7 +106,7 @@ export default function LoginPage() {
           <div className="pt-4">
             <button
               type="submit"
-              disabled={loading || !username.trim()}
+              disabled={loading || !username.trim() || !password}
               className="btn-primary w-full flex items-center justify-center gap-2"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Access Treasury"}

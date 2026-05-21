@@ -17,11 +17,12 @@ function isLocalBackendUrl(url: URL) {
 }
 
 function backendBaseUrl() {
+  const isProductionDeploy = process.env.VERCEL_ENV === "production";
   const base =
     process.env.FEETRACK_BACKEND_URL ||
     process.env.SKF_KARATE_BACKEND_URL ||
     process.env.NEXT_PUBLIC_SKF_KARATE_URL ||
-    (process.env.NODE_ENV === "production" ? PRODUCTION_SKF_KARATE_URL : "");
+    (isProductionDeploy ? PRODUCTION_SKF_KARATE_URL : "");
 
   if (!base) {
     throw new Error("FEETRACK_BACKEND_URL is required.");
@@ -34,7 +35,7 @@ function backendBaseUrl() {
     throw new Error(`FEETRACK_BACKEND_URL is invalid: ${base}`);
   }
 
-  if (process.env.NODE_ENV === "production" && isLocalBackendUrl(url)) {
+  if (isProductionDeploy && isLocalBackendUrl(url)) {
     return new URL(PRODUCTION_SKF_KARATE_URL);
   }
 

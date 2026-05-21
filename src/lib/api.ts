@@ -445,6 +445,27 @@ export async function markDiscontinued(
   invalidateCache('branchCounts');
 }
 
+export async function resumeStudent(
+  id: string,
+  branch: string,
+  month: number,
+  year = getCurrentFeeYear(),
+  monthlyFee?: number,
+): Promise<void> {
+  if (isMockData()) return;
+  await apiAction("resume_student", {
+    id,
+    branch,
+    month,
+    year,
+    monthlyFee,
+  });
+
+  invalidateCache(`students:${branch}`);
+  invalidateFinancialCaches(branch, year);
+  invalidateCache('branchCounts');
+}
+
 /**
  * Mark a non-recurring fee (Admission or Dress) as Paid
  */
@@ -1012,6 +1033,7 @@ export interface FinanceCommandCenterData {
     monthlyFeeCash: number;
     admissionCollected: number;
     dressProfit: number;
+    extraIncome: number;
     grossIncome: number;
     developmentFundContribution: number;
     developmentExpenses: number;
@@ -1098,4 +1120,43 @@ export async function getFinanceCommandCenter(
     );
     return data.data;
   });
+}
+
+export async function addExtraIncome(
+  branch: string,
+  month: number,
+  title: string,
+  amount: number,
+  description?: string,
+  year = getCurrentFeeYear(),
+) {
+  const data = await apiAction<{ data: Record<string, unknown> }>("add_extra_income", {
+    branch,
+    month,
+    year,
+    title,
+    amount,
+    description,
+    scope: branch,
+  });
+  invalidateCache(`financeCommand:${branch}:${year}:${month}`);
+  invalidateCache(`financial:${branch}:${year}:${month}`);
+  return data.data;
+}
+
+export async function deleteExtraIncome(
+  branch: string,
+  month: number,
+  incomeId: string,
+  year = getCurrentFeeYear(),
+) {
+  const data = await apiAction<{ data: Record<string, unknown> }>("delete_extra_income", {
+    branch,
+    month,
+    year,
+    incomeId,
+  });
+  invalidateCache(`financeCommand:${branch}:${year}:${month}`);
+  invalidateCache(`financial:${branch}:${year}:${month}`);
+  return data.data;
 }

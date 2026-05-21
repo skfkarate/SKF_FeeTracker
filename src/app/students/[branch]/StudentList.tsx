@@ -21,6 +21,7 @@ import {
   Shirt,
   Phone,
   MessageCircle,
+  RotateCcw,
   X,
 } from "lucide-react";
 
@@ -34,6 +35,7 @@ import {
   Student,
   StudentCredits,
   markNonRecurringFeePaid,
+  resumeStudent,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { normalizeFeeYear } from "@/lib/fee-year";
@@ -135,6 +137,8 @@ export default function StudentList({ branch }: { branch: string }) {
   const [confirmBreakStudent, setConfirmBreakStudent] =
     useState<Student | null>(null);
   const [confirmDiscontinuedStudent, setConfirmDiscontinuedStudent] =
+    useState<Student | null>(null);
+  const [confirmResumeStudent, setConfirmResumeStudent] =
     useState<Student | null>(null);
 
   // New Fee Payment Confirmation
@@ -303,6 +307,11 @@ export default function StudentList({ branch }: { branch: string }) {
     setConfirmDiscontinuedStudent(longPressStudent);
   };
 
+  const handleResumeClick = () => {
+    setShowStatusMenu(false);
+    setConfirmResumeStudent(longPressStudent);
+  };
+
   const handleConfirmBreak = async () => {
     if (!confirmBreakStudent) return;
     setMarkingStatus(confirmBreakStudent.id);
@@ -340,6 +349,26 @@ export default function StudentList({ branch }: { branch: string }) {
       alert(
         err instanceof Error ? err.message : "Failed to mark as discontinued",
       );
+    } finally {
+      setMarkingStatus(null);
+    }
+  };
+
+  const handleConfirmResume = async () => {
+    if (!confirmResumeStudent) return;
+    setMarkingStatus(confirmResumeStudent.id);
+    setConfirmResumeStudent(null);
+    try {
+      await resumeStudent(
+        confirmResumeStudent.id,
+        branch,
+        month,
+        selectedYear,
+        confirmResumeStudent.originalFee || confirmResumeStudent.fee || undefined,
+      );
+      await loadStudents(true);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to resume student");
     } finally {
       setMarkingStatus(null);
     }
@@ -548,7 +577,7 @@ export default function StudentList({ branch }: { branch: string }) {
             )}
             {stats.discontinuedCount > 0 && (
               <span className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-red-400">
-                {stats.discontinuedCount} discontinued final month
+                {stats.discontinuedCount} discontinued excluded
               </span>
             )}
           </div>
@@ -965,20 +994,39 @@ export default function StudentList({ branch }: { branch: string }) {
             <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider p-4 border-b border-[var(--border)]">
               {longPressStudent.name}
             </p>
-            <button
-              onClick={handleBreakClick}
-              className="w-full text-left px-4 py-4 text-amber-400 hover:bg-white/5 transition-colors flex items-center gap-3"
-            >
-              <span className="text-xl">⏸</span>
-              <div>
-                <p className="font-[family-name:var(--font-space)] tracking-wider text-sm">
-                  MARK AS BREAK
-                </p>
-                <p className="text-[var(--text-muted)] text-xs">
-                  Student on leave this month
-                </p>
-              </div>
-            </button>
+            {!isBreakStudent(longPressStudent) && !isDiscontinuedStudent(longPressStudent) && (
+              <button
+                onClick={handleBreakClick}
+                className="w-full text-left px-4 py-4 text-amber-400 hover:bg-white/5 transition-colors flex items-center gap-3"
+              >
+                <span className="text-xl">⏸</span>
+                <div>
+                  <p className="font-[family-name:var(--font-space)] tracking-wider text-sm">
+                    MARK AS BREAK
+                  </p>
+                  <p className="text-[var(--text-muted)] text-xs">
+                    Student on leave this month
+                  </p>
+                </div>
+              </button>
+            )}
+
+            {(isBreakStudent(longPressStudent) || isDiscontinuedStudent(longPressStudent)) && (
+              <button
+                onClick={handleResumeClick}
+                className="w-full text-left px-4 py-4 text-emerald-400 hover:bg-white/5 transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+              >
+                <RotateCcw className="w-5 h-5" />
+                <div>
+                  <p className="font-[family-name:var(--font-space)] tracking-wider text-sm">
+                    RESUME BILLING
+                  </p>
+                  <p className="text-[var(--text-muted)] text-xs">
+                    Rejoin from {MONTHS[month]} {selectedYear}
+                  </p>
+                </div>
+              </button>
+            )}
 
             {longPressStudent.admissionStatus === "Pending" && (
               <button
@@ -1060,20 +1108,22 @@ export default function StudentList({ branch }: { branch: string }) {
               </a>
             )}
 
-            <button
-              onClick={handleDiscontinuedClick}
-              className="w-full text-left px-4 py-4 text-gray-400 hover:bg-white/5 transition-colors flex items-center gap-3 border-t border-[var(--border)]"
-            >
-              <span className="text-xl">⛔</span>
-              <div>
-                <p className="font-[family-name:var(--font-space)] tracking-wider text-sm">
-                  DISCONTINUED
-                </p>
-                <p className="text-[var(--text-muted)] text-xs">
-                  Student left permanently
-                </p>
-              </div>
-            </button>
+            {!isDiscontinuedStudent(longPressStudent) && (
+              <button
+                onClick={handleDiscontinuedClick}
+                className="w-full text-left px-4 py-4 text-gray-400 hover:bg-white/5 transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+              >
+                <span className="text-xl">⛔</span>
+                <div>
+                  <p className="font-[family-name:var(--font-space)] tracking-wider text-sm">
+                    DISCONTINUED
+                  </p>
+                  <p className="text-[var(--text-muted)] text-xs">
+                    Student left permanently
+                  </p>
+                </div>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -1158,6 +1208,53 @@ export default function StudentList({ branch }: { branch: string }) {
                   className="flex-1 py-3 bg-gray-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-gray-500 transition-colors"
                 >
                   ⛔ CONFIRM
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Resume Modal */}
+      {confirmResumeStudent && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="card-panel max-w-sm w-full p-6">
+            <div className="p-6">
+              <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider mb-4 text-center text-emerald-400">
+                RESUME BILLING
+              </h2>
+              <div className="surface-glass p-4 mb-6">
+                <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
+                <p className="font-[family-name:var(--font-space)] text-lg">
+                  {confirmResumeStudent.name}
+                </p>
+                <p className="text-[var(--text-muted)] text-xs font-mono">
+                  {confirmResumeStudent.id}
+                </p>
+                <div className="mt-3 pt-3 border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-1">Resume From</p>
+                  <p className="text-white">{MONTHS[month]} {selectedYear}</p>
+                </div>
+                <div className="mt-3 pt-3 border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-1">Monthly Fee</p>
+                  <p className="text-white">₹{confirmResumeStudent.originalFee || confirmResumeStudent.fee || 0}</p>
+                </div>
+              </div>
+              <p className="text-[var(--text-secondary)] text-center text-sm mb-6">
+                Fee tracking will restart from this month. Earlier break or discontinued months stay excluded.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmResumeStudent(null)}
+                  className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-sm"
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={handleConfirmResume}
+                  className="flex-1 py-3 bg-emerald-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-emerald-500 transition-colors"
+                >
+                  RESUME
                 </button>
               </div>
             </div>

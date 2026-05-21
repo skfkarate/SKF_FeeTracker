@@ -5,28 +5,40 @@ import {
   FEETRACK_SESSION_COOKIE,
   type FeeTrackStaff,
 } from "@/lib/server/session";
+import { callKarateBackend } from "@/lib/server/backend";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+type LoginResponse = {
+  staff?: FeeTrackStaff;
+};
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const username = String(body.username || body.accessCode || "").trim().toLowerCase();
+    const username = String(body.username || "").trim();
+    const password = String(body.password || "").trim();
 
-    if (username !== "krish" && username !== "usha") {
+    if (!username || !password) {
       return Response.json(
-        { success: false, error: "Invalid access code." },
-        { status: 401 },
+        { success: false, error: "Username and password are required." },
+        { status: 400 },
       );
     }
 
-    const staff: FeeTrackStaff = {
-      id: username,
-      name: username === "krish" ? "Krish" : "Usha",
-      role: "admin",
-      branchScope: "all",
-    };
+    const data = await callKarateBackend<LoginResponse>({
+      action: "login",
+      username,
+      password,
+    });
+    const staff = data.staff;
+    if (!staff?.id || !staff.role) {
+      return Response.json(
+        { success: false, error: "Invalid FeeTrack credentials." },
+        { status: 401 },
+      );
+    }
 
     const cookieStore = await cookies();
     cookieStore.set(FEETRACK_SESSION_COOKIE, createFeeTrackSession(staff), {

@@ -16,6 +16,7 @@ import {
   Shirt,
   Ticket,
   Wallet,
+  Plus,
 } from "lucide-react";
 
 import {
@@ -28,6 +29,7 @@ import { getCurrentFeeYear } from "@/lib/fee-year";
 
 import MonthSelector from "@/components/common/MonthSelector";
 import Navbar from "@/components/common/Navbar";
+import { AddExtraIncomeModal } from "./AddExtraIncomeModal";
 
 const BRANCHES = [
   { value: "Overall", label: "OVERALL" },
@@ -137,6 +139,7 @@ export default function FinancesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeFormula, setActiveFormula] = useState("all");
+  const [showAddIncome, setShowAddIncome] = useState(false);
 
   useEffect(() => {
     if (!checking && user && month === null) {
@@ -478,11 +481,19 @@ export default function FinancesPage() {
             </section>
 
             <section className="card-panel p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <Ticket className="w-5 h-5 text-zinc-400" />
-                <h2 className="text-white text-lg font-medium tracking-wide">Income Sources</h2>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <Ticket className="w-5 h-5 text-zinc-400" />
+                  <h2 className="text-white text-lg font-medium tracking-wide">Income Sources</h2>
+                </div>
+                <button
+                  onClick={() => setShowAddIncome(true)}
+                  className="text-xs text-green-400 hover:text-green-300 transition-colors flex items-center gap-1 border border-green-500/30 px-3 py-1.5 rounded-md bg-green-500/5"
+                >
+                  <Plus className="w-3 h-3" /> Add Income
+                </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
                   <Ticket className="w-5 h-5 text-blue-400 mb-3" />
                   <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
@@ -503,6 +514,15 @@ export default function FinancesPage() {
                     }`}
                   >
                     {currency(data.summary.dressProfit)}
+                  </p>
+                </div>
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
+                  <Wallet className="w-5 h-5 text-green-400 mb-3" />
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                    Extra Income
+                  </p>
+                  <p className="font-[family-name:var(--font-space)] text-2xl text-green-400">
+                    {currency(data.summary.extraIncome)}
                   </p>
                 </div>
                 <Link
@@ -613,6 +633,16 @@ export default function FinancesPage() {
           </div>
         )}
       </main>
+
+      {month !== null && data && (
+        <AddExtraIncomeModal
+          isOpen={showAddIncome}
+          onClose={() => setShowAddIncome(false)}
+          branch={data.branch === "Overall" ? "bangalore" : data.branch}
+          month={month}
+          onSuccess={() => loadData(true)}
+        />
+      )}
     </div>
   );
 }
