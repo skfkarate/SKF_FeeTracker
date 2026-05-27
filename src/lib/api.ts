@@ -49,6 +49,18 @@ export interface Student {
   dressCost?: number;
   dressStatus?: "Paid" | "Pending";
   dressReceiptId?: string | null;
+  eventDues?: EventStudentDue[];
+}
+
+export interface EventStudentDue {
+  id: string;
+  eventId: string;
+  label: string;
+  feeType: string;
+  amount: number;
+  status: string;
+  receiptId?: string | null;
+  dueDate?: string;
 }
 
 export interface DashboardStats {
@@ -210,6 +222,7 @@ const CACHE_TTL = {
 function getTTLForKey(key: string): number {
   if (key.startsWith('students:')) return CACHE_TTL.students;
   if (key.startsWith('financial:')) return CACHE_TTL.financial;
+  if (key.startsWith('eventCollections:')) return CACHE_TTL.financial;
   if (key.startsWith('devFund:')) return CACHE_TTL.devFund;
   if (key.startsWith('referral:')) return CACHE_TTL.referrals;
   if (key.startsWith('branchCounts')) return CACHE_TTL.branchCounts;
@@ -598,6 +611,7 @@ export interface PaymentVerification {
   proofUrl: string;
   proofFilename: string;
   feeType: string;
+  sourceLabel?: string;
   month: number | null;
   monthName: string;
   year: number;
@@ -640,6 +654,217 @@ export async function rejectPaymentVerification(
   invalidateCache("students:");
   invalidateCache("financial:");
   invalidateCache("financeCommand:");
+}
+
+// ============================================
+// ADMISSIONS
+// ============================================
+
+export interface AdmissionApplication {
+  id: string;
+  branchSlug: string;
+  branchName: string;
+  preferredBatch: string;
+  expectedJoinDate: string;
+  studentName: string;
+  studentDob: string;
+  studentGender: string;
+  schoolClass: string;
+  guardianName: string;
+  guardianRelationship: string;
+  guardianPhone: string;
+  guardianWhatsapp: string;
+  guardianEmail: string;
+  secondaryGuardianName: string;
+  secondaryGuardianRelationship: string;
+  secondaryGuardianPhone: string;
+  emergencyName: string;
+  emergencyRelationship: string;
+  emergencyPhone: string;
+  hasMedicalCondition: boolean;
+  medicalDetails: string;
+  medications: string;
+  specialRequirements: string;
+  hasPreviousTraining: boolean;
+  martialArtsStyle: string;
+  trainingDuration: string;
+  previousDojo: string;
+  currentBelt: string;
+  trainingNotes: string;
+  referralSource: string;
+  referrerName: string;
+  referrerContact: string;
+  photoConsent: boolean;
+  dataConsent: boolean;
+  participationConsent: boolean;
+  accuracyConsent: boolean;
+  promoCodeId: string;
+  promoCode: string;
+  promoSnapshot: Record<string, unknown>;
+  quotedMonthlyFee: number;
+  quotedAdmissionFee: number;
+  quotedDressFee: number;
+  quotedJoiningTotal: number;
+  parentPhotoDriveFileId: string;
+  parentPhotoDriveUrl: string;
+  parentPhotoFilename: string;
+  parentPhotoMimeType: string;
+  admissionPhotoPath: string;
+  admissionPhotoUrl: string;
+  admissionPhotoFilename: string;
+  admissionPhotoMimeType: string;
+  admissionPhotoSize: number;
+  admissionPhotoUploadedAt: string;
+  admissionPhotoStatus: string;
+  paymentProofPath: string;
+  paymentProofUrl: string;
+  paymentProofFilename: string;
+  paymentProofMimeType: string;
+  paymentProofSize: number;
+  paymentProofUploadedAt: string;
+  duplicateWarnings: Array<Record<string, unknown>>;
+  status: "pending" | "approved" | "rejected";
+  reviewNote: string;
+  rejectionReason: string;
+  reviewedBy: string;
+  reviewedAt: string;
+  approvedSkfId: string;
+  finalPhotoUrl: string;
+  feeSetup: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdmissionPromoCode {
+  id?: string;
+  code: string;
+  name?: string;
+  branchSlug?: string | null;
+  status: "active" | "inactive";
+  discountType: "percent" | "fixed" | "fee_override" | "admission_waiver";
+  discountValue: number;
+  appliesTo: "monthly" | "admission" | "dress" | "joining_total";
+  validFrom?: string | null;
+  validUntil?: string | null;
+  maxUses?: number | null;
+  maxUsesPerPhone?: number | null;
+  notes?: string;
+}
+
+export interface AdmissionBranchSettings {
+  branchSlug: string;
+  branchName: string;
+  isEnabled: boolean;
+  showPublicCta: boolean;
+  defaultMonthlyFee: number;
+  defaultAdmissionFee: number;
+  defaultDressFee: number;
+  defaultDressCost: number;
+  batchOptions: string[];
+  notes: string;
+}
+
+export interface AdmissionDashboardData {
+  applications: AdmissionApplication[];
+  promoCodes: AdmissionPromoCode[];
+  branchSettings: AdmissionBranchSettings[];
+}
+
+export async function getAdmissionDashboard(
+  status: "pending" | "approved" | "rejected" | "all" = "pending",
+): Promise<AdmissionDashboardData> {
+  const data = await apiAction<{ data: AdmissionDashboardData }>("get_admission_dashboard", {
+    status,
+  });
+  return data.data;
+}
+
+export async function rejectAdmissionApplication(
+  applicationId: string,
+  reason: string,
+): Promise<AdmissionApplication> {
+  const data = await apiAction<{ data: { application: AdmissionApplication } }>(
+    "reject_admission_application",
+    { applicationId, reason },
+  );
+  invalidateCache("students:");
+  invalidateCache("branchCounts");
+  return data.data.application;
+}
+
+export async function upsertAdmissionPromoCode(
+  promoCode: AdmissionPromoCode,
+): Promise<AdmissionPromoCode> {
+  const data = await apiAction<{ data: { promoCode: AdmissionPromoCode } }>(
+    "upsert_admission_promo_code",
+    { promoCode },
+  );
+  return data.data.promoCode;
+}
+
+export async function updateAdmissionBranchSettings(
+  settings: AdmissionBranchSettings,
+): Promise<AdmissionBranchSettings> {
+  const data = await apiAction<{ data: { settings: AdmissionBranchSettings } }>(
+    "update_admission_branch_settings",
+    { settings },
+  );
+  return data.data.settings;
+}
+
+export async function approveAdmissionApplication(input: {
+  applicationId: string;
+  monthlyFee: number;
+  admissionFee: number;
+  dressFee: number;
+  dressCost: number;
+  billingStartDate: string;
+  batch?: string;
+  belt?: string;
+  isPublic: boolean;
+  paymentVerified: boolean;
+  photoAction: "upload_new";
+  reviewNote?: string;
+  finalPhoto?: File | null;
+}): Promise<{ skfId: string }> {
+  const formData = new FormData();
+  formData.set("monthlyFee", String(input.monthlyFee));
+  formData.set("admissionFee", String(input.admissionFee));
+  formData.set("dressFee", String(input.dressFee));
+  formData.set("dressCost", String(input.dressCost));
+  formData.set("billingStartDate", input.billingStartDate);
+  formData.set("batch", input.batch || "");
+  formData.set("belt", input.belt || "white");
+  formData.set("isPublic", String(input.isPublic));
+  formData.set("paymentVerified", String(input.paymentVerified));
+  formData.set("photoAction", input.photoAction);
+  formData.set("reviewNote", input.reviewNote || "");
+  if (input.finalPhoto) formData.set("finalPhoto", input.finalPhoto);
+
+  const response = await fetchWithRetry(
+    `/api/feetrack/admissions/${encodeURIComponent(input.applicationId)}/approve`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+  const data = await readJsonResponse(response);
+
+  if (response.status === 401) {
+    clearExpiredClientSession();
+  }
+
+  if (!response.ok || data.success === false) {
+    throw new Error(data.error || `Admission approval failed (${response.status})`);
+  }
+
+  invalidateCache("students:");
+  invalidateCache("branchCounts");
+  invalidateCache("financial:");
+  invalidateCache("financeCommand:");
+
+  const payload = data as { data?: { skfId?: string } };
+  return { skfId: payload.data?.skfId || "" };
 }
 
 // ============================================
@@ -974,6 +1199,10 @@ export interface FinancialSummary {
   admissionCollected?: number;
   dressProfit?: number;
   grossIncome?: number;
+  eventIncome?: number;
+  eventExpenses?: number;
+  eventSurplus?: number;
+  eventDeposits?: number;
   reserveUsed?: number;
 }
 
@@ -1034,9 +1263,13 @@ export interface FinanceCommandCenterData {
     admissionCollected: number;
     dressProfit: number;
     extraIncome: number;
+    eventIncome: number;
     grossIncome: number;
     developmentFundContribution: number;
     developmentExpenses: number;
+    eventExpenses: number;
+    eventSurplus: number;
+    eventDeposits: number;
     developmentFundBalance: number;
     availableBalance: number;
     collectionRate: number;
@@ -1158,5 +1391,195 @@ export async function deleteExtraIncome(
   });
   invalidateCache(`financeCommand:${branch}:${year}:${month}`);
   invalidateCache(`financial:${branch}:${year}:${month}`);
+  return data.data;
+}
+
+export interface EventBeltLevel {
+  key: string;
+  label: string;
+  kyu: string;
+}
+
+export interface EventFeeConfig {
+  eventId: string;
+  eventName?: string;
+  eventType?: string;
+  eventDate?: string;
+  feeCategory: "belt_exam" | "tournament" | "event" | "other";
+  targetingMode: "branch_and_eligibility" | "participants_only" | "manual_selection";
+  pricingMode: "fixed" | "branch" | "belt" | "branch_belt" | "student";
+  defaultAmount: number;
+  dueDate?: string;
+  branchScope: string[];
+  beltScope: string[];
+  branchPrices: Record<string, number>;
+  beltPrices: Record<string, number>;
+  branchBeltPrices: Record<string, number>;
+  studentOverrides: EventFeeOverride[];
+  notes?: string;
+  status?: string;
+}
+
+export interface EventFeeOverride {
+  skfId: string;
+  amount?: number;
+  excluded?: boolean;
+  waived?: boolean;
+  reason?: string;
+}
+
+export interface EventFeePreviewRow {
+  skfId: string;
+  studentName: string;
+  branch: string;
+  currentBelt: string;
+  currentBeltKey: string;
+  targetBelt: string;
+  targetBeltKey: string;
+  amount: number;
+  finalAmount: number;
+  status: "ready" | "needs_review" | "excluded" | "waived";
+  reason: string;
+  existingFeeRecordId: string | null;
+  existingStatus: string | null;
+  receiptId: string | null;
+}
+
+export interface EventCollectionItem {
+  event: {
+    id: string;
+    name: string;
+    type: string;
+    date: string;
+    status: string;
+    hostingBranch: string;
+    isPublished: boolean;
+  };
+  config: EventFeeConfig | null;
+  collection: {
+    chargedCount: number;
+    expected: number;
+    collected: number;
+    pending: number;
+    waived: number;
+    proofSubmitted: number;
+    paidCount: number;
+    pendingCount: number;
+    waivedCount: number;
+  };
+  finance: {
+    spent: number;
+    surplus: number;
+    savings: number;
+    deposited: number;
+    pendingDeposit: number;
+  };
+  expenses: Record<string, unknown>[];
+  deposits: Record<string, unknown>[];
+}
+
+export interface EventCollectionsData {
+  year: number;
+  beltSequence: EventBeltLevel[];
+  events: EventCollectionItem[];
+  totals: {
+    expected: number;
+    collected: number;
+    pending: number;
+    spent: number;
+    surplus: number;
+    deposited: number;
+    pendingDeposit: number;
+  };
+}
+
+export async function getEventCollections(
+  branch = "Overall",
+  year = getCurrentFeeYear(),
+  forceRefresh = false,
+): Promise<EventCollectionsData> {
+  const cacheKey = `eventCollections:${branch}:${year}`;
+  if (forceRefresh) invalidateCache(cacheKey);
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: EventCollectionsData }>("get_event_collections", {
+      branch,
+      year,
+    });
+    return data.data;
+  });
+}
+
+export async function upsertEventFeeConfig(config: EventFeeConfig): Promise<EventFeeConfig> {
+  const data = await apiAction<{ data: { config: EventFeeConfig } }>("upsert_event_fee_config", {
+    config,
+  });
+  invalidateCache("eventCollections:");
+  return data.data.config;
+}
+
+export async function previewEventFees(
+  eventId: string,
+  config?: Partial<EventFeeConfig>,
+): Promise<{
+  event: EventCollectionItem["event"];
+  config: EventFeeConfig;
+  rows: EventFeePreviewRow[];
+  summary: { ready: number; waived: number; excluded: number; needsReview: number; totalAmount: number };
+}> {
+  const data = await apiAction<{
+    data: {
+      event: EventCollectionItem["event"];
+      config: EventFeeConfig;
+      rows: EventFeePreviewRow[];
+      summary: { ready: number; waived: number; excluded: number; needsReview: number; totalAmount: number };
+    };
+  }>("preview_event_fees", { eventId, config });
+  return data.data;
+}
+
+export async function generateEventFees(
+  eventId: string,
+  overrides: EventFeeOverride[] = [],
+): Promise<{ createdOrUpdated: number; waived: number; skipped: number }> {
+  const data = await apiAction<{ data: { createdOrUpdated: number; waived: number; skipped: number } }>("generate_event_fees", {
+    eventId,
+    overrides,
+  });
+  invalidateCache("eventCollections:");
+  invalidateCache("students:");
+  invalidateCache("financeCommand:");
+  return data.data;
+}
+
+export async function addEventExpense(input: {
+  eventId: string;
+  title: string;
+  amount: number;
+  expenseDate?: string;
+  branchScope: string;
+  allocationMethod?: "single_branch" | "student_branch" | "custom" | "overall";
+  category?: string;
+  paymentMethod?: string;
+  vendor?: string;
+  notes?: string;
+}) {
+  const data = await apiAction<{ data: Record<string, unknown> }>("add_event_expense", input);
+  invalidateCache("eventCollections:");
+  invalidateCache("financeCommand:");
+  return data.data;
+}
+
+export async function addEventDeposit(input: {
+  eventId: string;
+  amount: number;
+  depositDate?: string;
+  branchScope: string;
+  method?: string;
+  reference?: string;
+  notes?: string;
+}) {
+  const data = await apiAction<{ data: Record<string, unknown> }>("add_event_deposit", input);
+  invalidateCache("eventCollections:");
+  invalidateCache("financeCommand:");
   return data.data;
 }

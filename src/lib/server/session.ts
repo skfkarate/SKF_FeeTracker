@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { FEETRACK_SESSION_TTL_MS } from "@/lib/feetrack-session";
 
 export type FeeTrackStaff = {
   id: string;
@@ -45,7 +46,7 @@ export function createFeeTrackSession(staff: FeeTrackStaff) {
   const payload = base64url(
     JSON.stringify({
       staff,
-      exp: Date.now() + 8 * 60 * 60 * 1000,
+      exp: Date.now() + FEETRACK_SESSION_TTL_MS,
     } satisfies SessionPayload)
   );
 

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FEETRACK_SESSION_TTL_MS } from "@/lib/feetrack-session";
 
 const USER_KEY = "skf_user";
 const LOGIN_TIME_KEY = "skf_login_time";
-const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 
 type SessionResponse = {
   authenticated?: boolean;
@@ -36,7 +36,7 @@ export function getStoredFeeTrackUser() {
   const loginTime = Number(localStorage.getItem(LOGIN_TIME_KEY) || 0);
   if (!storedUser || !Number.isFinite(loginTime)) return null;
 
-  if (Date.now() - loginTime > SESSION_TTL_MS) {
+  if (Date.now() - loginTime > FEETRACK_SESSION_TTL_MS) {
     clearFeeTrackSessionStorage();
     return null;
   }

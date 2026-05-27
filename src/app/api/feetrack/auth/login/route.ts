@@ -6,6 +6,7 @@ import {
   type FeeTrackStaff,
 } from "@/lib/server/session";
 import { callKarateBackend } from "@/lib/server/backend";
+import { FEETRACK_SESSION_MAX_AGE_SECONDS } from "@/lib/feetrack-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 8 * 60 * 60,
+      maxAge: FEETRACK_SESSION_MAX_AGE_SECONDS,
       path: "/",
     });
 

@@ -26,6 +26,7 @@ export default function VerificationsPage() {
   const [actioning, setActioning] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [approvalPreview, setApprovalPreview] = useState<PaymentVerification | null>(null);
   const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -62,9 +63,11 @@ export default function VerificationsPage() {
     }
   }, [checking, user]);
 
-  // Initial load
   useEffect(() => {
-    void loadInbox();
+    const id = window.setTimeout(() => {
+      void loadInbox();
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [loadInbox]);
 
   // Auto-refresh timer to keep signed URLs alive
@@ -86,6 +89,16 @@ export default function VerificationsPage() {
   }, []);
 
   const handleApprove = async (proofId: string) => {
+    const proof = verifications.find((item) => item.id === proofId);
+    if (!proof) return;
+    setApprovalPreview(proof);
+  };
+
+  const confirmApprove = async () => {
+    const proof = approvalPreview;
+    if (!proof) return;
+    const proofId = proof.id;
+    setApprovalPreview(null);
     // Optimistic removal
     const prevVerifications = verifications;
     setVerifications(v => v.filter(p => p.id !== proofId));
@@ -196,7 +209,7 @@ export default function VerificationsPage() {
                             <span className="text-[10px] uppercase tracking-wider text-emerald-400">{proof.branch}</span>
                             <span className="w-1 h-1 rounded-full bg-zinc-700" />
                             <span className="text-[10px] text-zinc-400">
-                              ₹{proof.amount.toLocaleString("en-IN")} {proof.monthName ? `• ${proof.monthName} ${proof.year}` : ""}
+                              ₹{proof.amount.toLocaleString("en-IN")} {proof.sourceLabel ? `• ${proof.sourceLabel}` : proof.monthName ? `• ${proof.monthName} ${proof.year}` : ""}
                             </span>
                           </div>
                           {proof.paymentReference && (
@@ -306,6 +319,54 @@ export default function VerificationsPage() {
               <AlertCircle className="w-4 h-4" />
             )}
             {toast.message}
+          </div>
+        </div>
+      )}
+
+      {approvalPreview && (
+        <div className="fixed inset-0 z-[210] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="card-panel w-full max-w-sm p-6">
+            <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider text-white text-center mb-4">
+              CONFIRM APPROVAL
+            </h2>
+            <div className="surface-glass p-4 space-y-3 mb-5">
+              <div className="flex justify-between gap-3">
+                <span className="text-xs text-zinc-500">Student</span>
+                <span className="text-sm text-white text-right">{approvalPreview.studentName}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-xs text-zinc-500">SKF ID</span>
+                <span className="text-sm text-white font-mono">{approvalPreview.studentId}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-xs text-zinc-500">Fee</span>
+                <span className="text-sm text-white capitalize">{approvalPreview.sourceLabel || approvalPreview.feeType.replace("_", " ")}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-xs text-zinc-500">Period</span>
+                <span className="text-sm text-white">{approvalPreview.monthName || "-"} {approvalPreview.year}</span>
+              </div>
+              <div className="flex justify-between gap-3 border-t border-white/5 pt-3">
+                <span className="text-xs text-zinc-500">Amount</span>
+                <span className="text-xl text-emerald-400 font-[family-name:var(--font-space)]">₹{approvalPreview.amount.toLocaleString("en-IN")}</span>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setApprovalPreview(null)}
+                className="btn-ghost flex-1 py-3 rounded-lg"
+              >
+                NO
+              </button>
+              <button
+                type="button"
+                onClick={confirmApprove}
+                className="flex-1 py-3 rounded-lg bg-emerald-500 text-black font-semibold hover:bg-emerald-400"
+              >
+                YES, APPROVE
+              </button>
+            </div>
           </div>
         </div>
       )}

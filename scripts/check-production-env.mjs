@@ -58,6 +58,20 @@ if (read("FEETRACK_SESSION_SECRET").length < 32) {
   errors.push("FEETRACK_SESSION_SECRET must be set and at least 32 characters.");
 }
 
+parseUrl("SENTRY_DSN", read("SENTRY_DSN"));
+
+if (!read("SENTRY_AUTH_TOKEN")) {
+  errors.push("SENTRY_AUTH_TOKEN is required for production source-map uploads.");
+}
+
+if (!read("SENTRY_ORG")) {
+  errors.push("SENTRY_ORG is required for production source-map uploads.");
+}
+
+if (!read("SENTRY_PROJECT")) {
+  errors.push("SENTRY_PROJECT is required for production source-map uploads.");
+}
+
 if (errors.length) {
   console.error("FeeTrack production environment is not ready:");
   for (const error of errors) {

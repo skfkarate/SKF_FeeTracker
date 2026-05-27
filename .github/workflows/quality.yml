@@ -1,0 +1,50 @@
+name: Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Security audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Production environment check
+        run: node scripts/check-production-env.mjs
+        env:
+          VERCEL_ENV: production
+          FEETRACK_BACKEND_URL: https://skfkarate.org
+          NEXT_PUBLIC_SKF_KARATE_URL: https://skfkarate.org
+          FEETRACK_API_KEY: ci_placeholder_feetrack_api_key
+          FEETRACK_SESSION_SECRET: ci_feetrack_session_secret_32_chars
+          SENTRY_DSN: https://public@example.ingest.sentry.io/1
+          SENTRY_AUTH_TOKEN: ci_sentry_auth_token
+          SENTRY_ORG: skf-karate
+          SENTRY_PROJECT: skf-feetrack
+
+      - name: Production build
+        run: npm run build
+        env:
+          FEETRACK_BACKEND_URL: https://skfkarate.org
+          FEETRACK_API_KEY: ci_placeholder_feetrack_api_key
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

@@ -69,10 +69,11 @@ export default function LoginPage() {
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4 animate-slide-up delay-100">
           <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-widest text-center">
+            <label htmlFor="feetrack-username" className="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-widest text-center">
               Username
             </label>
             <input
+              id="feetrack-username"
               type="text"
               value={username}
               onChange={(e) => { setUsername(e.target.value); setError(""); }}
@@ -84,10 +85,11 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-widest text-center">
+            <label htmlFor="feetrack-password" className="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-widest text-center">
               Password
             </label>
             <input
+              id="feetrack-password"
               type="password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(""); }}

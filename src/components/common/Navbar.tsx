@@ -30,12 +30,13 @@ export default function Navbar({
                     {showBack ? (
                         <Link
                             href="/dashboard"
-                            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                            aria-label="Back to dashboard"
+                            className="w-8 h-8 min-w-11 min-h-11 flex items-center justify-center rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
                         >
                             <ArrowLeft className="w-4 h-4" />
                         </Link>
                     ) : (
-                        <Link href="/dashboard" className="flex items-center gap-3">
+                        <Link href="/dashboard" className="flex min-h-11 items-center gap-3" aria-label="SKF dashboard">
                             <Image
                                 src="/logo.png"
                                 alt="SKF"

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-import { callKarateBackend } from "@/lib/server/backend";
+import { callKarateBackend, KarateBackendError } from "@/lib/server/backend";
 import {
   FEETRACK_SESSION_COOKIE,
   readFeeTrackSession,
@@ -35,12 +35,16 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    const status = error instanceof KarateBackendError ? error.status : 500;
+
     return Response.json(
       {
         success: false,
         error: error instanceof Error ? error.message : "FeeTrack request failed.",
+        code: error instanceof KarateBackendError ? error.code : undefined,
+        details: error instanceof KarateBackendError ? error.details : undefined,
       },
-      { status: 500 },
+      { status: status >= 400 && status < 600 ? status : 500 },
     );
   }
 }

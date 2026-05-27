@@ -105,6 +105,7 @@ export default function MessagesPage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(
     new Set(),
   );
@@ -122,6 +123,7 @@ export default function MessagesPage() {
   useEffect(() => {
     const fetchStudents = async () => {
       setLoading(true);
+      setLoadError("");
       try {
         const data = await getStudents(selectedBranch, selectedMonth, false, feeYear);
         setStudents(data);
@@ -136,8 +138,8 @@ export default function MessagesPage() {
           );
           setSelectedStudents(pendingIds);
         }
-      } catch (error) {
-        console.error("Failed to fetch students:", error);
+      } catch {
+        setLoadError("Unable to load students. Please retry.");
       } finally {
         setLoading(false);
       }
@@ -272,7 +274,7 @@ export default function MessagesPage() {
       newWindow.closed ||
       typeof newWindow.closed === "undefined"
     ) {
-      console.warn("Popup blocked for", phone);
+      window.location.href = whatsappUrl;
     }
   };
 
@@ -295,12 +297,6 @@ export default function MessagesPage() {
     for (let i = 0; i < selectedStudentsList.length; i++) {
       const student = selectedStudentsList[i];
       const message = replacePlaceholders(messageTemplate, student);
-
-      // Check for unresolved placeholders
-      if (hasUnresolvedPlaceholders(message)) {
-        // Skip alert for speed, just log
-        console.warn(`Unresolved placeholders for ${student.name}`);
-      }
 
       const phone = String(student.whatsapp || student.phone || "");
       if (phone) {
@@ -394,10 +390,11 @@ export default function MessagesPage() {
           {/* Branch & Month Selection */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div>
-              <label className="text-xs text-[var(--text-muted)] uppercase tracking-wider block mb-1 font-medium">
+              <label htmlFor="message-branch" className="text-xs text-[var(--text-muted)] uppercase tracking-wider block mb-1 font-medium">
                 Branch
               </label>
               <select
+                id="message-branch"
                 value={selectedBranch}
                 onChange={(e) => setSelectedBranch(e.target.value)}
                 className="input-field"
@@ -407,10 +404,11 @@ export default function MessagesPage() {
               </select>
             </div>
             <div>
-              <label className="text-xs text-[var(--text-muted)] uppercase tracking-wider block mb-1 font-medium">
+              <label htmlFor="message-month" className="text-xs text-[var(--text-muted)] uppercase tracking-wider block mb-1 font-medium">
                 Month
               </label>
               <select
+                id="message-month"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
                 className="input-field"
@@ -449,6 +447,10 @@ export default function MessagesPage() {
             <div className="text-center py-8">
               <div className="spinner mx-auto mb-2" />
               <p className="text-[var(--text-muted)] text-sm">Loading students...</p>
+            </div>
+          ) : loadError ? (
+            <div className="text-center py-8 text-red-400 text-sm">
+              {loadError}
             </div>
           ) : pendingStudents.length === 0 ? (
             <div className="text-center py-8 text-[var(--text-muted)] text-sm">

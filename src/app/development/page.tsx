@@ -120,7 +120,10 @@ export default function DevelopmentFundPage() {
 
   useEffect(() => {
     if (!checking && user) {
-      loadData();
+      const id = window.setTimeout(() => {
+        void loadData();
+      }, 0);
+      return () => window.clearTimeout(id);
     }
   }, [checking, loadData, user]);
 

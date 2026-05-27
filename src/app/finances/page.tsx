@@ -125,7 +125,12 @@ function rowMatchesFormula(row: FinanceLedgerRow, formulaKey: string) {
       "creditsApplied",
       "admissionCollected",
       "dressProfit",
+      "extraIncome",
+      "eventIncome",
     ].includes(row.formulaKey);
+  }
+  if (formulaKey === "eventSurplus") {
+    return row.formulaKey === "eventIncome" || row.formulaKey === "eventExpenses";
   }
   return row.formulaKey === formulaKey;
 }
@@ -134,22 +139,16 @@ export default function FinancesPage() {
   const { user, checking } = useFeeTrackAuth();
   const feeYear = getCurrentFeeYear();
   const [branch, setBranch] = useState("Overall");
-  const [month, setMonth] = useState<number | null>(null);
+  const [month, setMonth] = useState(() => new Date().getMonth());
   const [data, setData] = useState<FinanceCommandCenterData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeFormula, setActiveFormula] = useState("all");
   const [showAddIncome, setShowAddIncome] = useState(false);
 
-  useEffect(() => {
-    if (!checking && user && month === null) {
-      setMonth(new Date().getMonth());
-    }
-  }, [checking, month, user]);
-
   const loadData = useCallback(
     async (forceRefresh = false) => {
-      if (!user || checking || month === null) return;
+      if (!user || checking) return;
       setLoading(true);
       setError("");
       try {
@@ -170,9 +169,11 @@ export default function FinancesPage() {
   );
 
   useEffect(() => {
-    if (!checking && user && month !== null) {
-      setActiveFormula("all");
-      loadData();
+    if (!checking && user) {
+      const id = window.setTimeout(() => {
+        void loadData();
+      }, 0);
+      return () => window.clearTimeout(id);
     }
   }, [branch, checking, loadData, month, user]);
 
@@ -199,9 +200,12 @@ export default function FinancesPage() {
         rightContent={
           <div className="scale-90 origin-right">
             <MonthSelector
-              selectedMonth={month ?? 0}
+              selectedMonth={month}
               year={feeYear}
-              onMonthChange={setMonth}
+              onMonthChange={(nextMonth) => {
+                setActiveFormula("all");
+                setMonth(nextMonth);
+              }}
             />
           </div>
         }
@@ -212,7 +216,10 @@ export default function FinancesPage() {
           {BRANCHES.map((option) => (
             <button
               key={option.value}
-              onClick={() => setBranch(option.value)}
+              onClick={() => {
+                setActiveFormula("all");
+                setBranch(option.value);
+              }}
               className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-[family-name:var(--font-space)] tracking-wider transition-all ${
                 branch === option.value
                   ? "bg-[var(--surface)] text-white border border-white/10"
@@ -286,19 +293,19 @@ export default function FinancesPage() {
                 <div className="rounded-lg bg-white/[0.03] border border-white/5 p-3">
                   <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Expenses</p>
                   <p className="text-red-400 font-[family-name:var(--font-space)]">
-                    {currency(data.summary.developmentExpenses)}
+                    {currency(data.summary.developmentExpenses + data.summary.eventExpenses)}
                   </p>
                 </div>
                 <div className="rounded-lg bg-white/[0.03] border border-white/5 p-3">
                   <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Net</p>
                   <p
                     className={`font-[family-name:var(--font-space)] ${
-                      data.summary.grossIncome - data.summary.developmentExpenses < 0
+                      data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses < 0
                         ? "text-red-400"
                         : "text-blue-400"
                     }`}
                   >
-                    {currency(data.summary.grossIncome - data.summary.developmentExpenses)}
+                    {currency(data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses)}
                   </p>
                 </div>
               </div>
@@ -389,7 +396,7 @@ export default function FinancesPage() {
 
               <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
                 {[...data.incomeBreakdown, ...data.expenseBreakdown].map((item) => {
-                  const signedAmount = item.key === "developmentExpenses" ? -Math.abs(item.amount) : item.amount;
+                  const signedAmount = item.key === "developmentExpenses" || item.key === "eventExpenses" ? -Math.abs(item.amount) : item.amount;
                   return (
                     <button
                       key={item.key}
@@ -441,11 +448,11 @@ export default function FinancesPage() {
                   Expense report <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <MetricCard
                   label="Gross Income"
                   value={currency(data.summary.grossIncome)}
-                  note="Fee cash + admission + dress profit"
+                  note="Core income + event income"
                   icon={Wallet}
                   tone={data.summary.grossIncome < 0 ? "red" : "green"}
                   active={activeFormula === "grossIncome"}
@@ -468,6 +475,15 @@ export default function FinancesPage() {
                   tone="red"
                   active={activeFormula === "developmentExpenses"}
                   onClick={() => setActiveFormula("developmentExpenses")}
+                />
+                <MetricCard
+                  label="Event Spend"
+                  value={`-${currency(data.summary.eventExpenses)}`}
+                  note="Belt exam/tournament costs"
+                  icon={Package}
+                  tone="red"
+                  active={activeFormula === "eventExpenses"}
+                  onClick={() => setActiveFormula("eventExpenses")}
                 />
                 <MetricCard
                   label="Fund Balance"
@@ -493,7 +509,7 @@ export default function FinancesPage() {
                   <Plus className="w-3 h-3" /> Add Income
                 </button>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
                   <Ticket className="w-5 h-5 text-blue-400 mb-3" />
                   <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
@@ -525,6 +541,18 @@ export default function FinancesPage() {
                     {currency(data.summary.extraIncome)}
                   </p>
                 </div>
+                <Link
+                  href="/events"
+                  className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 hover:border-amber-500/50 transition-colors"
+                >
+                  <Ticket className="w-5 h-5 text-amber-400 mb-3" />
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                    Event Income
+                  </p>
+                  <p className="font-[family-name:var(--font-space)] text-2xl text-amber-400">
+                    {currency(data.summary.eventIncome)}
+                  </p>
+                </Link>
                 <Link
                   href="/referrals"
                   className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 hover:border-purple-500/50 transition-colors"

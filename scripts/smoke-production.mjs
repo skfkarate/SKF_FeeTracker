@@ -109,6 +109,26 @@ async function runAuthenticatedSmoke() {
     throw new Error(`FeeTrack authenticated data returned ${data.response.status}`)
   }
   record('PASS', 'FeeTrack authenticated data flow', `${data.response.status}`)
+
+  const admissions = await request('FeeTrack admissions data', endpoint(feeTrackBase, '/api/feetrack/data'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Cookie: sessionCookie,
+    },
+    body: JSON.stringify({ action: 'get_admission_dashboard', status: 'pending' }),
+  })
+
+  if (
+    !admissions.response.ok ||
+    !admissions.body?.success ||
+    !Array.isArray(admissions.body?.data?.applications) ||
+    !Array.isArray(admissions.body?.data?.promoCodes) ||
+    !Array.isArray(admissions.body?.data?.branchSettings)
+  ) {
+    throw new Error(`FeeTrack admissions data returned ${admissions.response.status}`)
+  }
+  record('PASS', 'FeeTrack admissions data flow', `${admissions.response.status}`)
 }
 
 async function main() {

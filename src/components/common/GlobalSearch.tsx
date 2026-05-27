@@ -77,8 +77,10 @@ export default function GlobalSearch() {
   return (
     <>
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors"
+        aria-label="Open student search"
+        className="flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors"
       >
         <Search className="w-3.5 h-3.5" />
         <span className="text-xs hidden sm:inline">Search...</span>
@@ -88,10 +90,11 @@ export default function GlobalSearch() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-[100] pt-[15vh]">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center z-[100] pt-[15vh]" role="dialog" aria-modal="true" aria-label="Student search">
           <div 
             className="fixed inset-0" 
             onClick={closeSearch} 
+            aria-hidden="true"
           />
           <div className="card-panel max-w-xl w-full mx-4 shadow-2xl relative flex flex-col max-h-[70vh] overflow-hidden animate-slide-up">
             
@@ -100,6 +103,7 @@ export default function GlobalSearch() {
               <input
                 ref={inputRef}
                 type="text"
+                aria-label="Search by name or SKF ID"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name or SKF ID..."

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Wallet, PiggyBank, LayoutGrid, Activity, Sparkles, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowUpRight, Wallet, PiggyBank, LayoutGrid, Activity, Sparkles, FileText, CheckCircle2, AlertCircle, ShieldCheck, Trophy } from "lucide-react";
 import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
 import { useFeeTrackAuth } from "@/lib/client-auth";
@@ -166,6 +166,28 @@ export default function DashboardPage() {
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold text-zinc-100">Master Ledger</h3>
                   <p className="text-xs text-zinc-500 mt-1">Review all consolidated collections</p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
+              </Link>
+
+              <Link href="/admissions" className="card-panel group flex items-center p-5 gap-5 hover:bg-zinc-900/50 transition-all">
+                <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-emerald-400 group-hover:border-zinc-700 transition-colors shadow-sm">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-zinc-100">Admissions</h3>
+                  <p className="text-xs text-zinc-500 mt-1">Approve students and manage promo codes</p>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
+              </Link>
+
+              <Link href="/events" className="card-panel group flex items-center p-5 gap-5 hover:bg-zinc-900/50 transition-all">
+                <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-amber-400 group-hover:border-zinc-700 transition-colors shadow-sm">
+                  <Trophy className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-zinc-100">Event Collections</h3>
+                  <p className="text-xs text-zinc-500 mt-1">Belt exams, tournaments and deposits</p>
                 </div>
                 <ArrowUpRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors" />
               </Link>

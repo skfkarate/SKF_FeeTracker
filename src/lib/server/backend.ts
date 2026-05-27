@@ -12,6 +12,35 @@ type BackendCallOptions = {
   timeoutMs?: number;
 };
 
+export class KarateBackendError extends Error {
+  readonly status: number;
+  readonly code?: string;
+  readonly details?: unknown;
+
+  constructor(message: string, status: number, code?: string, details?: unknown) {
+    super(message);
+    this.name = "KarateBackendError";
+    this.status = status;
+    this.code = code;
+    this.details = details;
+  }
+}
+
+function firstDetail(details: unknown): string {
+  if (!details || typeof details !== "object") return "";
+
+  for (const value of Object.values(details as Record<string, unknown>)) {
+    if (Array.isArray(value)) {
+      const first = value.find(Boolean);
+      if (first) return String(first);
+    }
+
+    if (value) return String(value);
+  }
+
+  return "";
+}
+
 function isLocalBackendUrl(url: URL) {
   return ["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(url.hostname);
 }
@@ -91,7 +120,9 @@ export async function callKarateBackend<T>(
       );
     }
 
-    throw new Error(data?.error || `Backend request failed (${response.status}).`);
+    const detail = firstDetail(data?.details);
+    const message = detail || data?.error || `Backend request failed (${response.status}).`;
+    throw new KarateBackendError(message, response.status, data?.code, data?.details);
   }
 
   return data as T;

@@ -32,8 +32,6 @@ export const viewport = {
   themeColor: "#0a0a0a",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false, // Prevent zooming for "app-like" feel
 };
 
 export default function RootLayout({
@@ -44,7 +42,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${manrope.variable} ${spaceGrotesk.variable} antialiased`}>
-        {children}
+        <a href="#main-content" className="skip-to-content">Skip to main content</a>
+        <div id="main-content">{children}</div>
       </body>
     </html>
   );

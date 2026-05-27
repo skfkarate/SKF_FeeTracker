@@ -540,8 +540,8 @@ export default function StudentList({ branch }: { branch: string }) {
               </div>
             )}
 
-            {/* Pending Admission/Dress Badges */}
-            {(student.admissionStatus === "Pending" || student.dressStatus === "Pending") && (
+            {/* Pending Admission/Dress/Event Badges */}
+            {(student.admissionStatus === "Pending" || student.dressStatus === "Pending" || (student.eventDues || []).some((due) => due.status !== "paid" && due.status !== "waived")) && (
               <div className="mt-2 flex gap-2 flex-wrap">
                 {student.admissionStatus === "Pending" && (
                   <div className="inline-flex items-center gap-1.5 text-[10px] bg-blue-500/10 text-blue-300 px-2 py-1 rounded-md border border-blue-500/20">
@@ -555,6 +555,15 @@ export default function StudentList({ branch }: { branch: string }) {
                     <span>Dress Due</span>
                   </div>
                 )}
+                {(student.eventDues || [])
+                  .filter((due) => due.status !== "paid" && due.status !== "waived")
+                  .slice(0, 2)
+                  .map((due) => (
+                    <div key={due.id || due.label} className="inline-flex items-center gap-1.5 text-[10px] bg-amber-500/10 text-amber-300 px-2 py-1 rounded-md border border-amber-500/20">
+                      <Ticket className="w-3 h-3" />
+                      <span>{due.label || "Event Due"} ₹{due.amount}</span>
+                    </div>
+                  ))}
               </div>
             )}
           </div>
@@ -1042,6 +1051,21 @@ export default function StudentList({ branch }: { branch: string }) {
                   <span className="text-[var(--text-muted)] text-sm">Monthly Fee</span>
                   <span className="text-white text-sm font-medium">₹{detailStudent.fee ?? 0}</span>
                 </div>
+                {(detailStudent.eventDues || []).length > 0 && (
+                  <div className="border-b border-white/5 pb-2">
+                    <span className="text-[var(--text-muted)] text-sm">Event Dues</span>
+                    <div className="mt-2 space-y-1">
+                      {(detailStudent.eventDues || []).map((due) => (
+                        <div key={due.id || due.label} className="flex justify-between gap-3 text-xs">
+                          <span className="text-zinc-400 truncate">{due.label}</span>
+                          <span className={due.status === "paid" ? "text-emerald-400" : "text-amber-400"}>
+                            ₹{due.amount}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-[var(--text-muted)] text-sm">Status</span>
                   <span className={`text-sm font-medium ${isDiscontinuedStudent(detailStudent)

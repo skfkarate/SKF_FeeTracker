@@ -24,6 +24,7 @@ export async function GET() {
           status: response.status,
           reachable: response.ok,
           configured,
+          features: data?.features || {},
         },
         deployment: {
           environment: process.env.VERCEL_ENV || process.env.NODE_ENV || "unknown",
