@@ -10,6 +10,7 @@ if (!isProductionDeploy) {
 }
 
 const errors = [];
+const warnings = [];
 
 function read(name) {
   return String(process.env[name] || "").trim();
@@ -58,18 +59,31 @@ if (read("FEETRACK_SESSION_SECRET").length < 32) {
   errors.push("FEETRACK_SESSION_SECRET must be set and at least 32 characters.");
 }
 
-parseUrl("SENTRY_DSN", read("SENTRY_DSN"));
+const sentryDsn = read("SENTRY_DSN");
+const sentryAuthToken = read("SENTRY_AUTH_TOKEN");
+const sentryOrg = read("SENTRY_ORG");
+const sentryProject = read("SENTRY_PROJECT");
 
-if (!read("SENTRY_AUTH_TOKEN")) {
-  errors.push("SENTRY_AUTH_TOKEN is required for production source-map uploads.");
+if (sentryDsn) {
+  parseUrl("SENTRY_DSN", sentryDsn);
+} else {
+  warnings.push("SENTRY_DSN is not set; production error reporting is disabled.");
 }
 
-if (!read("SENTRY_ORG")) {
-  errors.push("SENTRY_ORG is required for production source-map uploads.");
+if (sentryAuthToken) {
+  if (!sentryOrg) {
+    errors.push("SENTRY_ORG is required when SENTRY_AUTH_TOKEN is configured.");
+  }
+
+  if (!sentryProject) {
+    errors.push("SENTRY_PROJECT is required when SENTRY_AUTH_TOKEN is configured.");
+  }
+} else {
+  warnings.push("SENTRY_AUTH_TOKEN is not set; production source-map uploads are disabled.");
 }
 
-if (!read("SENTRY_PROJECT")) {
-  errors.push("SENTRY_PROJECT is required for production source-map uploads.");
+if ((sentryOrg || sentryProject) && !sentryAuthToken) {
+  warnings.push("SENTRY_ORG/SENTRY_PROJECT are ignored until SENTRY_AUTH_TOKEN is configured.");
 }
 
 if (errors.length) {
@@ -78,6 +92,13 @@ if (errors.length) {
     console.error(`- ${error}`);
   }
   process.exit(1);
+}
+
+if (warnings.length) {
+  console.warn("FeeTrack production environment warnings:");
+  for (const warning of warnings) {
+    console.warn(`- ${warning}`);
+  }
 }
 
 console.log("FeeTrack production environment looks deployable.");
