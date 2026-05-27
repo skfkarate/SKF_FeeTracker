@@ -779,6 +779,17 @@ export async function getAdmissionDashboard(
   return data.data;
 }
 
+export async function getAdmissionApplications(
+  status: "pending" | "approved" | "rejected" | "all" = "pending",
+  limit = 100,
+): Promise<AdmissionApplication[]> {
+  const data = await apiAction<{ data: { applications: AdmissionApplication[] } }>(
+    "get_admission_applications",
+    { status, limit },
+  );
+  return data.data.applications;
+}
+
 export async function rejectAdmissionApplication(
   applicationId: string,
   reason: string,

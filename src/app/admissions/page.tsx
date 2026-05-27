@@ -5,6 +5,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
+  Download,
   ExternalLink,
   FileImage,
   Percent,
@@ -21,13 +22,14 @@ import {
   AdmissionBranchSettings,
   AdmissionPromoCode,
   approveAdmissionApplication,
+  getAdmissionApplications,
   getAdmissionDashboard,
   rejectAdmissionApplication,
   updateAdmissionBranchSettings,
   upsertAdmissionPromoCode,
 } from "@/lib/api";
 
-type Tab = "pending" | "promos" | "settings";
+type Tab = "pending" | "photos" | "promos" | "settings";
 
 const emptyPromo: AdmissionPromoCode = {
   code: "",
@@ -67,6 +69,7 @@ export default function AdmissionsPage() {
   const { user, checking } = useFeeTrackAuth();
   const [tab, setTab] = useState<Tab>("pending");
   const [applications, setApplications] = useState<AdmissionApplication[]>([]);
+  const [profilePhotoApplications, setProfilePhotoApplications] = useState<AdmissionApplication[]>([]);
   const [promoCodes, setPromoCodes] = useState<AdmissionPromoCode[]>([]);
   const [branchSettings, setBranchSettings] = useState<AdmissionBranchSettings[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,10 +85,11 @@ export default function AdmissionsPage() {
   const summary = useMemo(
     () => ({
       pending: applications.length,
+      photos: profilePhotoApplications.length,
       promos: promoCodes.filter((promo) => promo.status === "active").length,
       forms: branchSettings.filter((setting) => setting.isEnabled).length,
     }),
-    [applications.length, branchSettings, promoCodes],
+    [applications.length, branchSettings, profilePhotoApplications.length, promoCodes],
   );
 
   const load = useCallback(async () => {
@@ -93,8 +97,14 @@ export default function AdmissionsPage() {
     setLoading(true);
     setError("");
     try {
-      const data = await getAdmissionDashboard("pending");
+      const [data, approvedApplications] = await Promise.all([
+        getAdmissionDashboard("pending"),
+        getAdmissionApplications("approved", 200),
+      ]);
       setApplications(data.applications);
+      setProfilePhotoApplications(
+        approvedApplications.filter((application) => application.finalPhotoUrl && application.status === "approved"),
+      );
       setPromoCodes(data.promoCodes);
       setBranchSettings(data.branchSettings);
     } catch (loadError) {
@@ -123,6 +133,7 @@ export default function AdmissionsPage() {
     try {
       await rejectAdmissionApplication(application.id, reason.trim());
       setApplications((current) => current.filter((item) => item.id !== application.id));
+      setProfilePhotoApplications((current) => current.filter((item) => item.id !== application.id));
       showNotice("Admission rejected.");
     } catch (rejectError) {
       setError(rejectError instanceof Error ? rejectError.message : "Unable to reject admission.");
@@ -164,6 +175,7 @@ export default function AdmissionsPage() {
         finalPhoto,
       });
       setApplications((current) => current.filter((item) => item.id !== application.id));
+      void load();
       showNotice(`Approved. SKF ID ${result.skfId} created.`);
     } catch (approveError) {
       setError(approveError instanceof Error ? approveError.message : "Unable to approve admission.");
@@ -233,8 +245,9 @@ export default function AdmissionsPage() {
         </header>
 
         {!loading && !error ? (
-          <div className="grid grid-cols-3 gap-3 mb-5 animate-slide-up delay-100">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 animate-slide-up delay-100">
             <MetricCard label="Pending" value={summary.pending} icon={Clock} tone="amber" />
+            <MetricCard label="Photos" value={summary.photos} icon={FileImage} tone="white" />
             <MetricCard label="Promos" value={summary.promos} icon={Ticket} tone="green" />
             <MetricCard label="Forms" value={summary.forms} icon={ShieldCheck} tone="white" />
           </div>
@@ -243,6 +256,7 @@ export default function AdmissionsPage() {
         <div className="flex p-1 bg-black/20 rounded-xl w-full border border-white/5 mb-5 animate-slide-up delay-100">
           {[
             ["pending", "Approvals", ShieldCheck],
+            ["photos", "Photos", FileImage],
             ["promos", "Promo Codes", Ticket],
             ["settings", "Settings", Settings2],
           ].map(([key, label, Icon]) => (
@@ -287,6 +301,8 @@ export default function AdmissionsPage() {
             onApprove={handleApprove}
             onReject={handleReject}
           />
+        ) : tab === "photos" ? (
+          <ProfilePhotosTab applications={profilePhotoApplications} />
         ) : tab === "promos" ? (
           <PromosTab
             branchOptions={branchOptions}
@@ -307,6 +323,10 @@ export default function AdmissionsPage() {
       </main>
     </div>
   );
+}
+
+function profilePhotoDownloadHref(applicationId: string) {
+  return `/api/feetrack/admissions/${encodeURIComponent(applicationId)}/profile-photo`;
 }
 
 function MetricCard({
@@ -517,6 +537,53 @@ function ApprovalsTab({
                 </button>
               </div>
             </form>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function ProfilePhotosTab({ applications }: { applications: AdmissionApplication[] }) {
+  if (applications.length === 0) {
+    return (
+      <div className="card-panel p-10 text-center animate-fade-in">
+        <FileImage className="w-10 h-10 text-zinc-500 mx-auto mb-4" />
+        <h2 className="text-xl text-white font-medium">No approved profile photos</h2>
+        <p className="text-sm text-zinc-500 mt-2">Approved admission profile photos will appear here.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-3 animate-slide-up">
+      {applications.map((application) => (
+        <article key={application.id} className="card-panel p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="text-[10px] uppercase tracking-widest text-zinc-300 border border-zinc-700 bg-zinc-900 rounded-md px-2 py-1">
+                  {application.approvedSkfId || "Approved"}
+                </span>
+                <span className="text-[10px] uppercase tracking-widest text-amber-400 border border-amber-500/20 bg-amber-500/10 rounded-md px-2 py-1">
+                  {application.branchName}
+                </span>
+              </div>
+              <h2 className="font-[family-name:var(--font-space)] text-xl text-white font-medium tracking-tight truncate">
+                {application.studentName}
+              </h2>
+              <p className="text-xs text-zinc-500 mt-1">
+                Approved {application.reviewedAt ? new Date(application.reviewedAt).toLocaleDateString("en-IN") : ""}
+              </p>
+            </div>
+            <a
+              href={profilePhotoDownloadHref(application.id)}
+              download
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-xs font-semibold text-black hover:bg-zinc-200 transition"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download photo
+            </a>
           </div>
         </article>
       ))}
