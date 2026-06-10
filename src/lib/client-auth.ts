@@ -74,11 +74,14 @@ export async function fetchFeeTrackSession() {
 
 export function useFeeTrackAuth() {
   const router = useRouter();
-  const [user, setUser] = useState<string | null>(() => getStoredFeeTrackUser());
+  const [user, setUser] = useState<string | null>(null);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     let active = true;
+
+    const storedUser = getStoredFeeTrackUser();
+    if (storedUser) setUser(storedUser);
 
     async function checkSession() {
       const session = await fetchFeeTrackSession();

@@ -79,7 +79,11 @@ export default function MessagesPage() {
   const { user, checking } = useFeeTrackAuth();
   const feeYear = getCurrentFeeYear();
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [messageTemplate, setMessageTemplate] = useState(() => readFeeReminderTemplate());
+  const [messageTemplate, setMessageTemplate] = useState<string>("");
+
+  useEffect(() => {
+    setMessageTemplate(readFeeReminderTemplate());
+  }, []);
   const [selectedBranch, setSelectedBranch] = useState("Herohalli");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [students, setStudents] = useState<Student[]>([]);

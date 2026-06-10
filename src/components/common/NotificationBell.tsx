@@ -28,11 +28,13 @@ import {
   getAdmissionApplications,
   getEventCollections,
   getPaymentVerifications,
+  getPushConfig,
   getStudents,
   getShopOrders,
   getWebsiteNotifications,
   markWebsiteNotificationContacted,
   rejectPaymentVerification,
+  savePushSubscription,
   type AdmissionApplication,
   type EventCollectionItem,
   type PaymentVerification,
@@ -571,8 +573,25 @@ function canRequestBrowserNotifications() {
   return window.isSecureContext || window.location.hostname === "localhost";
 }
 
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = `${base64String}${padding}`.replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let index = 0; index < rawData.length; index += 1) {
+    outputArray[index] = rawData.charCodeAt(index);
+  }
+
+  return outputArray;
+}
+
 export default function NotificationBell() {
-  const [user] = useState<string | null>(() => getStoredFeeTrackUser());
+  const [user, setUser] = useState<string | null>(null);
+
+  useEffect(() => {
+    setUser(getStoredFeeTrackUser());
+  }, []);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -586,6 +605,7 @@ export default function NotificationBell() {
   const [eventReminders, setEventReminders] = useState<EventReminder[]>([]);
   const [eventUpdates, setEventUpdates] = useState<EventUpdateNotification[]>([]);
   const [browserNotificationPermission, setBrowserNotificationPermission] = useState<NotificationPermission>("default");
+  const [pushSaving, setPushSaving] = useState(false);
   const [actioningId, setActioningId] = useState("");
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -1001,6 +1021,40 @@ export default function NotificationBell() {
     return () => window.clearTimeout(timeoutId);
   }, [browserNotificationPermission, nextNotification]);
 
+  const ensureServerPushSubscription = useCallback(async () => {
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      throw new Error("This browser does not support background push notifications.");
+    }
+    if (window.Notification.permission !== "granted") return;
+
+    const { publicKey } = await getPushConfig();
+    if (!publicKey) {
+      throw new Error("Server push is not configured yet. Add FeeTrack web push keys on the SKF-Karate backend.");
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    const existingSubscription = await registration.pushManager.getSubscription();
+    const subscription = existingSubscription || await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicKey),
+    });
+
+    await savePushSubscription(subscription.toJSON());
+  }, []);
+
+  useEffect(() => {
+    if (!user || browserNotificationPermission !== "granted") return;
+
+    const timeoutId = window.setTimeout(() => {
+      void ensureServerPushSubscription().catch((err) => {
+        setError(err instanceof Error ? err.message : "Background push setup failed.");
+      });
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [browserNotificationPermission, ensureServerPushSubscription, user]);
+
   const approveProof = async (proof: PaymentVerification) => {
     setActioningId(proof.id);
     setError("");
@@ -1036,8 +1090,17 @@ export default function NotificationBell() {
       setError("Device alerts require HTTPS or localhost. LAN HTTP addresses cannot request notification permission.");
       return;
     }
-    const permission = await window.Notification.requestPermission();
-    setBrowserNotificationPermission(permission);
+    setPushSaving(true);
+    setError("");
+    try {
+      const permission = await window.Notification.requestPermission();
+      setBrowserNotificationPermission(permission);
+      if (permission === "granted") await ensureServerPushSubscription();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Background push setup failed.");
+    } finally {
+      setPushSaving(false);
+    }
   };
 
   const markBirthdayWished = (birthday: BirthdayNotification) => {
@@ -1131,10 +1194,11 @@ export default function NotificationBell() {
                 <button
                   type="button"
                   onClick={enableBrowserNotifications}
-                  className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 text-xs font-semibold text-amber-100 transition-colors hover:bg-amber-500/15"
+                  disabled={pushSaving}
+                  className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 text-xs font-semibold text-amber-100 transition-colors hover:bg-amber-500/15 disabled:opacity-60"
                 >
-                  <Bell className="h-3.5 w-3.5" />
-                  {browserNotificationPermission === "denied" ? "Alerts Blocked in Browser" : "Enable Device Alerts"}
+                  {pushSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />}
+                  {browserNotificationPermission === "denied" ? "Alerts Blocked in Browser" : pushSaving ? "Enabling Alerts" : "Enable Device Alerts"}
                 </button>
               ) : (
                 <div className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-100/80">

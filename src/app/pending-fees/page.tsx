@@ -87,7 +87,11 @@ export default function PendingFeesPage() {
   const [query, setQuery] = useState("");
   const [previewStudent, setPreviewStudent] = useState<PendingStudent | null>(null);
   const [previewMonthIndex, setPreviewMonthIndex] = useState<number | null>(null);
-  const [messageTemplate, setMessageTemplate] = useState(() => readFeeReminderTemplate());
+  const [messageTemplate, setMessageTemplate] = useState<string>("");
+
+  useEffect(() => {
+    setMessageTemplate(readFeeReminderTemplate());
+  }, []);
 
   const loadPendingStudents = useCallback(async (forceRefresh = false) => {
     if (checking || !user) return;

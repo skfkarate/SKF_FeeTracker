@@ -744,6 +744,22 @@ export async function markWebsiteNotificationContacted(
 }
 
 // ============================================
+// SERVER PUSH NOTIFICATIONS
+// ============================================
+
+export async function getPushConfig(): Promise<{ publicKey: string }> {
+  const data = await apiAction<{ data: { publicKey: string } }>("get_push_config");
+  return data.data;
+}
+
+export async function savePushSubscription(subscription: PushSubscriptionJSON): Promise<void> {
+  await apiAction("save_push_subscription", {
+    subscription,
+    userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+  });
+}
+
+// ============================================
 // WEBSITE ANALYTICS
 // ============================================
 

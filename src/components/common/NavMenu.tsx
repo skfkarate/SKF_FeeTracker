@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -157,7 +158,11 @@ function DrawerGroup({
 export default function NavMenu() {
     const router = useRouter();
     const pathname = usePathname();
-    const [user] = useState<string | null>(() => getStoredFeeTrackUser());
+    const [user, setUser] = useState<string | null>(null);
+
+    useEffect(() => {
+        setUser(getStoredFeeTrackUser());
+    }, []);
     const [open, setOpen] = useState(false);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set());
 
@@ -203,6 +208,85 @@ export default function NavMenu() {
 
     if (!user) return null;
 
+    const drawer = open ? (
+        <>
+            <div
+                className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-md"
+                onClick={() => setOpen(false)}
+                aria-hidden="true"
+            />
+            <aside
+                id="feetrack-navigation-drawer"
+                className="fixed left-2 right-2 top-2 z-[110] flex h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] min-h-0 flex-col overflow-hidden rounded-2xl border border-white/[0.1] bg-[#050505]/98 shadow-2xl backdrop-blur-2xl sm:left-auto sm:right-4 sm:top-4 sm:h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-2rem)] sm:w-[460px]"
+                aria-label="FeeTrack navigation"
+            >
+                <div className="flex min-h-16 flex-shrink-0 items-center justify-between border-b border-white/[0.08] px-4 py-3">
+                    <Link
+                        href="/dashboard"
+                        onClick={() => setOpen(false)}
+                        className="group flex min-h-11 items-center gap-3 rounded-xl px-2 transition-colors hover:bg-white/[0.04]"
+                        aria-label="SKF dashboard"
+                    >
+                        <Image
+                            src="/logo.png"
+                            alt="SKF"
+                            width={28}
+                            height={28}
+                            priority
+                            className="rounded-full grayscale opacity-85 transition-all group-hover:grayscale-0 group-hover:opacity-100"
+                        />
+                        <span className="font-[family-name:var(--font-space)] text-sm font-semibold tracking-widest text-zinc-200">
+                            SKF<span className="text-zinc-600">.</span>
+                        </span>
+                    </Link>
+                    <button
+                        type="button"
+                        onClick={() => setOpen(false)}
+                        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-black text-zinc-500 transition-colors hover:border-white/18 hover:text-white"
+                        aria-label="Close navigation menu"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
+                </div>
+
+                <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4" aria-label="FeeTrack sections">
+                    <DashboardLink
+                        active={isActivePath(pathname, "/dashboard")}
+                        onNavigate={() => setOpen(false)}
+                    />
+
+                    {DRAWER_GROUPS.map((group) => {
+                        const active = group.tiles.some((tile) => isActivePath(pathname, tile.href));
+                        const expanded = active || expandedGroups.has(group.title);
+                        return (
+                            <DrawerGroup
+                                key={group.title}
+                                title={group.title}
+                                tiles={group.tiles}
+                                active={active}
+                                expanded={expanded}
+                                onToggle={() => toggleGroup(group.title)}
+                                onNavigate={() => setOpen(false)}
+                                pathname={pathname}
+                            />
+                        );
+                    })}
+                </nav>
+
+                <div className="flex-shrink-0 border-t border-white/[0.08] p-3 sm:p-4">
+                    <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-black px-3 text-sm font-semibold text-zinc-400 transition-colors hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
+                    >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                    </button>
+                </div>
+            </aside>
+        </>
+    ) : null;
+
     return (
         <div className="flex items-center gap-2">
             <div className="hidden items-center gap-2 rounded-full border border-white/[0.08] bg-black/60 px-3 py-2 sm:flex">
@@ -220,6 +304,7 @@ export default function NavMenu() {
                 }`}
                 aria-label={open ? "Close navigation menu" : "Open navigation menu"}
                 aria-expanded={open}
+                aria-controls="feetrack-navigation-drawer"
             >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black">
                     {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -227,83 +312,7 @@ export default function NavMenu() {
                 <span className="hidden sm:inline">Menu</span>
             </button>
 
-            {open ? (
-                <>
-                    <div
-                        className="fixed inset-0 z-[70] bg-black/75 backdrop-blur-md"
-                        onClick={() => setOpen(false)}
-                        aria-hidden="true"
-                    />
-                    <aside
-                        className="fixed bottom-2 left-2 right-2 top-2 z-[80] flex flex-col overflow-hidden rounded-2xl border border-white/[0.1] bg-[#050505]/98 shadow-2xl backdrop-blur-2xl sm:bottom-4 sm:left-auto sm:right-4 sm:top-4 sm:w-[460px]"
-                        aria-label="FeeTrack navigation"
-                    >
-                        <div className="flex min-h-16 items-center justify-between border-b border-white/[0.08] px-4 py-3">
-                            <Link
-                                href="/dashboard"
-                                onClick={() => setOpen(false)}
-                                className="group flex min-h-11 items-center gap-3 rounded-xl px-2 transition-colors hover:bg-white/[0.04]"
-                                aria-label="SKF dashboard"
-                            >
-                                <Image
-                                    src="/logo.png"
-                                    alt="SKF"
-                                    width={28}
-                                    height={28}
-                                    priority
-                                    className="rounded-full grayscale opacity-85 transition-all group-hover:grayscale-0 group-hover:opacity-100"
-                                />
-                                <span className="font-[family-name:var(--font-space)] text-sm font-semibold tracking-widest text-zinc-200">
-                                    SKF<span className="text-zinc-600">.</span>
-                                </span>
-                            </Link>
-                            <button
-                                type="button"
-                                onClick={() => setOpen(false)}
-                                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-black text-zinc-500 transition-colors hover:border-white/18 hover:text-white"
-                                aria-label="Close navigation menu"
-                            >
-                                <X className="h-4 w-4" />
-                            </button>
-                        </div>
-
-                        <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-3 sm:px-4" aria-label="FeeTrack sections">
-                            <DashboardLink
-                                active={isActivePath(pathname, "/dashboard")}
-                                onNavigate={() => setOpen(false)}
-                            />
-
-                            {DRAWER_GROUPS.map((group) => {
-                                const active = group.tiles.some((tile) => isActivePath(pathname, tile.href));
-                                const expanded = active || expandedGroups.has(group.title);
-                                return (
-                                    <DrawerGroup
-                                        key={group.title}
-                                        title={group.title}
-                                        tiles={group.tiles}
-                                        active={active}
-                                        expanded={expanded}
-                                        onToggle={() => toggleGroup(group.title)}
-                                        onNavigate={() => setOpen(false)}
-                                        pathname={pathname}
-                                    />
-                                );
-                            })}
-                        </nav>
-
-                        <div className="border-t border-white/[0.08] p-3 sm:p-4">
-                            <button
-                                type="button"
-                                onClick={handleLogout}
-                                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-black px-3 text-sm font-semibold text-zinc-400 transition-colors hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
-                            >
-                                <LogOut className="h-4 w-4" />
-                                Logout
-                            </button>
-                        </div>
-                    </aside>
-                </>
-            ) : null}
+            {typeof document !== "undefined" && drawer ? createPortal(drawer, document.body) : null}
         </div>
     );
 }
