@@ -145,10 +145,15 @@ export default function AdmissionsPage() {
   const handleApprove = async (event: FormEvent<HTMLFormElement>, application: AdmissionApplication) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const photoAction = String(formData.get("photoAction") || "use_submitted") as "use_submitted" | "upload_new";
     const finalPhotoValue = formData.get("finalPhoto");
     const finalPhoto = finalPhotoValue instanceof File && finalPhotoValue.size > 0 ? finalPhotoValue : null;
-    if (!finalPhoto) {
-      setError("Upload the final corrected profile photo before approval.");
+    if (photoAction === "use_submitted" && !application.admissionPhotoUrl) {
+      setError("Submitted student photo is missing. Upload a corrected profile photo before approval.");
+      return;
+    }
+    if (photoAction === "upload_new" && !finalPhoto) {
+      setError("Upload the corrected profile photo before approval.");
       return;
     }
     if (formData.get("paymentVerified") !== "on") {
@@ -170,7 +175,7 @@ export default function AdmissionsPage() {
         belt: String(formData.get("belt") || "white"),
         isPublic: formData.get("isPublic") === "on",
         paymentVerified: formData.get("paymentVerified") === "on",
-        photoAction: "upload_new",
+        photoAction,
         reviewNote: String(formData.get("reviewNote") || ""),
         finalPhoto,
       });
@@ -228,7 +233,7 @@ export default function AdmissionsPage() {
     <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
       <Navbar showBack title="ADMISSIONS" rightContent={<NavMenu />} />
 
-      <main className="max-w-3xl mx-auto p-4 pt-24 pb-12">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-12">
         <header className="mb-6 animate-fade-in">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -423,13 +428,13 @@ function ApprovalsTab({
                     className="inline-flex items-center gap-2 text-xs text-zinc-300 hover:text-white rounded-lg border border-zinc-800 px-3 py-2 bg-black/30"
                   >
                     <FileImage className="w-3.5 h-3.5" />
-                    Parent-uploaded photo
+                    Student admission photo
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 ) : (
                   <span className="inline-flex items-center gap-2 text-xs text-red-300 rounded-lg border border-red-500/20 px-3 py-2 bg-red-500/10">
                     <AlertCircle className="w-3.5 h-3.5" />
-                    Parent photo missing
+                    Student photo missing
                   </span>
                 )}
                 {application.paymentProofUrl ? (
@@ -457,7 +462,7 @@ function ApprovalsTab({
               className="w-full lg:w-[360px] rounded-xl border border-white/5 bg-black/25 p-4"
             >
               <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-100">
-                Human review pending: open the payment screenshot, verify the payment, download the parent photo, correct or resize it, then upload the final portal photo before approval.
+                Human review pending: verify the payment screenshot, check the student photo, then either use the submitted photo or upload a corrected portal photo.
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Monthly">
@@ -499,11 +504,28 @@ function ApprovalsTab({
               </div>
               <Field label="Portal photo">
                 <div className="space-y-2 text-xs text-zinc-400">
-                  <input type="hidden" name="photoAction" value="upload_new" />
-                  <p className="rounded-lg border border-zinc-800 bg-black/40 px-3 py-2 text-zinc-300">
-                    Upload the final corrected photo. The parent-uploaded temporary photo is deleted after approval or rejection.
-                  </p>
-                  <input name="finalPhoto" type="file" accept="image/png,image/jpeg,image/webp" required />
+                  <label className={`flex items-start gap-2 rounded-lg border px-3 py-2 ${application.admissionPhotoUrl ? "border-zinc-800 bg-black/40 text-zinc-300" : "border-zinc-800 bg-zinc-950 text-zinc-600"}`}>
+                    <input
+                      name="photoAction"
+                      type="radio"
+                      value="use_submitted"
+                      defaultChecked={Boolean(application.admissionPhotoUrl)}
+                      disabled={!application.admissionPhotoUrl}
+                      className="mt-0.5 accent-amber-500"
+                    />
+                    <span>Use submitted student photo</span>
+                  </label>
+                  <label className="flex items-start gap-2 rounded-lg border border-zinc-800 bg-black/40 px-3 py-2 text-zinc-300">
+                    <input
+                      name="photoAction"
+                      type="radio"
+                      value="upload_new"
+                      defaultChecked={!application.admissionPhotoUrl}
+                      className="mt-0.5 accent-amber-500"
+                    />
+                    <span>Upload corrected photo</span>
+                  </label>
+                  <input name="finalPhoto" type="file" accept="image/png,image/jpeg,image/webp" />
                 </div>
               </Field>
               <Field label="Review note">

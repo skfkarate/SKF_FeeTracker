@@ -32,6 +32,9 @@ export interface Student {
   whatsapp: string;
   dateOfBirth: string;
   email: string;
+  gender?: string;
+  photoUrl?: string;
+  hasProfilePhoto?: boolean;
   paid: boolean;
   monthStatus: "Paid" | "Pending" | "Break" | "Discontinued" | "N/A" | "Pending Verification";
   joinMonth: number;
@@ -79,7 +82,8 @@ const isMockData = () => false;
 // FETCH HELPERS - Timeout & Retry
 // ============================================
 
-const DEFAULT_TIMEOUT = 8000; // 8 seconds - snappier error feedback
+const DEFAULT_TIMEOUT = 12000;
+const HEAVY_ACTION_TIMEOUT = 30000;
 const MAX_RETRIES = 2;
 const INITIAL_RETRY_DELAY = 300; // 300ms - faster retries
 
@@ -111,13 +115,14 @@ async function fetchWithTimeout(
 async function fetchWithRetry(
   url: string,
   options: RequestInit = {},
-  retries = MAX_RETRIES
+  retries = MAX_RETRIES,
+  timeout = DEFAULT_TIMEOUT,
 ): Promise<Response> {
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const response = await fetchWithTimeout(url, options);
+      const response = await fetchWithTimeout(url, options, timeout);
 
       // If we get a response (even an error response), return it
       if (response.ok || response.status < 500) {
@@ -177,11 +182,22 @@ async function apiAction<T>(
   action: string,
   payload: Record<string, unknown> = {},
 ): Promise<T> {
+  const heavyActions = new Set([
+    "get_students",
+    "get_branch_counts",
+    "get_dev_fund",
+    "get_finance_command_center",
+    "get_financial_summary",
+    "get_event_collections",
+    "get_gallery_photos",
+    "get_shop_orders",
+    "get_website_analytics",
+  ]);
   const response = await fetchWithRetry(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ action, ...payload }),
-  });
+  }, MAX_RETRIES, heavyActions.has(action) ? HEAVY_ACTION_TIMEOUT : DEFAULT_TIMEOUT);
 
   const data = await readJsonResponse(response);
   if (response.status === 401) {
@@ -223,6 +239,10 @@ function getTTLForKey(key: string): number {
   if (key.startsWith('students:')) return CACHE_TTL.students;
   if (key.startsWith('financial:')) return CACHE_TTL.financial;
   if (key.startsWith('eventCollections:')) return CACHE_TTL.financial;
+  if (key.startsWith('branchTimetables')) return CACHE_TTL.financial;
+  if (key.startsWith('galleryPhotos')) return CACHE_TTL.financial;
+  if (key.startsWith('shopProducts')) return CACHE_TTL.financial;
+  if (key.startsWith('shopOrders')) return CACHE_TTL.financial;
   if (key.startsWith('devFund:')) return CACHE_TTL.devFund;
   if (key.startsWith('referral:')) return CACHE_TTL.referrals;
   if (key.startsWith('branchCounts')) return CACHE_TTL.branchCounts;
@@ -385,6 +405,41 @@ export async function getStudents(
     });
     return extractStudents(data);
   });
+}
+
+export interface StudentProfilePhotoUploadResult {
+  skfId: string;
+  photoUrl: string;
+  storagePath?: string;
+}
+
+export async function uploadStudentProfilePhoto(
+  skfId: string,
+  photo: File,
+): Promise<StudentProfilePhotoUploadResult> {
+  const formData = new FormData();
+  formData.set("photo", photo);
+
+  const response = await fetchWithTimeout(
+    `/api/feetrack/students/${encodeURIComponent(skfId)}/profile-photo`,
+    {
+      method: "POST",
+      body: formData,
+    },
+    20_000,
+  );
+  const data = await readJsonResponse(response);
+
+  if (response.status === 401) {
+    clearExpiredClientSession();
+  }
+
+  if (!response.ok || data.success === false) {
+    throw new Error(data.error || `Profile photo upload failed (${response.status})`);
+  }
+
+  invalidateCache("students:");
+  return data.data as StudentProfilePhotoUploadResult;
 }
 
 export async function markPaid(
@@ -657,6 +712,182 @@ export async function rejectPaymentVerification(
 }
 
 // ============================================
+// WEBSITE LEAD NOTIFICATIONS
+// ============================================
+
+export interface WebsiteNotification {
+  id: string;
+  kind: "free_trial" | "callback";
+  rowNumber: number;
+  title: string;
+  phone: string;
+  email: string;
+  branch: string;
+  meta: string;
+  detail: string;
+  submittedAt: string;
+  status: string;
+}
+
+export async function getWebsiteNotifications(): Promise<WebsiteNotification[]> {
+  const data = await apiAction<{ data: { notifications: WebsiteNotification[] } }>(
+    "get_website_notifications",
+  );
+  return data.data.notifications || [];
+}
+
+export async function markWebsiteNotificationContacted(
+  kind: WebsiteNotification["kind"],
+  rowNumber: number,
+): Promise<void> {
+  await apiAction("mark_website_notification_contacted", { kind, rowNumber });
+}
+
+// ============================================
+// WEBSITE ANALYTICS
+// ============================================
+
+export interface AnalyticsBreakdown {
+  label: string;
+  value: number;
+  percentage: number;
+}
+
+export interface DailyWebsiteTraffic {
+  date: string;
+  views: number;
+  visits: number;
+  visitors: number;
+  leads: number;
+}
+
+export interface HourlyWebsiteTraffic {
+  hour: number;
+  views: number;
+}
+
+export interface WebsitePageAnalytics {
+  path: string;
+  title: string;
+  group: string;
+  views: number;
+  visitors: number;
+  entrances: number;
+  exits: number;
+  lastSeen: string | null;
+}
+
+export interface WebsiteVisitorAnalytics {
+  visitorId: string;
+  firstSeen: string;
+  lastSeen: string;
+  sessions: number;
+  pageViews: number;
+  landingPage: string;
+  lastPage: string;
+  source: string;
+  device: string;
+  browser: string;
+  os: string;
+  ipLabel: string | null;
+}
+
+export interface WebsiteRecentPageView {
+  id: string;
+  path: string;
+  title: string;
+  visitorId: string | null;
+  sessionId: string | null;
+  source: string;
+  device: string;
+  browser: string;
+  os: string;
+  createdAt: string;
+}
+
+export interface WebsiteOperationalEvent {
+  id: string;
+  eventType: string;
+  path: string;
+  createdAt: string;
+  metadata: Record<string, unknown>;
+  skfId: string | null;
+}
+
+export interface WebsiteAnalyticsData {
+  period: {
+    rangeDays: number;
+    startDate: string;
+    endDate: string;
+    label: string;
+    eventsLoaded: number;
+    eventLimit: number;
+    limited: boolean;
+  };
+  history: {
+    firstRecordedAt: string | null;
+    lastRecordedAt: string | null;
+    totalEvents: number;
+    totalPageViews: number;
+  };
+  overview: {
+    visits: number;
+    visitsToday: number;
+    uniqueVisitors: number;
+    returningVisitors: number;
+    pageViews: number;
+    publicPageViews: number;
+    portalPageViews: number;
+    avgPagesPerVisit: number;
+    bounceRate: number;
+    leadSubmissions: number;
+    leadFailures: number;
+    leadConversionRate: number;
+    portalLogins: number;
+    portalLoginFailures: number;
+  };
+  acquisition: {
+    referrers: AnalyticsBreakdown[];
+    landingPages: WebsitePageAnalytics[];
+  };
+  content: {
+    topPages: WebsitePageAnalytics[];
+    pageGroups: AnalyticsBreakdown[];
+    dailyTraffic: DailyWebsiteTraffic[];
+    hourlyTraffic: HourlyWebsiteTraffic[];
+  };
+  audience: {
+    devices: AnalyticsBreakdown[];
+    browsers: AnalyticsBreakdown[];
+    operatingSystems: AnalyticsBreakdown[];
+    recentVisitors: WebsiteVisitorAnalytics[];
+  };
+  operations: {
+    events: WebsiteOperationalEvent[];
+    eventBreakdown: AnalyticsBreakdown[];
+  };
+  recent: {
+    pageViews: WebsiteRecentPageView[];
+  };
+  insights: string[];
+  warning?: string;
+  timeWindowLabel: string;
+}
+
+export async function getWebsiteAnalytics(rangeDays = 90): Promise<{
+  data: WebsiteAnalyticsData | null;
+  warning?: string;
+}> {
+  const data = await apiAction<{
+    data: {
+      data: WebsiteAnalyticsData | null;
+      warning?: string;
+    };
+  }>("get_website_analytics", { rangeDays });
+  return data.data;
+}
+
+// ============================================
 // ADMISSIONS
 // ============================================
 
@@ -823,6 +1054,361 @@ export async function updateAdmissionBranchSettings(
   return data.data.settings;
 }
 
+export interface BranchTimetable {
+  id: string;
+  branchSlug: string;
+  title: string;
+  driveUrl: string;
+  imageUrl: string;
+  monthLabel: string;
+  effectiveFrom: string;
+  effectiveTo: string;
+  isActive: boolean;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function uploadBranchTimetable(input: {
+  branch: string;
+  image: File;
+  monthLabel?: string;
+  notes?: string;
+}): Promise<BranchTimetable> {
+  const formData = new FormData();
+  formData.set("branch", input.branch);
+  formData.set("title", `${input.branch === "MPSC" ? "MPSC" : input.branch} Timetable`);
+  formData.set("monthLabel", input.monthLabel || "");
+  formData.set("notes", input.notes || "");
+  formData.set("image", input.image);
+
+  const response = await fetchWithRetry("/api/feetrack/timetables/upload", {
+    method: "POST",
+    body: formData,
+  });
+  const data = await readJsonResponse(response);
+
+  if (response.status === 401) {
+    clearExpiredClientSession();
+  }
+
+  if (!response.ok || data.success === false) {
+    throw new Error(data.error || `Timetable upload failed (${response.status})`);
+  }
+
+  invalidateCache("branchTimetables");
+  return (data.data as { timetable: BranchTimetable }).timetable;
+}
+
+export async function getBranchTimetables(forceRefresh = false): Promise<BranchTimetable[]> {
+  const cacheKey = "branchTimetables";
+  if (forceRefresh) invalidateCache(cacheKey);
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: { timetables: BranchTimetable[] } }>("get_branch_timetables");
+    return data.data.timetables || [];
+  });
+}
+
+export interface PortalVideo {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  durationLabel: string;
+  youtubeId: string;
+  thumbnailUrl: string;
+  branchSlugs: string[];
+  batchNames: string[];
+  beltLevels: string[];
+  isFeatured: boolean;
+  isPublished: boolean;
+  showInTechniques: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PortalVideoInput {
+  id?: string;
+  title: string;
+  description?: string;
+  category: string;
+  durationLabel?: string;
+  youtubeInput?: string;
+  youtubeId?: string;
+  branchSlugs?: string[];
+  batchNames?: string[];
+  beltLevels?: string[];
+  isFeatured?: boolean;
+  isPublished?: boolean;
+  showInTechniques?: boolean;
+  sortOrder?: number;
+}
+
+export async function getPortalVideos(forceRefresh = false): Promise<PortalVideo[]> {
+  const cacheKey = "portalVideos";
+  if (forceRefresh) invalidateCache(cacheKey);
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: { videos: PortalVideo[] } }>("get_portal_videos");
+    return data.data.videos || [];
+  });
+}
+
+export async function upsertPortalVideo(input: PortalVideoInput): Promise<PortalVideo> {
+  const data = await apiAction<{ data: { video: PortalVideo } }>("upsert_portal_video", {
+    videoId: input.id || "",
+    video: input,
+  });
+  invalidateCache("portalVideos");
+  return data.data.video;
+}
+
+export async function deletePortalVideo(videoId: string): Promise<{ videoId: string }> {
+  const data = await apiAction<{ data: { videoId: string } }>("delete_portal_video", {
+    videoId,
+  });
+  invalidateCache("portalVideos");
+  return data.data;
+}
+
+export const GALLERY_CATEGORIES = [
+  "Demonstrations",
+  "Tournaments",
+  "Belt Exams",
+  "In Dojo",
+  "Camps",
+  "Championships",
+  "Seminars",
+] as const;
+
+export type GalleryCategory = (typeof GALLERY_CATEGORIES)[number];
+
+export interface GalleryPhoto {
+  id: string;
+  src: string;
+  title: string;
+  cat: GalleryCategory | string;
+  pinned: boolean;
+  isPublished: boolean;
+  sortOrder: number;
+  storagePath: string;
+  eventId?: string;
+  eventDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  source: "live" | "seed";
+  isSeed: boolean;
+}
+
+export interface GalleryPhotoInput {
+  id?: string;
+  src?: string;
+  title: string;
+  category: string;
+  pinned?: boolean;
+  isPublished?: boolean;
+  sortOrder?: number;
+  eventId?: string;
+  eventDate?: string;
+}
+
+export async function getGalleryPhotos(forceRefresh = false): Promise<GalleryPhoto[]> {
+  const cacheKey = "galleryPhotos";
+  if (forceRefresh) invalidateCache(cacheKey);
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: { photos: GalleryPhoto[] } }>("get_gallery_photos");
+    return data.data.photos || [];
+  });
+}
+
+export async function getEventGalleryPhotos(eventId: string, forceRefresh = false): Promise<GalleryPhoto[]> {
+  const cacheKey = `eventGalleryPhotos:${eventId}`;
+  if (forceRefresh) invalidateCache(cacheKey);
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: { photos: GalleryPhoto[] } }>("get_event_gallery_photos", { eventId });
+    return data.data.photos || [];
+  });
+}
+
+export async function uploadGalleryPhoto(input: {
+  photoId?: string;
+  file: File;
+  title: string;
+  category: string;
+  pinned?: boolean;
+  isPublished?: boolean;
+  sortOrder?: number;
+  eventId?: string;
+  eventDate?: string;
+}): Promise<GalleryPhoto> {
+  const formData = new FormData();
+  if (input.photoId) formData.set("photoId", input.photoId);
+  formData.set("title", input.title);
+  formData.set("category", input.category);
+  formData.set("pinned", String(Boolean(input.pinned)));
+  formData.set("isPublished", String(input.isPublished !== false));
+  formData.set("sortOrder", String(input.sortOrder || 0));
+  if (input.eventId) formData.set("eventId", input.eventId);
+  if (input.eventDate) formData.set("eventDate", input.eventDate);
+  formData.set("photo", input.file);
+
+  const response = await fetchWithRetry("/api/feetrack/gallery/upload", {
+    method: "POST",
+    body: formData,
+  }, MAX_RETRIES, 25_000);
+  const data = await readJsonResponse(response);
+
+  if (response.status === 401) {
+    clearExpiredClientSession();
+  }
+
+  if (!response.ok || data.success === false) {
+    throw new Error(data.error || `Gallery photo upload failed (${response.status})`);
+  }
+
+  invalidateCache("galleryPhotos");
+  return (data.data as { photo: GalleryPhoto }).photo;
+}
+
+export async function upsertGalleryPhoto(input: GalleryPhotoInput): Promise<GalleryPhoto> {
+  const data = await apiAction<{ data: { photo: GalleryPhoto } }>("upsert_gallery_photo", {
+    photoId: input.id || "",
+    photo: input,
+  });
+  invalidateCache("galleryPhotos");
+  return data.data.photo;
+}
+
+export async function deleteGalleryPhoto(photoId: string): Promise<{ photoId: string }> {
+  const data = await apiAction<{ data: { photoId: string } }>("delete_gallery_photo", {
+    photoId,
+  });
+  invalidateCache("galleryPhotos");
+  return data.data;
+}
+
+export type ShopProductCategory = "uniforms" | "belts" | "gear" | "merchandise";
+
+export interface ShopProductVariant {
+  id: string;
+  size: string;
+  stock: number;
+  requiresApproval?: boolean;
+}
+
+export interface ShopProduct {
+  id: string;
+  name: string;
+  description: string;
+  category: ShopProductCategory;
+  price: number;
+  images: string[];
+  variants: ShopProductVariant[];
+  rating: number;
+  review_count: number;
+  requires_belt?: string | null;
+  is_public: boolean;
+  created_at?: string;
+  updated_at?: string | null;
+}
+
+export type ShopProductInput = Omit<Partial<ShopProduct>, "variants"> & {
+  variants?: Array<Partial<ShopProductVariant> & { size: string; stock: number }>;
+};
+
+export type ShopOrderStatus =
+  | "processing"
+  | "payment-pending"
+  | "pending-approval"
+  | "approved"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+export interface ShopOrderItem {
+  productId: string;
+  variantId: string;
+  name: string;
+  size: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+  image: string;
+  requiresApproval?: boolean;
+}
+
+export interface ShopOrderAddress {
+  fullName: string;
+  parentName?: string;
+  studentName?: string;
+  age?: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+}
+
+export interface ShopOrder {
+  orderId: string;
+  skfId: string | null;
+  customerName: string;
+  customerPhone: string | null;
+  customerType: "athlete" | "guest";
+  items: ShopOrderItem[];
+  subtotal: number;
+  shippingFee: number;
+  total: number;
+  discount: number;
+  pointsUsed: number;
+  promoCode: string | null;
+  status: ShopOrderStatus;
+  statusLabel: string;
+  fulfillmentMethod: "shipping" | "dojo-pickup";
+  address: ShopOrderAddress;
+  createdAt: string;
+  updatedAt?: string | null;
+}
+
+export async function getShopProducts(forceRefresh = false): Promise<ShopProduct[]> {
+  const cacheKey = "shopProducts";
+  if (forceRefresh) invalidateCache(cacheKey);
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: { products: ShopProduct[] } }>("get_shop_products");
+    return data.data.products || [];
+  });
+}
+
+export async function upsertShopProduct(product: ShopProductInput): Promise<ShopProduct> {
+  const data = await apiAction<{ data: { product: ShopProduct } }>("upsert_shop_product", {
+    product,
+  });
+  invalidateCache("shopProducts");
+  return data.data.product;
+}
+
+export async function getShopOrders(forceRefresh = false): Promise<ShopOrder[]> {
+  const cacheKey = "shopOrders";
+  if (forceRefresh) invalidateCache(cacheKey);
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: { orders: ShopOrder[] } }>("get_shop_orders");
+    return data.data.orders || [];
+  });
+}
+
+export async function updateShopOrderStatus(
+  orderId: string,
+  status: ShopOrderStatus,
+): Promise<ShopOrder> {
+  const data = await apiAction<{ data: { order: ShopOrder } }>("update_shop_order_status", {
+    orderId,
+    status,
+  });
+  invalidateCache("shopOrders");
+  return data.data.order;
+}
+
 export async function approveAdmissionApplication(input: {
   applicationId: string;
   monthlyFee: number;
@@ -834,7 +1420,7 @@ export async function approveAdmissionApplication(input: {
   belt?: string;
   isPublic: boolean;
   paymentVerified: boolean;
-  photoAction: "upload_new";
+  photoAction: "use_submitted" | "upload_new";
   reviewNote?: string;
   finalPhoto?: File | null;
 }): Promise<{ skfId: string }> {
@@ -931,6 +1517,7 @@ const MOCK_DEV_FUND_DATA: DevelopmentFundData = {
 
 export async function getDevelopmentFundData(
   year = getCurrentFeeYear(),
+  forceRefresh = false,
 ): Promise<DevelopmentFundData> {
   if (isMockData()) {
     await new Promise((r) => setTimeout(r, 300));
@@ -938,6 +1525,7 @@ export async function getDevelopmentFundData(
   }
 
   const cacheKey = `devFund:all:${year}`;
+  if (forceRefresh) invalidateCache(cacheKey);
 
   return cachedFetch(cacheKey, async () => {
     const data = await apiAction<{ data: DevelopmentFundData }>("get_dev_fund", {
@@ -1456,15 +2044,101 @@ export interface EventFeePreviewRow {
   receiptId: string | null;
 }
 
+export interface EventParticipant {
+  id: string;
+  athleteId?: string;
+  athleteName: string;
+  skfId: string;
+  branchName?: string;
+  belt?: string;
+  photoUrl?: string;
+}
+
+export interface EventResultRecord {
+  id?: string;
+  participantId?: string;
+  athleteId?: string;
+  athleteName?: string;
+  skfId?: string;
+  branchName?: string;
+  belt?: string;
+  photoUrl?: string;
+  result?: string;
+  medal?: string;
+  position?: number | string;
+  category?: string;
+  ageGroup?: string;
+  weightCategory?: string;
+  difficultyLevel?: number | string;
+  wins?: number | string;
+  beltAwarded?: string;
+  promotion?: string;
+  promotionType?: "normal" | "double" | "triple";
+  doublePromotion?: boolean;
+  examiner?: string;
+  grade?: string;
+  score?: number | string;
+  daysAttended?: number | string;
+  specialAward?: string;
+  award?: string;
+  notes?: string;
+}
+
+export interface EventAthleteSearchResult {
+  id: string;
+  skfId: string;
+  firstName: string;
+  lastName: string;
+  branchName?: string;
+  currentBelt?: string;
+  photoUrl?: string;
+}
+
+export interface EventCreateInput {
+  name: string;
+  shortName?: string;
+  slug?: string;
+  type: string;
+  level?: string;
+  status?: string;
+  date: string;
+  endDate?: string;
+  venue?: string;
+  city?: string;
+  state?: string;
+  description?: string;
+  affiliatedBody?: string;
+  totalParticipants?: number;
+  skfParticipants?: number;
+  hostingBranch?: string;
+  isPublished?: boolean;
+  showInJourney?: boolean;
+}
+
 export interface EventCollectionItem {
   event: {
     id: string;
+    slug?: string;
     name: string;
+    shortName?: string;
     type: string;
+    level?: string;
     date: string;
+    endDate?: string;
     status: string;
     hostingBranch: string;
+    venue?: string;
+    city?: string;
+    state?: string;
+    description?: string;
     isPublished: boolean;
+    isResultsPublished?: boolean;
+    resultsAppliedAt?: string;
+    totalParticipants?: number;
+    skfParticipants?: number;
+    showInJourney?: boolean;
+    participants: EventParticipant[];
+    results?: EventResultRecord[];
   };
   config: EventFeeConfig | null;
   collection: {
@@ -1502,6 +2176,93 @@ export interface EventCollectionsData {
     deposited: number;
     pendingDeposit: number;
   };
+}
+
+export async function createEvent(input: EventCreateInput): Promise<EventCollectionItem["event"]> {
+  const data = await apiAction<{ data: { event: EventCollectionItem["event"] } }>("create_event", {
+    event: input,
+  });
+  invalidateCache("eventCollections:");
+  return data.data.event;
+}
+
+export async function updateEvent(
+  eventId: string,
+  input: Partial<EventCreateInput>,
+): Promise<EventCollectionItem["event"]> {
+  const data = await apiAction<{ data: { event: EventCollectionItem["event"] } }>("update_event", {
+    eventId,
+    event: { id: eventId, ...input },
+  });
+  invalidateCache("eventCollections:");
+  return data.data.event;
+}
+
+export async function deleteEvent(eventId: string): Promise<{ eventId: string }> {
+  const data = await apiAction<{ data: { eventId: string } }>("delete_event", {
+    eventId,
+  });
+  invalidateCache("eventCollections:");
+  return data.data;
+}
+
+export async function searchEventAthletes(query: string): Promise<EventAthleteSearchResult[]> {
+  const data = await apiAction<{ data: { athletes: EventAthleteSearchResult[] } }>("search_event_athletes", {
+    query,
+  });
+  return data.data.athletes;
+}
+
+export async function assignEventStudent(
+  eventId: string,
+  athlete: Pick<EventAthleteSearchResult, "id" | "skfId">,
+): Promise<EventCollectionItem["event"]> {
+  const data = await apiAction<{ data: { event: EventCollectionItem["event"] } }>("assign_event_student", {
+    eventId,
+    athleteId: athlete.id,
+    skfId: athlete.skfId,
+  });
+  invalidateCache("eventCollections:");
+  return data.data.event;
+}
+
+export async function removeEventStudent(input: {
+  eventId: string;
+  participantId?: string;
+  skfId?: string;
+}): Promise<EventCollectionItem["event"]> {
+  const data = await apiAction<{ data: { event: EventCollectionItem["event"] } }>("remove_event_student", input);
+  invalidateCache("eventCollections:");
+  return data.data.event;
+}
+
+export async function saveEventResults(
+  eventId: string,
+  results: EventResultRecord[],
+): Promise<EventCollectionItem["event"]> {
+  const data = await apiAction<{ data: { event: EventCollectionItem["event"] } }>("save_event_results", {
+    eventId,
+    results,
+  });
+  invalidateCache("eventCollections:");
+  invalidateCache("students:");
+  return data.data.event;
+}
+
+export async function publishEventResults(
+  eventId: string,
+  results: EventResultRecord[],
+): Promise<{ event: EventCollectionItem["event"]; syncSummary?: Record<string, unknown> }> {
+  const data = await apiAction<{
+    data: { event: EventCollectionItem["event"]; syncSummary?: Record<string, unknown> };
+  }>("publish_event_results", {
+    eventId,
+    results,
+  });
+  invalidateCache("eventCollections:");
+  invalidateCache("students:");
+  invalidateCache("financeCommand:");
+  return data.data;
 }
 
 export async function getEventCollections(

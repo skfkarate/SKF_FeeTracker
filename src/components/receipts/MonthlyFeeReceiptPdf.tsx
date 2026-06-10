@@ -1,12 +1,14 @@
 /* eslint-disable jsx-a11y/alt-text -- React PDF Image is not a DOM image and has no alt prop. */
 import {
   Document,
+  Font,
   Image,
   Page,
   StyleSheet,
   Text,
   View,
 } from "@react-pdf/renderer";
+import path from "path";
 import type { ReactNode } from "react";
 
 import {
@@ -29,193 +31,417 @@ type MonthlyFeeReceiptPdfProps = {
   stampSrc: string;
 };
 
+const fontRegularPath = path.join(process.cwd(), 'public/fonts/Montserrat-Regular.ttf')
+const fontBoldPath = path.join(process.cwd(), 'public/fonts/Montserrat-Bold.ttf')
+
+Font.register({
+  family: 'Montserrat',
+  fonts: [
+    { src: fontRegularPath, fontWeight: 'normal' },
+    { src: fontBoldPath, fontWeight: 'bold' }
+  ]
+})
+
 const colors = {
-  ink: "#1a1f2e",
-  muted: "#6b7280",
-  line: "#e5e7eb",
-  gold: "#b8860b",
-  green: "#15803d",
+  canvas: "#eef2f5",
+  dark: "#0f1419",
+  ink: "#111827",
+  muted: "#667085",
+  line: "#d8dee8",
+  gold: "#ffb703",
+  crimson: "#d62828",
+  green: "#12805c",
   paper: "#ffffff",
   soft: "#f8fafc",
+  warm: "#fff7e1",
 };
 
 const styles = StyleSheet.create({
   page: {
-    backgroundColor: colors.paper,
+    backgroundColor: colors.canvas,
     color: colors.ink,
-    fontFamily: "Helvetica",
-    fontSize: 11,
-    padding: 28,
+    fontFamily: "Montserrat",
+    fontSize: 9,
+    padding: 24,
   },
   receipt: {
-    borderColor: colors.line,
+    backgroundColor: colors.paper,
+    borderColor: colors.dark,
     borderRadius: 8,
     borderStyle: "solid",
-    borderWidth: 1.5,
+    borderWidth: 1.2,
+    flexDirection: "column",
     minHeight: "100%",
     overflow: "hidden",
   },
-  header: {
+  topBand: {
     alignItems: "center",
-    backgroundColor: colors.ink,
-    paddingBottom: 24,
-    paddingTop: 24,
+    backgroundColor: colors.dark,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingBottom: 14,
+    paddingLeft: 18,
+    paddingRight: 18,
+    paddingTop: 16,
+  },
+  brandBlock: {
+    alignItems: "center",
+    flexDirection: "row",
+    width: "68%",
   },
   logo: {
+    backgroundColor: colors.paper,
     borderColor: colors.gold,
-    borderRadius: 40,
+    borderRadius: 25,
     borderStyle: "solid",
-    borderWidth: 1.5,
-    height: 78,
-    marginBottom: 12,
+    borderWidth: 1.4,
+    height: 50,
+    marginRight: 10,
     objectFit: "contain",
-    width: 78,
+    width: 50,
   },
   brand: {
     color: colors.paper,
-    fontSize: 33,
+    fontSize: 19,
     fontWeight: "bold",
-    letterSpacing: 7,
+    letterSpacing: 3,
     lineHeight: 1,
-    textAlign: "center",
   },
   association: {
-    color: "#d4af37",
-    fontSize: 10.5,
+    color: colors.gold,
+    fontSize: 6.8,
     fontWeight: "bold",
-    letterSpacing: 1.2,
-    marginTop: 8,
-    textAlign: "center",
+    letterSpacing: 0.5,
+    lineHeight: 1.35,
+    marginTop: 3,
+    textTransform: "uppercase",
+    width: 270,
+  },
+  receiptHead: {
+    alignItems: "flex-end",
+    width: "32%",
+  },
+  documentTitle: {
+    color: colors.paper,
+    fontSize: 13,
+    fontWeight: "bold",
+    letterSpacing: 1.3,
+    textAlign: "right",
+    textTransform: "uppercase",
+  },
+  receiptPill: {
+    borderColor: colors.gold,
+    borderRadius: 4,
+    borderStyle: "solid",
+    borderWidth: 0.8,
+    color: colors.gold,
+    fontSize: 6.8,
+    fontWeight: "bold",
+    letterSpacing: 0.5,
+    marginTop: 6,
+    paddingBottom: 3,
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 3,
+    textAlign: "right",
+  },
+  accentRail: {
+    flexDirection: "row",
+    height: 4,
+  },
+  accentRed: {
+    backgroundColor: colors.crimson,
+    flexGrow: 2,
+  },
+  accentGold: {
+    backgroundColor: colors.gold,
+    flexGrow: 1,
   },
   body: {
     flexGrow: 1,
-    paddingBottom: 28,
-    paddingLeft: 34,
-    paddingRight: 34,
-    paddingTop: 24,
+    paddingBottom: 14,
+    paddingLeft: 18,
+    paddingRight: 18,
+    paddingTop: 16,
   },
-  titleBlock: {
-    alignItems: "center",
-    borderBottomColor: colors.line,
-    borderBottomStyle: "solid",
-    borderBottomWidth: 1,
-    marginBottom: 18,
-    paddingBottom: 16,
-  },
-  title: {
-    color: colors.ink,
-    fontSize: 19,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  subtitle: {
-    color: colors.muted,
-    fontSize: 10,
-    marginTop: 4,
-    textAlign: "center",
-  },
-  row: {
-    alignItems: "flex-start",
-    borderBottomColor: colors.line,
-    borderBottomStyle: "solid",
-    borderBottomWidth: 0.6,
+  summary: {
+    backgroundColor: colors.soft,
+    borderColor: colors.line,
+    borderRadius: 7,
+    borderStyle: "solid",
+    borderWidth: 1,
     flexDirection: "row",
-    paddingBottom: 9,
-    paddingTop: 9,
+    marginBottom: 12,
+    overflow: "hidden",
   },
-  label: {
-    color: "#4b5563",
-    fontSize: 9,
+  summaryAccent: {
+    backgroundColor: colors.crimson,
+    width: 5,
+  },
+  summaryLeft: {
+    borderRightColor: colors.line,
+    borderRightStyle: "solid",
+    borderRightWidth: 1,
+    paddingBottom: 11,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 11,
+    width: "58%",
+  },
+  summaryRight: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+    paddingBottom: 11,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 11,
+    width: "42%",
+  },
+  kicker: {
+    color: colors.muted,
+    fontSize: 6.8,
     fontWeight: "bold",
-    letterSpacing: 0.8,
+    letterSpacing: 0.7,
     textTransform: "uppercase",
-    width: "38%",
   },
-  value: {
+  studentName: {
     color: colors.ink,
-    flexGrow: 1,
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: "bold",
-    lineHeight: 1.25,
-    textAlign: "right",
-    width: "62%",
+    lineHeight: 1.15,
+    marginTop: 4,
   },
   idBadge: {
-    alignSelf: "flex-end",
-    backgroundColor: colors.gold,
-    borderRadius: 3,
+    alignSelf: "flex-start",
+    backgroundColor: colors.crimson,
+    borderRadius: 4,
     color: colors.paper,
-    fontSize: 8,
+    fontSize: 7.2,
     fontWeight: "bold",
+    letterSpacing: 0.5,
+    marginTop: 6,
+    paddingBottom: 3,
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingTop: 3,
+  },
+  summaryText: {
+    color: colors.muted,
+    fontSize: 8,
+    lineHeight: 1.35,
+    marginTop: 6,
+  },
+  amountLabel: {
+    color: colors.muted,
+    fontSize: 6.8,
+    fontWeight: "bold",
+    letterSpacing: 0.7,
+    textAlign: "right",
+    textTransform: "uppercase",
+  },
+  amount: {
+    color: colors.ink,
+    fontSize: 24,
+    fontWeight: "bold",
+    lineHeight: 1,
     marginTop: 4,
-    paddingBottom: 2,
-    paddingLeft: 6,
-    paddingRight: 6,
-    paddingTop: 2,
+    textAlign: "right",
   },
-  amountBox: {
-    backgroundColor: colors.soft,
-    borderColor: "#d4af37",
-    borderRadius: 8,
+  amountWords: {
+    color: colors.muted,
+    fontSize: 7.8,
+    lineHeight: 1.3,
+    marginTop: 7,
+    textAlign: "right",
+  },
+  splitRow: {
+    flexDirection: "row",
+    marginBottom: 12,
+  },
+  panel: {
+    borderColor: colors.line,
+    borderRadius: 7,
     borderStyle: "solid",
-    borderWidth: 1.5,
-    marginTop: 22,
-    padding: 16,
+    borderWidth: 1,
+    paddingBottom: 9,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 9,
   },
-  amountMetaRow: {
+  panelLeft: {
+    marginRight: 6,
+    width: "50%",
+  },
+  panelRight: {
+    marginLeft: 6,
+    width: "50%",
+  },
+  sectionTitle: {
+    color: colors.crimson,
+    fontSize: 7.5,
+    fontWeight: "bold",
+    letterSpacing: 0.8,
+    marginBottom: 8,
+    textTransform: "uppercase",
+  },
+  detailLine: {
+    borderBottomColor: colors.line,
+    borderBottomStyle: "solid",
+    borderBottomWidth: 0.7,
+    marginBottom: 6,
+    paddingBottom: 5,
+  },
+  detailLineLast: {
+    borderBottomWidth: 0,
+    marginBottom: 0,
+    paddingBottom: 0,
+  },
+  detailLabel: {
+    color: colors.muted,
+    fontSize: 6.5,
+    fontWeight: "bold",
+    letterSpacing: 0.4,
+    marginBottom: 2,
+    textTransform: "uppercase",
+  },
+  detailValue: {
+    color: colors.ink,
+    fontSize: 8.8,
+    fontWeight: "bold",
+    lineHeight: 1.25,
+  },
+  settlementPanel: {
+    backgroundColor: colors.warm,
+    borderColor: colors.gold,
+    borderRadius: 7,
+    borderStyle: "solid",
+    borderWidth: 1,
+    marginBottom: 12,
+    paddingBottom: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 8,
+  },
+  settlementHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 6,
   },
-  amountMetaLabel: {
-    color: colors.muted,
-    fontSize: 10,
-  },
-  amountMetaValue: {
+  settlementTitle: {
     color: colors.ink,
-    fontSize: 10,
+    fontSize: 7.8,
     fontWeight: "bold",
+    letterSpacing: 0.7,
+    textTransform: "uppercase",
   },
-  amount: {
-    color: colors.ink,
-    fontSize: 32,
+  paidPill: {
+    color: colors.green,
+    fontSize: 7,
     fontWeight: "bold",
-    lineHeight: 1.1,
-    marginTop: 8,
-    textAlign: "center",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
-  amountWords: {
+  settlementRow: {
+    borderTopColor: colors.line,
+    borderTopStyle: "solid",
+    borderTopWidth: 0.6,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 5,
+    marginTop: 5,
+  },
+  settlementLabel: {
     color: colors.muted,
-    fontSize: 11,
-    fontStyle: "italic",
-    marginTop: 8,
-    textAlign: "center",
+    fontSize: 8,
+  },
+  settlementValue: {
+    color: colors.ink,
+    fontSize: 8,
+    fontWeight: "bold",
+    textAlign: "right",
+  },
+  creditValue: {
+    color: colors.green,
+  },
+  settlementTotalLabel: {
+    color: colors.ink,
+    fontSize: 8.8,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+  },
+  settlementTotalValue: {
+    color: colors.ink,
+    fontSize: 11.5,
+    fontWeight: "bold",
+    textAlign: "right",
+  },
+  footerRow: {
+    alignItems: "center",
+    borderTopColor: colors.line,
+    borderTopStyle: "solid",
+    borderTopWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 10,
+  },
+  statusBlock: {
+    paddingRight: 10,
+    width: "68%",
   },
   status: {
     color: colors.green,
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: "bold",
-    marginTop: 18,
-    textAlign: "center",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  statusText: {
+    color: colors.muted,
+    fontSize: 7.5,
+    lineHeight: 1.35,
+    marginTop: 4,
   },
   stampWrap: {
     alignItems: "center",
-    marginTop: 8,
+    width: "32%",
   },
   stamp: {
-    height: 74,
+    height: 56,
     objectFit: "contain",
-    opacity: 0.9,
-    width: 74,
+    opacity: 0.85,
+    width: 56,
+    transform: "rotate(-10deg)",
+  },
+  signatureLine: {
+    borderTopColor: colors.ink,
+    borderTopStyle: "solid",
+    borderTopWidth: 0.9,
+    height: 1,
+    marginTop: 5,
+    width: 112,
+  },
+  signatureLabel: {
+    color: colors.muted,
+    fontSize: 6.8,
+    fontWeight: "bold",
+    letterSpacing: 0.5,
+    marginTop: 5,
+    textAlign: "center",
+    textTransform: "uppercase",
   },
   footer: {
-    backgroundColor: colors.ink,
-    paddingBottom: 10,
-    paddingTop: 10,
+    backgroundColor: colors.dark,
+    borderTopWidth: 3,
+    borderTopColor: colors.gold,
+    paddingBottom: 9,
+    paddingLeft: 18,
+    paddingRight: 18,
+    paddingTop: 9,
   },
   footerText: {
-    color: "#d1d5db",
-    fontSize: 7.5,
+    color: "#c8d0d8",
+    fontSize: 7.2,
+    lineHeight: 1.35,
     textAlign: "center",
   },
 });
@@ -224,17 +450,50 @@ function currency(amount: number) {
   return `INR ${amount.toLocaleString("en-IN")}`;
 }
 
-function DetailRow({
+function DetailField({
   label,
   children,
+  last = false,
 }: {
   label: string;
   children: ReactNode;
+  last?: boolean;
 }) {
+  const lineStyle = last
+    ? [styles.detailLine, styles.detailLineLast]
+    : styles.detailLine;
+
   return (
-    <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.value}>{children}</View>
+    <View style={lineStyle}>
+      <Text style={styles.detailLabel}>{label}</Text>
+      <Text style={styles.detailValue}>{children}</Text>
+    </View>
+  );
+}
+
+function SettlementRow({
+  label,
+  value,
+  credit = false,
+  total = false,
+}: {
+  label: string;
+  value: string;
+  credit?: boolean;
+  total?: boolean;
+}) {
+  const valueStyle = total
+    ? styles.settlementTotalValue
+    : credit
+      ? [styles.settlementValue, styles.creditValue]
+      : styles.settlementValue;
+
+  return (
+    <View style={styles.settlementRow}>
+      <Text style={total ? styles.settlementTotalLabel : styles.settlementLabel}>
+        {label}
+      </Text>
+      <Text style={valueStyle}>{value}</Text>
     </View>
   );
 }
@@ -262,67 +521,105 @@ export default function MonthlyFeeReceiptPdf({
       subject={`${purpose} receipt`}
       title={`${student.id} ${purpose} ${year || RECEIPT_YEAR}`}
     >
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} wrap={false}>
         <View style={styles.receipt}>
-          <View style={styles.header}>
-            <Image src={logoSrc} style={styles.logo} />
-            <Text style={styles.brand}>S K F</Text>
-            <Text style={styles.association}>
-              Sports Karate-do Fitness & Self Defence Association (R)
-            </Text>
+          <View style={styles.topBand}>
+            <View style={styles.brandBlock}>
+              <Image src={logoSrc} style={styles.logo} />
+              <View>
+                <Text style={styles.brand}>S K F KARATE</Text>
+                <Text style={styles.association}>
+                  Sports Karate-do Fitness & Self Defence Association (R)
+                </Text>
+              </View>
+            </View>
+            <View style={styles.receiptHead}>
+              <Text style={styles.documentTitle}>Fee Receipt</Text>
+              <Text style={styles.receiptPill}>{receiptNo}</Text>
+            </View>
+          </View>
+          <View style={styles.accentRail}>
+            <View style={styles.accentRed} />
+            <View style={styles.accentGold} />
           </View>
 
           <View style={styles.body}>
-            <View style={styles.titleBlock}>
-              <Text style={styles.title}>Monthly Fee Receipt</Text>
-              <Text style={styles.subtitle}>Payment confirmation</Text>
+            <View style={styles.summary}>
+              <View style={styles.summaryAccent} />
+              <View style={styles.summaryLeft}>
+                <Text style={styles.kicker}>Received from</Text>
+                <Text style={styles.studentName}>{student.name}</Text>
+                <Text style={styles.idBadge}>{student.id}</Text>
+                <Text style={styles.summaryText}>
+                  Fee received for {purpose}. Parent / guardian:{" "}
+                  {student.parentName || "N/A"}.
+                </Text>
+              </View>
+              <View style={styles.summaryRight}>
+                <Text style={styles.amountLabel}>Amount Received</Text>
+                <Text style={styles.amount}>{currency(amountReceived)}</Text>
+                <Text style={styles.amountWords}>{amountWords}</Text>
+              </View>
             </View>
 
-            <DetailRow label="Branch">
-              <Text>{getBranchName(branch)}</Text>
-            </DetailRow>
-            <DetailRow label="Receipt No">
-              <Text>{receiptNo}</Text>
-            </DetailRow>
-            <DetailRow label="Date">
-              <Text>{dateLabel}</Text>
-            </DetailRow>
-            <DetailRow label="Time">
-              <Text>{timeLabel}</Text>
-            </DetailRow>
-            <DetailRow label="Parent / Guardian">
-              <Text>{student.parentName || "N/A"}</Text>
-            </DetailRow>
-            <DetailRow label="Student Name">
-              <Text>{student.name}</Text>
-              <Text style={styles.idBadge}>{student.id}</Text>
-            </DetailRow>
-            <DetailRow label="Purpose">
-              <Text>{purpose}</Text>
-            </DetailRow>
+            <View style={styles.splitRow}>
+              <View style={[styles.panel, styles.panelLeft]}>
+                <Text style={styles.sectionTitle}>Receipt Details</Text>
+                <DetailField label="Branch">{getBranchName(branch)}</DetailField>
+                <DetailField label="Receipt No">{receiptNo}</DetailField>
+                <DetailField label="Date">{dateLabel}</DetailField>
+                <DetailField label="Time" last>
+                  {timeLabel}
+                </DetailField>
+              </View>
+              <View style={[styles.panel, styles.panelRight]}>
+                <Text style={styles.sectionTitle}>Student Record</Text>
+                <DetailField label="Student Name">{student.name}</DetailField>
+                <DetailField label="SKF ID">{student.id}</DetailField>
+                <DetailField label="Parent / Guardian">
+                  {student.parentName || "N/A"}
+                </DetailField>
+                <DetailField label="Purpose" last>
+                  {purpose}
+                </DetailField>
+              </View>
+            </View>
 
-            <View style={styles.amountBox}>
+            <View style={styles.settlementPanel}>
+              <View style={styles.settlementHeader}>
+                <Text style={styles.settlementTitle}>Settlement Summary</Text>
+                <Text style={styles.paidPill}>Verified Paid</Text>
+              </View>
               {creditApplied > 0 && (
                 <>
-                  <View style={styles.amountMetaRow}>
-                    <Text style={styles.amountMetaLabel}>Monthly fee</Text>
-                    <Text style={styles.amountMetaValue}>{currency(baseFee)}</Text>
-                  </View>
-                  <View style={styles.amountMetaRow}>
-                    <Text style={styles.amountMetaLabel}>Referral credit</Text>
-                    <Text style={styles.amountMetaValue}>
-                      - {currency(creditApplied)}
-                    </Text>
-                  </View>
+                  <SettlementRow label="Monthly fee" value={currency(baseFee)} />
+                  <SettlementRow
+                    credit
+                    label="Referral credit"
+                    value={`- ${currency(creditApplied)}`}
+                  />
                 </>
               )}
-              <Text style={styles.amount}>{currency(amountReceived)}</Text>
-              <Text style={styles.amountWords}>{amountWords}</Text>
+              <SettlementRow
+                label="Amount received"
+                total
+                value={currency(amountReceived)}
+              />
             </View>
 
-            <Text style={styles.status}>Payment Received with Thanks</Text>
-            <View style={styles.stampWrap}>
-              <Image src={stampSrc} style={styles.stamp} />
+            <View style={styles.footerRow}>
+              <View style={styles.statusBlock}>
+                <Text style={styles.status}>Payment Received with Thanks</Text>
+                <Text style={styles.statusText}>
+                  This receipt confirms fee collection for the period shown
+                  above and should be retained for records.
+                </Text>
+              </View>
+              <View style={styles.stampWrap}>
+                <Image src={stampSrc} style={styles.stamp} />
+                <View style={styles.signatureLine} />
+                <Text style={styles.signatureLabel}>Authorized Seal</Text>
+              </View>
             </View>
           </View>
 

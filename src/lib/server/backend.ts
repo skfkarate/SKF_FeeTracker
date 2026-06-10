@@ -5,8 +5,10 @@ type BackendPayload = Record<string, unknown> & {
   staff?: FeeTrackStaff;
 };
 
-const BACKEND_TIMEOUT_MS = 6_500;
+const BACKEND_TIMEOUT_MS = 10_000;
+const HEAVY_BACKEND_TIMEOUT_MS = 30_000;
 const PRODUCTION_SKF_KARATE_URL = "https://www.skfkarate.org";
+const LOCAL_SKF_KARATE_URL = "http://localhost:3001";
 
 type BackendCallOptions = {
   timeoutMs?: number;
@@ -45,6 +47,10 @@ function isLocalBackendUrl(url: URL) {
   return ["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(url.hostname);
 }
 
+function isProductionBackendUrl(url: URL) {
+  return url.hostname === "www.skfkarate.org" || url.hostname === "skfkarate.org";
+}
+
 function backendBaseUrl() {
   const isProductionDeploy = process.env.VERCEL_ENV === "production";
   const base =
@@ -68,6 +74,10 @@ function backendBaseUrl() {
     return new URL(PRODUCTION_SKF_KARATE_URL);
   }
 
+  if (!isProductionDeploy && isProductionBackendUrl(url)) {
+    return new URL(process.env.FEETRACK_LOCAL_BACKEND_URL || LOCAL_SKF_KARATE_URL);
+  }
+
   return url;
 }
 
@@ -85,7 +95,19 @@ export async function callKarateBackend<T>(
   }
 
   const url = karateBackendUrl("/api/integrations/feetrack");
-  const timeoutMs = options.timeoutMs || BACKEND_TIMEOUT_MS;
+  const heavyActions = new Set([
+    "get_students",
+    "get_branch_counts",
+    "get_dev_fund",
+    "get_finance_command_center",
+    "get_financial_summary",
+    "get_event_collections",
+    "get_shop_orders",
+    "get_website_analytics",
+  ]);
+  const timeoutMs =
+    options.timeoutMs ||
+    (heavyActions.has(payload.action) ? HEAVY_BACKEND_TIMEOUT_MS : BACKEND_TIMEOUT_MS);
   let response: Response;
 
   try {

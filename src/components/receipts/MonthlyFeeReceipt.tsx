@@ -36,45 +36,79 @@ function parseReceiptDate(value?: string | null) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function PreviewRow({
+function PreviewField({
   label,
   children,
-  vertical = "middle",
+  last = false,
 }: {
   label: string;
   children: ReactNode;
-  vertical?: "middle" | "top";
+  last?: boolean;
 }) {
   return (
-    <tr>
-      <td
+    <div
+      style={{
+        borderBottom: last ? "0" : "1px solid #d8dee8",
+        paddingBottom: last ? 0 : "8px",
+        marginBottom: last ? 0 : "8px",
+      }}
+    >
+      <div
         style={{
-          color: "#4b5563",
+          color: "#667085",
           fontWeight: 700,
-          fontSize: "11px",
+          fontSize: "10px",
           textTransform: "uppercase",
           letterSpacing: "0.05em",
-          padding: "4px 0",
-          verticalAlign: vertical,
-          width: "42%",
+          marginBottom: "3px",
         }}
       >
         {label}
-      </td>
-      <td
+      </div>
+      <div
         style={{
-          color: "#1a1f2e",
-          fontWeight: 700,
-          fontSize: "14px",
-          textAlign: "right",
-          padding: "4px 0",
-          verticalAlign: vertical,
-          width: "58%",
+          color: "#111827",
+          fontWeight: 800,
+          fontSize: "13px",
+          lineHeight: 1.25,
         }}
       >
         {children}
-      </td>
-    </tr>
+      </div>
+    </div>
+  );
+}
+
+function PreviewSettlementLine({
+  label,
+  value,
+  credit = false,
+  total = false,
+}: {
+  label: string;
+  value: string;
+  credit?: boolean;
+  total?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "16px",
+        borderTop: "1px solid #d8dee8",
+        paddingTop: "8px",
+        marginTop: "8px",
+        color: total ? "#111827" : "#667085",
+        fontSize: total ? "14px" : "12px",
+        fontWeight: total ? 900 : 700,
+      }}
+    >
+      <span style={{ textTransform: total ? "uppercase" : "none" }}>
+        {label}
+      </span>
+      <span style={{ color: credit ? "#12805c" : "#111827" }}>{value}</span>
+    </div>
   );
 }
 
@@ -195,203 +229,419 @@ export default function MonthlyFeeReceipt({
 
   return (
     <div className="glass-modal-overlay" style={{ zIndex: 100 }}>
-      <div className="w-full max-w-[520px] max-h-[90vh] overflow-y-auto px-4 custom-scrollbar">
+      <div className="w-full max-w-[640px] max-h-[92dvh] overflow-y-auto custom-scrollbar">
         <div
           style={{
             backgroundColor: "#ffffff",
-            color: "#1a1f2e",
-            borderRadius: "12px",
+            color: "#111827",
+            border: "1px solid #0f1419",
+            borderRadius: "10px",
+            fontFamily: "'Montserrat', sans-serif",
             overflow: "hidden",
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
           }}
         >
           <div
             style={{
-              background: "linear-gradient(135deg, #1a1f2e, #0f1419)",
-              padding: "24px",
-              textAlign: "center",
+              alignItems: "center",
+              background: "#0f1419",
+              display: "flex",
+              gap: "16px",
+              justifyContent: "space-between",
+              padding: "18px 20px",
+              flexWrap: "wrap",
             }}
           >
             <div
               style={{
                 display: "flex",
-                justifyContent: "center",
-                marginBottom: "12px",
+                alignItems: "center",
+                gap: "12px",
+                minWidth: "260px",
               }}
             >
               <NextImage
                 src="/logo.png"
                 alt="SKF"
-                width={70}
-                height={70}
-                className="rounded-full object-contain border border-[#d4af37]/50 bg-white/5"
+                width={54}
+                height={54}
+                className="rounded-full object-contain border-2 border-[#ffb703] bg-white"
               />
-            </div>
-            <h1
-              style={{
-                color: "#ffffff",
-                fontSize: "28px",
-                fontWeight: 900,
-                letterSpacing: "0.2em",
-                margin: 0,
-              }}
-            >
-              SKF
-            </h1>
-            <p
-              style={{
-                color: "#d4af37",
-                fontSize: "11px",
-                fontWeight: 600,
-                letterSpacing: "0.1em",
-                marginTop: "4px",
-              }}
-            >
-              Sports Karate-do Fitness & Self Defence Association ®
-            </p>
-          </div>
-
-          <div style={{ padding: "24px", borderBottom: "1px solid #e5e7eb" }}>
-            <div style={{ textAlign: "center", marginBottom: "16px" }}>
-              <h2
-                style={{
-                  color: "#1a1f2e",
-                  fontSize: "18px",
-                  fontWeight: 900,
-                  margin: 0,
-                }}
-              >
-                Monthly Fee Receipt
-              </h2>
-              <p
-                style={{ color: "#6b7280", fontSize: "11px", marginTop: "4px" }}
-              >
-                Payment confirmation
-              </p>
-            </div>
-
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <tbody>
-                <PreviewRow label="Branch">{branchName}</PreviewRow>
-                <PreviewRow label="Receipt No">{receiptNo}</PreviewRow>
-                <PreviewRow label="Date">{date}</PreviewRow>
-                <PreviewRow label="Time">{timeStr}</PreviewRow>
-              </tbody>
-            </table>
-          </div>
-
-          <div style={{ padding: "24px", position: "relative" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <tbody>
-                <PreviewRow label="Parent / Guardian">
-                  {student.parentName || "N/A"}
-                </PreviewRow>
-                <PreviewRow label="Student Name" vertical="top">
-                  {student.name}
-                  <br />
-                  <span
-                    style={{
-                      backgroundColor: "#b8860b",
-                      color: "#ffffff",
-                      fontSize: "10px",
-                      padding: "2px 8px",
-                      borderRadius: "4px",
-                      fontWeight: 700,
-                      display: "inline-block",
-                      marginTop: "4px",
-                    }}
-                  >
-                    {student.id}
-                  </span>
-                </PreviewRow>
-                <PreviewRow label="Purpose">{purpose}</PreviewRow>
-              </tbody>
-            </table>
-
-            <div
-              style={{
-                marginTop: "24px",
-                padding: "16px",
-                borderRadius: "12px",
-                border: "2px solid #d4af37",
-                background: "linear-gradient(135deg, #fafbfc, #f3f4f6)",
-                textAlign: "center",
-              }}
-            >
-              {creditApplied > 0 && (
-                <div
+              <div>
+                <h1
                   style={{
-                    marginBottom: "10px",
-                    color: "#4b5563",
-                    fontSize: "11px",
-                    textAlign: "left",
+                    color: "#ffffff",
+                    fontSize: "21px",
+                    fontWeight: 900,
+                    letterSpacing: "0.16em",
+                    lineHeight: 1,
+                    margin: 0,
                   }}
                 >
-                  <div className="flex justify-between">
-                    <span>Monthly fee</span>
-                    <span>₹ {baseFee.toLocaleString("en-IN")}</span>
-                  </div>
-                  <div className="flex justify-between text-green-700">
-                    <span>Referral credit</span>
-                    <span>- ₹ {creditApplied.toLocaleString("en-IN")}</span>
-                  </div>
-                </div>
-              )}
+                  S K F KARATE
+                </h1>
+                <p
+                  style={{
+                    color: "#ffb703",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    letterSpacing: "0.05em",
+                    lineHeight: 1.3,
+                    margin: "5px 0 0",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Sports Karate-do Fitness & Self Defence Association ®
+                </p>
+              </div>
+            </div>
+            <div style={{ textAlign: "right" }}>
               <div
-                style={{ fontSize: "28px", fontWeight: 900, color: "#1a1f2e" }}
+                style={{
+                  color: "#ffffff",
+                  fontSize: "15px",
+                  fontWeight: 900,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
               >
-                ₹ {amountReceived.toLocaleString("en-IN")}
+                Fee Receipt
               </div>
               <div
                 style={{
-                  fontSize: "11px",
-                  fontStyle: "italic",
-                  color: "#6b7280",
-                  marginTop: "4px",
+                  border: "1px solid #ffb703",
+                  borderRadius: "4px",
+                  color: "#ffb703",
+                  display: "inline-block",
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "0.04em",
+                  marginTop: "7px",
+                  padding: "4px 8px",
                 }}
               >
-                {amountWords}
+                {receiptNo}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", height: "4px" }}>
+            <div style={{ background: "#d62828", flex: 2 }} />
+            <div style={{ background: "#ffb703", flex: 1 }} />
+          </div>
+
+          <div style={{ padding: "18px" }}>
+            <div
+              style={{
+                background: "#f8fafc",
+                border: "1px solid #d8dee8",
+                borderRadius: "8px",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                overflow: "hidden",
+                marginBottom: "14px",
+              }}
+            >
+              <div
+                style={{
+                  borderLeft: "5px solid #d62828",
+                  padding: "14px",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#667085",
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    letterSpacing: "0.07em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Received from
+                </div>
+                <div
+                  style={{
+                    color: "#111827",
+                    fontSize: "20px",
+                    fontWeight: 900,
+                    lineHeight: 1.1,
+                    marginTop: "5px",
+                  }}
+                >
+                  {student.name}
+                </div>
+                <span
+                  style={{
+                    backgroundColor: "#d62828",
+                    borderRadius: "4px",
+                    color: "#ffffff",
+                    display: "inline-block",
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    letterSpacing: "0.04em",
+                    marginTop: "8px",
+                    padding: "3px 8px",
+                  }}
+                >
+                  {student.id}
+                </span>
+                <div
+                  style={{
+                    color: "#667085",
+                    fontSize: "12px",
+                    lineHeight: 1.45,
+                    marginTop: "8px",
+                  }}
+                >
+                  Fee received for {purpose}. Parent / guardian:{" "}
+                  {student.parentName || "N/A"}.
+                </div>
+              </div>
+              <div
+                style={{
+                  alignItems: "flex-end",
+                  borderLeft: "1px solid #d8dee8",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  padding: "14px",
+                  textAlign: "right",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#667085",
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    letterSpacing: "0.07em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Amount Received
+                </div>
+                <div
+                  style={{
+                    color: "#111827",
+                    fontSize: "32px",
+                    fontWeight: 900,
+                    lineHeight: 1,
+                    marginTop: "6px",
+                  }}
+                >
+                  ₹ {amountReceived.toLocaleString("en-IN")}
+                </div>
+                <div
+                  style={{
+                    color: "#667085",
+                    fontSize: "11px",
+                    lineHeight: 1.35,
+                    marginTop: "7px",
+                    maxWidth: "250px",
+                  }}
+                >
+                  {amountWords}
+                </div>
               </div>
             </div>
 
             <div
               style={{
-                marginTop: "16px",
-                textAlign: "center",
-                fontWeight: 700,
-                fontSize: "13px",
-                color: "#16a34a",
+                display: "grid",
+                gap: "12px",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                marginBottom: "14px",
               }}
             >
-              Payment Received with Thanks
+              <div
+                style={{
+                  border: "1px solid #d8dee8",
+                  borderRadius: "8px",
+                  padding: "12px",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#d62828",
+                    fontSize: "11px",
+                    fontWeight: 900,
+                    letterSpacing: "0.08em",
+                    marginBottom: "10px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Receipt Details
+                </div>
+                <PreviewField label="Branch">{branchName}</PreviewField>
+                <PreviewField label="Receipt No">{receiptNo}</PreviewField>
+                <PreviewField label="Date">{date}</PreviewField>
+                <PreviewField label="Time" last>
+                  {timeStr}
+                </PreviewField>
+              </div>
+              <div
+                style={{
+                  border: "1px solid #d8dee8",
+                  borderRadius: "8px",
+                  padding: "12px",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#d62828",
+                    fontSize: "11px",
+                    fontWeight: 900,
+                    letterSpacing: "0.08em",
+                    marginBottom: "10px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Student Record
+                </div>
+                <PreviewField label="Student Name">{student.name}</PreviewField>
+                <PreviewField label="SKF ID">{student.id}</PreviewField>
+                <PreviewField label="Parent / Guardian">
+                  {student.parentName || "N/A"}
+                </PreviewField>
+                <PreviewField label="Purpose" last>
+                  {purpose}
+                </PreviewField>
+              </div>
             </div>
 
             <div
               style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "8px",
-                opacity: 0.9,
+                background: "#fff7e1",
+                border: "1px solid #ffb703",
+                borderRadius: "8px",
+                marginBottom: "14px",
+                padding: "12px",
               }}
             >
-              <NextImage
-                src="/stamp.png"
-                alt="PAID"
-                width={96}
-                height={96}
-                className="object-contain -rotate-12"
+              <div
+                style={{
+                  alignItems: "center",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: "12px",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#111827",
+                    fontSize: "12px",
+                    fontWeight: 900,
+                    letterSpacing: "0.07em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Settlement Summary
+                </div>
+                <div
+                  style={{
+                    color: "#12805c",
+                    fontSize: "11px",
+                    fontWeight: 900,
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Verified Paid
+                </div>
+              </div>
+              {creditApplied > 0 && (
+                <>
+                  <PreviewSettlementLine
+                    label="Monthly fee"
+                    value={`₹ ${baseFee.toLocaleString("en-IN")}`}
+                  />
+                  <PreviewSettlementLine
+                    credit
+                    label="Referral credit"
+                    value={`- ₹ ${creditApplied.toLocaleString("en-IN")}`}
+                  />
+                </>
+              )}
+              <PreviewSettlementLine
+                label="Amount received"
+                total
+                value={`₹ ${amountReceived.toLocaleString("en-IN")}`}
               />
+            </div>
+
+            <div
+              style={{
+                alignItems: "center",
+                borderTop: "1px solid #d8dee8",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "16px",
+                paddingTop: "12px",
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    color: "#12805c",
+                    fontSize: "13px",
+                    fontWeight: 900,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Payment Received with Thanks
+                </div>
+                <div
+                  style={{
+                    color: "#667085",
+                    fontSize: "11px",
+                    lineHeight: 1.45,
+                    marginTop: "5px",
+                  }}
+                >
+                  This receipt confirms fee collection for the period shown
+                  above and should be retained for records.
+                </div>
+              </div>
+              <div style={{ minWidth: "128px", textAlign: "center" }}>
+                <NextImage
+                  src="/stamp.png"
+                  alt="PAID"
+                  width={64}
+                  height={64}
+                  className="object-contain -rotate-12"
+                />
+                <div
+                  style={{
+                    borderTop: "1px solid #111827",
+                    margin: "4px auto 0",
+                    width: "108px",
+                  }}
+                />
+                <div
+                  style={{
+                    color: "#667085",
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    letterSpacing: "0.04em",
+                    marginTop: "6px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Authorized Seal
+                </div>
+              </div>
             </div>
           </div>
 
           <div
             style={{
-              background: "linear-gradient(135deg, #1a1f2e, #0f1419)",
-              padding: "12px",
+              background: "linear-gradient(135deg, #0f1419, #1a1f2e)",
+              borderTop: "3px solid #ffb703",
+              padding: "16px",
               textAlign: "center",
             }}
           >
-            <p style={{ color: "#d1d5db", fontSize: "10px", margin: 0 }}>
+            <p style={{ color: "#c8d0d8", fontSize: "10px", margin: 0 }}>
               This receipt is issued for confirmation and record purposes only.
             </p>
           </div>

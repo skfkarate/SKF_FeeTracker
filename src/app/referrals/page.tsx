@@ -140,7 +140,7 @@ export default function ReferralCreditsPage() {
         rightContent={null}
       />
 
-      <main className="max-w-2xl mx-auto p-4 pt-24">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24">
         {/* Branch Toggle */}
         <div className="flex p-1 bg-black/20 rounded-xl w-full max-w-md mx-auto border border-white/5 mb-6">
           <button

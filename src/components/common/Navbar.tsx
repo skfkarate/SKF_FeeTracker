@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import GlobalSearch from "./GlobalSearch";
+import NotificationBell from "./NotificationBell";
 
 interface NavbarProps {
     title?: string;
@@ -23,7 +24,7 @@ export default function Navbar({
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 surface-glass ${className}`}
         >
-            <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                 
                 {/* Left Section */}
                 <div className="flex items-center gap-4">
@@ -62,8 +63,9 @@ export default function Navbar({
                 </div>
 
                 {/* Right Section */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                     <GlobalSearch />
+                    <NotificationBell />
                     {rightContent}
                 </div>
                 

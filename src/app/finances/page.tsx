@@ -211,7 +211,7 @@ export default function FinancesPage() {
         }
       />
 
-      <main className="max-w-3xl mx-auto p-4 pt-24 pb-12">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-12">
         <div className="flex p-1 bg-black/20 rounded-xl w-full border border-white/5 mb-5">
           {BRANCHES.map((option) => (
             <button

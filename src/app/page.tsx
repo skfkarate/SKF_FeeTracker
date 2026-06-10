@@ -11,12 +11,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     let active = true;
     void fetchFeeTrackSession().then((session) => {
       if (active && session) router.replace("/dashboard");
+      if (active && !session) setCheckingSession(false);
     });
     return () => { active = false; };
   }, [router]);
@@ -42,6 +44,24 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black px-4 text-zinc-300">
+        <div className="flex flex-col items-center gap-4">
+          <Image
+            src="/logo.png"
+            alt="SKF Logo"
+            width={44}
+            height={44}
+            priority
+            className="rounded-full opacity-90"
+          />
+          <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-black relative">

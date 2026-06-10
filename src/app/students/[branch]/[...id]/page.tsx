@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { use, Suspense } from "react";
-import { User, Phone, MessageCircle, Trophy, AlertCircle, History, IndianRupee } from "lucide-react";
+import { Phone, MessageCircle, Trophy, AlertCircle, History, IndianRupee } from "lucide-react";
 import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
 import { getStudents, Student } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
+import { initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
 
 // Wrap in Suspense to avoid sync rendering issues
 export default function StudentProfilePage({
@@ -46,12 +47,13 @@ function StudentProfileContent({
   }, [user, checking, branch, studentId]);
 
   if (checking || !user) return null;
+  const studentPhotoUrl = student ? normalizeProfilePhotoUrl(student.photoUrl) : "";
 
   return (
     <div className="min-h-screen bg-black text-zinc-300">
       <Navbar showBack title="Student Profile" rightContent={<NavMenu />} />
 
-      <main className="max-w-3xl mx-auto px-6 pt-32 pb-24">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-32 pb-24">
         {loading ? (
           <div className="flex justify-center items-center h-64">
              <div className="w-8 h-8 border-2 border-zinc-700 border-t-zinc-400 rounded-full animate-spin" />
@@ -64,14 +66,18 @@ function StudentProfileContent({
           </div>
         ) : (
           <div className="animate-slide-up space-y-8">
-            
             {/* Header Profile Card */}
             <div className="card-panel p-8 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-zinc-800/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
               
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 relative z-10">
-                <div className="w-20 h-20 rounded-2xl bg-zinc-900 border border-zinc-700 flex items-center justify-center flex-shrink-0 shadow-xl">
-                  <User className="w-8 h-8 text-zinc-500" />
+                <div className="w-20 h-20 overflow-hidden rounded-2xl bg-zinc-900 border border-zinc-700 flex items-center justify-center flex-shrink-0 shadow-xl">
+                  {studentPhotoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={studentPhotoUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-lg font-bold text-zinc-500">{initials(student.name)}</span>
+                  )}
                 </div>
                 <div>
                   <div className="flex items-center gap-3 mb-1">

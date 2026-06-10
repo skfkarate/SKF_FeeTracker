@@ -45,6 +45,7 @@ import { normalizeFeeYear } from "@/lib/fee-year";
 import MonthlyFeeReceipt from "@/components/receipts/MonthlyFeeReceipt";
 import MonthSelector from "@/components/common/MonthSelector";
 import Navbar from "@/components/common/Navbar";
+import { initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
 
 const MONTHS = [
   "Jan",
@@ -484,6 +485,7 @@ export default function StudentList({ branch }: { branch: string }) {
     const isBreak = isBreakStudent(student);
     const isDiscontinued = isDiscontinuedStudent(student);
     const isInactive = isBreak || isDiscontinued;
+    const photoUrl = normalizeProfilePhotoUrl(student.photoUrl);
     const statusStyle = isDiscontinued
       ? {
         background: "rgba(127, 29, 29, 0.18)",
@@ -508,7 +510,18 @@ export default function StudentList({ branch }: { branch: string }) {
         style={{ ...statusStyle, animationDelay: `${Math.min(index * 30, 300)}ms`, animationFillMode: "both", WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
       >
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <div className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-full border border-zinc-800 bg-zinc-950">
+              {photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={photoUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xs font-bold text-zinc-500">
+                  {initials(student.name)}
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h3 className={`font-[family-name:var(--font-space)] text-base tracking-wide transition-colors truncate ${
                 isBreak
@@ -566,6 +579,7 @@ export default function StudentList({ branch }: { branch: string }) {
                   ))}
               </div>
             )}
+            </div>
           </div>
 
           {/* Action Button */}
@@ -584,7 +598,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </svg>
               </button>
             ) : student.monthStatus === "Pending Verification" ? (
-              <Link href="/verifications" className="w-9 h-9 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center text-blue-400 hover:bg-blue-500/30 transition-colors" title="Pending Verification (Check Action Inbox)">
+              <Link href="/pending-fees" className="w-9 h-9 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center text-blue-400 hover:bg-blue-500/30 transition-colors" title="Payment proof waiting in notifications">
                 <Clock className="w-4 h-4 animate-pulse" />
               </Link>
             ) : isInactive ? (
@@ -651,7 +665,7 @@ export default function StudentList({ branch }: { branch: string }) {
         }
       />
 
-      <main className="max-w-2xl mx-auto p-4 pt-24">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-16">
         {/* Stats Dashboard */}
         {!loading && !error && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 animate-fade-in">
@@ -826,50 +840,9 @@ export default function StudentList({ branch }: { branch: string }) {
                     </button>
                     {showDiscontinued && (
                       <div className="space-y-2 mt-2">
-                        {discontinuedStudents.map((student, index) => (
-                          <div
-                            key={student.id}
-                            onClick={() => {
-                              if (isLongPressActive.current) return;
-                              router.push(`/students/${branch}/${encodeURIComponent(student.id)}`);
-                            }}
-                            onMouseDown={() => handleLongPressStart(student)}
-                            onMouseUp={handleLongPressEnd}
-                            onMouseLeave={handleLongPressEnd}
-                            onTouchStart={() => handleLongPressStart(student)}
-                            onTouchEnd={handleLongPressEnd}
-                            onTouchMove={handleLongPressEnd}
-                            className="card-panel p-4 animate-slide-up hover:border-white/10 group cursor-pointer select-none"
-                            style={{
-                              background: "rgba(127, 29, 29, 0.18)",
-                              borderColor: "rgba(239, 68, 68, 0.45)",
-                              animationDelay: `${Math.min(index * 30, 300)}ms`,
-                              animationFillMode: "both",
-                              WebkitTouchCallout: "none",
-                              WebkitUserSelect: "none",
-                            }}
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <h3 className="font-[family-name:var(--font-space)] text-base tracking-wide text-white/45 group-hover:text-white/55 transition-colors truncate">
-                                    {student.name}
-                                  </h3>
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-red-500/50 text-red-400 uppercase tracking-wider">Discontinued</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-zinc-500 text-xs">
-                                  <span className="font-mono opacity-70">{student.id}</span>
-                                  <span className="flex items-center gap-1"><IndianRupee className="w-3 h-3" /> {student.fee}</span>
-                                </div>
-                              </div>
-                              <div className="flex-shrink-0">
-                                <div className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
-                                  <AlertCircle className="w-4 h-4" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                        {discontinuedStudents.map((student, index) =>
+                          renderStudentCard(student, activeStudents.length + breakStudents.length + index),
+                        )}
                       </div>
                     )}
                   </div>
@@ -993,13 +966,25 @@ export default function StudentList({ branch }: { branch: string }) {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setDetailStudent(null)}>
           <div className="card-panel max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-6">
-              <div>
-                <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider text-white">
-                  {detailStudent.name}
-                </h2>
-                <p className="text-[var(--text-muted)] text-sm font-mono mt-1">
-                  {detailStudent.id}
-                </p>
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-zinc-800 bg-zinc-950">
+                  {normalizeProfilePhotoUrl(detailStudent.photoUrl) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={normalizeProfilePhotoUrl(detailStudent.photoUrl)} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs font-bold text-zinc-500">
+                      {initials(detailStudent.name)}
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <h2 className="truncate font-[family-name:var(--font-space)] text-xl tracking-wider text-white">
+                    {detailStudent.name}
+                  </h2>
+                  <p className="text-[var(--text-muted)] text-sm font-mono mt-1">
+                    {detailStudent.id}
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setDetailStudent(null)}
