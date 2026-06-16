@@ -2039,6 +2039,7 @@ export interface EventFeeOverride {
   skfId: string;
   amount?: number;
   excluded?: boolean;
+  included?: boolean;
   waived?: boolean;
   reason?: string;
 }

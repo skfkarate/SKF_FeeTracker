@@ -1778,9 +1778,10 @@ function FeesStep(props: {
                   {row.reason && <p className="mt-1 text-xs text-amber-400">{row.reason}</p>}
                 </div>
                 <input type="number" value={overrides[row.skfId]?.amount ?? row.finalAmount} onChange={(e) => updateOverride(row.skfId, { amount: Number(e.target.value || 0), reason: "Student-specific amount" })} className={baseInputClass()} />
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => updateOverride(row.skfId, { excluded: !overrides[row.skfId]?.excluded, waived: false, reason: "Excluded from event fee" })} className={`flex-1 rounded-lg border px-2 py-2 text-xs ${overrides[row.skfId]?.excluded ? "border-zinc-500 bg-zinc-700 text-white" : "border-zinc-800 text-zinc-400"}`}>Exclude</button>
-                  <button type="button" onClick={() => updateOverride(row.skfId, { waived: !overrides[row.skfId]?.waived, excluded: false, amount: 0, reason: "Waived from event fee" })} className={`flex-1 rounded-lg border px-2 py-2 text-xs ${overrides[row.skfId]?.waived ? "border-blue-500/50 bg-blue-500/10 text-blue-300" : "border-zinc-800 text-zinc-400"}`}>Waive</button>
+                <div className="flex gap-1 sm:gap-2">
+                  <button type="button" onClick={() => updateOverride(row.skfId, { included: !overrides[row.skfId]?.included, excluded: false, waived: false, reason: "Manually included for event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.included ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-300" : "border-zinc-800 text-zinc-400 hover:text-zinc-300 hover:border-zinc-700"}`}>Include</button>
+                  <button type="button" onClick={() => updateOverride(row.skfId, { excluded: !overrides[row.skfId]?.excluded, included: false, waived: false, reason: "Excluded from event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.excluded ? "border-zinc-500 bg-zinc-700 text-white" : "border-zinc-800 text-zinc-400 hover:text-zinc-300 hover:border-zinc-700"}`}>Exclude</button>
+                  <button type="button" onClick={() => updateOverride(row.skfId, { waived: !overrides[row.skfId]?.waived, excluded: false, included: false, amount: 0, reason: "Waived from event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.waived ? "border-blue-500/50 bg-blue-500/10 text-blue-300" : "border-zinc-800 text-zinc-400 hover:text-zinc-300 hover:border-zinc-700"}`}>Waive</button>
                 </div>
               </div>
             ))}
