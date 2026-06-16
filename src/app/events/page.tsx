@@ -55,6 +55,7 @@ import {
   removeEventStudent,
   saveEventResults,
   searchEventAthletes,
+  syncBeltExamParticipants,
   updateEvent,
   upsertEventFeeConfig,
   getEventGalleryPhotos,
@@ -119,6 +120,36 @@ const BELT_OPTIONS = [
   { value: "brown", label: "Brown Belt" },
   { value: "black", label: "Black Belt" },
 ];
+
+const BELT_EXAM_PRICE_PRESETS: Record<string, {
+  defaultAmount: number;
+  beltPrices: Record<string, number>;
+  notes: string;
+}> = {
+  "M P Sports Club": {
+    defaultAmount: 1250,
+    beltPrices: {
+      yellow: 1250,
+    },
+    notes: "Belt examination fee includes grading assessment, certificate, belt, gift and snacks.",
+  },
+  Herohalli: {
+    defaultAmount: 1000,
+    beltPrices: {
+      yellow: 1000,
+      orange: 1100,
+      "green-ii": 1200,
+      "green-i": 1300,
+      blue: 1400,
+      purple: 1500,
+      "brown-iii": 1750,
+      "brown-ii": 2000,
+      "brown-i": 2500,
+    },
+    notes: "Belt examination fee includes grading assessment, certificate, belt, gift and snacks.",
+  },
+};
+
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -161,6 +192,13 @@ function freshEventForm(branch = "Overall") {
 
 function currency(amount: number) {
   return `₹${Math.round(Number(amount) || 0).toLocaleString("en-IN")}`;
+}
+
+function formatDateLabel(value?: string | null) {
+  if (!value) return "";
+  const date = new Date(`${String(value).split("T")[0]}T00:00:00`);
+  if (!Number.isFinite(date.getTime())) return "";
+  return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
 function studentName(student: EventAthleteSearchResult) {
@@ -228,18 +266,21 @@ function nextBeltValue(value?: string | null) {
 }
 
 function defaultConfig(event: EventCollectionItem): EventFeeConfig {
+  const branchName = String(event.event.hostingBranch || "").trim();
+  const preset = BELT_EXAM_PRICE_PRESETS[branchName] || null;
+  const isBeltExam = isBeltEvent(event.event.type);
   return {
     eventId: event.event.id,
     feeCategory:
       event.config?.feeCategory ||
       (event.event.type === "tournament"
         ? "tournament"
-        : isBeltEvent(event.event.type)
+        : isBeltExam
           ? "belt_exam"
           : "event"),
-    targetingMode: event.config?.targetingMode || "participants_only",
+    targetingMode: event.config?.targetingMode || (isBeltExam ? "branch_and_eligibility" : "participants_only"),
     pricingMode: event.config?.pricingMode || "branch_belt",
-    defaultAmount: event.config?.defaultAmount || 0,
+    defaultAmount: event.config?.defaultAmount || preset?.defaultAmount || 0,
     dueDate: event.config?.dueDate || event.event.date || today(),
     branchScope: event.config?.branchScope?.length
       ? event.config.branchScope
@@ -248,10 +289,13 @@ function defaultConfig(event: EventCollectionItem): EventFeeConfig {
         : [],
     beltScope: event.config?.beltScope || [],
     branchPrices: event.config?.branchPrices || {},
-    beltPrices: event.config?.beltPrices || {},
+    beltPrices: {
+      ...(preset?.beltPrices || {}),
+      ...(event.config?.beltPrices || {}),
+    },
     branchBeltPrices: event.config?.branchBeltPrices || {},
     studentOverrides: event.config?.studentOverrides || [],
-    notes: event.config?.notes || "",
+    notes: event.config?.notes || preset?.notes || "",
   };
 }
 
@@ -702,6 +746,26 @@ export default function EventCollectionsPage() {
     }
   }
 
+  async function handleSyncEligibleBeltExamParticipants() {
+    if (!selectedEvent) return;
+    const ok = window.confirm("Sync eligible students for this belt examination using the event date, branch, active billing status, six-month rule, break history, and black-belt exclusion?");
+    if (!ok) return;
+    setAssignmentBusyId("__belt_exam_sync__");
+    setError("");
+    setNotice("");
+    try {
+      const result = await syncBeltExamParticipants(selectedEvent.event.id);
+      const updated = await reloadAndSelect(selectedEvent.event.id);
+      const summary = result.summary;
+      setSelectedRosterIds(new Set());
+      setNotice(`Synced ${updated?.event.name || selectedEvent.event.name}: added ${summary.added}, already assigned ${summary.alreadyAssigned}, review ${summary.needsReview}, excluded ${summary.excluded}.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to sync eligible belt examination students");
+    } finally {
+      setAssignmentBusyId("");
+    }
+  }
+
   async function handleRemoveParticipant(participantId: string, skfId: string) {
     if (!selectedEvent) return;
     const ok = window.confirm("Remove this student from the selected event?");
@@ -767,7 +831,12 @@ export default function EventCollectionsPage() {
   async function handleGenerate() {
     if (!config) return;
     const payable = previewRows.filter((row) => row.status === "ready" || row.status === "waived");
-    const ok = window.confirm(`Generate pending fees for ${payable.length} students totaling ${currency(previewSummary.total)}?`);
+    if (payable.length === 0) {
+      setError("Preview has no payable students. Resolve review rows or enter the belt examination fee first.");
+      return;
+    }
+    const reviewCount = previewRows.filter((row) => row.status === "needs_review" || row.status === "excluded").length;
+    const ok = window.confirm(`Generate ${config.feeCategory === "belt_exam" ? "belt examination dues" : "pending fees"} for ${payable.length} students totaling ${currency(previewSummary.total)}? ${reviewCount} review/excluded rows will be skipped.`);
     if (!ok) return;
     setSaving(true);
     setError("");
@@ -1046,6 +1115,7 @@ export default function EventCollectionsPage() {
                   onSearch={handleAthleteSearch}
                   onAssign={handleAssignAthlete}
                   onBulkAssign={handleBulkAssignAthletes}
+                  onSyncEligibleBeltExam={handleSyncEligibleBeltExamParticipants}
                   onToggleRosterSelection={toggleRosterSelection}
                   onToggleAllRosterSelection={toggleAllRosterSelection}
                   onRemove={handleRemoveParticipant}
@@ -1405,6 +1475,7 @@ function StudentsStep({
   onSearch,
   onAssign,
   onBulkAssign,
+  onSyncEligibleBeltExam,
   onToggleRosterSelection,
   onToggleAllRosterSelection,
   onRemove,
@@ -1422,6 +1493,7 @@ function StudentsStep({
   onSearch: (event?: FormEvent<HTMLFormElement>) => void;
   onAssign: (athlete: EventAthleteSearchResult) => void;
   onBulkAssign: (athletes: EventAthleteSearchResult[]) => void;
+  onSyncEligibleBeltExam: () => void;
   onToggleRosterSelection: (athlete: EventAthleteSearchResult, checked: boolean) => void;
   onToggleAllRosterSelection: (athletes: EventAthleteSearchResult[], checked: boolean) => void;
   onRemove: (participantId: string, skfId: string) => void;
@@ -1437,6 +1509,8 @@ function StudentsStep({
   const selectedRosterAthletes = unassignedRoster.filter((student) => selectedRosterIds.has(athleteKey(student)));
   const allRosterSelected = unassignedRoster.length > 0 && unassignedRoster.every((student) => selectedRosterIds.has(athleteKey(student)));
   const bulkBusy = assignmentBusyId === "__bulk__";
+  const beltSyncBusy = assignmentBusyId === "__belt_exam_sync__";
+  const canSyncBeltExam = isBeltEvent(selectedEvent.event.type);
   const rosterBranchLabel = eventBranchLabel(selectedEvent.event.hostingBranch);
 
   return (
@@ -1450,10 +1524,20 @@ function StudentsStep({
             <h3 className="mt-1 text-sm font-semibold text-white">{rosterBranchLabel} students</h3>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex">
+            {canSyncBeltExam && (
+              <button
+                type="button"
+                onClick={onSyncEligibleBeltExam}
+                disabled={loadingRoster || bulkBusy || beltSyncBusy}
+                className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:border-amber-400/50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {beltSyncBusy ? "Syncing..." : "Sync Eligible"}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => onToggleAllRosterSelection(unassignedRoster, !allRosterSelected)}
-              disabled={loadingRoster || unassignedRoster.length === 0 || bulkBusy}
+              disabled={loadingRoster || unassignedRoster.length === 0 || bulkBusy || beltSyncBusy}
               className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {allRosterSelected ? "Clear All" : "Select All"}
@@ -1461,7 +1545,7 @@ function StudentsStep({
             <button
               type="button"
               onClick={() => onBulkAssign(selectedRosterAthletes)}
-              disabled={selectedRosterAthletes.length === 0 || bulkBusy}
+              disabled={selectedRosterAthletes.length === 0 || bulkBusy || beltSyncBusy}
               className="btn-primary min-h-10 rounded-lg px-3 text-xs"
             >
               {bulkBusy ? "Assigning..." : `Assign ${selectedRosterAthletes.length || ""}`.trim()}
@@ -1487,7 +1571,7 @@ function StudentsStep({
                       type="checkbox"
                       checked={checked}
                       onChange={(event) => onToggleRosterSelection(student, event.target.checked)}
-                      disabled={bulkBusy}
+                      disabled={bulkBusy || beltSyncBusy}
                       className="h-4 w-4 accent-white"
                     />
                     Select
@@ -1503,7 +1587,7 @@ function StudentsStep({
         <StudentList title={`Assigned (${selectedParticipants.length})`}>
           {selectedParticipants.map((participant) => (
             <StudentRow key={participant.id || participant.skfId} name={participant.athleteName} meta={`${participant.skfId} • ${participant.branchName || "SKF"}`}>
-              <button type="button" onClick={() => onRemove(participant.id, participant.skfId)} disabled={assignmentBusyId === (participant.id || participant.skfId)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-300">
+              <button type="button" onClick={() => onRemove(participant.id, participant.skfId)} disabled={beltSyncBusy || assignmentBusyId === (participant.id || participant.skfId)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50">
                 {assignmentBusyId === (participant.id || participant.skfId) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
               </button>
             </StudentRow>
@@ -1529,7 +1613,7 @@ function StudentsStep({
             const isAssigned = assignedKeys.has(student.id) || assignedKeys.has(student.skfId);
             return (
               <StudentRow key={busyId} name={studentName(student)} meta={`${student.skfId} • ${student.branchName || "SKF"}${student.currentBelt ? ` • ${student.currentBelt}` : ""}`}>
-                <button type="button" onClick={() => onAssign(student)} disabled={isAssigned || assignmentBusyId === busyId || bulkBusy} className="min-w-20 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-300 hover:text-white disabled:bg-zinc-950 disabled:text-zinc-600">
+                <button type="button" onClick={() => onAssign(student)} disabled={isAssigned || assignmentBusyId === busyId || bulkBusy || beltSyncBusy} className="min-w-20 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-300 hover:text-white disabled:bg-zinc-950 disabled:text-zinc-600">
                   {assignmentBusyId === busyId ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : isAssigned ? "Added" : "Assign"}
                 </button>
               </StudentRow>
@@ -1585,11 +1669,13 @@ function FeesStep(props: {
   onAddDeposit: () => void;
 }) {
   const { data, selectedEvent, config, setConfig, previewRows, previewSummary, overrides, saving, expense, deposit, setExpense, setDeposit, updateBranchPrice, updateBeltPrice, updateOverride, onPreview, onGenerate, onAddExpense, onAddDeposit } = props;
+  const isBeltFee = config.feeCategory === "belt_exam";
+  const payablePreviewCount = previewRows.filter((row) => row.status === "ready" || row.status === "waived").length;
 
   return (
     <div className="space-y-5">
       <section className="card-panel p-5 space-y-5">
-        <StepHeader icon={<Wallet className="h-4 w-4" />} eyebrow="Step 3" title="Event Fees" />
+        <StepHeader icon={<Wallet className="h-4 w-4" />} eyebrow="Step 3" title={isBeltFee ? "Belt Examination Fee" : "Event Fees"} />
         <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
           <FeeMetric label="Assigned" value={String(eventParticipants(selectedEvent).length)} />
           <FeeMetric label="Charged" value={String(selectedEvent.collection.chargedCount)} />
@@ -1601,7 +1687,7 @@ function FeesStep(props: {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <Field label="Category">
             <select value={config.feeCategory} onChange={(e) => setConfig({ ...config, feeCategory: e.target.value as EventFeeConfig["feeCategory"] })} className={baseInputClass()}>
-              <option value="belt_exam">Belt examination</option>
+              <option value="belt_exam">Belt Examination Fee</option>
               <option value="tournament">Tournament</option>
               <option value="event">Seminar / Camp / Event</option>
               <option value="other">Other</option>
@@ -1610,7 +1696,7 @@ function FeesStep(props: {
           <Field label="Targeting">
             <select value={config.targetingMode} onChange={(e) => setConfig({ ...config, targetingMode: e.target.value as EventFeeConfig["targetingMode"] })} className={baseInputClass()}>
               <option value="participants_only">Assigned students only</option>
-              <option value="branch_and_eligibility">Branch and eligibility</option>
+              <option value="branch_and_eligibility">Branch eligible students</option>
               <option value="manual_selection">Manual selection</option>
             </select>
           </Field>
@@ -1626,7 +1712,7 @@ function FeesStep(props: {
           <Field label="Due date">
             <input type="date" value={config.dueDate || ""} onChange={(e) => setConfig({ ...config, dueDate: e.target.value })} className={baseInputClass()} />
           </Field>
-          <Field label="Default fee">
+          <Field label={isBeltFee ? "Default exam fee" : "Default fee"}>
             <input type="number" value={config.defaultAmount || ""} onChange={(e) => setConfig({ ...config, defaultAmount: Number(e.target.value || 0) })} className={baseInputClass()} />
           </Field>
           <Field label="MPSC price">
@@ -1637,9 +1723,15 @@ function FeesStep(props: {
           </Field>
         </div>
 
-        {config.feeCategory === "belt_exam" && data && (
+        {isBeltFee && (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-xs leading-5 text-amber-100">
+            Kyu belt examination dues are added in addition to the monthly fee. Eligible students must be active, not paused or discontinued, have completed 6 months by the exam date, have no monthly break in that period, and must not be active black-belt candidates. Belt examination payments do not generate receipts.
+          </div>
+        )}
+
+        {isBeltFee && data && (
           <div>
-            <p className="mb-2 text-[10px] uppercase tracking-wider text-zinc-500">Target belt prices</p>
+            <p className="mb-2 text-[10px] uppercase tracking-wider text-zinc-500">Promotion target prices</p>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
               {data.beltSequence.map((belt) => (
                 <label key={belt.key} className="rounded-lg border border-zinc-800 bg-zinc-950 p-2">
@@ -1656,9 +1748,9 @@ function FeesStep(props: {
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
             Save & Preview
           </button>
-          <button type="button" onClick={onGenerate} disabled={saving || previewRows.length === 0} className="flex-1 rounded-lg bg-emerald-600 py-3 font-medium text-white hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 flex items-center justify-center gap-2">
+          <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-emerald-600 py-3 font-medium text-white hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 flex items-center justify-center gap-2">
             <Users className="h-4 w-4" />
-            Generate Pending Fees
+            {isBeltFee ? "Generate Belt Exam Dues" : "Generate Pending Fees"}
           </button>
         </div>
       </section>
@@ -1666,7 +1758,7 @@ function FeesStep(props: {
       {previewRows.length > 0 && (
         <section className="card-panel p-5">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="font-medium text-white">Fee Preview</h3>
+            <h3 className="font-medium text-white">{isBeltFee ? "Belt Examination Preview" : "Fee Preview"}</h3>
             <p className="text-xs text-zinc-500">{previewSummary.ready} ready • {previewSummary.waived} waived • {previewSummary.review} review • {currency(previewSummary.total)}</p>
           </div>
           <div className="max-h-[520px] space-y-2 overflow-auto pr-1">
@@ -1678,7 +1770,11 @@ function FeesStep(props: {
                     <span className="font-mono text-[10px] text-zinc-500">{row.skfId}</span>
                     <span className={`rounded border px-2 py-0.5 text-[10px] uppercase ${rowTone(row.status)}`}>{row.status.replace("_", " ")}</span>
                   </div>
-                  <p className="mt-1 text-xs text-zinc-500">{row.branch} {row.targetBelt ? `• ${row.currentBelt} to ${row.targetBelt}` : ""}</p>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    {row.branch} {row.targetBelt ? `• ${row.currentBelt || "Current belt"} to ${row.targetBelt}` : ""}
+                    {isBeltFee && row.joinedDate ? ` • Joined ${formatDateLabel(row.joinedDate)}` : ""}
+                    {isBeltFee && row.eligibilityCutoffDate ? ` • Cutoff ${formatDateLabel(row.eligibilityCutoffDate)}` : ""}
+                  </p>
                   {row.reason && <p className="mt-1 text-xs text-amber-400">{row.reason}</p>}
                 </div>
                 <input type="number" value={overrides[row.skfId]?.amount ?? row.finalAmount} onChange={(e) => updateOverride(row.skfId, { amount: Number(e.target.value || 0), reason: "Student-specific amount" })} className={baseInputClass()} />

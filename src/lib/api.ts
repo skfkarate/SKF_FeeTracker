@@ -2055,6 +2055,9 @@ export interface EventFeePreviewRow {
   finalAmount: number;
   status: "ready" | "needs_review" | "excluded" | "waived";
   reason: string;
+  eligibilityCutoffDate?: string;
+  joinedDate?: string;
+  receiptEligible?: boolean;
   existingFeeRecordId: string | null;
   existingStatus: string | null;
   receiptId: string | null;
@@ -2240,6 +2243,28 @@ export async function assignEventStudent(
   });
   invalidateCache("eventCollections:");
   return data.data.event;
+}
+
+export interface BeltExamParticipantSyncSummary {
+  added: number;
+  eligible: number;
+  alreadyAssigned: number;
+  needsReview: number;
+  excluded: number;
+}
+
+export async function syncBeltExamParticipants(eventId: string): Promise<{
+  event: EventCollectionItem["event"];
+  summary: BeltExamParticipantSyncSummary;
+}> {
+  const data = await apiAction<{
+    data: {
+      event: EventCollectionItem["event"];
+      summary: BeltExamParticipantSyncSummary;
+    };
+  }>("sync_belt_exam_participants", { eventId });
+  invalidateCache("eventCollections:");
+  return data.data;
 }
 
 export async function removeEventStudent(input: {
