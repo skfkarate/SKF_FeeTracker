@@ -264,8 +264,10 @@ export default function StudentList({ branch }: { branch: string }) {
         ),
       );
 
-      // Auto-show receipt
-      setReceiptStudent(paidStudent);
+      // Auto-show receipt if fee isn't 2000 (Black Belt installment)
+      if (paidStudent.fee !== 2000) {
+        setReceiptStudent(paidStudent);
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to mark as paid");
     } finally {
@@ -585,18 +587,29 @@ export default function StudentList({ branch }: { branch: string }) {
           {/* Action Button */}
           <div className="flex-shrink-0">
             {student.monthStatus === "Paid" ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setReceiptStudent(student);
-                }}
-                className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-400 transition-all shadow-md shadow-green-900/40"
-                title="View Receipt"
-              >
-                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </button>
+              student.fee === 2000 ? (
+                <div
+                  className="w-9 h-9 rounded-full bg-green-500/50 flex items-center justify-center shadow-md shadow-green-900/20 cursor-default"
+                  title="Installment Paid (No Receipt)"
+                >
+                  <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setReceiptStudent(student);
+                  }}
+                  className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-400 transition-all shadow-md shadow-green-900/40"
+                  title="View Receipt"
+                >
+                  <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </button>
+              )
             ) : student.monthStatus === "Pending Verification" ? (
               <Link href="/pending-fees" className="w-9 h-9 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center text-blue-400 hover:bg-blue-500/30 transition-colors" title="Payment proof waiting in notifications">
                 <Clock className="w-4 h-4 animate-pulse" />

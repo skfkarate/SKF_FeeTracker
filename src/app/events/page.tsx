@@ -1687,7 +1687,7 @@ function FeesStep(props: {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <Field label="Category">
             <select value={config.feeCategory} onChange={(e) => setConfig({ ...config, feeCategory: e.target.value as EventFeeConfig["feeCategory"] })} className={baseInputClass()}>
-              <option value="belt_exam">Belt Examination Fee</option>
+              <option value="belt_exam">Belt & Black Belt Exam Fee</option>
               <option value="tournament">Tournament</option>
               <option value="event">Seminar / Camp / Event</option>
               <option value="other">Other</option>
