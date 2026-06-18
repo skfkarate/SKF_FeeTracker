@@ -1,14 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-function generateNonce() {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return btoa(String.fromCharCode(...bytes));
-}
-
-function buildContentSecurityPolicy(nonce: string) {
-  const scriptSources = ["'self'", `'nonce-${nonce}'`];
-  if (process.env.NODE_ENV !== "production") scriptSources.push("'unsafe-eval'");
+function buildContentSecurityPolicy() {
+  // Next.js 16/Turbopack doesn't propagate nonces to inline RSC scripts yet,
+  // so we use 'unsafe-inline' as a pragmatic fallback for this internal tool.
+  const isDev = process.env.NODE_ENV !== "production";
+  const scriptSrc = ["'self'", "'unsafe-inline'", ...(isDev ? ["'unsafe-eval'"] : [])];
+  const styleSrcElem = ["'self'", "'unsafe-inline'"];
 
   return [
     "default-src 'self'",
@@ -20,22 +17,19 @@ function buildContentSecurityPolicy(nonce: string) {
     "img-src 'self' data: blob:",
     "media-src 'self' blob:",
     "worker-src 'self' blob:",
-    `script-src ${scriptSources.join(" ")}`,
-    "style-src 'self'",
-    `style-src-elem 'self' 'nonce-${nonce}'`,
+    `script-src ${scriptSrc.join(" ")}`,
+    `style-src-elem ${styleSrcElem.join(" ")}`,
     "style-src-attr 'unsafe-inline'",
     "connect-src 'self' https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://sentry.io",
     "manifest-src 'self'",
-    ...(process.env.NODE_ENV === "production" ? ["upgrade-insecure-requests"] : []),
+    ...(isDev ? [] : ["upgrade-insecure-requests"]),
   ].join("; ");
 }
 
 export function middleware(request: NextRequest) {
-  const nonce = generateNonce();
-  const csp = buildContentSecurityPolicy(nonce);
+  const csp = buildContentSecurityPolicy();
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("Content-Security-Policy", csp);
-  requestHeaders.set("x-nonce", nonce);
 
   const response = NextResponse.next({
     request: {
@@ -43,7 +37,6 @@ export function middleware(request: NextRequest) {
     },
   });
   response.headers.set("Content-Security-Policy", csp);
-  response.headers.set("x-nonce", nonce);
   return response;
 }
 
