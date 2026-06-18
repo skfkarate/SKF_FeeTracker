@@ -43,6 +43,7 @@ export function middleware(request: NextRequest) {
     },
   });
   response.headers.set("Content-Security-Policy", csp);
+  response.headers.set("x-nonce", nonce);
   return response;
 }
 
