@@ -88,7 +88,6 @@ const EVENT_FILTERS = [
 const EVENT_CREATE_TYPES = [
   { value: "tournament", label: "Tournament" },
   { value: "grading", label: "Grading" },
-  { value: "belt-exam", label: "Belt Exam" },
   { value: "seminar", label: "Seminar" },
   { value: "camp", label: "Camp" },
   { value: "fun", label: "Fun Event" },
@@ -121,31 +120,31 @@ const BELT_OPTIONS = [
   { value: "black", label: "Black Belt" },
 ];
 
+const UNIFIED_BELT_PRICES = {
+  yellow: 1000,
+  orange: 1100,
+  "green-ii": 1200,
+  "green-i": 1300,
+  blue: 1400,
+  purple: 1500,
+  "brown-iii": 1750,
+  "brown-ii": 2000,
+  "brown-i": 2500,
+};
+
 const BELT_EXAM_PRICE_PRESETS: Record<string, {
   defaultAmount: number;
   beltPrices: Record<string, number>;
   notes: string;
 }> = {
   "M P Sports Club": {
-    defaultAmount: 1250,
-    beltPrices: {
-      yellow: 1250,
-    },
+    defaultAmount: 1000,
+    beltPrices: UNIFIED_BELT_PRICES,
     notes: "Belt examination fee includes grading assessment, certificate, belt, gift and snacks.",
   },
   Herohalli: {
     defaultAmount: 1000,
-    beltPrices: {
-      yellow: 1000,
-      orange: 1100,
-      "green-ii": 1200,
-      "green-i": 1300,
-      blue: 1400,
-      purple: 1500,
-      "brown-iii": 1750,
-      "brown-ii": 2000,
-      "brown-i": 2500,
-    },
+    beltPrices: UNIFIED_BELT_PRICES,
     notes: "Belt examination fee includes grading assessment, certificate, belt, gift and snacks.",
   },
 };
@@ -236,7 +235,6 @@ function athleteKey(athlete: Pick<EventAthleteSearchResult, "id" | "skfId">) {
 
 function eventTypeLabel(type?: string) {
   if (type === "tournament") return "Tournament";
-  if (type === "belt-exam") return "Belt Exam";
   if (type === "grading") return "Grading";
   if (type === "seminar") return "Seminar";
   if (type === "camp") return "Camp";
@@ -247,6 +245,13 @@ function eventTypeLabel(type?: string) {
 function isBeltEvent(type?: string) {
   const value = String(type || "").toLowerCase();
   return value.includes("belt") || value.includes("grading");
+}
+
+function isBlackBeltExamEvent(item: EventCollectionItem | null | undefined): boolean {
+  if (!item) return false;
+  const name = (item.event.name || '').toLowerCase();
+  const slug = (item.event.slug || '').toLowerCase();
+  return name.includes('dan') || slug.includes('dan');
 }
 
 function isTournament(type?: string) {
@@ -296,6 +301,7 @@ function defaultConfig(event: EventCollectionItem): EventFeeConfig {
     branchBeltPrices: event.config?.branchBeltPrices || {},
     studentOverrides: event.config?.studentOverrides || [],
     notes: event.config?.notes || preset?.notes || "",
+    status: event.config?.status || "draft",
   };
 }
 
@@ -832,17 +838,40 @@ export default function EventCollectionsPage() {
     if (!config) return;
     const payable = previewRows.filter((row) => row.status === "ready" || row.status === "waived");
     if (payable.length === 0) {
-      setError("Preview has no payable students. Resolve review rows or enter the belt examination fee first.");
+      setError("Preview has no payable students. Resolve review rows or enter the grading fee first.");
       return;
     }
     const reviewCount = previewRows.filter((row) => row.status === "needs_review" || row.status === "excluded").length;
-    const ok = window.confirm(`Generate ${config.feeCategory === "belt_exam" ? "belt examination dues" : "pending fees"} for ${payable.length} students totaling ${currency(previewSummary.total)}? ${reviewCount} review/excluded rows will be skipped.`);
-    if (!ok) return;
+    const isBeltFee = config.feeCategory === "belt_exam";
+    const expectedTotal = previewSummary.total;
+    if (isBeltFee) {
+      const expenseTotal = selectedEvent?.finance.spent || 0;
+      const savingsAmount = Math.max(0, expectedTotal - expenseTotal);
+      const ok = window.confirm(
+        `Settle grading savings for ${payable.length} students?\n\n` +
+        `Expected: ${currency(expectedTotal)}\n` +
+        `Expenses: ${currency(expenseTotal)}\n` +
+        `Savings: ${currency(savingsAmount)}\n\n` +
+        `${reviewCount} review/excluded rows will be skipped.`
+      );
+      if (!ok) return;
+    } else {
+      const ok = window.confirm(`Generate pending fees for ${payable.length} students totaling ${currency(previewSummary.total)}? ${reviewCount} review/excluded rows will be skipped.`);
+      if (!ok) return;
+    }
     setSaving(true);
     setError("");
     try {
       const result = await generateEventFees(config.eventId, Object.values(overrides));
-      setNotice(`Generated ${result.createdOrUpdated} dues, waived ${result.waived}, skipped ${result.skipped}.`);
+      if (isBeltFee && config.status !== "settled") {
+        await upsertEventFeeConfig({ ...config, status: "settled" });
+      }
+      const savingsAmount = Math.max(0, (selectedEvent?.collection.expected || expectedTotal) - (selectedEvent?.finance.spent || 0));
+      setNotice(
+        isBeltFee
+          ? `Grading settled: ${result.createdOrUpdated} dues, ${result.waived} waived, ${result.skipped} skipped. Savings: ${currency(savingsAmount)}.`
+          : `Generated ${result.createdOrUpdated} dues, waived ${result.waived}, skipped ${result.skipped}.`
+      );
       await loadData(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate event fees");
@@ -1008,11 +1037,18 @@ export default function EventCollectionsPage() {
                             {eventTypeLabel(item.event.type)} • {eventBranchLabel(item.event.hostingBranch)}
                           </p>
                         </div>
-                        <span className={`rounded-md border px-2 py-1 text-[10px] uppercase ${
-                          published ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300" : "border-zinc-800 bg-zinc-900 text-zinc-500"
-                        }`}>
-                          {published ? "Published" : item.event.status || "Draft"}
-                        </span>
+                        <div className="flex gap-1">
+                          {item.config?.status === "settled" && (
+                            <span className="rounded-md border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase text-emerald-300">
+                              Settled
+                            </span>
+                          )}
+                          <span className={`rounded-md border px-2 py-1 text-[10px] uppercase ${
+                            published ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300" : "border-zinc-800 bg-zinc-900 text-zinc-500"
+                          }`}>
+                            {published ? "Published" : item.event.status || "Draft"}
+                          </span>
+                        </div>
                       </div>
                       <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
                         <span className="text-zinc-400">{eventParticipants(item).length} students</span>
@@ -1670,12 +1706,16 @@ function FeesStep(props: {
 }) {
   const { data, selectedEvent, config, setConfig, previewRows, previewSummary, overrides, saving, expense, deposit, setExpense, setDeposit, updateBranchPrice, updateBeltPrice, updateOverride, onPreview, onGenerate, onAddExpense, onAddDeposit } = props;
   const isBeltFee = config.feeCategory === "belt_exam";
+  const isBlackBelt = isBlackBeltExamEvent(selectedEvent);
   const payablePreviewCount = previewRows.filter((row) => row.status === "ready" || row.status === "waived").length;
+  const savings = selectedEvent.finance.savings;
+  const surplus = selectedEvent.finance.surplus;
+  const isSettled = config.status === "settled";
 
   return (
     <div className="space-y-5">
       <section className="card-panel p-5 space-y-5">
-        <StepHeader icon={<Wallet className="h-4 w-4" />} eyebrow="Step 3" title={isBeltFee ? "Belt Examination Fee" : "Event Fees"} />
+        <StepHeader icon={<Wallet className="h-4 w-4" />} eyebrow="Step 3" title={isBeltFee ? "Grading Expense & Savings" : "Event Fees"} />
         <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
           <FeeMetric label="Assigned" value={String(eventParticipants(selectedEvent).length)} />
           <FeeMetric label="Charged" value={String(selectedEvent.collection.chargedCount)} />
@@ -1683,6 +1723,46 @@ function FeesStep(props: {
           <FeeMetric label="Expense" value={currency(selectedEvent.finance.spent)} tone="red" />
           <FeeMetric label="Deposited" value={currency(selectedEvent.finance.deposited)} tone="blue" />
         </div>
+
+        {isBeltFee && (
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+            <p className="text-[10px] uppercase tracking-wider text-emerald-400 mb-2">Grading Savings Summary</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <p className="text-[10px] text-zinc-500">Expected Collection</p>
+                <p className="text-lg font-semibold text-white">{currency(selectedEvent.collection.expected)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-zinc-500">Total Expenses</p>
+                <p className="text-lg font-semibold text-red-400">{currency(selectedEvent.finance.spent)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-zinc-500">Savings (Expected - Expenses)</p>
+                <p className={`text-lg font-semibold ${savings > 0 ? 'text-emerald-400' : savings < 0 ? 'text-red-400' : 'text-zinc-400'}`}>
+                  {currency(Math.max(0, selectedEvent.collection.expected - selectedEvent.finance.spent))}
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              <div>
+                <p className="text-[10px] text-zinc-500">Collected</p>
+                <p className="text-sm font-semibold text-emerald-300">{currency(selectedEvent.collection.collected)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-zinc-500">Surplus (Collected - Expenses)</p>
+                <p className={`text-sm font-semibold ${surplus > 0 ? 'text-emerald-400' : surplus < 0 ? 'text-red-400' : 'text-zinc-400'}`}>
+                  {currency(surplus)}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-zinc-500">Settlement Status</p>
+                <p className={`text-sm font-semibold ${isSettled ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {isSettled ? 'Settled' : 'Pending'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <Field label="Category">
@@ -1725,7 +1805,7 @@ function FeesStep(props: {
 
         {isBeltFee && (
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-xs leading-5 text-amber-100">
-            Kyu belt examination dues are added in addition to the monthly fee. Eligible students must be active, not paused or discontinued, have completed 6 months by the exam date, have no monthly break in that period, and must not be active black-belt candidates. Belt examination payments do not generate receipts.
+            Grading fees are collected per student and settled as a batch. The total expected collection minus total event expenses becomes the grading savings. Savings are tracked per event and settle to the branch ledger. Eligible students must be active, have completed 5+ months by the exam date, and have no billing break. Belt examination payments do not generate receipts.
           </div>
         )}
 
@@ -1748,10 +1828,17 @@ function FeesStep(props: {
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
             Save & Preview
           </button>
-          <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-emerald-600 py-3 font-medium text-white hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 flex items-center justify-center gap-2">
-            <Users className="h-4 w-4" />
-            {isBeltFee ? "Generate Belt Exam Dues" : "Generate Pending Fees"}
-          </button>
+          {isBeltFee ? (
+            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-emerald-600 py-3 font-medium text-white hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 flex items-center justify-center gap-2">
+              <Wallet className="h-4 w-4" />
+              {isSettled ? "Re-Settle Grading Savings" : "Settle Grading Savings"}
+            </button>
+          ) : (
+            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-emerald-600 py-3 font-medium text-white hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 flex items-center justify-center gap-2">
+              <Users className="h-4 w-4" />
+              Generate Pending Fees
+            </button>
+          )}
         </div>
       </section>
 

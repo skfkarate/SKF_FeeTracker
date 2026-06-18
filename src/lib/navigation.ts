@@ -56,8 +56,8 @@ const FEE_TRACK_OFFICE_TILES: NavigationTile[] = [
   },
   {
     href: "/referrals",
-    title: "Referral Credits",
-    description: "Parent referrals and monthly credit use",
+    title: "Student Credits",
+    description: "Manage referral and achievement credits",
     icon: HandCoins,
     accent: "group-hover:text-emerald-300",
   },

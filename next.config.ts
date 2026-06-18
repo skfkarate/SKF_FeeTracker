@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
-  // CSP is generated per request in proxy.ts so scripts and style elements can use nonces.
+  output: "standalone",
+  // CSP is generated per request in middleware.ts so scripts and style elements can use nonces.
   // TODO(react-inline-styles): remove the proxy style-src-attr fallback after runtime style attributes are eliminated.
   reactCompiler: true,
   poweredByHeader: false,

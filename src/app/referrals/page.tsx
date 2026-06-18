@@ -5,6 +5,8 @@ import { Plus, Gift, X, Zap, Wallet, Trophy } from "lucide-react";
 import {
   getReferralCredits,
   addReferralCredit,
+  editReferralCredit,
+  deleteReferralCredit,
   getStudents,
   ReferralCreditsData,
   ReferralCredit,
@@ -19,7 +21,7 @@ const MONTHS = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-export default function ReferralCreditsPage() {
+export default function StudentCreditsPage() {
   const { user, checking } = useFeeTrackAuth();
   const feeYear = getCurrentFeeYear();
   const [branch, setBranch] = useState("Herohalli");
@@ -42,6 +44,10 @@ export default function ReferralCreditsPage() {
 
   // Detail Modal
   const [selectedCredit, setSelectedCredit] = useState<ReferralCredit | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({ amount: 0, reason: "", description: "" });
+  const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user || checking) return;
@@ -117,6 +123,44 @@ export default function ReferralCreditsPage() {
     }
   };
 
+  const handleEditCredit = async () => {
+    if (!selectedCredit) return;
+    if (editForm.amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+    setUpdating(true);
+    try {
+      await editReferralCredit(branch, selectedCredit.id, {
+        amount: editForm.amount,
+        reason: editForm.reason,
+        description: editForm.description,
+      });
+      setIsEditing(false);
+      setSelectedCredit({ ...selectedCredit, ...editForm });
+      loadData();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update credit");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDeleteCredit = async () => {
+    if (!selectedCredit) return;
+    if (!window.confirm("Are you sure you want to delete this credit? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      await deleteReferralCredit(branch, selectedCredit.id);
+      setSelectedCredit(null);
+      loadData();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete credit");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const stats = useMemo(() => {
     if (!data) return { total: 0, totalAmount: 0, active: 0, activeAmount: 0, redeemed: 0, redeemedAmount: 0 };
     const total = data.credits.length;
@@ -135,7 +179,7 @@ export default function ReferralCreditsPage() {
     <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
       {/* Header */}
       <Navbar
-        title="REFERRAL CREDITS"
+        title="STUDENT CREDITS"
         showBack
         rightContent={null}
       />
@@ -167,7 +211,7 @@ export default function ReferralCreditsPage() {
         {loading && (
           <div className="text-center py-16">
             <div className="spinner mx-auto mb-4" />
-            <p className="text-[var(--text-muted)] text-sm">Loading referral credits...</p>
+            <p className="text-[var(--text-muted)] text-sm">Loading student credits...</p>
           </div>
         )}
 
@@ -252,7 +296,7 @@ export default function ReferralCreditsPage() {
               <div className="space-y-2">
                 {data.credits.length === 0 ? (
                   <div className="glass-card p-6 text-center text-[var(--text-muted)] text-sm">
-                    No referral credits yet. Add one when a parent refers a new student.
+                    No student credits yet. Add one when a student achieves a rank or refers someone.
                   </div>
                 ) : (
                   data.credits
@@ -264,7 +308,11 @@ export default function ReferralCreditsPage() {
                     .map((credit) => (
                       <div
                         key={credit.id}
-                        onClick={() => setSelectedCredit(credit)}
+                        onClick={() => {
+                          setSelectedCredit(credit);
+                          setEditForm({ amount: credit.amount, reason: credit.reason, description: credit.description });
+                          setIsEditing(false);
+                        }}
                         className={`glass-card p-4 transition-all duration-200 cursor-pointer group ${credit.isUsed
                           ? "opacity-60 hover:opacity-80 border-white/5"
                           : "hover:border-green-400/30 border-white/10"
@@ -332,7 +380,7 @@ export default function ReferralCreditsPage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
-                    Referred From *
+                    Assign To Student *
                   </label>
                   {loadingStudents ? (
                     <p className="text-[var(--text-muted)] text-sm">Loading students...</p>
@@ -373,41 +421,15 @@ export default function ReferralCreditsPage() {
 
                 <div>
                   <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
-                    Referred To (New Student) *
+                    Reason (e.g. Referral, Achievement) *
                   </label>
-                  {loadingStudents ? (
-                    <p className="text-[var(--text-muted)] text-sm">Loading students...</p>
-                  ) : (
-                    <select
-                      value={
-                        students.find((s) => newCredit.reason.includes(s.id))
-                          ?.id || ""
-                      }
-                      onChange={(e) => {
-                        const selectedStudent = students.find(
-                          (s) => s.id === e.target.value,
-                        );
-                        if (selectedStudent) {
-                          setNewCredit({
-                            ...newCredit,
-                            reason: `${selectedStudent.name} (${selectedStudent.id})`,
-                          });
-                        } else {
-                          setNewCredit({ ...newCredit, reason: "" });
-                        }
-                      }}
-                      className="input-field"
-                    >
-                      <option value="">Select new student...</option>
-                      {students
-                        .filter((s) => s.id !== newCredit.studentId) // Exclude the referrer
-                        .map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name} ({s.id})
-                          </option>
-                        ))}
-                    </select>
-                  )}
+                  <input
+                    type="text"
+                    value={newCredit.reason}
+                    onChange={(e) => setNewCredit({ ...newCredit, reason: e.target.value })}
+                    placeholder="Why is this credit given?"
+                    className="input-field"
+                  />
                 </div>
 
                 <div>
@@ -453,7 +475,7 @@ export default function ReferralCreditsPage() {
                 </button>
                 <button
                   onClick={handleAddCredit}
-                  disabled={adding || !newCredit.studentId}
+                  disabled={adding || !newCredit.studentId || !newCredit.reason}
                   className="flex-1 py-3 bg-green-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-green-500 transition-colors disabled:opacity-50"
                 >
                   {adding ? (
@@ -499,68 +521,143 @@ export default function ReferralCreditsPage() {
                 </span>
               </div>
 
-              {/* Amount */}
-              <div className="text-center mb-6">
-                <p className={`font-[family-name:var(--font-space)] text-3xl ${selectedCredit.isUsed ? "text-[var(--text-muted)]" : "text-green-400"
-                  }`}>
-                  ₹{selectedCredit.amount.toLocaleString()}
-                </p>
-              </div>
-
-              {/* Details Grid */}
-              <div className="space-y-3">
-                <div className="glass-surface p-3 rounded-lg">
-                  <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Student</p>
-                  <p className="text-white text-sm font-medium">{selectedCredit.studentName}</p>
-                  <p className="text-[var(--text-muted)] text-xs">ID: {selectedCredit.studentId}</p>
+              {isEditing ? (
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
+                      Amount (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.amount}
+                      onChange={(e) => setEditForm({ ...editForm, amount: parseInt(e.target.value) || 0 })}
+                      className="input-field"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
+                      Reason
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.reason}
+                      onChange={(e) => setEditForm({ ...editForm, reason: e.target.value })}
+                      className="input-field"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[var(--text-muted)] text-xs uppercase tracking-wider block mb-2 font-medium">
+                      Description
+                    </label>
+                    <textarea
+                      value={editForm.description}
+                      onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                      className="input-field resize-none"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="flex-1 btn-ghost tracking-wider text-xs"
+                    >
+                      CANCEL
+                    </button>
+                    <button
+                      onClick={handleEditCredit}
+                      disabled={updating}
+                      className="flex-1 py-2 bg-blue-600/80 text-white rounded-lg tracking-wider text-xs hover:bg-blue-500 transition-colors"
+                    >
+                      {updating ? "SAVING..." : "SAVE CHANGES"}
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                <>
+                  {/* Amount */}
+                  <div className="text-center mb-6">
+                    <p className={`font-[family-name:var(--font-space)] text-3xl ${selectedCredit.isUsed ? "text-[var(--text-muted)]" : "text-green-400"
+                      }`}>
+                      ₹{selectedCredit.amount.toLocaleString()}
+                    </p>
+                  </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="glass-surface p-3 rounded-lg">
-                    <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Credit ID</p>
-                    <p className="text-white text-sm font-mono truncate">{selectedCredit.id}</p>
-                  </div>
-                  <div className="glass-surface p-3 rounded-lg">
-                    <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Reason</p>
-                    <p className="text-white text-sm line-clamp-1">{selectedCredit.reason}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="glass-surface p-3 rounded-lg">
-                    <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Date Earned</p>
-                    <p className="text-white text-sm">{selectedCredit.dateEarned}</p>
-                  </div>
-                  {selectedCredit.isUsed && selectedCredit.usedDate && (
+                  {/* Details Grid */}
+                  <div className="space-y-3">
                     <div className="glass-surface p-3 rounded-lg">
-                      <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Redeemed On</p>
-                      <p className="text-amber-400 text-sm">{selectedCredit.usedDate.split('T')[0]}</p>
+                      <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Student</p>
+                      <p className="text-white text-sm font-medium">{selectedCredit.studentName}</p>
+                      <p className="text-[var(--text-muted)] text-xs">ID: {selectedCredit.studentId}</p>
                     </div>
-                  )}
-                  {selectedCredit.isUsed && selectedCredit.usedInMonth !== null && (
-                    <div className="glass-surface p-3 rounded-lg">
-                      <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Applied For</p>
-                      <p className="text-amber-400 text-sm">
-                        {MONTHS[selectedCredit.usedInMonth] || "Unknown"}
-                      </p>
-                    </div>
-                  )}
-                </div>
 
-                {selectedCredit.description && (
-                  <div className="glass-surface p-3 rounded-lg">
-                    <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Description</p>
-                    <p className="text-white text-sm whitespace-pre-wrap">{selectedCredit.description}</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="glass-surface p-3 rounded-lg">
+                        <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Credit ID</p>
+                        <p className="text-white text-sm font-mono truncate">{selectedCredit.id}</p>
+                      </div>
+                      <div className="glass-surface p-3 rounded-lg">
+                        <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Reason</p>
+                        <p className="text-white text-sm line-clamp-1">{selectedCredit.reason}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="glass-surface p-3 rounded-lg">
+                        <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Date Earned</p>
+                        <p className="text-white text-sm">{selectedCredit.dateEarned}</p>
+                      </div>
+                      {selectedCredit.isUsed && selectedCredit.usedDate && (
+                        <div className="glass-surface p-3 rounded-lg">
+                          <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Redeemed On</p>
+                          <p className="text-amber-400 text-sm">{selectedCredit.usedDate.split('T')[0]}</p>
+                        </div>
+                      )}
+                      {selectedCredit.isUsed && selectedCredit.usedInMonth !== null && (
+                        <div className="glass-surface p-3 rounded-lg">
+                          <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Applied For</p>
+                          <p className="text-amber-400 text-sm">
+                            {MONTHS[selectedCredit.usedInMonth] || "Unknown"}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedCredit.description && (
+                      <div className="glass-surface p-3 rounded-lg">
+                        <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Description</p>
+                        <p className="text-white text-sm whitespace-pre-wrap">{selectedCredit.description}</p>
+                      </div>
+                    )}
                   </div>
+                </>
+              )}
+
+              <div className="flex gap-2 mt-6">
+                {!isEditing && (
+                  <>
+                    <button
+                      onClick={handleDeleteCredit}
+                      disabled={deleting}
+                      className="px-3 py-2 border border-red-500/30 text-red-400 rounded-lg tracking-wider text-xs hover:bg-red-500/20 transition-colors"
+                      title="Delete Credit"
+                    >
+                      {deleting ? "..." : "DELETE"}
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="px-3 py-2 border border-blue-500/30 text-blue-400 rounded-lg tracking-wider text-xs hover:bg-blue-500/20 transition-colors"
+                    >
+                      EDIT
+                    </button>
+                  </>
                 )}
+                <button
+                  onClick={() => setSelectedCredit(null)}
+                  className="flex-1 btn-ghost font-[family-name:var(--font-space)] tracking-wider text-sm"
+                >
+                  CLOSE
+                </button>
               </div>
-
-              <button
-                onClick={() => setSelectedCredit(null)}
-                className="w-full mt-6 btn-ghost font-[family-name:var(--font-space)] tracking-wider text-sm"
-              >
-                CLOSE
-              </button>
             </div>
           </div>
         </div>

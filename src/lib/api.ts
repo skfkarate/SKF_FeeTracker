@@ -4,6 +4,37 @@ import { getCurrentFeeYear } from "@/lib/fee-year";
 
 const API_URL = "/api/feetrack/data";
 
+async function compressImage(file: File, maxWidth = 1200, quality = 0.85): Promise<File> {
+  if (!file.type.startsWith('image/')) return file;
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (!blob) return reject(new Error('Canvas is empty'));
+          resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' }));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 interface StudentData {
   id: string;
   name: string;
@@ -53,6 +84,7 @@ export interface Student {
   dressStatus?: "Paid" | "Pending";
   dressReceiptId?: string | null;
   eventDues?: EventStudentDue[];
+  isExamInstallment?: boolean;
 }
 
 export interface EventStudentDue {
@@ -417,8 +449,9 @@ export async function uploadStudentProfilePhoto(
   skfId: string,
   photo: File,
 ): Promise<StudentProfilePhotoUploadResult> {
+  const compressedPhoto = await compressImage(photo, 800, 0.85);
   const formData = new FormData();
-  formData.set("photo", photo);
+  formData.set("photo", compressedPhoto);
 
   const response = await fetchWithTimeout(
     `/api/feetrack/students/${encodeURIComponent(skfId)}/profile-photo`,
@@ -532,6 +565,26 @@ export async function resumeStudent(
   invalidateCache(`students:${branch}`);
   invalidateFinancialCaches(branch, year);
   invalidateCache('branchCounts');
+}
+
+export async function allocateExamFee(
+  id: string,
+  branch: string,
+  month: number,
+  amount: number,
+  year = getCurrentFeeYear(),
+): Promise<void> {
+  if (isMockData()) return;
+  await apiAction("allocate_exam_fee", {
+    id,
+    branch,
+    month,
+    year,
+    amount,
+  });
+
+  invalidateCache(`students:${branch}:${year}:${month}`);
+  invalidateFinancialCaches(branch, year);
 }
 
 /**
@@ -1091,12 +1144,13 @@ export async function uploadBranchTimetable(input: {
   monthLabel?: string;
   notes?: string;
 }): Promise<BranchTimetable> {
+  const compressedImage = await compressImage(input.image, 1200, 0.85);
   const formData = new FormData();
   formData.set("branch", input.branch);
   formData.set("title", `${input.branch === "MPSC" ? "MPSC" : input.branch} Timetable`);
   formData.set("monthLabel", input.monthLabel || "");
   formData.set("notes", input.notes || "");
-  formData.set("image", input.image);
+  formData.set("image", compressedImage);
 
   const response = await fetchWithRetry("/api/feetrack/timetables/upload", {
     method: "POST",
@@ -1266,7 +1320,8 @@ export async function uploadGalleryPhoto(input: {
   formData.set("sortOrder", String(input.sortOrder || 0));
   if (input.eventId) formData.set("eventId", input.eventId);
   if (input.eventDate) formData.set("eventDate", input.eventDate);
-  formData.set("photo", input.file);
+  const compressedPhoto = await compressImage(input.file, 1600, 0.85);
+  formData.set("photo", compressedPhoto);
 
   const response = await fetchWithRetry("/api/feetrack/gallery/upload", {
     method: "POST",
@@ -1718,6 +1773,46 @@ export async function addReferralCredit(
     dateEarned: data.data.created_at || new Date().toISOString(),
     isUsed: data.data.status === "used",
   };
+}
+
+export async function editReferralCredit(
+  branch: string,
+  creditId: string,
+  updates: {
+    amount?: number;
+    reason?: string;
+    description?: string;
+  }
+): Promise<{ success: boolean }> {
+  if (isMockData()) {
+    await new Promise((r) => setTimeout(r, 500));
+    return { success: true };
+  }
+
+  await apiAction("update_referral_credit", {
+    creditId,
+    ...updates,
+  });
+  
+  invalidateCache(`referral:${branch}`);
+  return { success: true };
+}
+
+export async function deleteReferralCredit(
+  branch: string,
+  creditId: string
+): Promise<{ success: boolean }> {
+  if (isMockData()) {
+    await new Promise((r) => setTimeout(r, 500));
+    return { success: true };
+  }
+
+  await apiAction("delete_referral_credit", {
+    creditId,
+  });
+  
+  invalidateCache(`referral:${branch}`);
+  return { success: true };
 }
 
 export async function getStudentAvailableCredits(
@@ -2396,4 +2491,24 @@ export async function addEventDeposit(input: {
   invalidateCache("eventCollections:");
   invalidateCache("financeCommand:");
   return data.data;
+}
+
+export interface ExamMonth {
+  year: number;
+  month: string;
+  created_at: string;
+}
+
+export async function getExamMonths(forceRefresh = false): Promise<ExamMonth[]> {
+  const cacheKey = "examMonths";
+  if (forceRefresh) invalidateCache(cacheKey);
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: ExamMonth[] }>("get_exam_months");
+    return data.data || [];
+  });
+}
+
+export async function setExamMonth(year: number, month: string): Promise<void> {
+  await apiAction("set_exam_month", { year, month });
+  invalidateCache("examMonths");
 }

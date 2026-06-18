@@ -1162,8 +1162,8 @@ export default function NotificationBell() {
       </button>
 
       {open ? (
-        <div className="fixed left-3 right-3 top-20 z-[90] max-h-[calc(100dvh-6rem)] overflow-hidden rounded-2xl border border-white/[0.1] bg-[#050505] shadow-2xl sm:absolute sm:left-auto sm:right-0 sm:top-[3.25rem] sm:w-[420px] sm:max-w-[420px]">
-          <div className="border-b border-white/[0.08] p-4">
+        <div className="fixed left-3 right-3 top-20 z-[90] flex max-h-[calc(100dvh-6rem)] flex-col overflow-hidden rounded-2xl border border-white/[0.1] bg-[#050505] shadow-2xl sm:absolute sm:left-auto sm:right-0 sm:top-[3.25rem] sm:w-[420px] sm:max-w-[420px]">
+          <div className="flex-shrink-0 border-b border-white/[0.08] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-widest text-zinc-500">Notifications</p>
@@ -1208,7 +1208,7 @@ export default function NotificationBell() {
             ) : null}
           </div>
 
-          <div className="max-h-[calc(100dvh-14rem)] overflow-y-auto p-3 sm:max-h-[70vh]">
+          <div className="min-h-0 flex-1 overflow-y-auto p-3">
             {loading ? (
               <div className="flex min-h-40 items-center justify-center">
                 <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />

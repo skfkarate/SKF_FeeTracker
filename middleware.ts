@@ -23,7 +23,6 @@ function buildContentSecurityPolicy(nonce: string) {
     `script-src ${scriptSources.join(" ")}`,
     "style-src 'self'",
     `style-src-elem 'self' 'nonce-${nonce}'`,
-    // TODO(react-inline-styles): remove style-src-attr once remaining JSX style props are migrated to CSS classes.
     "style-src-attr 'unsafe-inline'",
     "connect-src 'self' https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://sentry.io",
     "manifest-src 'self'",
@@ -31,7 +30,7 @@ function buildContentSecurityPolicy(nonce: string) {
   ].join("; ");
 }
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const nonce = generateNonce();
   const csp = buildContentSecurityPolicy(nonce);
   const requestHeaders = new Headers(request.headers);

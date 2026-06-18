@@ -14,6 +14,7 @@ import {
   Filter,
   Download,
   ExternalLink,
+  Award,
 
   CheckCircle2,
   Clock,
@@ -38,9 +39,12 @@ import {
   StudentCredits,
   markNonRecurringFeePaid,
   resumeStudent,
+  allocateExamFee,
+  ExamMonth,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { normalizeFeeYear } from "@/lib/fee-year";
+import { getBlackBeltOverride } from "@/lib/temporary-black-belt-override";
 
 import MonthlyFeeReceipt from "@/components/receipts/MonthlyFeeReceipt";
 import MonthSelector from "@/components/common/MonthSelector";
@@ -60,6 +64,21 @@ const MONTHS = [
   "Oct",
   "Nov",
   "Dec",
+];
+
+const MONTHS_LONG = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const normalizeStudentStatus = (status?: string | null) =>
@@ -145,6 +164,12 @@ export default function StudentList({ branch }: { branch: string }) {
     type: "Admission" | "Dress";
   } | null>(null);
 
+  // Belt Exam Approval modal
+  const [confirmBeltExam, setConfirmBeltExam] = useState<{
+    student: Student;
+    due: any;
+  } | null>(null);
+
   const [markingStatus, setMarkingStatus] = useState<string | null>(null);
 
   // Detail Modal
@@ -164,7 +189,14 @@ export default function StudentList({ branch }: { branch: string }) {
     setError("");
     try {
       const data = await getStudents(branch, month, forceRefresh, selectedYear);
-      setStudents(data);
+      const overridden = data.map((s) => {
+        const override = getBlackBeltOverride(s.id, month, selectedYear);
+        if (override) {
+          return { ...s, fee: override.fee, isExamInstallment: override.isExamInstallment };
+        }
+        return s;
+      });
+      setStudents(overridden);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load students");
     } finally {
@@ -203,6 +235,41 @@ export default function StudentList({ branch }: { branch: string }) {
           : 0,
     };
   }, [students]);
+
+  const handleBeltExamClick = (e: React.MouseEvent, student: Student, due: any) => {
+    e.stopPropagation();
+    setConfirmBeltExam({ student, due });
+  };
+
+  const handleApproveBeltExam = async () => {
+    if (!confirmBeltExam) return;
+    const { student, due } = confirmBeltExam;
+    setMarkingPaid(student.id);
+    setConfirmBeltExam(null);
+    try {
+      const response = await fetch("/api/feetrack/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "mark_paid",
+          skfId: student.id,
+          month,
+          year: selectedYear,
+          feeType: due.feeType,
+          feeRecordId: due.id
+        })
+      });
+      if (response.ok) {
+        await loadStudents(true);
+      } else {
+        alert("Failed to approve belt exam payment");
+      }
+    } catch (err) {
+      alert("Failed to approve belt exam payment");
+    } finally {
+      setMarkingPaid(null);
+    }
+  };
 
   const handleMarkPaidClick = async (e: React.MouseEvent, student: Student) => {
     e.stopPropagation();
@@ -264,8 +331,8 @@ export default function StudentList({ branch }: { branch: string }) {
         ),
       );
 
-      // Auto-show receipt if fee isn't 2000 (Black Belt installment)
-      if (paidStudent.fee !== 2000) {
+      // Auto-show receipt if it isn't an exam installment
+      if (!paidStudent.isExamInstallment) {
         setReceiptStudent(paidStudent);
       }
     } catch (err) {
@@ -424,6 +491,8 @@ export default function StudentList({ branch }: { branch: string }) {
     }
   };
 
+
+
   const filteredStudents = students.filter((s) => {
     if (isHiddenFromStudentList(s)) return false;
 
@@ -545,6 +614,9 @@ export default function StudentList({ branch }: { branch: string }) {
               <span className="font-mono opacity-70">{student.id}</span>
               <span className="flex items-center gap-1">
                 <IndianRupee className="w-3 h-3" /> {student.fee}
+                {student.isExamInstallment && (
+                  <span className="ml-1 text-[10px] text-amber-500 uppercase tracking-widest border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 rounded">Exam Installment</span>
+                )}
               </span>
             </div>
 
@@ -583,11 +655,27 @@ export default function StudentList({ branch }: { branch: string }) {
             )}
             </div>
           </div>
-
           {/* Action Button */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 flex items-center gap-2">
+            {(student.eventDues || []).filter(d => d.feeType === 'belt_exam' && d.status !== 'paid' && d.status !== 'waived').map((due) => (
+              <button
+                key={due.id}
+                onClick={(e) => handleBeltExamClick(e, student, due)}
+                disabled={markingPaid === student.id || markingStatus === student.id}
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md ${due.status === 'pending_verification' ? 'border border-blue-500/50 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 shadow-blue-900/20' : 'border border-amber-500/50 bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 shadow-amber-900/20'}`}
+                title={due.status === 'pending_verification' ? 'Verify Belt Exam Payment' : 'Approve Belt Exam Payment'}
+              >
+                {markingPaid === student.id ? (
+                  <div className="spinner !w-4 !h-4" />
+                ) : due.status === 'pending_verification' ? (
+                  <Clock className="w-4 h-4" />
+                ) : (
+                  <Award className="w-4 h-4" />
+                )}
+              </button>
+            ))}
             {student.monthStatus === "Paid" ? (
-              student.fee === 2000 ? (
+              student.isExamInstallment ? (
                 <div
                   className="w-9 h-9 rounded-full bg-green-500/50 flex items-center justify-center shadow-md shadow-green-900/20 cursor-default"
                   title="Installment Paid (No Receipt)"
@@ -883,7 +971,7 @@ export default function StudentList({ branch }: { branch: string }) {
                   {confirmStudent.id}
                 </p>
                 <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-zinc-500 text-xs mb-1">Original Fee</p>
+                  <p className="text-zinc-500 text-xs mb-1">{confirmStudent.isExamInstallment ? "Black Belt Exam Installment" : "Original Fee"}</p>
                   <p className="text-xl font-bold text-white">
                     ₹{confirmStudent.fee}
                   </p>
@@ -974,6 +1062,68 @@ export default function StudentList({ branch }: { branch: string }) {
         </div>
       )}
 
+
+
+      {/* Belt Exam Approval Modal */}
+      {confirmBeltExam && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="card-panel max-w-sm w-full p-6">
+            <div className="p-6">
+              <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider mb-4 text-center">
+                {confirmBeltExam.due.status === 'pending_verification' ? 'VERIFY BELT EXAM PAYMENT' : 'APPROVE BELT EXAM PAYMENT'}
+              </h2>
+              <div className="surface-glass p-4 mb-4 space-y-3">
+                <div>
+                  <p className="text-zinc-500 text-xs mb-1">Student</p>
+                  <p className="font-[family-name:var(--font-space)] text-lg">{confirmBeltExam.student.name}</p>
+                  <p className="text-zinc-500 text-xs font-mono">{confirmBeltExam.student.id}</p>
+                </div>
+                <div className="pt-3 border-t border-[var(--border)]">
+                  <p className="text-zinc-500 text-xs mb-1">Belt Examination</p>
+                  <p className="text-white font-medium">{confirmBeltExam.due.label}</p>
+                </div>
+                <div className="pt-3 border-t border-[var(--border)]">
+                  <p className="text-zinc-500 text-xs mb-1">Amount</p>
+                  <p className="text-xl font-bold text-amber-400">₹{confirmBeltExam.due.amount}</p>
+                </div>
+                <div className="pt-3 border-t border-[var(--border)]">
+                  <p className="text-zinc-500 text-xs mb-1">Status</p>
+                  <p className="text-white">
+                    {confirmBeltExam.due.status === 'pending_verification' ? 'Pending Verification (student submitted proof)' : 'Due - Awaiting Payment'}
+                  </p>
+                </div>
+                {confirmBeltExam.due.dueDate && (
+                  <div className="pt-3 border-t border-[var(--border)]">
+                    <p className="text-zinc-500 text-xs mb-1">Due Date</p>
+                    <p className="text-white">{confirmBeltExam.due.dueDate}</p>
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmBeltExam(null)}
+                  className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-sm"
+                  disabled={markingPaid === confirmBeltExam.student.id}
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={handleApproveBeltExam}
+                  disabled={markingPaid === confirmBeltExam.student.id}
+                  className="flex-1 py-3 bg-emerald-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-emerald-500 transition-colors flex items-center justify-center gap-2"
+                >
+                  {markingPaid === confirmBeltExam.student.id ? (
+                    <><div className="spinner !w-4 !h-4" /> Approving...</>
+                  ) : (
+                    <><Award className="w-4 h-4" /> APPROVE PAYMENT</>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Student Detail Modal */}
       {detailStudent && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setDetailStudent(null)}>
@@ -1046,7 +1196,7 @@ export default function StudentList({ branch }: { branch: string }) {
                   <span className="text-white text-sm font-medium">{detailStudent.trainingExperience || "0m"}</span>
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-[var(--text-muted)] text-sm">Monthly Fee</span>
+                  <span className="text-[var(--text-muted)] text-sm">{detailStudent.isExamInstallment ? "Black Belt Exam Installment" : "Monthly Fee"}</span>
                   <span className="text-white text-sm font-medium">₹{detailStudent.fee ?? 0}</span>
                 </div>
                 {(detailStudent.eventDues || []).length > 0 && (
@@ -1342,7 +1492,7 @@ export default function StudentList({ branch }: { branch: string }) {
                   <p className="text-white">{MONTHS[month]} {selectedYear}</p>
                 </div>
                 <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">Monthly Fee</p>
+                  <p className="text-[var(--text-muted)] text-xs mb-1">{confirmResumeStudent.isExamInstallment ? "Black Belt Exam Installment" : "Monthly Fee"}</p>
                   <p className="text-white">₹{confirmResumeStudent.originalFee || confirmResumeStudent.fee || 0}</p>
                 </div>
               </div>
@@ -1458,6 +1608,7 @@ export default function StudentList({ branch }: { branch: string }) {
           </div>
         </div>
       )}
+
     </div>
   );
 }
