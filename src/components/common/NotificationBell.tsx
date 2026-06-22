@@ -481,6 +481,24 @@ function detectEventUpdates(items: EventCollectionItem[]) {
   return Object.values(pending).sort((a, b) => b.detectedAt.localeCompare(a.detectedAt));
 }
 
+function suppressEventUpdatesForReminders(updates: EventUpdateNotification[], reminders: EventReminder[]) {
+  if (!updates.length || !reminders.length) return updates;
+
+  const reminderEventIds = new Set(reminders.map((reminder) => reminder.id));
+  const visibleUpdates = updates.filter((update) => !reminderEventIds.has(update.eventId));
+  if (visibleUpdates.length === updates.length) return updates;
+
+  const pending = readEventUpdates();
+  for (const update of updates) {
+    if (reminderEventIds.has(update.eventId)) {
+      delete pending[update.eventId];
+    }
+  }
+  writeEventUpdates(pending);
+
+  return visibleUpdates;
+}
+
 function buildPosterReminders(): PosterReminder[] {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -630,8 +648,13 @@ export default function NotificationBell() {
       setAdmissions(admissionRows);
       setOrders(orderRows.filter(orderNeedsAction));
       setWebsiteLeads(websiteRows);
-      setEventReminders(buildEventReminders(eventData.events || []));
-      setEventUpdates(detectEventUpdates(eventData.events || []));
+      const nextEventReminders = buildEventReminders(eventData.events || []);
+      const nextEventUpdates = suppressEventUpdatesForReminders(
+        detectEventUpdates(eventData.events || []),
+        nextEventReminders,
+      );
+      setEventReminders(nextEventReminders);
+      setEventUpdates(nextEventUpdates);
       setBirthdays(
         [
           ...mpscStudents.map((student) => parseBirthday(student.dateOfBirth, "MPSC", student)),

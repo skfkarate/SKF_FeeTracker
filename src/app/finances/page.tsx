@@ -493,7 +493,7 @@ export default function FinancesPage() {
                 <MetricCard
                   label="Fund Balance"
                   value={currency(data.summary.developmentFundBalance)}
-                  note="30% income fund less expenses"
+                  note="30% monthly fee cash less expenses"
                   icon={PiggyBank}
                   tone="blue"
                   onClick={() => setActiveFormula("all")}

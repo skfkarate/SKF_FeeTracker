@@ -1575,8 +1575,8 @@ export async function approveAdmissionApplication(input: {
 export interface MonthlyDevFund {
   month: number;
   year: string;
-  collected: number; // Gross income: fee cash + admission collected + dress profit
-  devFund: number; // 30% allocation from gross income
+  collected: number; // Monthly fee cash after referral credits
+  devFund: number; // 30% allocation from monthly fee cash
   spent: number; // Expenses this month
   carryForward: number; // Running balance
 }
