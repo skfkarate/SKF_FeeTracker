@@ -116,9 +116,9 @@ export function getBranchName(branch: string) {
 }
 
 export function getBranchCode(branch: string) {
-  if (branch === "MPSC") return "M";
+  if (branch === "MPSC") return "MP";
   const token = normalizeReceiptToken(branch);
-  return token.slice(0, 1) || "B";
+  return token.slice(0, 2).toUpperCase() || "XX";
 }
 
 export function getReceiptNumber(

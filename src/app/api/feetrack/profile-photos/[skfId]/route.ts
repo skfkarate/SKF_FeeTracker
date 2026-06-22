@@ -19,7 +19,7 @@ export async function GET(
     const gender = requestUrl.searchParams.get("gender");
     if (gender) backendUrl.searchParams.set("gender", gender);
 
-    const response = await fetch(backendUrl, { cache: "no-store" });
+    const response = await fetch(backendUrl, { cache: "no-store", signal: AbortSignal.timeout(10000) });
     if (!response.ok) {
       return Response.json(
         { success: false, error: `Profile photo unavailable (${response.status}).` },

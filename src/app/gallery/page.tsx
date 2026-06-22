@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 
+import { ConfirmModal } from "@/components/common/ConfirmModal";
 import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
 import {
@@ -81,6 +82,12 @@ export default function GalleryManagerPage() {
   const [editingPhoto, setEditingPhoto] = useState<GalleryPhoto | null>(null);
   const [form, setForm] = useState<GalleryForm>(() => blankForm());
   const [files, setFiles] = useState<File[]>([]);
+  const [confirmState, setConfirmState] = useState<{
+    title: string;
+    message: string;
+    variant?: "danger" | "default";
+    onConfirm: () => void;
+  } | null>(null);
 
   const loadPhotos = useCallback(async (forceRefresh = false) => {
     setError("");
@@ -229,23 +236,28 @@ export default function GalleryManagerPage() {
     }
   }
 
-  async function handleDelete(photo: GalleryPhoto) {
+  function handleDelete(photo: GalleryPhoto) {
     if (photo.isSeed || deletingId) return;
-    const confirmed = window.confirm(`Delete "${photo.title}" from the public gallery?`);
-    if (!confirmed) return;
-
-    setDeletingId(photo.id);
-    setError("");
-    setNotice("");
-    try {
-      await deleteGalleryPhoto(photo.id);
-      setPhotos((current) => current.filter((entry) => entry.id !== photo.id));
-      setNotice("Gallery photo deleted.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Gallery photo delete failed.");
-    } finally {
-      setDeletingId("");
-    }
+    setConfirmState({
+      title: "Delete Gallery Photo",
+      message: `Delete "${photo.title}" from the public gallery?`,
+      variant: "danger" as const,
+      onConfirm: async () => {
+        setConfirmState(null);
+        setDeletingId(photo.id);
+        setError("");
+        setNotice("");
+        try {
+          await deleteGalleryPhoto(photo.id);
+          setPhotos((current) => current.filter((entry) => entry.id !== photo.id));
+          setNotice("Gallery photo deleted.");
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Gallery photo delete failed.");
+        } finally {
+          setDeletingId("");
+        }
+      },
+    });
   }
 
   if (checking || !user) {
@@ -563,6 +575,18 @@ export default function GalleryManagerPage() {
             </div>
           </div>
         </div>
+      ) : null}
+
+      {confirmState ? (
+        <ConfirmModal
+          open
+          title={confirmState.title}
+          message={confirmState.message}
+          variant={confirmState.variant ?? "default"}
+          confirmLabel="Delete"
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
       ) : null}
     </div>
   );

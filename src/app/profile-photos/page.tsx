@@ -112,11 +112,16 @@ export default function ProfilePhotosPage() {
 
   useEffect(() => {
     if (checking || !user) return;
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void loadStudents(false);
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [checking, loadStudents, user]);
 
   const counts = useMemo(() => ({

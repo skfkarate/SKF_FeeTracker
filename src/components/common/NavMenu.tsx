@@ -158,11 +158,7 @@ function DrawerGroup({
 export default function NavMenu() {
     const router = useRouter();
     const pathname = usePathname();
-    const [user, setUser] = useState<string | null>(null);
-
-    useEffect(() => {
-        setUser(getStoredFeeTrackUser());
-    }, []);
+    const [user] = useState<string | null>(() => getStoredFeeTrackUser());
     const [open, setOpen] = useState(false);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set());
 

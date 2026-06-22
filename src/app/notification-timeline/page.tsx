@@ -261,10 +261,15 @@ export default function NotificationTimelinePage() {
 
   useEffect(() => {
     if (checking || !user) return;
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void loadTimeline(false);
     }, 0);
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [checking, loadTimeline, user]);
 
   const allItems = useMemo(() => {

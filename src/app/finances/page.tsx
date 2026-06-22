@@ -170,10 +170,15 @@ export default function FinancesPage() {
 
   useEffect(() => {
     if (!checking && user) {
+      let cancelled = false;
       const id = window.setTimeout(() => {
+        if (cancelled) return;
         void loadData();
       }, 0);
-      return () => window.clearTimeout(id);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(id);
+      };
     }
   }, [branch, checking, loadData, month, user]);
 

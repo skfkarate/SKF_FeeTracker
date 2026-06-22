@@ -6,7 +6,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST() {
-  const cookieStore = await cookies();
-  cookieStore.delete(FEETRACK_SESSION_COOKIE);
-  return Response.json({ success: true });
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete(FEETRACK_SESSION_COOKIE);
+    return Response.json({ success: true });
+  } catch (error) {
+    return Response.json(
+      { success: false, error: error instanceof Error ? error.message : "Logout failed" },
+      { status: 500 },
+    );
+  }
 }

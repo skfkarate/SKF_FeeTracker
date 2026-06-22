@@ -24,6 +24,7 @@ import {
   type PortalVideoInput,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
+import { ConfirmModal } from "@/components/common/ConfirmModal";
 
 const VIDEO_CATEGORIES = [
   { value: "techniques", label: "Techniques" },
@@ -163,6 +164,7 @@ export default function PortalVideosPage() {
   const [deletingId, setDeletingId] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [confirmState, setConfirmState] = useState<{ video: PortalVideo } | null>(null);
 
   const loadVideos = useCallback(async (forceRefresh = false) => {
     setError("");
@@ -182,11 +184,16 @@ export default function PortalVideosPage() {
 
   useEffect(() => {
     if (checking || !user) return;
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void loadVideos();
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [checking, loadVideos, user]);
 
   const filteredVideos = useMemo(() => {
@@ -295,8 +302,15 @@ export default function PortalVideosPage() {
     }
   }
 
-  async function handleDelete(video: PortalVideo) {
-    if (!window.confirm(`Delete "${video.title}"?`)) return;
+  function handleDelete(video: PortalVideo) {
+    setConfirmState({ video });
+  }
+
+  async function handleConfirmDelete() {
+    const state = confirmState;
+    if (!state) return;
+    const { video } = state;
+    setConfirmState(null);
     setDeletingId(video.id);
     setError("");
     setNotice("");
@@ -639,6 +653,17 @@ export default function PortalVideosPage() {
           </aside>
           </div>
         ) : null}
+
+        <ConfirmModal
+          open={confirmState !== null}
+          title="Delete Video"
+          message={`Delete "${confirmState?.video.title}"?`}
+          variant="danger"
+          confirmLabel="Delete"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmState(null)}
+          loading={deletingId === confirmState?.video.id}
+        />
       </main>
     </div>
   );

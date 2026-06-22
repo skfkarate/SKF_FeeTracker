@@ -19,6 +19,7 @@ import {
   DevExpense,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
+import { useToast } from "@/lib/use-toast";
 import { getCurrentFeeYear } from "@/lib/fee-year";
 import MonthSelector from "@/components/common/MonthSelector";
 import Navbar from "@/components/common/Navbar";
@@ -76,6 +77,7 @@ function sortExpensesByTimeline(a: DevExpense, b: DevExpense) {
 
 export default function DevelopmentFundPage() {
   const { user, checking } = useFeeTrackAuth();
+  const { toast } = useToast();
   const feeYear = getCurrentFeeYear();
   const [data, setData] = useState<DevelopmentFundData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,10 +122,15 @@ export default function DevelopmentFundPage() {
 
   useEffect(() => {
     if (!checking && user) {
+      let cancelled = false;
       const id = window.setTimeout(() => {
+        if (cancelled) return;
         void loadData();
       }, 0);
-      return () => window.clearTimeout(id);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(id);
+      };
     }
   }, [checking, loadData, user]);
 
@@ -132,19 +139,19 @@ export default function DevelopmentFundPage() {
   const handleAddExpenseClick = () => {
     // Validate before showing confirmation
     if (!newExpense.title.trim()) {
-      alert("Please enter a title");
+      toast("Please enter a title", "error");
       return;
     }
     if (!newExpense.description.trim()) {
-      alert("Please enter a description");
+      toast("Please enter a description", "error");
       return;
     }
     if (newExpense.scope === "Others" && !newExpense.scopeOther.trim()) {
-      alert("Please specify the scope");
+      toast("Please specify the scope", "error");
       return;
     }
     if (newExpense.amount <= 0) {
-      alert("Please enter a valid amount");
+      toast("Please enter a valid amount", "error");
       return;
     }
     // Show confirmation
@@ -177,9 +184,10 @@ export default function DevelopmentFundPage() {
         scopeOther: "",
         amount: 0,
       });
-      loadData(); // Reload to get updated data
+      toast("Development expense added", "success");
+      loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to add expense");
+      toast(err instanceof Error ? err.message : "Failed to add expense", "error");
     } finally {
       setAdding(false);
     }
@@ -198,8 +206,9 @@ export default function DevelopmentFundPage() {
     if (!selectedExpense) return;
 
     if (!canDeleteExpense(selectedExpense)) {
-      alert(
-        "This expense cannot be deleted. Expenses can only be deleted within 24 hours of creation."
+      toast(
+        "This expense cannot be deleted. Expenses can only be deleted within 24 hours of creation.",
+        "error"
       );
       return;
     }
@@ -208,9 +217,10 @@ export default function DevelopmentFundPage() {
     try {
       await deleteDevelopmentExpense(selectedExpense.id);
       setSelectedExpense(null);
+      toast("Development expense deleted", "success");
       loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete expense");
+      toast(err instanceof Error ? err.message : "Failed to delete expense", "error");
     } finally {
       setDeleting(false);
     }

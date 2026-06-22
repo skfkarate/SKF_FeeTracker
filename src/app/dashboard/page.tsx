@@ -18,6 +18,8 @@ import {
 
 import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
+import { PageTransition } from "@/components/common/PageTransition";
+import { SkeletonDashboard } from "@/components/common/Skeleton";
 import { getDashboardStats, type DashboardStats } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 
@@ -130,16 +132,11 @@ export default function DashboardPage() {
   }, [user, checking]);
 
   if (checking || !user) {
-    return (
-      <div className="min-h-screen bg-black text-zinc-300">
-        <div className="flex min-h-screen items-center justify-center">
-          <Activity className="h-6 w-6 animate-pulse text-zinc-500" />
-        </div>
-      </div>
-    );
+    return <SkeletonDashboard />;
   }
 
   return (
+    <PageTransition>
     <div className="min-h-screen bg-black text-zinc-300">
       <Navbar rightContent={<NavMenu />} />
 
@@ -252,7 +249,7 @@ export default function DashboardPage() {
                   <Link
                     key={branch.branch}
                     href={branch.href}
-                    className="group rounded-xl border border-zinc-800 bg-black p-4 transition-colors hover:border-zinc-600 hover:bg-zinc-950"
+                    className="group rounded-xl border border-zinc-800 bg-black p-4 transition-all hover:border-zinc-600 hover:bg-zinc-950 hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <div className="mb-5 flex items-start justify-between gap-3">
                       <div>
@@ -299,7 +296,7 @@ export default function DashboardPage() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="group flex min-h-16 items-center gap-3 rounded-xl border border-zinc-800 bg-black px-3 py-2 transition-colors hover:border-zinc-600 hover:bg-zinc-950"
+                    className="group flex min-h-16 items-center gap-3 rounded-xl border border-zinc-800 bg-black px-3 py-2 transition-all hover:border-zinc-600 hover:bg-zinc-950 hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-500 transition-colors group-hover:text-white">
                       <Icon className="h-4 w-4" />
@@ -317,5 +314,6 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
+    </PageTransition>
   );
 }

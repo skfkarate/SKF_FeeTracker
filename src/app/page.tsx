@@ -16,10 +16,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     let active = true;
-    void fetchFeeTrackSession().then((session) => {
+    fetchFeeTrackSession().then((session) => {
       if (active && session) router.replace("/dashboard");
       if (active && !session) setCheckingSession(false);
-    });
+    }).catch(() => { if (active) setCheckingSession(false); });
     return () => { active = false; };
   }, [router]);
 

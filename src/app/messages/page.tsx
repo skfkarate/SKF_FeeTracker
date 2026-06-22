@@ -79,11 +79,7 @@ export default function MessagesPage() {
   const { user, checking } = useFeeTrackAuth();
   const feeYear = getCurrentFeeYear();
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [messageTemplate, setMessageTemplate] = useState<string>("");
-
-  useEffect(() => {
-    setMessageTemplate(readFeeReminderTemplate());
-  }, []);
+  const [messageTemplate, setMessageTemplate] = useState<string>(() => readFeeReminderTemplate());
   const [selectedBranch, setSelectedBranch] = useState("Herohalli");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [students, setStudents] = useState<Student[]>([]);
@@ -127,11 +123,16 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (checking || !user) return;
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void loadStudents();
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [checking, loadStudents, user]);
 
   useEffect(() => {

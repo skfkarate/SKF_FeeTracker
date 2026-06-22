@@ -96,6 +96,9 @@ export interface EventStudentDue {
   status: string;
   receiptId?: string | null;
   dueDate?: string;
+  month?: string;
+  year?: number;
+  proofId?: string | null;
 }
 
 export interface DashboardStats {
@@ -612,6 +615,36 @@ export async function markNonRecurringFeePaid(
   });
   invalidateCache(`students:${branch}:${year}:${month}`);
   invalidateFinancialCaches(branch, year);
+  return {
+    receiptId: data.data?.receipt?.receiptId || data.data?.entry?.receiptId || null,
+  };
+}
+
+export async function markEventFeePaid(
+  studentId: string,
+  branch: string,
+  feeType: EventStudentDue["feeType"],
+  feeRecordId: string,
+  month: number,
+  year = getCurrentFeeYear(),
+): Promise<{ receiptId?: string | null }> {
+  if (isMockData()) return {};
+  const data = await apiAction<{
+    data?: {
+      receipt?: { receiptId?: string | null };
+      entry?: { receiptId?: string | null };
+    };
+  }>("mark_paid", {
+    skfId: studentId,
+    branch,
+    month,
+    year,
+    feeType,
+    feeRecordId,
+  });
+  invalidateCache(`students:${branch}:${year}:${month}`);
+  invalidateFinancialCaches(branch, year);
+  invalidateCache("financeCommand:");
   return {
     receiptId: data.data?.receipt?.receiptId || data.data?.entry?.receiptId || null,
   };

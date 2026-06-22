@@ -42,11 +42,16 @@ export default function AnalyticsPage() {
   }, [checking, user]);
 
   useEffect(() => {
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void loadAnalytics();
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [loadAnalytics]);
 
   const monthlyData = useMemo(() => {

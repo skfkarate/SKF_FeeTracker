@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     }
 
     const backendUrl = karateBackendUrl(path);
-    const response = await fetch(backendUrl, { cache: "no-store" });
+    const response = await fetch(backendUrl, { cache: "no-store", signal: AbortSignal.timeout(10000) });
     if (!response.ok || !response.body) {
       return Response.json(
         { success: false, error: `Media unavailable (${response.status}).` },

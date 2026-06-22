@@ -38,6 +38,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a, button, [role="button"], input, select, textarea {
+  touch-action: manipulation;
 }
 
 .skip-to-content {
@@ -100,12 +105,23 @@ body {
   background: var(--surface-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  transition: border-color 0.3s var(--ease-out-circ), background 0.3s var(--ease-out-circ);
+  transition: border-color 0.35s var(--ease-out-circ), background 0.35s var(--ease-out-circ), box-shadow 0.35s var(--ease-out-circ), transform 0.35s var(--ease-out-circ);
 }
 
 .card-panel:hover {
   border-color: var(--border-strong);
   background: #141414;
+}
+
+.card-panel.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.card-panel.card-interactive:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition-duration: 0.1s;
 }
 
 .glass-surface {
@@ -136,6 +152,11 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.glass-modal-overlay {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Animations */
@@ -203,7 +224,7 @@ body {
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-primary:disabled {
@@ -228,6 +249,103 @@ body {
   border-color: var(--border-strong);
   background: rgba(255, 255, 255, 0.07);
   color: var(--text-primary);
+}
+
+/* Status Badges */
+.badge-paid {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  background: rgba(16, 185, 129, 0.1);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  background: rgba(245, 158, 11, 0.1);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-break {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.badge-discontinued {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Interactive button press effect */
+.btn-press {
+  transition: transform 0.15s var(--ease-out-circ);
+}
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Mobile utilities */
+@media (max-width: 767px) {
+  .hide-on-mobile { display: none !important; }
+  .show-on-mobile { display: inline !important; }
+}
+@media (min-width: 768px) {
+  .show-on-mobile { display: none !important; }
+}
+@media (max-width: 480px) {
+  .hide-on-xs { display: none !important; }
+}
+
+/* Touch feedback for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .card-panel:active { transform: scale(0.98); }
+  .card-panel.card-interactive:active { transform: translateY(0) scale(0.98); }
+  .btn-ghost:active { transform: scale(0.97); }
+  a:active, button:active, [role="button"]:active { opacity: 0.7; }
+  .glass-modal-overlay:active { /* no-op, prevent body scroll */ }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, var(--surface-elevated) 25%, #1a1a1a 50%, var(--surface-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

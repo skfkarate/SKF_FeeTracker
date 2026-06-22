@@ -587,11 +587,7 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export default function NotificationBell() {
-  const [user, setUser] = useState<string | null>(null);
-
-  useEffect(() => {
-    setUser(getStoredFeeTrackUser());
-  }, []);
+  const [user] = useState<string | null>(() => getStoredFeeTrackUser());
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -655,19 +651,29 @@ export default function NotificationBell() {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void loadNotifications(false);
     }, 0);
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [loadNotifications, user]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !("Notification" in window)) return;
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       setBrowserNotificationPermission(window.Notification.permission);
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
@@ -709,9 +715,12 @@ export default function NotificationBell() {
 
     if (!birthdayAlerts.length) return;
 
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void navigator.serviceWorker?.ready
         .then((registration) => {
+          if (cancelled) return;
           birthdayAlerts.forEach((alert) => {
             if (alert.repeat) setBirthdayAlertSent(alert.birthday.reminderKey);
             else setQueueAlertSent(alert.key);
@@ -726,7 +735,10 @@ export default function NotificationBell() {
         .catch(() => null);
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [birthdays]);
 
   useEffect(() => {
@@ -756,9 +768,12 @@ export default function NotificationBell() {
 
     if (!posterAlerts.length) return;
 
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void navigator.serviceWorker?.ready
         .then((registration) => {
+          if (cancelled) return;
           posterAlerts.forEach((alert) => {
             setPosterAlertSent(alert.poster.reminderKey);
             void registration.showNotification(alert.title, {
@@ -771,7 +786,10 @@ export default function NotificationBell() {
         .catch(() => null);
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [posterReminders]);
 
   useEffect(() => {
@@ -799,9 +817,12 @@ export default function NotificationBell() {
 
     if (!eventAlerts.length) return;
 
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void navigator.serviceWorker?.ready
         .then((registration) => {
+          if (cancelled) return;
           eventAlerts.forEach((alert) => {
             setEventAlertSent(alert.reminder.reminderKey);
             void registration.showNotification(alert.title, {
@@ -814,15 +835,23 @@ export default function NotificationBell() {
         .catch(() => null);
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [eventReminders]);
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     const intervalId = window.setInterval(() => {
+      if (cancelled) return;
       void loadNotifications(true);
     }, REFRESH_INTERVAL_MS);
-    return () => window.clearInterval(intervalId);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
   }, [loadNotifications, user]);
 
   useEffect(() => {
@@ -1003,11 +1032,14 @@ export default function NotificationBell() {
     if (typeof window === "undefined" || !("Notification" in window)) return;
     if (!shouldSendQueueAlert(nextNotification.id)) return;
 
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       const url = nextNotification.kind === "payment" ? "/pending-fees" : nextNotification.href;
 
       void navigator.serviceWorker?.ready
         .then((registration) => {
+          if (cancelled) return;
           setQueueAlertSent(nextNotification.id);
           void registration.showNotification("SKF FeeTrack Notification", {
             body: queueNotificationBody(nextNotification),
@@ -1018,7 +1050,10 @@ export default function NotificationBell() {
         .catch(() => null);
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [browserNotificationPermission, nextNotification]);
 
   const ensureServerPushSubscription = useCallback(async () => {
@@ -1045,14 +1080,20 @@ export default function NotificationBell() {
 
   useEffect(() => {
     if (!user || browserNotificationPermission !== "granted") return;
+    let cancelled = false;
 
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void ensureServerPushSubscription().catch((err) => {
+        if (cancelled) return;
         setError(err instanceof Error ? err.message : "Background push setup failed.");
       });
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [browserNotificationPermission, ensureServerPushSubscription, user]);
 
   const approveProof = async (proof: PaymentVerification) => {
@@ -1185,7 +1226,7 @@ export default function NotificationBell() {
               {summary.map((item) => (
                 <div key={item.label} className="rounded-lg border border-zinc-800 bg-zinc-950 p-2">
                   <p className="font-semibold text-white">{item.value}</p>
-                  <p className="mt-0.5 text-zinc-600">{item.label}</p>
+                  <p className="mt-0.5 truncate text-zinc-600">{item.label}</p>
                 </div>
               ))}
             </div>

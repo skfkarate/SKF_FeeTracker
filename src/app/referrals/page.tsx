@@ -13,8 +13,10 @@ import {
   Student,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
+import { useToast } from "@/lib/use-toast";
 import { getCurrentFeeYear } from "@/lib/fee-year";
 import Navbar from "@/components/common/Navbar";
+import { ConfirmModal } from "@/components/common/ConfirmModal";
 
 const MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -23,6 +25,7 @@ const MONTHS = [
 
 export default function StudentCreditsPage() {
   const { user, checking } = useFeeTrackAuth();
+  const { toast } = useToast();
   const feeYear = getCurrentFeeYear();
   const [branch, setBranch] = useState("Herohalli");
   const [data, setData] = useState<ReferralCreditsData | null>(null);
@@ -48,6 +51,7 @@ export default function StudentCreditsPage() {
   const [editForm, setEditForm] = useState({ amount: 0, reason: "", description: "" });
   const [updating, setUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user || checking) return;
@@ -65,10 +69,15 @@ export default function StudentCreditsPage() {
 
   useEffect(() => {
     if (!checking && user) {
+      let cancelled = false;
       const id = window.setTimeout(() => {
+        if (cancelled) return;
         void loadData();
       }, 0);
-      return () => window.clearTimeout(id);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(id);
+      };
     }
   }, [checking, loadData, user]);
 
@@ -79,7 +88,7 @@ export default function StudentCreditsPage() {
       const studentList = await getStudents(branch, new Date().getMonth(), false, feeYear);
       setStudents(studentList.filter((s) => s.status === "Active"));
     } catch {
-      alert("Failed to load students");
+      toast("Failed to load students", "error");
     } finally {
       setLoadingStudents(false);
     }
@@ -87,11 +96,11 @@ export default function StudentCreditsPage() {
 
   const handleAddCredit = async () => {
     if (!newCredit.studentId) {
-      alert("Please select a student");
+      toast("Please select a student", "error");
       return;
     }
     if (newCredit.amount <= 0) {
-      alert("Please enter a valid amount");
+      toast("Please enter a valid amount", "error");
       return;
     }
     setAdding(true);
@@ -115,9 +124,10 @@ export default function StudentCreditsPage() {
       );
       setShowAddModal(false);
       setNewCredit({ studentId: "", amount: 500, reason: "", description: "", usedInMonth: "" });
+      toast("Referral credit added", "success");
       loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to add credit");
+      toast(err instanceof Error ? err.message : "Failed to add credit", "error");
     } finally {
       setAdding(false);
     }
@@ -126,7 +136,7 @@ export default function StudentCreditsPage() {
   const handleEditCredit = async () => {
     if (!selectedCredit) return;
     if (editForm.amount <= 0) {
-      alert("Please enter a valid amount");
+      toast("Please enter a valid amount", "error");
       return;
     }
     setUpdating(true);
@@ -138,27 +148,18 @@ export default function StudentCreditsPage() {
       });
       setIsEditing(false);
       setSelectedCredit({ ...selectedCredit, ...editForm });
+      toast("Referral credit updated", "success");
       loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to update credit");
+      toast(err instanceof Error ? err.message : "Failed to update credit", "error");
     } finally {
       setUpdating(false);
     }
   };
 
-  const handleDeleteCredit = async () => {
+  const handleDeleteCredit = () => {
     if (!selectedCredit) return;
-    if (!window.confirm("Are you sure you want to delete this credit? This cannot be undone.")) return;
-    setDeleting(true);
-    try {
-      await deleteReferralCredit(branch, selectedCredit.id);
-      setSelectedCredit(null);
-      loadData();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete credit");
-    } finally {
-      setDeleting(false);
-    }
+    setConfirmOpen(true);
   };
 
   const stats = useMemo(() => {
@@ -491,6 +492,32 @@ export default function StudentCreditsPage() {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        open={confirmOpen}
+        title="Delete Credit"
+        message="Are you sure you want to delete this credit? This cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={async () => {
+          setConfirmOpen(false);
+          if (!selectedCredit) return;
+          setDeleting(true);
+          try {
+            await deleteReferralCredit(branch, selectedCredit.id);
+            setSelectedCredit(null);
+            toast("Referral credit deleted", "success");
+            loadData();
+          } catch (err) {
+            toast(err instanceof Error ? err.message : "Failed to delete credit", "error");
+          } finally {
+            setDeleting(false);
+          }
+        }}
+        onCancel={() => setConfirmOpen(false)}
+        loading={deleting}
+      />
 
       {/* Credit Detail Modal */}
       {selectedCredit && (

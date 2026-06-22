@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Manrope } from "next/font/google";
 import PwaServiceWorker from "@/components/common/PwaServiceWorker";
+import { ToastProvider } from "@/lib/use-toast";
+import { ToastContainer } from "@/components/common/ToastContainer";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -45,7 +47,10 @@ export default function RootLayout({
       <body className={`${manrope.variable} ${spaceGrotesk.variable} antialiased`}>
         <a href="#main-content" className="skip-to-content">Skip to main content</a>
         <PwaServiceWorker />
-        <div id="main-content">{children}</div>
+        <ToastProvider>
+          <div id="main-content">{children}</div>
+          <ToastContainer />
+        </ToastProvider>
       </body>
     </html>
   );

@@ -13,6 +13,7 @@ import {
 import { Download, Loader2 } from "lucide-react";
 import NextImage from "next/image";
 import { useMemo, useState, type ReactNode } from "react";
+import { useToast } from "@/lib/use-toast";
 
 interface MonthlyFeeReceiptProps {
   student: Student;
@@ -145,6 +146,7 @@ export default function MonthlyFeeReceipt({
   const [receiptDate, setReceiptDate] = useState<Date | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const { toast } = useToast();
   const [pickerDate, setPickerDate] = useState(() => inputDateValue(new Date()));
   const [pickerTime, setPickerTime] = useState(() => inputTimeValue(new Date()));
 
@@ -191,7 +193,7 @@ export default function MonthlyFeeReceipt({
       const message =
         error instanceof Error ? error.message : "Receipt download failed.";
       setDownloadError(message);
-      alert(message);
+      toast(message, "error");
     } finally {
       setIsDownloading(false);
     }
@@ -215,7 +217,7 @@ export default function MonthlyFeeReceipt({
     if (!pickerDate || !pickerTime) {
       const message = "Select a receipt date and time.";
       setDownloadError(message);
-      alert(message);
+      toast(message, "error");
       return;
     }
 

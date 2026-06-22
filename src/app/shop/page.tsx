@@ -219,20 +219,30 @@ export default function ShopPage() {
 
   useEffect(() => {
     if (checking || !user) return;
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void loadProducts();
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [checking, loadProducts, user]);
 
   useEffect(() => {
     if (checking || !user || activeTab !== "orders" || orders.length > 0) return;
+    let cancelled = false;
     const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
       void loadOrders();
     }, 0);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [activeTab, checking, loadOrders, orders.length, user]);
 
   const draftImages = useMemo(() => splitLines(draft.imagesText), [draft.imagesText]);

@@ -35,16 +35,21 @@ import {
   markDiscontinued,
   getStudentAvailableCredits,
   markPaidWithCredit,
+  markEventFeePaid,
+  approvePaymentVerification,
   Student,
   StudentCredits,
+  EventStudentDue,
   markNonRecurringFeePaid,
   resumeStudent,
-  allocateExamFee,
-  ExamMonth,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { normalizeFeeYear } from "@/lib/fee-year";
 import { getBlackBeltOverride } from "@/lib/temporary-black-belt-override";
+import { useToast } from "@/lib/use-toast";
+import { SkeletonTable } from "@/components/common/Skeleton";
+import { EmptyState } from "@/components/common/EmptyState";
+import { SearchX } from "lucide-react";
 
 import MonthlyFeeReceipt from "@/components/receipts/MonthlyFeeReceipt";
 import MonthSelector from "@/components/common/MonthSelector";
@@ -64,21 +69,6 @@ const MONTHS = [
   "Oct",
   "Nov",
   "Dec",
-];
-
-const MONTHS_LONG = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
 ];
 
 const normalizeStudentStatus = (status?: string | null) =>
@@ -115,6 +105,7 @@ export default function StudentList({ branch }: { branch: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, checking } = useFeeTrackAuth();
+  const { toast } = useToast();
   // branch is passed as prop, so no state needed for it, but we used it in logic.
   // Actually, let's keep it simple. It's passed as prop.
 
@@ -167,7 +158,7 @@ export default function StudentList({ branch }: { branch: string }) {
   // Belt Exam Approval modal
   const [confirmBeltExam, setConfirmBeltExam] = useState<{
     student: Student;
-    due: any;
+    due: EventStudentDue;
   } | null>(null);
 
   const [markingStatus, setMarkingStatus] = useState<string | null>(null);
@@ -179,6 +170,9 @@ export default function StudentList({ branch }: { branch: string }) {
     searchParams.get("month") || new Date().getMonth().toString(),
   );
   const selectedYear = normalizeFeeYear(searchParams.get("year"));
+
+  const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const selectedMonthName = MONTH_NAMES[month] || '';
 
   // Track previous month to detect actual month changes (for cache invalidation)
   const prevPeriodRef = useRef(`${selectedYear}-${month}`);
@@ -207,10 +201,15 @@ export default function StudentList({ branch }: { branch: string }) {
   // Force-refresh when month changes to prevent stale data from wrong month
   useEffect(() => {
     if (!user || checking) return;
+    let cancelled = false;
     const periodKey = `${selectedYear}-${month}`;
     const periodChanged = prevPeriodRef.current !== periodKey;
     prevPeriodRef.current = periodKey;
-    loadStudents(periodChanged);
+    (async () => {
+      if (cancelled) return;
+      await loadStudents(periodChanged);
+    })();
+    return () => { cancelled = true; };
   }, [checking, loadStudents, month, selectedYear, user]);
 
   // Stats calculation - exclude Break and Discontinued from pending
@@ -236,7 +235,7 @@ export default function StudentList({ branch }: { branch: string }) {
     };
   }, [students]);
 
-  const handleBeltExamClick = (e: React.MouseEvent, student: Student, due: any) => {
+  const handleBeltExamClick = (e: React.MouseEvent, student: Student, due: EventStudentDue) => {
     e.stopPropagation();
     setConfirmBeltExam({ student, due });
   };
@@ -247,25 +246,15 @@ export default function StudentList({ branch }: { branch: string }) {
     setMarkingPaid(student.id);
     setConfirmBeltExam(null);
     try {
-      const response = await fetch("/api/feetrack/data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "mark_paid",
-          skfId: student.id,
-          month,
-          year: selectedYear,
-          feeType: due.feeType,
-          feeRecordId: due.id
-        })
-      });
-      if (response.ok) {
-        await loadStudents(true);
+      if (due.status === "pending_verification" && due.proofId) {
+        await approvePaymentVerification(due.proofId);
       } else {
-        alert("Failed to approve belt exam payment");
+        await markEventFeePaid(student.id, branch, due.feeType, due.id, month, selectedYear);
       }
+      toast("Belt exam payment approved", "success");
+      await loadStudents(true);
     } catch (err) {
-      alert("Failed to approve belt exam payment");
+      toast(err instanceof Error ? err.message : "Failed to approve belt exam payment", "error");
     } finally {
       setMarkingPaid(null);
     }
@@ -331,12 +320,14 @@ export default function StudentList({ branch }: { branch: string }) {
         ),
       );
 
+      toast(`${confirmStudent.name} marked as paid`, "success");
+
       // Auto-show receipt if it isn't an exam installment
       if (!paidStudent.isExamInstallment) {
         setReceiptStudent(paidStudent);
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to mark as paid");
+      toast(err instanceof Error ? err.message : "Failed to mark as paid", "error");
     } finally {
       setMarkingPaid(null);
       setSelectedCreditId(null);
@@ -385,6 +376,7 @@ export default function StudentList({ branch }: { branch: string }) {
     setConfirmBreakStudent(null);
     try {
       await markBreak(confirmBreakStudent.id, branch, month, selectedYear);
+      toast(`${confirmBreakStudent.name} marked as break`, "success");
       setStudents((prev) =>
         prev.map((s) =>
           s.id === confirmBreakStudent.id
@@ -393,7 +385,7 @@ export default function StudentList({ branch }: { branch: string }) {
         ),
       );
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to mark as break");
+      toast(err instanceof Error ? err.message : "Failed to mark as break", "error");
     } finally {
       setMarkingStatus(null);
     }
@@ -405,6 +397,7 @@ export default function StudentList({ branch }: { branch: string }) {
     setConfirmDiscontinuedStudent(null);
     try {
       await markDiscontinued(confirmDiscontinuedStudent.id, branch, month, selectedYear);
+      toast(`${confirmDiscontinuedStudent.name} marked as discontinued`, "success");
       setStudents((prev) =>
         prev.map((s) =>
           s.id === confirmDiscontinuedStudent.id
@@ -413,9 +406,7 @@ export default function StudentList({ branch }: { branch: string }) {
         ),
       );
     } catch (err) {
-      alert(
-        err instanceof Error ? err.message : "Failed to mark as discontinued",
-      );
+      toast(err instanceof Error ? err.message : "Failed to mark as discontinued", "error");
     } finally {
       setMarkingStatus(null);
     }
@@ -433,9 +424,10 @@ export default function StudentList({ branch }: { branch: string }) {
         selectedYear,
         confirmResumeStudent.originalFee || confirmResumeStudent.fee || undefined,
       );
+      toast(`${confirmResumeStudent.name} resumed`, "success");
       await loadStudents(true);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to resume student");
+      toast(err instanceof Error ? err.message : "Failed to resume student", "error");
     } finally {
       setMarkingStatus(null);
     }
@@ -477,6 +469,7 @@ export default function StudentList({ branch }: { branch: string }) {
           return s;
         })
       );
+      toast(`${student.name} ${type} fee marked as paid`, "success");
       if (receiptId) {
         setNonRecurringReceipt({
           receiptId,
@@ -485,7 +478,7 @@ export default function StudentList({ branch }: { branch: string }) {
         });
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to mark as paid");
+      toast(err instanceof Error ? err.message : "Failed to mark as paid", "error");
     } finally {
       setMarkingStatus(null);
     }
@@ -657,12 +650,12 @@ export default function StudentList({ branch }: { branch: string }) {
           </div>
           {/* Action Button */}
           <div className="flex-shrink-0 flex items-center gap-2">
-            {(student.eventDues || []).filter(d => d.feeType === 'belt_exam' && d.status !== 'paid' && d.status !== 'waived').map((due) => (
+            {(student.eventDues || []).filter(d => d.feeType === 'belt_exam' && d.status !== 'paid' && d.status !== 'waived' && (!d.month || d.month === selectedMonthName)).map((due) => (
               <button
                 key={due.id}
                 onClick={(e) => handleBeltExamClick(e, student, due)}
                 disabled={markingPaid === student.id || markingStatus === student.id}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md ${due.status === 'pending_verification' ? 'border border-blue-500/50 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 shadow-blue-900/20' : 'border border-amber-500/50 bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 shadow-amber-900/20'}`}
+                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-md ${due.status === 'pending_verification' ? 'border border-blue-500/50 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 shadow-blue-900/20' : 'border border-amber-500/50 bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 shadow-amber-900/20'}`}
                 title={due.status === 'pending_verification' ? 'Verify Belt Exam Payment' : 'Approve Belt Exam Payment'}
               >
                 {markingPaid === student.id ? (
@@ -677,7 +670,7 @@ export default function StudentList({ branch }: { branch: string }) {
             {student.monthStatus === "Paid" ? (
               student.isExamInstallment ? (
                 <div
-                  className="w-9 h-9 rounded-full bg-green-500/50 flex items-center justify-center shadow-md shadow-green-900/20 cursor-default"
+                  className="w-11 h-11 rounded-full bg-green-500/50 flex items-center justify-center shadow-md shadow-green-900/20 cursor-default"
                   title="Installment Paid (No Receipt)"
                 >
                   <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -690,7 +683,7 @@ export default function StudentList({ branch }: { branch: string }) {
                     e.stopPropagation();
                     setReceiptStudent(student);
                   }}
-                  className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-400 transition-all shadow-md shadow-green-900/40"
+                  className="w-11 h-11 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-400 transition-all shadow-md shadow-green-900/40"
                   title="View Receipt"
                 >
                   <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -699,11 +692,11 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
               )
             ) : student.monthStatus === "Pending Verification" ? (
-              <Link href="/pending-fees" className="w-9 h-9 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center text-blue-400 hover:bg-blue-500/30 transition-colors" title="Payment proof waiting in notifications">
+              <Link href="/pending-fees" className="w-11 h-11 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center text-blue-400 hover:bg-blue-500/30 transition-colors" title="Payment proof waiting in notifications">
                 <Clock className="w-4 h-4 animate-pulse" />
               </Link>
             ) : isInactive ? (
-              <div className="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
+              <div className="w-11 h-11 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
                 <AlertCircle className="w-4 h-4" />
               </div>
             ) : (
@@ -713,7 +706,7 @@ export default function StudentList({ branch }: { branch: string }) {
                   markingPaid === student.id ||
                   markingStatus === student.id
                 }
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all select-none ${markingPaid === student.id || markingStatus === student.id
+                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all select-none ${markingPaid === student.id || markingStatus === student.id
                   ? "bg-zinc-900 text-zinc-500"
                   : "bg-white text-black hover:bg-gray-200 shadow-[0_0_12px_rgba(255,255,255,0.15)]"
                   }`}
@@ -889,9 +882,8 @@ export default function StudentList({ branch }: { branch: string }) {
 
         {/* Loading */}
         {loading && (
-          <div className="text-center py-16">
-            <div className="spinner mx-auto mb-4" />
-            <p className="text-zinc-500 text-sm">Loading students...</p>
+          <div className="py-8">
+            <SkeletonTable rows={8} cols={4} />
           </div>
         )}
 
@@ -912,9 +904,11 @@ export default function StudentList({ branch }: { branch: string }) {
         {!loading && !error && (
           <div className="space-y-2">
             {visibleStudentsCount === 0 ? (
-              <p className="text-center text-zinc-500 py-16 text-sm">
-                No students found
-              </p>
+              <EmptyState
+                icon={SearchX}
+                title="No students found"
+                description={search.trim() ? `No results matching "${search}"` : "No students match the current filters"}
+              />
             ) : (
               <>
                 {activeStudents.map((student, index) => renderStudentCard(student, index))}

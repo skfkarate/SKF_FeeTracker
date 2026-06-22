@@ -115,10 +115,15 @@ export default function AdmissionsPage() {
   }, [checking, user]);
 
   useEffect(() => {
+    let cancelled = false;
     const id = window.setTimeout(() => {
+      if (cancelled) return;
       void load();
     }, 0);
-    return () => window.clearTimeout(id);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(id);
+    };
   }, [load]);
 
   const showNotice = (message: string) => {

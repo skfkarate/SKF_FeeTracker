@@ -10,6 +10,7 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
+import { useToast } from "@/lib/use-toast";
 import {
   Award,
   Banknote,
@@ -68,6 +69,7 @@ import {
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { getCurrentFeeYear } from "@/lib/fee-year";
 import { normalizeKarateMediaUrl } from "@/lib/media-url";
+import { ConfirmModal } from "@/components/common/ConfirmModal";
 
 type EventStep = "details" | "students" | "fees" | "results" | "photos";
 
@@ -245,13 +247,6 @@ function eventTypeLabel(type?: string) {
 function isBeltEvent(type?: string) {
   const value = String(type || "").toLowerCase();
   return value.includes("belt") || value.includes("grading");
-}
-
-function isBlackBeltExamEvent(item: EventCollectionItem | null | undefined): boolean {
-  if (!item) return false;
-  const name = (item.event.name || '').toLowerCase();
-  const slug = (item.event.slug || '').toLowerCase();
-  return name.includes('dan') || slug.includes('dan');
 }
 
 function isTournament(type?: string) {
@@ -436,6 +431,13 @@ export default function EventCollectionsPage() {
   const [loadingRoster, setLoadingRoster] = useState(false);
   const [searchingAthletes, setSearchingAthletes] = useState(false);
   const [assignmentBusyId, setAssignmentBusyId] = useState("");
+  const [confirmState, setConfirmState] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant?: "danger" | "default";
+    onConfirm: () => void;
+  } | null>(null);
 
   const selectedEvent = useMemo(
     () => data?.events.find((item) => item.event.id === selectedEventId) || null,
@@ -644,33 +646,38 @@ export default function EventCollectionsPage() {
 
   async function handleDeleteSelectedEvent() {
     if (!selectedEvent) return;
-    const ok = window.confirm(`Delete ${selectedEvent.event.name}? Events with FeeTrack financial activity will be blocked.`);
-    if (!ok) return;
-
-    setDeletingEventId(selectedEvent.event.id);
-    setError("");
-    setNotice("");
-    try {
-      await deleteEvent(selectedEvent.event.id);
-      const result = await getEventCollections(branch, feeYear, true);
-      setData(result);
-      const next = result.events[0];
-      if (next) selectEvent(next);
-      else {
-        setSelectedEventId("");
-        setConfig(null);
-        setPreviewRows([]);
-        setResultDrafts([]);
-      }
-      setEditingEventId("");
-      setEventEditorOpen(false);
-      setEventForm(freshEventForm(branch));
-      setNotice("Event deleted.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete event");
-    } finally {
-      setDeletingEventId("");
-    }
+    setConfirmState({
+      open: true,
+      title: "Delete Event",
+      message: `Delete ${selectedEvent.event.name}? Events with FeeTrack financial activity will be blocked.`,
+      variant: "danger",
+      onConfirm: async () => {
+        setDeletingEventId(selectedEvent.event.id);
+        setError("");
+        setNotice("");
+        try {
+          await deleteEvent(selectedEvent.event.id);
+          const result = await getEventCollections(branch, feeYear, true);
+          setData(result);
+          const next = result.events[0];
+          if (next) selectEvent(next);
+          else {
+            setSelectedEventId("");
+            setConfig(null);
+            setPreviewRows([]);
+            setResultDrafts([]);
+          }
+          setEditingEventId("");
+          setEventEditorOpen(false);
+          setEventForm(freshEventForm(branch));
+          setNotice("Event deleted.");
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to delete event");
+        } finally {
+          setDeletingEventId("");
+        }
+      },
+    });
   }
 
   async function handleAthleteSearch(event?: FormEvent<HTMLFormElement>) {
@@ -754,40 +761,51 @@ export default function EventCollectionsPage() {
 
   async function handleSyncEligibleBeltExamParticipants() {
     if (!selectedEvent) return;
-    const ok = window.confirm("Sync eligible students for this belt examination using the event date, branch, active billing status, six-month rule, break history, and black-belt exclusion?");
-    if (!ok) return;
-    setAssignmentBusyId("__belt_exam_sync__");
-    setError("");
-    setNotice("");
-    try {
-      const result = await syncBeltExamParticipants(selectedEvent.event.id);
-      const updated = await reloadAndSelect(selectedEvent.event.id);
-      const summary = result.summary;
-      setSelectedRosterIds(new Set());
-      setNotice(`Synced ${updated?.event.name || selectedEvent.event.name}: added ${summary.added}, already assigned ${summary.alreadyAssigned}, review ${summary.needsReview}, excluded ${summary.excluded}.`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to sync eligible belt examination students");
-    } finally {
-      setAssignmentBusyId("");
-    }
+    setConfirmState({
+      open: true,
+      title: "Sync Eligible Students",
+      message: "Sync eligible students for this belt examination using the event date, branch, active billing status, six-month rule, break history, and black-belt exclusion?",
+      onConfirm: async () => {
+        setAssignmentBusyId("__belt_exam_sync__");
+        setError("");
+        setNotice("");
+        try {
+          const result = await syncBeltExamParticipants(selectedEvent.event.id);
+          const updated = await reloadAndSelect(selectedEvent.event.id);
+          const summary = result.summary;
+          setSelectedRosterIds(new Set());
+          setNotice(`Synced ${updated?.event.name || selectedEvent.event.name}: added ${summary.added}, already assigned ${summary.alreadyAssigned}, review ${summary.needsReview}, excluded ${summary.excluded}.`);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to sync eligible belt examination students");
+        } finally {
+          setAssignmentBusyId("");
+        }
+      },
+    });
   }
 
   async function handleRemoveParticipant(participantId: string, skfId: string) {
     if (!selectedEvent) return;
-    const ok = window.confirm("Remove this student from the selected event?");
-    if (!ok) return;
-    setAssignmentBusyId(participantId || skfId);
-    setError("");
-    setNotice("");
-    try {
-      await removeEventStudent({ eventId: selectedEvent.event.id, participantId, skfId });
-      await reloadAndSelect(selectedEvent.event.id);
-      setNotice("Assignment updated.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to remove student");
-    } finally {
-      setAssignmentBusyId("");
-    }
+    setConfirmState({
+      open: true,
+      title: "Remove Student",
+      message: "Remove this student from the selected event?",
+      variant: "danger",
+      onConfirm: async () => {
+        setAssignmentBusyId(participantId || skfId);
+        setError("");
+        setNotice("");
+        try {
+          await removeEventStudent({ eventId: selectedEvent.event.id, participantId, skfId });
+          await reloadAndSelect(selectedEvent.event.id);
+          setNotice("Assignment updated.");
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to remove student");
+        } finally {
+          setAssignmentBusyId("");
+        }
+      },
+    });
   }
 
   function updateBranchPrice(branchName: string, amount: string) {
@@ -844,40 +862,37 @@ export default function EventCollectionsPage() {
     const reviewCount = previewRows.filter((row) => row.status === "needs_review" || row.status === "excluded").length;
     const isBeltFee = config.feeCategory === "belt_exam";
     const expectedTotal = previewSummary.total;
-    if (isBeltFee) {
-      const expenseTotal = selectedEvent?.finance.spent || 0;
-      const savingsAmount = Math.max(0, expectedTotal - expenseTotal);
-      const ok = window.confirm(
-        `Settle grading savings for ${payable.length} students?\n\n` +
-        `Expected: ${currency(expectedTotal)}\n` +
-        `Expenses: ${currency(expenseTotal)}\n` +
-        `Savings: ${currency(savingsAmount)}\n\n` +
-        `${reviewCount} review/excluded rows will be skipped.`
-      );
-      if (!ok) return;
-    } else {
-      const ok = window.confirm(`Generate pending fees for ${payable.length} students totaling ${currency(previewSummary.total)}? ${reviewCount} review/excluded rows will be skipped.`);
-      if (!ok) return;
-    }
-    setSaving(true);
-    setError("");
-    try {
-      const result = await generateEventFees(config.eventId, Object.values(overrides));
-      if (isBeltFee && config.status !== "settled") {
-        await upsertEventFeeConfig({ ...config, status: "settled" });
-      }
-      const savingsAmount = Math.max(0, (selectedEvent?.collection.expected || expectedTotal) - (selectedEvent?.finance.spent || 0));
-      setNotice(
-        isBeltFee
-          ? `Grading settled: ${result.createdOrUpdated} dues, ${result.waived} waived, ${result.skipped} skipped. Savings: ${currency(savingsAmount)}.`
-          : `Generated ${result.createdOrUpdated} dues, waived ${result.waived}, skipped ${result.skipped}.`
-      );
-      await loadData(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate event fees");
-    } finally {
-      setSaving(false);
-    }
+    const expenseTotal = selectedEvent?.finance.spent || 0;
+    const savingsAmount = Math.max(0, expectedTotal - expenseTotal);
+    setConfirmState({
+      open: true,
+      title: isBeltFee ? "Settle Grading Savings" : "Generate Pending Fees",
+      message: isBeltFee
+        ? `Settle grading savings for ${payable.length} students?\n\nExpected: ${currency(expectedTotal)}\nExpenses: ${currency(expenseTotal)}\nSavings: ${currency(savingsAmount)}\n\n${reviewCount} review/excluded rows will be skipped.`
+        : `Generate pending fees for ${payable.length} students totaling ${currency(previewSummary.total)}? ${reviewCount} review/excluded rows will be skipped.`,
+      variant: "default",
+      onConfirm: async () => {
+        setSaving(true);
+        setError("");
+        try {
+          const result = await generateEventFees(config.eventId, Object.values(overrides));
+          if (isBeltFee && config.status !== "settled") {
+            await upsertEventFeeConfig({ ...config, status: "settled" });
+          }
+          const finalSavings = Math.max(0, (selectedEvent?.collection.expected || expectedTotal) - (selectedEvent?.finance.spent || 0));
+          setNotice(
+            isBeltFee
+              ? `Grading settled: ${result.createdOrUpdated} dues, ${result.waived} waived, ${result.skipped} skipped. Savings: ${currency(finalSavings)}.`
+              : `Generated ${result.createdOrUpdated} dues, waived ${result.waived}, skipped ${result.skipped}.`
+          );
+          await loadData(true);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to generate event fees");
+        } finally {
+          setSaving(false);
+        }
+      },
+    });
   }
 
   async function handleAddExpense() {
@@ -1221,6 +1236,18 @@ export default function EventCollectionsPage() {
             />
           </div>
         ) : null}
+
+        <ConfirmModal
+          open={confirmState?.open ?? false}
+          title={confirmState?.title ?? ""}
+          message={confirmState?.message ?? ""}
+          variant={confirmState?.variant}
+          onConfirm={() => {
+            confirmState?.onConfirm();
+            setConfirmState(null);
+          }}
+          onCancel={() => setConfirmState(null)}
+        />
       </main>
     </div>
   );
@@ -1706,7 +1733,6 @@ function FeesStep(props: {
 }) {
   const { data, selectedEvent, config, setConfig, previewRows, previewSummary, overrides, saving, expense, deposit, setExpense, setDeposit, updateBranchPrice, updateBeltPrice, updateOverride, onPreview, onGenerate, onAddExpense, onAddDeposit } = props;
   const isBeltFee = config.feeCategory === "belt_exam";
-  const isBlackBelt = isBlackBeltExamEvent(selectedEvent);
   const payablePreviewCount = previewRows.filter((row) => row.status === "ready" || row.status === "waived").length;
   const savings = selectedEvent.finance.savings;
   const surplus = selectedEvent.finance.surplus;
@@ -2107,10 +2133,18 @@ function EmptyStep({ icon, title }: { icon: ReactNode; title: string }) {
 }
 
 function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | null }) {
+  const { toast } = useToast();
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [photoConfirmState, setPhotoConfirmState] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    variant?: "danger" | "default";
+    onConfirm: () => void;
+  } | null>(null);
   const eventId = selectedEvent?.event.id;
   const eventDate = selectedEvent?.event.date;
 
@@ -2153,7 +2187,7 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
       await loadPhotos();
     } catch (err) {
       console.error(err);
-      alert("Failed to upload photo");
+      toast("Failed to upload photo", "error");
     } finally {
       setUploading(false);
       e.target.value = ""; // Reset input
@@ -2161,17 +2195,24 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
   };
 
   const handleDelete = async (photoId: string) => {
-    if (!confirm("Are you sure you want to delete this photo?")) return;
-    setDeletingId(photoId);
-    try {
-      await deleteGalleryPhoto(photoId);
-      await loadPhotos();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete photo");
-    } finally {
-      setDeletingId(null);
-    }
+    setPhotoConfirmState({
+      open: true,
+      title: "Delete Photo",
+      message: "Are you sure you want to delete this photo?",
+      variant: "danger",
+      onConfirm: async () => {
+        setDeletingId(photoId);
+        try {
+          await deleteGalleryPhoto(photoId);
+          await loadPhotos();
+        } catch (err) {
+          console.error(err);
+          toast("Failed to delete photo", "error");
+        } finally {
+          setDeletingId(null);
+        }
+      },
+    });
   };
 
   const handleTogglePin = async (photo: GalleryPhoto) => {
@@ -2189,7 +2230,7 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
       await loadPhotos();
     } catch (err) {
       console.error(err);
-      alert("Failed to update photo");
+      toast("Failed to update photo", "error");
     }
   };
 
@@ -2198,68 +2239,81 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
   }
 
   return (
-    <section className="card-panel p-5 space-y-5">
-      <div className="flex items-center justify-between">
-        <StepHeader icon={<ImageIcon className="h-4 w-4" />} eyebrow="Step 5" title="Event Photos" />
-        <div>
-          <label className="btn-primary flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold">
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            Upload Photo
-            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleUpload} className="hidden" disabled={uploading} />
-          </label>
+    <>
+      <section className="card-panel p-5 space-y-5">
+        <div className="flex items-center justify-between">
+          <StepHeader icon={<ImageIcon className="h-4 w-4" />} eyebrow="Step 5" title="Event Photos" />
+          <div>
+            <label className="btn-primary flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold">
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              Upload Photo
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleUpload} className="hidden" disabled={uploading} />
+            </label>
+          </div>
         </div>
-      </div>
 
-      {loading ? (
-        <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-950/50">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
-        </div>
-      ) : photos.length === 0 ? (
-        <div className="flex min-h-40 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-950/50 p-6 text-center">
-          <ImageIcon className="mb-3 h-8 w-8 text-zinc-600" />
-          <p className="text-sm font-medium text-zinc-300">No photos uploaded</p>
-          <p className="mt-1 max-w-sm text-xs text-zinc-500">
-            Upload photos for this event. Pinned photos will be featured as the hero image on the event detail page.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {photos.map((photo) => (
-            <div key={photo.id} className={`group relative aspect-square overflow-hidden rounded-xl border ${photo.pinned ? "border-amber-500/50 ring-1 ring-amber-500/50" : "border-zinc-800"}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={normalizeKarateMediaUrl(photo.src)} alt={photo.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        {loading ? (
+          <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-950/50">
+            <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          </div>
+        ) : photos.length === 0 ? (
+          <div className="flex min-h-40 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-950/50 p-6 text-center">
+            <ImageIcon className="mb-3 h-8 w-8 text-zinc-600" />
+            <p className="text-sm font-medium text-zinc-300">No photos uploaded</p>
+            <p className="mt-1 max-w-sm text-xs text-zinc-500">
+              Upload photos for this event. Pinned photos will be featured as the hero image on the event detail page.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {photos.map((photo) => (
+              <div key={photo.id} className={`group relative aspect-square overflow-hidden rounded-xl border ${photo.pinned ? "border-amber-500/50 ring-1 ring-amber-500/50" : "border-zinc-800"}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={normalizeKarateMediaUrl(photo.src)} alt={photo.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
-              {photo.pinned && (
-                <div className="absolute left-2 top-2 rounded-md bg-amber-500/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-black shadow-sm">
-                  Featured
+                {photo.pinned && (
+                  <div className="absolute left-2 top-2 rounded-md bg-amber-500/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-black shadow-sm">
+                    Featured
+                  </div>
+                )}
+
+                <div className="absolute bottom-2 right-2 flex gap-1 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePin(photo)}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg border backdrop-blur-md transition-colors ${photo.pinned ? "border-amber-500/30 bg-amber-500/20 text-amber-300" : "border-white/10 bg-black/50 text-white hover:bg-white/20"}`}
+                    title={photo.pinned ? "Unpin" : "Pin as featured"}
+                  >
+                    <Award className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(photo.id)}
+                    disabled={deletingId === photo.id}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-500/30 bg-red-500/20 text-red-300 backdrop-blur-md transition-colors hover:bg-red-500/40 disabled:opacity-50"
+                    title="Delete"
+                  >
+                    {deletingId === photo.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                  </button>
                 </div>
-              )}
-
-              <div className="absolute bottom-2 right-2 flex gap-1 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                <button
-                  type="button"
-                  onClick={() => handleTogglePin(photo)}
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg border backdrop-blur-md transition-colors ${photo.pinned ? "border-amber-500/30 bg-amber-500/20 text-amber-300" : "border-white/10 bg-black/50 text-white hover:bg-white/20"}`}
-                  title={photo.pinned ? "Unpin" : "Pin as featured"}
-                >
-                  <Award className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(photo.id)}
-                  disabled={deletingId === photo.id}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-500/30 bg-red-500/20 text-red-300 backdrop-blur-md transition-colors hover:bg-red-500/40 disabled:opacity-50"
-                  title="Delete"
-                >
-                  {deletingId === photo.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                </button>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
+            ))}
+          </div>
+        )}
+      </section>
+      <ConfirmModal
+        open={photoConfirmState?.open ?? false}
+        title={photoConfirmState?.title ?? ""}
+        message={photoConfirmState?.message ?? ""}
+        variant={photoConfirmState?.variant}
+        onConfirm={() => {
+          photoConfirmState?.onConfirm();
+          setPhotoConfirmState(null);
+        }}
+        onCancel={() => setPhotoConfirmState(null)}
+      />
+    </>
   );
 }
