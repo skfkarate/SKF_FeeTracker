@@ -2311,6 +2311,43 @@ export interface EventCollectionItem {
   deposits: Record<string, unknown>[];
 }
 
+export interface EventCertificateRecord {
+  enrollmentId: string;
+  skfId: string;
+  studentName: string;
+  certificateNumber: string;
+  verificationCode: string;
+  certificateType: string;
+  status: "draft" | "issued" | "revoked";
+  programName: string;
+  beltLevel: string | null;
+  verifyUrl: string;
+  qrDownloadUrl: string;
+  result: string;
+  preparedAt: string | null;
+  publishedAt: string | null;
+}
+
+export interface EventCertificateSkippedRecord {
+  skfId: string;
+  studentName: string;
+  reason: string;
+}
+
+export interface EventCertificateSummary {
+  programId: string | null;
+  programName: string;
+  totalResults: number;
+  eligibleCount: number;
+  preparedCount: number;
+  issuedCount: number;
+  draftCount: number;
+  skippedCount: number;
+  revokedCount: number;
+  certificates: EventCertificateRecord[];
+  skipped: EventCertificateSkippedRecord[];
+}
+
 export interface EventCollectionsData {
   year: number;
   beltSequence: EventBeltLevel[];
@@ -2435,6 +2472,60 @@ export async function publishEventResults(
   return data.data;
 }
 
+export async function getEventCertificates(eventId: string): Promise<{
+  event: EventCollectionItem["event"];
+  certificateSummary: EventCertificateSummary;
+}> {
+  const data = await apiAction<{
+    data: {
+      event: EventCollectionItem["event"];
+      certificateSummary: EventCertificateSummary;
+    };
+  }>("get_event_certificates", { eventId });
+  return data.data;
+}
+
+export async function prepareEventCertificates(
+  eventId: string,
+  results: EventResultRecord[],
+): Promise<{
+  event: EventCollectionItem["event"];
+  certificateSummary: EventCertificateSummary;
+}> {
+  const data = await apiAction<{
+    data: {
+      event: EventCollectionItem["event"];
+      certificateSummary: EventCertificateSummary;
+    };
+  }>("prepare_event_certificates", {
+    eventId,
+    results,
+  });
+  invalidateCache("eventCollections:");
+  return data.data;
+}
+
+export async function publishEventCertificates(
+  eventId: string,
+  results: EventResultRecord[],
+): Promise<{
+  event: EventCollectionItem["event"];
+  certificateSummary: EventCertificateSummary;
+}> {
+  const data = await apiAction<{
+    data: {
+      event: EventCollectionItem["event"];
+      certificateSummary: EventCertificateSummary;
+    };
+  }>("publish_event_certificates", {
+    eventId,
+    results,
+  });
+  invalidateCache("eventCollections:");
+  invalidateCache("students:");
+  return data.data;
+}
+
 export async function getEventCollections(
   branch = "Overall",
   year = getCurrentFeeYear(),
@@ -2544,4 +2635,14 @@ export async function getExamMonths(forceRefresh = false): Promise<ExamMonth[]> 
 export async function setExamMonth(year: number, month: string): Promise<void> {
   await apiAction("set_exam_month", { year, month });
   invalidateCache("examMonths");
+}
+
+export async function getBBCandidates(): Promise<any[]> {
+  const data = await apiAction<{ data: any[] }>("get_bb_candidates");
+  return data.data || [];
+}
+
+export async function updateBBCandidate(candidateId: string, updates: Record<string, unknown>): Promise<any> {
+  const data = await apiAction<{ data: any }>("update_bb_candidate", { candidateId, updates });
+  return data.data;
 }

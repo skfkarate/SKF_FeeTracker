@@ -17,12 +17,15 @@ import {
   CalendarDays,
   CheckCircle2,
   CircleDollarSign,
+  Download,
+  ExternalLink,
   FilePlus2,
   Image as ImageIcon,
   IndianRupee,
   Loader2,
   PencilLine,
   Plus,
+  QrCode,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -43,6 +46,7 @@ import {
   createEvent,
   deleteEvent,
   EventAthleteSearchResult,
+  EventCertificateSummary,
   EventCollectionItem,
   EventFeeConfig,
   EventFeeOverride,
@@ -50,8 +54,11 @@ import {
   EventResultRecord,
   generateEventFees,
   getEventCollections,
+  getEventCertificates,
   getStudents,
   previewEventFees,
+  prepareEventCertificates,
+  publishEventCertificates,
   publishEventResults,
   removeEventStudent,
   saveEventResults,
@@ -414,6 +421,8 @@ export default function EventCollectionsPage() {
   const [previewRows, setPreviewRows] = useState<EventFeePreviewRow[]>([]);
   const [overrides, setOverrides] = useState<Record<string, EventFeeOverride>>({});
   const [resultDrafts, setResultDrafts] = useState<EventResultRecord[]>([]);
+  const [certificateSummary, setCertificateSummary] = useState<EventCertificateSummary | null>(null);
+  const [certificateBusy, setCertificateBusy] = useState<"" | "load" | "prepare" | "publish">("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -475,6 +484,7 @@ export default function EventCollectionsPage() {
         setConfig(nextConfig);
         setOverrides(Object.fromEntries(nextConfig.studentOverrides.map((override) => [override.skfId, override])));
         setResultDrafts(buildResultDrafts(next));
+        setCertificateSummary(null);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load events");
@@ -482,6 +492,20 @@ export default function EventCollectionsPage() {
       setLoading(false);
     }
   }, [branch, checking, feeYear, selectedEventId, user]);
+
+  const loadEventCertificateSummary = useCallback(async (eventId: string) => {
+    if (!eventId) return;
+    setCertificateBusy("load");
+    try {
+      const result = await getEventCertificates(eventId);
+      setCertificateSummary(result.certificateSummary);
+    } catch (err) {
+      setCertificateSummary(null);
+      setError(err instanceof Error ? err.message : "Failed to load certificate status");
+    } finally {
+      setCertificateBusy("");
+    }
+  }, []);
 
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -497,6 +521,14 @@ export default function EventCollectionsPage() {
     }, 0);
     return () => window.clearTimeout(id);
   }, [selectedEvent]);
+
+  useEffect(() => {
+    if (step !== "results" || !selectedEvent) return;
+    const id = window.setTimeout(() => {
+      void loadEventCertificateSummary(selectedEvent.event.id);
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [loadEventCertificateSummary, selectedEvent, step]);
 
   const loadBranchRoster = useCallback(async () => {
     if (!selectedEvent) {
@@ -545,6 +577,7 @@ export default function EventCollectionsPage() {
     setOverrides(Object.fromEntries(next.studentOverrides.map((override) => [override.skfId, override])));
     setPreviewRows([]);
     setResultDrafts(buildResultDrafts(item));
+    setCertificateSummary(null);
     setNotice("");
     setError("");
   }
@@ -943,6 +976,7 @@ export default function EventCollectionsPage() {
       if (patch.promotionType) next.doublePromotion = patch.promotionType === "double";
       return next;
     }));
+    setCertificateSummary(null);
   }
 
   async function handleSaveResults(publish = false) {
@@ -965,6 +999,54 @@ export default function EventCollectionsPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handlePrepareCertificates() {
+    if (!selectedEvent) return;
+    if (resultDrafts.length === 0) {
+      setError("Record outcomes before preparing certificates.");
+      return;
+    }
+
+    setCertificateBusy("prepare");
+    setError("");
+    setNotice("");
+    try {
+      const result = await prepareEventCertificates(selectedEvent.event.id, resultDrafts);
+      await reloadAndSelect(result.event.id);
+      setCertificateSummary(result.certificateSummary);
+      setNotice(`Prepared ${result.certificateSummary.preparedCount} certificate QR code${result.certificateSummary.preparedCount === 1 ? "" : "s"}. Skipped ${result.certificateSummary.skippedCount}.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to prepare certificate QR codes");
+    } finally {
+      setCertificateBusy("");
+    }
+  }
+
+  function handlePublishCertificates() {
+    if (!selectedEvent) return;
+    const count = certificateSummary?.draftCount || certificateSummary?.preparedCount || resultDrafts.length;
+    setConfirmState({
+      open: true,
+      title: "Publish Certificates",
+      message: `Publish ${count} certificate${count === 1 ? "" : "s"} for ${selectedEvent.event.name}? QR scans, athlete portal certificates, and public verification will become visible.`,
+      variant: "default",
+      onConfirm: async () => {
+        setCertificateBusy("publish");
+        setError("");
+        setNotice("");
+        try {
+          const result = await publishEventCertificates(selectedEvent.event.id, resultDrafts);
+          await reloadAndSelect(result.event.id);
+          setCertificateSummary(result.certificateSummary);
+          setNotice(`Published ${result.certificateSummary.issuedCount} certificate${result.certificateSummary.issuedCount === 1 ? "" : "s"} for public verification.`);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to publish certificates");
+        } finally {
+          setCertificateBusy("");
+        }
+      },
+    });
   }
 
   if (checking || !user) return null;
@@ -1203,10 +1285,15 @@ export default function EventCollectionsPage() {
                 <ResultsStep
                   selectedEvent={selectedEvent}
                   resultDrafts={resultDrafts}
+                  certificateSummary={certificateSummary}
+                  certificateBusy={certificateBusy}
                   saving={saving}
                   updateResult={updateResult}
                   onSave={() => handleSaveResults(false)}
                   onPublish={() => handleSaveResults(true)}
+                  onPrepareCertificates={handlePrepareCertificates}
+                  onPublishCertificates={handlePublishCertificates}
+                  onRefreshCertificates={() => selectedEvent && loadEventCertificateSummary(selectedEvent.event.id)}
                 />
               )}
 
@@ -1954,17 +2041,27 @@ function FinanceBox({ icon, title, children }: { icon: ReactNode; title: string;
 function ResultsStep({
   selectedEvent,
   resultDrafts,
+  certificateSummary,
+  certificateBusy,
   saving,
   updateResult,
   onSave,
   onPublish,
+  onPrepareCertificates,
+  onPublishCertificates,
+  onRefreshCertificates,
 }: {
   selectedEvent: EventCollectionItem | null;
   resultDrafts: EventResultRecord[];
+  certificateSummary: EventCertificateSummary | null;
+  certificateBusy: "" | "load" | "prepare" | "publish";
   saving: boolean;
   updateResult: (index: number, patch: Partial<EventResultRecord>) => void;
   onSave: () => void;
   onPublish: () => void;
+  onPrepareCertificates: () => void;
+  onPublishCertificates: () => void;
+  onRefreshCertificates: () => void;
 }) {
   if (!selectedEvent) {
     return <EmptyStep icon={<Trophy className="h-5 w-5" />} title="Select an event before recording outcomes." />;
@@ -1995,6 +2092,14 @@ function ResultsStep({
       <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs leading-relaxed text-amber-100">
         Publishing updates the website, the student portal, and each athlete profile. Save a draft first when results are still being checked.
       </div>
+
+      <CertificateWorkflowPanel
+        summary={certificateSummary}
+        busy={certificateBusy}
+        onPrepare={onPrepareCertificates}
+        onPublish={onPublishCertificates}
+        onRefresh={onRefreshCertificates}
+      />
 
       <div className="space-y-3">
         {resultDrafts.map((result, index) => (
@@ -2108,6 +2213,119 @@ function ResultsStep({
         ))}
       </div>
     </section>
+  );
+}
+
+function CertificateWorkflowPanel({
+  summary,
+  busy,
+  onPrepare,
+  onPublish,
+  onRefresh,
+}: {
+  summary: EventCertificateSummary | null;
+  busy: "" | "load" | "prepare" | "publish";
+  onPrepare: () => void;
+  onPublish: () => void;
+  onRefresh: () => void;
+}) {
+  const certificates = summary?.certificates || [];
+  const hasDrafts = certificates.some((certificate) => certificate.status === "draft");
+  const canPublish = certificates.length > 0 && (hasDrafts || (summary?.issuedCount || 0) < certificates.length);
+  const isPreparing = busy === "prepare";
+  const isPublishing = busy === "publish";
+  const isLoading = busy === "load";
+
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-black/35 p-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-amber-300">
+            <QrCode className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-zinc-500">Certificate Registry</p>
+            <h3 className="mt-1 text-sm font-semibold text-white">
+              {certificates.length
+                ? `${summary?.issuedCount || 0} published / ${certificates.length} prepared`
+                : "No certificate QR prepared"}
+            </h3>
+            {summary?.skippedCount ? (
+              <p className="mt-1 text-xs text-amber-300">{summary.skippedCount} result row{summary.skippedCount === 1 ? "" : "s"} skipped.</p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:min-w-[440px]">
+          <button
+            type="button"
+            onClick={onPrepare}
+            disabled={Boolean(busy)}
+            className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:border-amber-400/50 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {isPreparing ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode className="h-4 w-4" />}
+            Prepare QR
+          </button>
+          <button
+            type="button"
+            onClick={onPublish}
+            disabled={Boolean(busy) || !canPublish}
+            className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-200 hover:border-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+            Publish Certs
+          </button>
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={Boolean(busy)}
+            className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {certificates.length > 0 && (
+        <div className="mt-4 grid grid-cols-1 gap-2">
+          {certificates.map((certificate) => (
+            <div key={certificate.enrollmentId} className="grid grid-cols-1 gap-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="truncate text-sm font-medium text-white">{certificate.studentName}</p>
+                  <span className={`rounded-md border px-2 py-1 text-[10px] uppercase ${certificate.status === "issued" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300" : certificate.status === "revoked" ? "border-red-500/20 bg-red-500/10 text-red-300" : "border-amber-500/20 bg-amber-500/10 text-amber-300"}`}>
+                    {certificate.status}
+                  </span>
+                </div>
+                <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-zinc-500">
+                  {certificate.skfId} • {certificate.certificateNumber}{certificate.beltLevel ? ` • ${certificate.beltLevel}` : ""}
+                </p>
+              </div>
+
+              <a
+                href={certificate.qrDownloadUrl}
+                className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs font-semibold text-zinc-200 hover:border-zinc-600 hover:text-white flex items-center justify-center gap-2"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Download className="h-4 w-4" />
+                QR
+              </a>
+              <a
+                href={certificate.verifyUrl}
+                className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs font-semibold text-zinc-200 hover:border-zinc-600 hover:text-white flex items-center justify-center gap-2"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Verify
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

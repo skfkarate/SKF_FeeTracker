@@ -102,6 +102,9 @@ export async function callKarateBackend<T>(
     "get_finance_command_center",
     "get_financial_summary",
     "get_event_collections",
+    "get_event_certificates",
+    "prepare_event_certificates",
+    "publish_event_certificates",
     "get_shop_orders",
     "get_website_analytics",
   ]);

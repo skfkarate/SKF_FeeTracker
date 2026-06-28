@@ -15,6 +15,7 @@ import {
   Trophy,
   Video,
   Wallet,
+  Medal,
 } from "lucide-react";
 
 export type NavigationTile = {
@@ -90,6 +91,13 @@ const EVENT_TILES: NavigationTile[] = [
     description: "Events, birthdays, posters and update reminders",
     icon: CalendarDays,
     accent: "group-hover:text-sky-300",
+  },
+  {
+    href: "/blackbelt",
+    title: "Black Belt 2026",
+    description: "Candidate progress tracking and examination grading",
+    icon: Medal,
+    accent: "group-hover:text-red-400",
   },
 ];
 
