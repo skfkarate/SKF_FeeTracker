@@ -3,16 +3,13 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   AlertCircle,
-  CalendarDays,
   CheckCircle2,
   ChevronRight,
-  ClipboardList,
   Loader2,
   RefreshCw,
   Search,
   ShieldCheck,
   Trophy,
-  User,
   X,
 } from "lucide-react";
 

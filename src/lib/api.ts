@@ -590,6 +590,65 @@ export async function allocateExamFee(
   invalidateFinancialCaches(branch, year);
 }
 
+export async function createManualStudentFee(input: {
+  studentId: string;
+  branch: string;
+  month: number;
+  year?: number;
+  title: string;
+  description?: string;
+  amount: number;
+  dueDate?: string;
+}): Promise<{ entry?: EventStudentDue }> {
+  if (isMockData()) return {};
+  const data = await apiAction<{
+    data?: {
+      entry?: {
+        id?: string;
+        sourceId?: string | null;
+        sourceLabel?: string | null;
+        feeType?: string;
+        amount?: number;
+        status?: string;
+        receiptId?: string | null;
+        dueDate?: string | null;
+        month?: string;
+        year?: number;
+      };
+    };
+  }>("create_manual_student_fee", {
+    id: input.studentId,
+    branch: input.branch,
+    month: input.month,
+    year: input.year ?? getCurrentFeeYear(),
+    title: input.title,
+    description: input.description,
+    amount: input.amount,
+    dueDate: input.dueDate,
+  });
+  invalidateCache(`students:${input.branch}:${input.year ?? getCurrentFeeYear()}:${input.month}`);
+  invalidateFinancialCaches(input.branch, input.year ?? getCurrentFeeYear());
+  invalidateCache("financeCommand:");
+
+  const entry = data.data?.entry;
+  return {
+    entry: entry
+      ? {
+        id: String(entry.id || ""),
+        eventId: String(entry.sourceId || ""),
+        label: String(entry.sourceLabel || "Manual Fee"),
+        feeType: String(entry.feeType || "other"),
+        amount: Number(entry.amount || 0),
+        status: String(entry.status || "due"),
+        receiptId: entry.receiptId || null,
+        dueDate: String(entry.dueDate || ""),
+        month: entry.month || "",
+        year: entry.year || input.year || getCurrentFeeYear(),
+      }
+      : undefined,
+  };
+}
+
 /**
  * Mark a non-recurring fee (Admission or Dress) as Paid
  */
@@ -2637,12 +2696,39 @@ export async function setExamMonth(year: number, month: string): Promise<void> {
   invalidateCache("examMonths");
 }
 
-export async function getBBCandidates(): Promise<any[]> {
-  const data = await apiAction<{ data: any[] }>("get_bb_candidates");
+export type BlackBeltCandidateRecord = {
+  id: string;
+  skf_id: string;
+  display_name: string;
+  first_aid_status: string;
+  marketing_status: string;
+  enrollment_fee_status: string;
+  tournament_kata_status: string;
+  tournament_kumite_status: string;
+  fitness_baseline_done: boolean;
+  fitness_retest_done: boolean;
+  wkf_kumite_status: string;
+  wkf_kata_status: string;
+  wkf_referee_status: string;
+  weapon_status: string;
+  bunkai_status: string;
+  video_count: number;
+  teaching_status: string;
+  teaching_hours: number;
+  mock_exam_done: boolean;
+  self_defense_months: Record<string, boolean>;
+  readiness: string;
+  exam_score: number | null;
+  exam_result: string | null;
+  instructor_notes: string;
+};
+
+export async function getBBCandidates(): Promise<BlackBeltCandidateRecord[]> {
+  const data = await apiAction<{ data: BlackBeltCandidateRecord[] }>("get_bb_candidates");
   return data.data || [];
 }
 
-export async function updateBBCandidate(candidateId: string, updates: Record<string, unknown>): Promise<any> {
-  const data = await apiAction<{ data: any }>("update_bb_candidate", { candidateId, updates });
+export async function updateBBCandidate(candidateId: string, updates: Record<string, unknown>): Promise<BlackBeltCandidateRecord> {
+  const data = await apiAction<{ data: BlackBeltCandidateRecord }>("update_bb_candidate", { candidateId, updates });
   return data.data;
 }
