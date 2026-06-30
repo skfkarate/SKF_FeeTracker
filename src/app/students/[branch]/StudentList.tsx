@@ -26,7 +26,6 @@ import {
   RotateCcw,
   X,
   ChevronDown,
-  Plus,
 } from "lucide-react";
 
 import {
@@ -43,7 +42,6 @@ import {
   EventStudentDue,
   markNonRecurringFeePaid,
   resumeStudent,
-  createManualStudentFee,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { normalizeFeeYear } from "@/lib/fee-year";
@@ -101,14 +99,6 @@ const isHiddenFromStudentList = (student: Student) =>
 const isLocalPublicUrl = (value: string) =>
   /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(?::|\/|$)/i.test(value);
 
-const todayInputDate = () => {
-  const now = new Date();
-  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
-  return localDate.toISOString().slice(0, 10);
-};
-
-
-
 export default function StudentList({ branch }: { branch: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -162,12 +152,6 @@ export default function StudentList({ branch }: { branch: string }) {
     student: Student;
     type: "Admission" | "Dress";
   } | null>(null);
-  const [customFeeStudent, setCustomFeeStudent] = useState<Student | null>(null);
-  const [customFeeTitle, setCustomFeeTitle] = useState("");
-  const [customFeeAmount, setCustomFeeAmount] = useState("");
-  const [customFeeDueDate, setCustomFeeDueDate] = useState(todayInputDate);
-  const [customFeeDescription, setCustomFeeDescription] = useState("");
-  const [creatingCustomFee, setCreatingCustomFee] = useState(false);
 
   // Belt Exam Approval modal
   const [confirmBeltExam, setConfirmBeltExam] = useState<{
@@ -187,16 +171,6 @@ export default function StudentList({ branch }: { branch: string }) {
 
   const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const selectedMonthName = MONTH_NAMES[month] || '';
-
-  const openCustomFeeModal = (student: Student) => {
-    setDetailStudent(null);
-    setShowStatusMenu(false);
-    setCustomFeeStudent(student);
-    setCustomFeeTitle("");
-    setCustomFeeAmount("");
-    setCustomFeeDueDate(todayInputDate());
-    setCustomFeeDescription("");
-  };
 
   // Track previous month to detect actual month changes (for cache invalidation)
   const prevPeriodRef = useRef(`${selectedYear}-${month}`);
@@ -454,46 +428,6 @@ export default function StudentList({ branch }: { branch: string }) {
       toast(err instanceof Error ? err.message : "Failed to resume student", "error");
     } finally {
       setMarkingStatus(null);
-    }
-  };
-
-  const handleCreateCustomFee = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!customFeeStudent || creatingCustomFee) return;
-
-    const title = customFeeTitle.trim();
-    const amount = Number(customFeeAmount);
-    if (!title) {
-      toast("Enter a fee title", "error");
-      return;
-    }
-    if (!Number.isFinite(amount) || amount <= 0) {
-      toast("Enter a valid amount", "error");
-      return;
-    }
-
-    setCreatingCustomFee(true);
-    try {
-      await createManualStudentFee({
-        studentId: customFeeStudent.id,
-        branch,
-        month,
-        year: selectedYear,
-        title,
-        description: customFeeDescription.trim() || undefined,
-        amount,
-        dueDate: customFeeDueDate || undefined,
-      });
-      toast(`${title} due added for ${customFeeStudent.name}`, "success");
-      setCustomFeeStudent(null);
-      setCustomFeeTitle("");
-      setCustomFeeAmount("");
-      setCustomFeeDescription("");
-      await loadStudents(true);
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Failed to create custom fee", "error");
-    } finally {
-      setCreatingCustomFee(false);
     }
   };
 
@@ -1184,97 +1118,6 @@ export default function StudentList({ branch }: { branch: string }) {
         </div>
       )}
 
-      {/* Custom Fee Modal */}
-      {customFeeStudent && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="card-panel max-w-sm w-full p-6">
-            <form className="p-6" onSubmit={handleCreateCustomFee}>
-              <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider mb-4 text-center text-amber-300">
-                ADD CUSTOM DUE
-              </h2>
-              <div className="surface-glass p-4 mb-4 space-y-3">
-                <div>
-                  <p className="text-zinc-500 text-xs mb-1">Student</p>
-                  <p className="font-[family-name:var(--font-space)] text-lg">{customFeeStudent.name}</p>
-                  <p className="text-zinc-500 text-xs font-mono">{customFeeStudent.id}</p>
-                </div>
-                <div className="pt-3 border-t border-[var(--border)]">
-                  <label className="block text-zinc-500 text-xs mb-1" htmlFor="custom-fee-title">Title</label>
-                  <input
-                    id="custom-fee-title"
-                    value={customFeeTitle}
-                    onChange={(e) => setCustomFeeTitle(e.target.value)}
-                    maxLength={120}
-                    required
-                    placeholder="Nunchaku"
-                    className="w-full rounded-lg border border-zinc-800 bg-black px-3 py-2 text-sm text-white outline-none focus:border-amber-500/60"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-zinc-500 text-xs mb-1" htmlFor="custom-fee-amount">Amount</label>
-                    <input
-                      id="custom-fee-amount"
-                      type="number"
-                      inputMode="numeric"
-                      min="1"
-                      max="1000000"
-                      value={customFeeAmount}
-                      onChange={(e) => setCustomFeeAmount(e.target.value)}
-                      required
-                      className="w-full rounded-lg border border-zinc-800 bg-black px-3 py-2 text-sm text-white outline-none focus:border-amber-500/60"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-zinc-500 text-xs mb-1" htmlFor="custom-fee-due-date">Due Date</label>
-                    <input
-                      id="custom-fee-due-date"
-                      type="date"
-                      value={customFeeDueDate}
-                      onChange={(e) => setCustomFeeDueDate(e.target.value)}
-                      className="w-full rounded-lg border border-zinc-800 bg-black px-3 py-2 text-sm text-white outline-none focus:border-amber-500/60"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-zinc-500 text-xs mb-1" htmlFor="custom-fee-note">Note</label>
-                  <textarea
-                    id="custom-fee-note"
-                    value={customFeeDescription}
-                    onChange={(e) => setCustomFeeDescription(e.target.value)}
-                    maxLength={500}
-                    rows={3}
-                    placeholder="Optional"
-                    className="w-full resize-none rounded-lg border border-zinc-800 bg-black px-3 py-2 text-sm text-white outline-none focus:border-amber-500/60"
-                  />
-                </div>
-                <div className="pt-3 border-t border-[var(--border)]">
-                  <p className="text-zinc-500 text-xs mb-1">Period</p>
-                  <p className="text-white">{MONTHS[month]} {selectedYear}</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setCustomFeeStudent(null)}
-                  disabled={creatingCustomFee}
-                  className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-sm disabled:opacity-50"
-                >
-                  CANCEL
-                </button>
-                <button
-                  type="submit"
-                  disabled={creatingCustomFee}
-                  className="flex-1 py-3 bg-amber-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-amber-500 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  {creatingCustomFee ? <><div className="spinner !w-4 !h-4" /> Adding...</> : <><Plus className="w-4 h-4" /> ADD DUE</>}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Student Detail Modal */}
       {detailStudent && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setDetailStudent(null)}>
@@ -1327,18 +1170,6 @@ export default function StudentList({ branch }: { branch: string }) {
                 >
                   <MessageCircle className="w-4 h-4" /> WhatsApp
                 </a>
-                {!isDiscontinuedStudent(detailStudent) && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openCustomFeeModal(detailStudent);
-                    }}
-                    className="flex-1 py-3 bg-amber-500/15 border border-amber-500/40 text-amber-300 rounded-lg flex items-center justify-center gap-2 hover:bg-amber-500/25 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" /> Add Due
-                  </button>
-                )}
               </div>
 
               <div className="surface-glass p-4 space-y-3">
@@ -1525,26 +1356,6 @@ export default function StudentList({ branch }: { branch: string }) {
                   </p>
                 </div>
               </a>
-            )}
-
-            {!isDiscontinuedStudent(longPressStudent) && (
-              <button
-                onClick={() => {
-                  setShowStatusMenu(false);
-                  openCustomFeeModal(longPressStudent);
-                }}
-                className="w-full text-left px-4 py-4 text-amber-300 hover:bg-white/5 transition-colors flex items-center gap-3 border-t border-[var(--border)]"
-              >
-                <Plus className="w-5 h-5" />
-                <div>
-                  <p className="font-[family-name:var(--font-space)] tracking-wider text-sm">
-                    ADD CUSTOM DUE
-                  </p>
-                  <p className="text-[var(--text-muted)] text-xs">
-                    Create a payable item for this student
-                  </p>
-                </div>
-              </button>
             )}
 
             {!isDiscontinuedStudent(longPressStudent) && (

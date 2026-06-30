@@ -50,6 +50,13 @@ const FEE_TRACK_OFFICE_TILES: NavigationTile[] = [
     accent: "group-hover:text-amber-400",
   },
   {
+    href: "/custom-dues",
+    title: "Custom Dues",
+    description: "One-off student dues by SKF ID",
+    icon: HandCoins,
+    accent: "group-hover:text-amber-300",
+  },
+  {
     href: "/finances",
     title: "Master Ledger",
     description: "Consolidated collections and receipts",

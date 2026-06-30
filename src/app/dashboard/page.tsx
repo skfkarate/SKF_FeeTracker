@@ -11,6 +11,7 @@ import {
   Clock3,
   FileText,
   Globe2,
+  HandCoins,
   LayoutGrid,
   Sparkles,
   Wallet,
@@ -35,6 +36,12 @@ const priorityLinks = [
     title: "Pending Fees",
     description: "Follow up monthly dues",
     icon: Clock3,
+  },
+  {
+    href: "/custom-dues",
+    title: "Custom Dues",
+    description: "Create one-off dues by SKF ID",
+    icon: HandCoins,
   },
   {
     href: "/notification-timeline",
