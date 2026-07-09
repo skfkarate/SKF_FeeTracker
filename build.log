@@ -1,0 +1,35 @@
+
+> skf-app@0.1.0 prebuild
+> node scripts/check-production-env.mjs
+
+
+> skf-app@0.1.0 build
+> next build
+
+▲ Next.js 16.2.6 (Turbopack)
+- Environments: .env.local, .env.production
+- Experiments (use with caution):
+  · clientTraceMetadata
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 14.7s
+  Running next.config.js provided runAfterProductionCompile ...
+✓ Completed runAfterProductionCompile in 907ms
+  Running TypeScript ...
+  Finished TypeScript in 10.2s ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/27) ...
+⨯ useSearchParams() should be wrapped in a suspense boundary at page "/custom". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at S (/home/krish/SKF Karate/website/SKF-FeeTrack/.next/server/chunks/ssr/_0pji9.p._.js:4:2692)
+    at r (/home/krish/SKF Karate/website/SKF-FeeTrack/.next/server/chunks/ssr/_0pji9.p._.js:6:6760)
+    at /home/krish/SKF Karate/website/SKF-FeeTrack/.next/server/chunks/ssr/src_app_custom_page_tsx_0vtn08f._.js:1:1060
+    at an (/home/krish/SKF Karate/website/SKF-FeeTrack/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:84267)
+    at ai (/home/krish/SKF Karate/website/SKF-FeeTrack/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:86086)
+    at al (/home/krish/SKF Karate/website/SKF-FeeTrack/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:107860)
+    at ao (/home/krish/SKF Karate/website/SKF-FeeTrack/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:105275)
+    at aa (/home/krish/SKF Karate/website/SKF-FeeTrack/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:84619)
+    at ai (/home/krish/SKF Karate/website/SKF-FeeTrack/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:86135)
+    at ai (/home/krish/SKF Karate/website/SKF-FeeTrack/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:104615)
+Error occurred prerendering page "/custom". Read more: https://nextjs.org/docs/messages/prerender-error
+Export encountered an error on /custom/page: /custom, exiting the build.
+⨯ Next.js build worker exited with code: 1 and signal: null
