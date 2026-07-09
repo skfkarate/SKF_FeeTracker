@@ -18,6 +18,8 @@ import {
   TrendingUp,
   UserRound,
   Users,
+  UserCheck,
+  ShieldQuestion,
   type LucideIcon,
 } from "lucide-react";
 
@@ -36,6 +38,8 @@ import {
 import { useFeeTrackAuth } from "@/lib/client-auth";
 
 const RANGE_OPTIONS = [7, 30, 90, 180, 365];
+const VIEWS = ["Anonymous Visitors", "Portal Activity"] as const;
+type ViewMode = (typeof VIEWS)[number];
 
 function number(value: number) {
   return Number(value || 0).toLocaleString("en-IN");
@@ -62,9 +66,7 @@ function formatDateLabel(value: string) {
 }
 
 function eventLabel(value: string) {
-  return value
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function metadataSummary(metadata: Record<string, unknown>) {
@@ -235,11 +237,11 @@ function HourlyTraffic({ rows }: { rows: WebsiteAnalyticsData["content"]["hourly
       <div className="grid grid-cols-6 gap-2 sm:grid-cols-8 md:grid-cols-12">
         {rows.map((row) => (
           <div key={row.hour} className="rounded-lg border border-zinc-800 bg-black/30 p-2">
-            <div className="mb-2 h-16 overflow-hidden rounded bg-zinc-950">
+            <div className="mb-2 flex h-16 items-end overflow-hidden rounded bg-zinc-950">
               <div
-                className="mt-auto h-full origin-bottom rounded bg-zinc-500/80"
+                className="w-full origin-bottom rounded bg-zinc-500/80"
                 style={{
-                  transform: `scaleY(${row.views > 0 ? Math.max(row.views / max, 0.08) : 0})`,
+                  height: `${row.views > 0 ? Math.max((row.views / max) * 100, 3) : 0}%`,
                 }}
               />
             </div>
@@ -259,7 +261,7 @@ function PageTable({ title, rows }: { title: string; rows: WebsitePageAnalytics[
       </div>
       {rows.length ? (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+          <table className="w-full min-w-[600px] text-left text-sm">
             <thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500">
               <tr>
                 <th className="px-5 py-3 font-semibold">Page</th>
@@ -314,6 +316,7 @@ function VisitorList({ visitors }: { visitors: WebsiteVisitorAnalytics[] }) {
                   <p className="truncate font-mono text-xs text-zinc-300">{visitor.visitorId}</p>
                   <p className="mt-1 truncate text-sm font-semibold text-white">{visitor.landingPage} to {visitor.lastPage}</p>
                   <p className="mt-1 text-xs text-zinc-500">{visitor.source} - {visitor.device} - {visitor.browser} - {visitor.os}</p>
+                  {visitor.skfId ? <p className="mt-1 text-xs text-cyan-400">Student: {visitor.skfId}</p> : null}
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center sm:min-w-[220px]">
                   <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
@@ -341,26 +344,42 @@ function VisitorList({ visitors }: { visitors: WebsiteVisitorAnalytics[] }) {
   );
 }
 
-function RecentPageViews({ rows }: { rows: WebsiteRecentPageView[] }) {
+function RecentPageViews({ rows, showStudent = false }: { rows: WebsiteRecentPageView[]; showStudent?: boolean }) {
   return (
     <section className="card-panel overflow-hidden">
       <div className="border-b border-zinc-800 p-5">
         <h2 className="text-sm font-semibold text-white">Recent Page Views</h2>
       </div>
       {rows.length ? (
-        <div className="divide-y divide-zinc-900">
-          {rows.map((row) => (
-            <div key={row.id} className="grid gap-3 p-4 sm:grid-cols-[1fr_170px] sm:items-center">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-white">{row.path}</p>
-                <p className="mt-1 truncate text-xs text-zinc-600">{row.source} - {row.device} - {row.browser} - {row.os}</p>
-              </div>
-              <div className="text-left sm:text-right">
-                <p className="text-xs text-zinc-400">{formatDateTime(row.createdAt)}</p>
-                <p className="mt-1 truncate font-mono text-[10px] text-zinc-600">{row.visitorId || "anonymous"}</p>
-              </div>
-            </div>
-          ))}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm min-w-[500px]">
+            <thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500">
+              <tr>
+                <th className="px-4 py-3 font-semibold">Page</th>
+                <th className="px-4 py-3 font-semibold">{showStudent ? "Student" : "Source"}</th>
+                <th className="px-4 py-3 font-semibold">Device</th>
+                <th className="px-4 py-3 text-right font-semibold">Time</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-900">
+              {rows.map((row) => (
+                <tr key={row.id} className="hover:bg-white/[0.02]">
+                  <td className="max-w-[220px] px-4 py-3">
+                    <p className="truncate text-xs font-medium text-white">{row.path}</p>
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    {showStudent ? (
+                      <span className="font-mono text-[10px] text-cyan-400">{row.skfId || <span className="text-zinc-600">-</span>}</span>
+                    ) : (
+                      <span className="text-zinc-500">{row.device} - {row.browser}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-zinc-500">{showStudent ? `${row.device} - ${row.browser}` : row.source}</td>
+                  <td className="px-4 py-3 text-right whitespace-nowrap text-xs text-zinc-500">{formatDateTime(row.createdAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="p-5">
@@ -387,7 +406,10 @@ function OperationalEvents({ events }: { events: WebsiteOperationalEvent[] }) {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-white">{eventLabel(event.eventType)}</p>
-                  <p className="mt-1 truncate text-xs text-zinc-500">{event.path}{event.skfId ? ` - ${event.skfId}` : ""}</p>
+                  <p className="mt-1 truncate text-xs text-zinc-500">
+                    {event.path}
+                    {event.skfId ? ` - ${event.skfId}` : ""}
+                  </p>
                 </div>
                 <p className="text-xs text-zinc-500">{formatDateTime(event.createdAt)}</p>
               </div>
@@ -404,6 +426,7 @@ function OperationalEvents({ events }: { events: WebsiteOperationalEvent[] }) {
 
 export default function WebsiteAnalyticsPage() {
   const { user, checking } = useFeeTrackAuth();
+  const [activeView, setActiveView] = useState<ViewMode>("Anonymous Visitors");
   const [rangeDays, setRangeDays] = useState(90);
   const [analytics, setAnalytics] = useState<WebsiteAnalyticsData | null>(null);
   const [warning, setWarning] = useState("");
@@ -431,6 +454,47 @@ export default function WebsiteAnalyticsPage() {
     }, 0);
     return () => window.clearTimeout(timeoutId);
   }, [loadAnalytics]);
+
+  // === Filtered data for each view ===
+  const filteredData = useMemo(() => {
+    if (!analytics) return null;
+
+    const allPageViews = analytics.recent.pageViews;
+    const allVisitors = analytics.audience.recentVisitors;
+    const allEvents = analytics.operations.events;
+
+    if (activeView === "Portal Activity") {
+      const studentPageViews = allPageViews.filter((pv) => pv.skfId);
+      const studentVisitors = allVisitors.filter((v) => v.skfId);
+      const loginEvents = allEvents.filter(
+        (e) => e.eventType === "portal_login_success" || e.eventType === "portal_login_failed",
+      );
+      const uniqueStudents = new Set(studentVisitors.map((v) => v.skfId).filter(Boolean));
+
+      return {
+        pageViews: studentPageViews,
+        visitors: studentVisitors,
+        events: loginEvents,
+        metrics: {
+          uniqueStudents: uniqueStudents.size,
+          studentPageViews: studentPageViews.length,
+          successfulLogins: loginEvents.filter((e) => e.eventType === "portal_login_success").length,
+          failedLogins: loginEvents.filter((e) => e.eventType === "portal_login_failed").length,
+        },
+      };
+    }
+
+    // Anonymous Visitors
+    const anonPageViews = allPageViews.filter((pv) => !pv.skfId);
+    const anonVisitors = allVisitors.filter((v) => !v.skfId);
+
+    return {
+      pageViews: anonPageViews,
+      visitors: anonVisitors,
+      events: allEvents,
+      metrics: null,
+    };
+  }, [analytics, activeView]);
 
   const kpis = useMemo(() => {
     if (!analytics) return [];
@@ -460,7 +524,7 @@ export default function WebsiteAnalyticsPage() {
         label: "Lead Rate",
         value: percent(analytics.overview.leadConversionRate),
         detail: `${number(analytics.overview.leadSubmissions)} leads, ${number(analytics.overview.leadFailures)} failures`,
-        tone: analytics.overview.leadFailures > 0 ? "amber" as const : "green" as const,
+        tone: analytics.overview.leadFailures > 0 ? ("amber" as const) : ("green" as const),
       },
     ];
   }, [analytics]);
@@ -471,7 +535,7 @@ export default function WebsiteAnalyticsPage() {
     <div className="min-h-screen bg-black text-zinc-300">
       <Navbar showBack title="Website Analytics" rightContent={<NavMenu />} />
 
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 sm:px-6 sm:pt-32">
+      <main className="mx-auto w-full max-w-7xl px-4 pb-24 pt-24 sm:px-6 sm:pt-32">
         <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-3">
@@ -482,7 +546,9 @@ export default function WebsiteAnalyticsPage() {
               Website Analytics
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400">
-              Visitor activity, page performance, traffic sources, portal logins and lead conversion from first-party SKF website data.
+              {activeView === "Anonymous Visitors"
+                ? "Anonymous visitor traffic, page performance, sources and engagement from the public website."
+                : "Authenticated portal user activity — which student visited which page and when."}
             </p>
           </div>
 
@@ -532,89 +598,250 @@ export default function WebsiteAnalyticsPage() {
           </div>
         ) : null}
 
+        {/* Primary view toggle - Anonymous Visitors vs Portal Activity */}
+        <div className="mb-6 overflow-x-auto">
+          <div className="flex min-w-0 gap-1 rounded-xl border border-zinc-800 bg-zinc-950 p-1">
+            {VIEWS.map((view) => (
+              <button
+                key={view}
+                type="button"
+                onClick={() => setActiveView(view)}
+                className={`flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-xs font-semibold transition-colors ${
+                  activeView === view
+                    ? "bg-white text-black"
+                    : "text-zinc-500 hover:bg-white/[0.05] hover:text-white"
+                }`}
+              >
+                {view === "Anonymous Visitors" ? (
+                  <ShieldQuestion className="h-4 w-4" />
+                ) : (
+                  <UserCheck className="h-4 w-4" />
+                )}
+                {view}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {loading && !analytics ? (
           <div className="flex h-72 items-center justify-center">
             <RefreshCw className="h-7 w-7 animate-spin text-zinc-500" />
           </div>
         ) : analytics ? (
           <div className="space-y-6 animate-slide-up">
-            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {kpis.map((kpi) => (
-                <MetricCard key={kpi.label} {...kpi} />
-              ))}
-            </section>
-
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <MetricCard
-                icon={Activity}
-                label="Bounce Rate"
-                value={percent(analytics.overview.bounceRate)}
-                detail={`${number(analytics.overview.publicPageViews)} public views`}
-                tone={analytics.overview.bounceRate >= 70 ? "amber" : "default"}
-              />
-              <MetricCard
-                icon={LogIn}
-                label="Portal Logins"
-                value={number(analytics.overview.portalLogins)}
-                detail={`${number(analytics.overview.portalLoginFailures)} failed attempts`}
-                tone={analytics.overview.portalLoginFailures > analytics.overview.portalLogins ? "red" : "default"}
-              />
-              <MetricCard
-                icon={Compass}
-                label="All-Time Events"
-                value={number(analytics.history.totalEvents)}
-                detail={`First record: ${formatDateTime(analytics.history.firstRecordedAt)}`}
-              />
-              <MetricCard
-                icon={BarChart3}
-                label="Loaded Window"
-                value={number(analytics.period.eventsLoaded)}
-                detail={`${analytics.period.label}, ${analytics.period.limited ? "limited sample" : "complete window"}`}
-                tone={analytics.period.limited ? "amber" : "default"}
-              />
-            </section>
-
-            <DailyTrafficChart rows={analytics.content.dailyTraffic} />
-
-            <section className="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
-              <PageTable title="Top Pages" rows={analytics.content.topPages} />
-              <div className="space-y-6">
-                <BreakdownList title="Traffic Sources" icon={Search} rows={analytics.acquisition.referrers} empty="No source data available." />
-                <BreakdownList title="Page Sections" icon={Compass} rows={analytics.content.pageGroups} empty="No page group data available." />
-              </div>
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-3">
-              <BreakdownList title="Devices" icon={Smartphone} rows={analytics.audience.devices} empty="No device data available." />
-              <BreakdownList title="Browsers" icon={Laptop} rows={analytics.audience.browsers} empty="No browser data available." />
-              <BreakdownList title="Operating Systems" icon={Activity} rows={analytics.audience.operatingSystems} empty="No operating system data available." />
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-              <HourlyTraffic rows={analytics.content.hourlyTraffic} />
-              <section className="card-panel p-5">
-                <div className="mb-4 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-zinc-500" />
-                  <h2 className="text-sm font-semibold text-white">Current Insights</h2>
-                </div>
-                <div className="grid gap-3">
-                  {analytics.insights.map((insight) => (
-                    <div key={insight} className="rounded-xl border border-zinc-800 bg-black/25 p-4 text-sm leading-relaxed text-zinc-300">
-                      {insight}
-                    </div>
+            {/* ============ ANONYMOUS VISITORS VIEW ============ */}
+            {activeView === "Anonymous Visitors" && (
+              <>
+                <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  {kpis.map((kpi) => (
+                    <MetricCard key={kpi.label} {...kpi} />
                   ))}
-                </div>
-              </section>
-            </section>
+                </section>
 
-            <PageTable title="Landing Pages" rows={analytics.acquisition.landingPages} />
+                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <MetricCard
+                    icon={Activity}
+                    label="Bounce Rate"
+                    value={percent(analytics.overview.bounceRate)}
+                    detail={`${number(analytics.overview.publicPageViews)} public views`}
+                    tone={analytics.overview.bounceRate >= 70 ? "amber" : "default"}
+                  />
+                  <MetricCard
+                    icon={LogIn}
+                    label="Portal Logins"
+                    value={number(analytics.overview.portalLogins)}
+                    detail={`${number(analytics.overview.portalLoginFailures)} failed attempts`}
+                    tone={analytics.overview.portalLoginFailures > analytics.overview.portalLogins ? "red" : "default"}
+                  />
+                  <MetricCard
+                    icon={BarChart3}
+                    label="Loaded Window"
+                    value={number(analytics.period.eventsLoaded)}
+                    detail={`${analytics.period.label}, ${analytics.period.limited ? "limited sample" : "complete window"}`}
+                    tone={analytics.period.limited ? "amber" : "default"}
+                  />
+                  <MetricCard
+                    icon={TrendingUp}
+                    label="Data Span"
+                    value={analytics.history.firstRecordedAt ? formatDateTime(analytics.history.firstRecordedAt).split(",")[0] : "N/A"}
+                    detail={`${number(analytics.history.totalEvents)} total events recorded`}
+                  />
+                </section>
 
-            <section className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
-              <VisitorList visitors={analytics.audience.recentVisitors} />
-              <OperationalEvents events={analytics.operations.events} />
-            </section>
+                <DailyTrafficChart rows={analytics.content.dailyTraffic} />
 
-            <RecentPageViews rows={analytics.recent.pageViews} />
+                <section className="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
+                  <PageTable title="Top Pages" rows={analytics.content.topPages} />
+                  <div className="space-y-6">
+                    <BreakdownList title="Traffic Sources" icon={Search} rows={analytics.acquisition.referrers} empty="No source data available." />
+                    <BreakdownList title="Page Sections" icon={Compass} rows={analytics.content.pageGroups} empty="No page group data available." />
+                  </div>
+                </section>
+
+                <section className="grid gap-6 lg:grid-cols-3">
+                  <BreakdownList title="Devices" icon={Smartphone} rows={analytics.audience.devices} empty="No device data available." />
+                  <BreakdownList title="Browsers" icon={Laptop} rows={analytics.audience.browsers} empty="No browser data available." />
+                  <BreakdownList title="Operating Systems" icon={Activity} rows={analytics.audience.operatingSystems} empty="No operating system data available." />
+                </section>
+
+                <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+                  <HourlyTraffic rows={analytics.content.hourlyTraffic} />
+                  <section className="card-panel p-5">
+                    <div className="mb-4 flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-zinc-500" />
+                      <h2 className="text-sm font-semibold text-white">Current Insights</h2>
+                    </div>
+                    <div className="grid gap-3">
+                      {analytics.insights.map((insight) => (
+                        <div key={insight} className="rounded-xl border border-zinc-800 bg-black/25 p-4 text-sm leading-relaxed text-zinc-300">
+                          {insight}
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </section>
+
+                <VisitorList visitors={filteredData?.visitors || analytics.audience.recentVisitors} />
+                <RecentPageViews rows={filteredData?.pageViews || analytics.recent.pageViews} />
+
+                <section className="grid gap-4 md:grid-cols-2">
+                  <MetricCard
+                    icon={LogIn}
+                    label="Portal Logins"
+                    value={number(analytics.overview.portalLogins)}
+                    detail={`${number(analytics.overview.portalLoginFailures)} failed attempts`}
+                    tone={analytics.overview.portalLoginFailures > analytics.overview.portalLogins ? "red" : "default"}
+                  />
+                  <MetricCard
+                    icon={MousePointerClick}
+                    label="Lead Conversion"
+                    value={percent(analytics.overview.leadConversionRate)}
+                    detail={`${number(analytics.overview.leadSubmissions)} leads`}
+                    tone={analytics.overview.leadFailures > analytics.overview.leadSubmissions ? "amber" : "green"}
+                  />
+                </section>
+                <OperationalEvents events={analytics.operations.events} />
+              </>
+            )}
+
+            {/* ============ PORTAL ACTIVITY VIEW ============ */}
+            {activeView === "Portal Activity" && (
+              <>
+                <section className="grid gap-4 sm:grid-cols-3">
+                  <MetricCard
+                    icon={UserCheck}
+                    label="Authenticated Students"
+                    value={number(filteredData?.metrics?.uniqueStudents || 0)}
+                    detail="Unique students identified via portal login"
+                    tone="cyan"
+                  />
+                  <MetricCard
+                    icon={LogIn}
+                    label="Portal Logins"
+                    value={number(filteredData?.metrics?.successfulLogins || 0)}
+                    detail={`${number(filteredData?.metrics?.failedLogins || 0)} failed attempts`}
+                    tone="green"
+                  />
+                  <MetricCard
+                    icon={Eye}
+                    label="Student Page Views"
+                    value={number(filteredData?.metrics?.studentPageViews || 0)}
+                    detail="Pages visited by logged-in students"
+                    tone="cyan"
+                  />
+                </section>
+
+                {/* Login events table */}
+                {filteredData && filteredData.events.length > 0 && (
+                  <section className="card-panel p-5">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
+                        <LogIn className="h-4 w-4 text-zinc-500" />
+                        Recent Student Logins
+                      </h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm min-w-[500px]">
+                        <thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500">
+                          <tr>
+                            <th className="px-4 py-3 font-semibold">Student</th>
+                            <th className="px-4 py-3 font-semibold">Event</th>
+                            <th className="px-4 py-3 font-semibold">Device</th>
+                            <th className="px-4 py-3 text-right font-semibold">Time</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-900">
+                          {filteredData.events.slice(0, 20).map((event) => (
+                            <tr key={event.id} className="hover:bg-white/[0.02]">
+                              <td className="px-4 py-3 font-mono text-xs text-cyan-300">{event.skfId || "-"}</td>
+                              <td className="px-4 py-3">
+                                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                  event.eventType === "portal_login_success"
+                                    ? "bg-emerald-500/20 text-emerald-300"
+                                    : "bg-red-500/20 text-red-300"
+                                }`}>
+                                  {eventLabel(event.eventType)}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-xs text-zinc-500">{metadataSummary(event.metadata).slice(0, 40)}</td>
+                              <td className="px-4 py-3 text-right text-xs text-zinc-500">{formatDateTime(event.createdAt)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                )}
+
+                {/* Student page views */}
+                {filteredData && filteredData.pageViews.length > 0 && (
+                  <RecentPageViews rows={filteredData.pageViews} showStudent />
+                )}
+
+                {filteredData && filteredData.visitors.length > 0 && (
+                  <section className="card-panel p-5">
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
+                        <UserCheck className="h-4 w-4 text-zinc-500" />
+                        Student Visitor Profiles
+                      </h2>
+                    </div>
+                    <div className="space-y-3">
+                      {filteredData.visitors.map((visitor) => (
+                        <div key={`${visitor.visitorId}-${visitor.lastSeen}`} className="rounded-xl border border-zinc-800 bg-black/25 p-4">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0">
+                              <p className="font-mono text-sm font-semibold text-cyan-300">{visitor.skfId}</p>
+                              <p className="mt-1 text-xs text-zinc-400">{visitor.landingPage} to {visitor.lastPage}</p>
+                              <p className="mt-1 text-xs text-zinc-500">{visitor.source} - {visitor.device} - {visitor.browser}</p>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-center sm:min-w-[200px]">
+                              <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
+                                <span className="block text-sm font-semibold text-white">{visitor.sessions}</span>
+                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">Visits</span>
+                              </span>
+                              <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
+                                <span className="block text-sm font-semibold text-white">{visitor.pageViews}</span>
+                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">Views</span>
+                              </span>
+                              <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
+                                <span className="block truncate text-sm font-semibold text-white">{visitor.ipLabel || "-"}</span>
+                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">IP</span>
+                              </span>
+                            </div>
+                          </div>
+                          <p className="mt-3 text-[11px] text-zinc-600">Last seen {formatDateTime(visitor.lastSeen)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {(!filteredData || (!filteredData.events.length && !filteredData.pageViews.length)) && (
+                  <EmptyBlock>No portal activity recorded yet. Student page visits will appear here once students log into the portal.</EmptyBlock>
+                )}
+              </>
+            )}
           </div>
         ) : (
           <EmptyBlock>Website analytics is not configured yet.</EmptyBlock>

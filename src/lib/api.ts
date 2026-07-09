@@ -951,6 +951,7 @@ export interface WebsiteVisitorAnalytics {
   browser: string;
   os: string;
   ipLabel: string | null;
+  skfId: string | null;
 }
 
 export interface WebsiteRecentPageView {
@@ -959,6 +960,7 @@ export interface WebsiteRecentPageView {
   title: string;
   visitorId: string | null;
   sessionId: string | null;
+  skfId: string | null;
   source: string;
   device: string;
   browser: string;
@@ -2070,6 +2072,7 @@ export interface FinanceCommandCenterData {
     developmentFundContribution: number;
     developmentExpenses: number;
     eventExpenses: number;
+    customRemovals: number;
     eventSurplus: number;
     eventDeposits: number;
     developmentFundBalance: number;
@@ -2190,6 +2193,45 @@ export async function deleteExtraIncome(
     month,
     year,
     incomeId,
+  });
+  invalidateCache(`financeCommand:${branch}:${year}:${month}`);
+  invalidateCache(`financial:${branch}:${year}:${month}`);
+  return data.data;
+}
+
+export async function addRemoval(
+  branch: string,
+  month: number,
+  title: string,
+  amount: number,
+  description?: string,
+  year = getCurrentFeeYear(),
+) {
+  const data = await apiAction<{ data: Record<string, unknown> }>("add_removal", {
+    branch,
+    month,
+    year,
+    title,
+    amount,
+    description,
+    scope: branch,
+  });
+  invalidateCache(`financeCommand:${branch}:${year}:${month}`);
+  invalidateCache(`financial:${branch}:${year}:${month}`);
+  return data.data;
+}
+
+export async function deleteRemoval(
+  branch: string,
+  month: number,
+  removalId: string,
+  year = getCurrentFeeYear(),
+) {
+  const data = await apiAction<{ data: Record<string, unknown> }>("delete_removal", {
+    branch,
+    month,
+    year,
+    removalId,
   });
   invalidateCache(`financeCommand:${branch}:${year}:${month}`);
   invalidateCache(`financial:${branch}:${year}:${month}`);

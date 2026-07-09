@@ -298,19 +298,19 @@ export default function FinancesPage() {
                 <div className="rounded-lg bg-white/[0.03] border border-white/5 p-3">
                   <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Expenses</p>
                   <p className="text-red-400 font-[family-name:var(--font-space)]">
-                    {currency(data.summary.developmentExpenses + data.summary.eventExpenses)}
+                    {currency(data.summary.developmentExpenses + data.summary.eventExpenses + (data.summary.customRemovals || 0))}
                   </p>
                 </div>
                 <div className="rounded-lg bg-white/[0.03] border border-white/5 p-3">
                   <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Net</p>
                   <p
                     className={`font-[family-name:var(--font-space)] ${
-                      data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses < 0
+                      data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses - (data.summary.customRemovals || 0) < 0
                         ? "text-red-400"
                         : "text-blue-400"
                     }`}
                   >
-                    {currency(data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses)}
+                    {currency(data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses - (data.summary.customRemovals || 0))}
                   </p>
                 </div>
               </div>
@@ -401,7 +401,7 @@ export default function FinancesPage() {
 
               <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
                 {[...data.incomeBreakdown, ...data.expenseBreakdown].map((item) => {
-                  const signedAmount = item.key === "developmentExpenses" || item.key === "eventExpenses" ? -Math.abs(item.amount) : item.amount;
+                  const signedAmount = item.key === "developmentExpenses" || item.key === "eventExpenses" || item.key === "customRemovals" ? -Math.abs(item.amount) : item.amount;
                   return (
                     <button
                       key={item.key}
@@ -490,6 +490,17 @@ export default function FinancesPage() {
                   active={activeFormula === "eventExpenses"}
                   onClick={() => setActiveFormula("eventExpenses")}
                 />
+                {(data.summary.customRemovals || 0) > 0 && (
+                  <MetricCard
+                    label="Removals"
+                    value={`-${currency(data.summary.customRemovals || 0)}`}
+                    note="Withdrawals from ledger"
+                    icon={Package}
+                    tone="red"
+                    active={activeFormula === "customRemovals"}
+                    onClick={() => setActiveFormula("customRemovals")}
+                  />
+                )}
                 <MetricCard
                   label="Fund Balance"
                   value={currency(data.summary.developmentFundBalance)}

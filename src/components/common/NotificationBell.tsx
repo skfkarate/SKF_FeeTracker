@@ -453,7 +453,11 @@ function detectEventUpdates(items: EventCollectionItem[]) {
   const next: Record<string, string> = {};
   const detectedAt = new Date().toISOString();
 
-  for (const item of items) {
+  const activeItems = items.filter(
+    (item) => item.event.status !== "completed" && item.event.status !== "archived"
+  );
+
+  for (const item of activeItems) {
     const id = item.event.id;
     const signature = eventSignature(item);
     const prior = previous[id];

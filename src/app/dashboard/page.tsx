@@ -38,12 +38,6 @@ const priorityLinks = [
     icon: Clock3,
   },
   {
-    href: "/custom-dues",
-    title: "Custom Dues",
-    description: "Create one-off dues by SKF ID",
-    icon: HandCoins,
-  },
-  {
     href: "/notification-timeline",
     title: "Notification Timeline",
     description: "Events, birthdays and poster days",
@@ -55,11 +49,20 @@ const priorityLinks = [
     description: "Open receipts and fee ledger",
     icon: Wallet,
   },
+];
+
+const secondaryLinks = [
   {
     href: "/website-analytics",
     title: "Website Analytics",
     description: "Visitor traffic and page insights",
     icon: Globe2,
+  },
+  {
+    href: "/custom?tab=dues",
+    title: "Custom Operations",
+    description: "Dues and removals from master ledger",
+    icon: HandCoins,
   },
 ];
 
@@ -317,6 +320,32 @@ export default function DashboardPage() {
                 );
               })}
             </div>
+            {secondaryLinks.length ? (
+              <div className="mt-4">
+                <p className="mb-2 text-[10px] uppercase tracking-widest text-zinc-600">More</p>
+                <div className="grid gap-2">
+                  {secondaryLinks.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="group flex min-h-14 items-center gap-3 rounded-xl border border-zinc-800/60 bg-zinc-950/50 px-3 py-2 transition-all hover:border-zinc-600 hover:bg-zinc-950 hover:-translate-y-0.5 active:translate-y-0"
+                      >
+                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-600 transition-colors group-hover:text-zinc-300">
+                          <Icon className="h-3.5 w-3.5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-zinc-400 group-hover:text-zinc-200">{item.title}</p>
+                          <p className="mt-0.5 truncate text-xs text-zinc-600">{item.description}</p>
+                        </div>
+                        <ArrowUpRight className="h-3.5 w-3.5 flex-shrink-0 text-zinc-700 transition-colors group-hover:text-white" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </section>
         </div>
       </main>

@@ -7,7 +7,6 @@ import {
   Globe2,
   HandCoins,
   Images,
-  LayoutGrid,
   MessageSquare,
   PiggyBank,
   ShieldCheck,
@@ -26,22 +25,7 @@ export type NavigationTile = {
   accent?: string;
 };
 
-export const BRANCH_TILES: NavigationTile[] = [
-  {
-    href: "/students/MPSC",
-    title: "MP",
-    description: "M P Sports Club collections",
-    icon: LayoutGrid,
-  },
-  {
-    href: "/students/Herohalli",
-    title: "Herohalli",
-    description: "Herohalli branch collections",
-    icon: LayoutGrid,
-  },
-];
-
-const FEE_TRACK_OFFICE_TILES: NavigationTile[] = [
+const FEE_COLLECTION_TILES: NavigationTile[] = [
   {
     href: "/pending-fees",
     title: "Pending Fees",
@@ -50,12 +34,28 @@ const FEE_TRACK_OFFICE_TILES: NavigationTile[] = [
     accent: "group-hover:text-amber-400",
   },
   {
-    href: "/custom-dues",
-    title: "Custom Dues",
-    description: "One-off student dues by SKF ID",
+    href: "/custom",
+    title: "Custom Operations",
+    description: "Dues and removals from master ledger",
     icon: HandCoins,
     accent: "group-hover:text-amber-300",
   },
+  {
+    href: "/admissions",
+    title: "Admissions",
+    description: "Approve students and billing setup",
+    icon: ShieldCheck,
+    accent: "group-hover:text-emerald-400",
+  },
+  {
+    href: "/messages",
+    title: "Messages",
+    description: "WhatsApp reminders and message templates",
+    icon: MessageSquare,
+  },
+];
+
+const FINANCE_TILES: NavigationTile[] = [
   {
     href: "/finances",
     title: "Master Ledger",
@@ -70,17 +70,16 @@ const FEE_TRACK_OFFICE_TILES: NavigationTile[] = [
     accent: "group-hover:text-emerald-300",
   },
   {
-    href: "/admissions",
-    title: "Admissions",
-    description: "Approve students and billing setup",
-    icon: ShieldCheck,
-    accent: "group-hover:text-emerald-400",
+    href: "/development",
+    title: "Development Fund",
+    description: "Reserved capital and fund expenses",
+    icon: PiggyBank,
   },
   {
-    href: "/messages",
-    title: "Messages",
-    description: "WhatsApp reminders and message templates",
-    icon: MessageSquare,
+    href: "/analytics",
+    title: "Revenue Analytics",
+    description: "Trends, health and revenue reports",
+    icon: Activity,
   },
 ];
 
@@ -108,7 +107,7 @@ const EVENT_TILES: NavigationTile[] = [
   },
 ];
 
-const ATHLETE_PORTAL_TILES: NavigationTile[] = [
+const STUDENT_TILES: NavigationTile[] = [
   {
     href: "/profile-photos",
     title: "Profile Photos",
@@ -151,13 +150,7 @@ const SHOP_TILES: NavigationTile[] = [
   },
 ];
 
-const REPORT_TILES: NavigationTile[] = [
-  {
-    href: "/analytics",
-    title: "Revenue Analytics",
-    description: "Trends, health and revenue reports",
-    icon: Activity,
-  },
+const WEBSITE_TILES: NavigationTile[] = [
   {
     href: "/website-analytics",
     title: "Website Analytics",
@@ -165,25 +158,27 @@ const REPORT_TILES: NavigationTile[] = [
     icon: Globe2,
     accent: "group-hover:text-cyan-300",
   },
-  {
-    href: "/development",
-    title: "Development Fund",
-    description: "Reserved capital and fund expenses",
-    icon: PiggyBank,
-  },
 ];
 
 export const OPERATION_GROUPS: Array<{ title: string; tiles: NavigationTile[] }> = [
   {
-    title: "FeeTrack Office",
-    tiles: FEE_TRACK_OFFICE_TILES,
+    title: "Fee Collection",
+    tiles: FEE_COLLECTION_TILES,
+  },
+  {
+    title: "Finance",
+    tiles: FINANCE_TILES,
+  },
+  {
+    title: "Students",
+    tiles: STUDENT_TILES,
   },
   {
     title: "Events",
     tiles: EVENT_TILES,
   },
   {
-    title: "Gallery",
+    title: "Media",
     tiles: GALLERY_TILES,
   },
   {
@@ -191,28 +186,30 @@ export const OPERATION_GROUPS: Array<{ title: string; tiles: NavigationTile[] }>
     tiles: SHOP_TILES,
   },
   {
-    title: "For Athletes",
-    tiles: ATHLETE_PORTAL_TILES,
-  },
-  {
-    title: "Reports",
-    tiles: REPORT_TILES,
+    title: "Website",
+    tiles: WEBSITE_TILES,
   },
 ];
 
-// The drawer mirrors SKF-Karate public sections only where FeeTrack has an
-// admin-editable tool. Static public pages stay out of this menu.
 export const DRAWER_GROUPS: Array<{ title: string; tiles: NavigationTile[] }> = [
   {
-    title: "FeeTrack Office",
-    tiles: [...BRANCH_TILES, ...FEE_TRACK_OFFICE_TILES],
+    title: "Fee Collection",
+    tiles: FEE_COLLECTION_TILES,
+  },
+  {
+    title: "Finance",
+    tiles: FINANCE_TILES,
+  },
+  {
+    title: "Students",
+    tiles: STUDENT_TILES,
   },
   {
     title: "Events",
     tiles: EVENT_TILES,
   },
   {
-    title: "Gallery",
+    title: "Media",
     tiles: GALLERY_TILES,
   },
   {
@@ -220,11 +217,7 @@ export const DRAWER_GROUPS: Array<{ title: string; tiles: NavigationTile[] }> = 
     tiles: SHOP_TILES,
   },
   {
-    title: "For Athletes",
-    tiles: ATHLETE_PORTAL_TILES,
-  },
-  {
-    title: "Reports",
-    tiles: REPORT_TILES,
+    title: "Website",
+    tiles: WEBSITE_TILES,
   },
 ];
