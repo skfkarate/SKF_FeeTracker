@@ -107,6 +107,7 @@ export async function callKarateBackend<T>(
     "publish_event_certificates",
     "get_shop_orders",
     "get_website_analytics",
+    "get_home_practice_analytics",
   ]);
   const timeoutMs =
     options.timeoutMs ||

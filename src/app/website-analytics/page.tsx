@@ -5,6 +5,7 @@ import {
   Activity,
   AlertCircle,
   BarChart3,
+  BookOpenCheck,
   Clock3,
   Compass,
   Eye,
@@ -27,6 +28,7 @@ import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
 import {
   getWebsiteAnalytics,
+  getHomePracticeAnalytics,
   type AnalyticsBreakdown,
   type DailyWebsiteTraffic,
   type WebsiteAnalyticsData,
@@ -34,6 +36,7 @@ import {
   type WebsitePageAnalytics,
   type WebsiteRecentPageView,
   type WebsiteVisitorAnalytics,
+  type HomePracticeAnalytics,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 
@@ -82,6 +85,41 @@ function EmptyBlock({ children }: { children: ReactNode }) {
     <div className="flex min-h-32 items-center justify-center rounded-lg border border-dashed border-zinc-800 bg-black/20 px-4 text-center text-sm text-zinc-500">
       {children}
     </div>
+  );
+}
+
+function HomePracticePerformance({ analytics }: { analytics: HomePracticeAnalytics }) {
+  return (
+    <section className="card-panel overflow-hidden">
+      <div className="flex flex-col gap-3 border-b border-zinc-800 p-5 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-zinc-500">Athlete Portal</p>
+          <h2 className="mt-1 flex items-center gap-2 text-lg font-semibold text-white"><BookOpenCheck className="h-5 w-5 text-amber-300" /> Home Practice Performance</h2>
+          <p className="mt-1 text-sm text-zinc-500">Who watched each lesson in the last {analytics.rangeDays} days.</p>
+        </div>
+        <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-200">Instructor only</span>
+      </div>
+      <div className="grid gap-px bg-zinc-800 sm:grid-cols-2 xl:grid-cols-5">
+        {[
+          ["Lesson watches", number(analytics.overview.watchedLessons)],
+          ["Active athletes", number(analytics.overview.uniqueAthletes)],
+          ["Completions", number(analytics.overview.completions)],
+          ["Completion rate", percent(analytics.overview.completionRate)],
+          ["Average progress", percent(analytics.overview.averageProgress)],
+        ].map(([label, value]) => <div key={label} className="bg-zinc-950 p-4"><p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">{label}</p><p className="mt-2 text-2xl font-semibold text-white">{value}</p></div>)}
+      </div>
+      <div className="grid gap-5 p-5 xl:grid-cols-2">
+        <div className="min-w-0">
+          <h3 className="mb-3 text-sm font-semibold text-white">Lesson performance</h3>
+          {analytics.videos.length ? <div className="overflow-x-auto"><table className="min-w-[560px] w-full text-left text-sm"><thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500"><tr><th className="pb-2 font-semibold">Video</th><th className="pb-2 text-right font-semibold">Athletes</th><th className="pb-2 text-right font-semibold">Complete</th><th className="pb-2 text-right font-semibold">Avg.</th></tr></thead><tbody className="divide-y divide-zinc-900">{analytics.videos.slice(0, 10).map((video) => <tr key={video.videoId}><td className="py-3"><p className="font-medium text-zinc-200">{video.title}</p><p className="mt-0.5 text-xs text-zinc-600">{video.watches} watches · {formatDateTime(video.lastWatchedAt)}</p></td><td className="py-3 text-right text-zinc-400">{video.uniqueAthletes}</td><td className="py-3 text-right text-zinc-400">{video.completions}</td><td className="py-3 text-right font-semibold text-emerald-300">{video.averageProgress}%</td></tr>)}</tbody></table></div> : <EmptyBlock>No lesson watch activity in this period.</EmptyBlock>}
+        </div>
+        <div className="min-w-0">
+          <h3 className="mb-3 text-sm font-semibold text-white">Recent athlete viewing</h3>
+          {analytics.recent.length ? <div className="overflow-x-auto"><table className="min-w-[600px] w-full text-left text-sm"><thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500"><tr><th className="pb-2 font-semibold">Athlete</th><th className="pb-2 font-semibold">Lesson</th><th className="pb-2 text-right font-semibold">Progress</th></tr></thead><tbody className="divide-y divide-zinc-900">{analytics.recent.slice(0, 12).map((watch, index) => <tr key={`${watch.skfId}-${watch.videoTitle}-${watch.watchedAt}-${index}`}><td className="py-3"><p className="font-medium text-zinc-200">{watch.athleteName}</p><p className="mt-0.5 font-mono text-xs text-cyan-300">{watch.skfId} · {watch.belt}</p></td><td className="py-3"><p className="text-zinc-300">{watch.videoTitle}</p><p className="mt-0.5 text-xs text-zinc-600">{formatDateTime(watch.watchedAt)}</p></td><td className={`py-3 text-right font-semibold ${watch.completed ? "text-emerald-300" : "text-amber-300"}`}>{watch.progressPercent}%</td></tr>)}</tbody></table></div> : <EmptyBlock>No athlete viewing has been recorded yet.</EmptyBlock>}
+        </div>
+      </div>
+      {analytics.belts.length ? <div className="border-t border-zinc-800 p-5"><h3 className="mb-3 text-sm font-semibold text-white">Belt engagement</h3><div className="flex flex-wrap gap-2">{analytics.belts.map((belt) => <div key={belt.belt} className="rounded-lg border border-zinc-800 bg-black/30 px-3 py-2"><p className="text-xs font-semibold text-zinc-200">{belt.belt}</p><p className="mt-1 text-xs text-zinc-500">{belt.uniqueAthletes} athletes · {belt.averageProgress}% average</p></div>)}</div></div> : null}
+    </section>
   );
 }
 
@@ -429,6 +467,8 @@ export default function WebsiteAnalyticsPage() {
   const [activeView, setActiveView] = useState<ViewMode>("Anonymous Visitors");
   const [rangeDays, setRangeDays] = useState(90);
   const [analytics, setAnalytics] = useState<WebsiteAnalyticsData | null>(null);
+  const [practiceAnalytics, setPracticeAnalytics] = useState<HomePracticeAnalytics | null>(null);
+  const [practiceError, setPracticeError] = useState("");
   const [warning, setWarning] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -438,9 +478,17 @@ export default function WebsiteAnalyticsPage() {
     setLoading(true);
     setError("");
     try {
-      const result = await getWebsiteAnalytics(rangeDays);
-      setAnalytics(result.data);
-      setWarning(result.warning || result.data?.warning || "");
+      const [website, practice] = await Promise.allSettled([getWebsiteAnalytics(rangeDays), getHomePracticeAnalytics(rangeDays)]);
+      if (website.status === "rejected") throw website.reason;
+      setAnalytics(website.value.data);
+      setWarning(website.value.warning || website.value.data?.warning || "");
+      if (practice.status === "fulfilled") {
+        setPracticeAnalytics(practice.value);
+        setPracticeError("");
+      } else {
+        setPracticeAnalytics(null);
+        setPracticeError("Home Practice watch analytics could not be loaded right now.");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Website analytics could not be loaded.");
     } finally {
@@ -529,7 +577,7 @@ export default function WebsiteAnalyticsPage() {
     ];
   }, [analytics]);
 
-  if (checking || !user) return null;
+  if (checking || !user) return <div className="min-h-screen bg-black text-zinc-300"><div className="flex min-h-screen items-center justify-center"><RefreshCw className="h-6 w-6 animate-spin text-zinc-500" /></div></div>;
 
   return (
     <div className="min-h-screen bg-black text-zinc-300">
@@ -597,6 +645,9 @@ export default function WebsiteAnalyticsPage() {
             <p className="leading-relaxed">{warning}</p>
           </div>
         ) : null}
+
+        {practiceError ? <div className="mb-6 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">{practiceError}</div> : null}
+        {practiceAnalytics ? <div className="mb-6"><HomePracticePerformance analytics={practiceAnalytics} /></div> : null}
 
         {/* Primary view toggle - Anonymous Visitors vs Portal Activity */}
         <div className="mb-6 overflow-x-auto">

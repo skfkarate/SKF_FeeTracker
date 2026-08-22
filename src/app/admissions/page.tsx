@@ -161,7 +161,7 @@ export default function AdmissionsPage() {
       setError("Upload the corrected profile photo before approval.");
       return;
     }
-    if (formData.get("paymentVerified") !== "on") {
+    if (application.feeTrackingEnabled && formData.get("paymentVerified") !== "on") {
       setError("Verify the admission payment before approval.");
       return;
     }
@@ -171,15 +171,15 @@ export default function AdmissionsPage() {
     try {
       const result = await approveAdmissionApplication({
         applicationId: application.id,
-        monthlyFee: Number(formData.get("monthlyFee") || 0),
-        admissionFee: Number(formData.get("admissionFee") || 0),
-        dressFee: Number(formData.get("dressFee") || 0),
-        dressCost: Number(formData.get("dressCost") || 0),
+        monthlyFee: application.feeTrackingEnabled ? Number(formData.get("monthlyFee") || 0) : 0,
+        admissionFee: application.feeTrackingEnabled ? Number(formData.get("admissionFee") || 0) : 0,
+        dressFee: application.feeTrackingEnabled ? Number(formData.get("dressFee") || 0) : 0,
+        dressCost: application.feeTrackingEnabled ? Number(formData.get("dressCost") || 0) : 0,
         billingStartDate: String(formData.get("billingStartDate") || today()),
-        batch: String(formData.get("batch") || application.preferredBatch || ""),
+        batch: application.feeTrackingEnabled ? String(formData.get("batch") || application.preferredBatch || "") : "",
         belt: String(formData.get("belt") || "white"),
         isPublic: formData.get("isPublic") === "on",
-        paymentVerified: formData.get("paymentVerified") === "on",
+        paymentVerified: application.feeTrackingEnabled && formData.get("paymentVerified") === "on",
         photoAction,
         reviewNote: String(formData.get("reviewNote") || ""),
         finalPhoto,
@@ -393,6 +393,11 @@ function ApprovalsTab({
                 <span className="text-[10px] uppercase tracking-widest text-amber-400 border border-amber-500/20 bg-amber-500/10 rounded-md px-2 py-1">
                   {application.branchName}
                 </span>
+                {!application.feeTrackingEnabled ? (
+                  <span className="text-[10px] uppercase tracking-widest text-sky-300 border border-sky-500/20 bg-sky-500/10 rounded-md px-2 py-1">
+                    branch-managed fees
+                  </span>
+                ) : null}
                 {application.promoCode ? (
                   <span className="text-[10px] uppercase tracking-widest text-emerald-400 border border-emerald-500/20 bg-emerald-500/10 rounded-md px-2 py-1">
                     {application.promoCode}
@@ -417,9 +422,9 @@ function ApprovalsTab({
                 <Info label="WhatsApp" value={application.guardianWhatsapp} />
                 <Info label="Email" value={application.guardianEmail || "Not provided"} />
                 <Info label="Emergency" value={`${application.emergencyName} (${application.emergencyRelationship}) ${application.emergencyPhone}`} />
-                <Info label="Batch" value={application.preferredBatch || "To confirm"} />
+                {application.feeTrackingEnabled ? <Info label="Batch" value={application.preferredBatch || "To confirm"} /> : null}
                 <Info label="Joining" value={application.expectedJoinDate || "To confirm"} />
-                <Info label="Joining Quote" value={money(application.quotedJoiningTotal)} />
+                {application.feeTrackingEnabled ? <Info label="Joining Quote" value={money(application.quotedJoiningTotal)} /> : null}
                 <Info label="Medical" value={application.hasMedicalCondition ? application.medicalDetails || "Yes" : "No"} />
                 <Info label="Previous Training" value={application.hasPreviousTraining ? application.currentBelt || application.martialArtsStyle || "Yes" : "No"} />
                 <Info label="Referral" value={application.referrerName || application.referralSource || "Not provided"} />
@@ -442,7 +447,7 @@ function ApprovalsTab({
                     Student photo missing
                   </span>
                 )}
-                {application.paymentProofUrl ? (
+                {application.feeTrackingEnabled && application.paymentProofUrl ? (
                   <a
                     href={application.paymentProofUrl}
                     target="_blank"
@@ -453,12 +458,12 @@ function ApprovalsTab({
                     Payment screenshot
                     <ExternalLink className="w-3 h-3" />
                   </a>
-                ) : (
+                ) : application.feeTrackingEnabled ? (
                   <span className="inline-flex items-center gap-2 text-xs text-red-300 rounded-lg border border-red-500/20 px-3 py-2 bg-red-500/10">
                     <AlertCircle className="w-3.5 h-3.5" />
                     Payment screenshot missing
                   </span>
-                )}
+                ) : null}
               </div>
             </div>
 
@@ -467,9 +472,11 @@ function ApprovalsTab({
               className="w-full lg:w-[360px] rounded-xl border border-white/5 bg-black/25 p-4"
             >
               <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-100">
-                Human review pending: verify the payment screenshot, check the student photo, then either use the submitted photo or upload a corrected portal photo.
+                {application.feeTrackingEnabled
+                  ? 'Human review pending: verify the payment screenshot, check the student photo, then either use the submitted photo or upload a corrected portal photo.'
+                  : 'Human review pending: check the student information and photo. Fees are collected directly by the Kunigal branch and are not recorded here.'}
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              {application.feeTrackingEnabled ? <div className="grid grid-cols-2 gap-3">
                 <Field label="Monthly">
                   <input name="monthlyFee" type="number" min="0" defaultValue={application.quotedMonthlyFee} />
                 </Field>
@@ -491,14 +498,14 @@ function ApprovalsTab({
                     <input type="hidden" name="dressCost" value="0" />
                   </>
                 )}
-              </div>
-              <Field label="Billing Start">
+              </div> : null}
+              <Field label={application.feeTrackingEnabled ? "Billing Start" : "Enrollment Date"}>
                 <input name="billingStartDate" type="date" defaultValue={application.expectedJoinDate || today()} required />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Batch">
+              <div className={`grid ${application.feeTrackingEnabled ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
+                {application.feeTrackingEnabled ? <Field label="Batch">
                   <input name="batch" defaultValue={application.preferredBatch} />
-                </Field>
+                </Field> : null}
                 <Field label="Belt">
                   <select name="belt" defaultValue="white">
                     {["white", "yellow", "orange", "green", "blue", "brown", "black"].map((belt) => (
@@ -536,10 +543,10 @@ function ApprovalsTab({
               <Field label="Review note">
                 <textarea name="reviewNote" rows={2} />
               </Field>
-              <label className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
+              {application.feeTrackingEnabled ? <label className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
                 <input name="paymentVerified" type="checkbox" required className="accent-amber-500" />
                 Payment screenshot checked and amount verified
-              </label>
+              </label> : null}
               <label className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
                 <input name="isPublic" type="checkbox" defaultChecked className="accent-amber-500" />
                 Public profile enabled
@@ -758,17 +765,21 @@ function SettingsTab({
             <h2 className="font-[family-name:var(--font-space)] text-xl text-white font-medium tracking-tight mb-4">
               {settings.branchName}
             </h2>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Monthly">
-                <input type="number" min="0" value={draft.defaultMonthlyFee} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, defaultMonthlyFee: Number(e.target.value) } })} />
-              </Field>
-              <Field label="Admission">
-                <input type="number" min="0" value={draft.defaultAdmissionFee} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, defaultAdmissionFee: Number(e.target.value) } })} />
-              </Field>
-            </div>
-            <p className="mb-3 rounded-lg border border-zinc-800 bg-black/30 px-3 py-2 text-xs leading-relaxed text-zinc-400">
-              Dress is not billed as a separate admission due. Herohalli includes it inside admission; MP dress is ordered through Shop.
-            </p>
+            {draft.feeTrackingEnabled ? <>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Monthly">
+                  <input type="number" min="0" value={draft.defaultMonthlyFee} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, defaultMonthlyFee: Number(e.target.value) } })} />
+                </Field>
+                <Field label="Admission">
+                  <input type="number" min="0" value={draft.defaultAdmissionFee} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, defaultAdmissionFee: Number(e.target.value) } })} />
+                </Field>
+              </div>
+              <p className="mb-3 rounded-lg border border-zinc-800 bg-black/30 px-3 py-2 text-xs leading-relaxed text-zinc-400">
+                Dress is not billed as a separate admission due. Herohalli includes it inside admission; MP dress is ordered through Shop.
+              </p>
+            </> : <p className="mb-3 rounded-lg border border-sky-500/20 bg-sky-500/10 px-3 py-2 text-xs leading-relaxed text-sky-100">
+              Kunigal collects fees directly. This form only captures student and guardian information; no payment, batch, or FeeTrack billing fields are used.
+            </p>}
             <Field label="Admission note">
               <textarea
                 rows={2}
@@ -782,7 +793,7 @@ function SettingsTab({
                 })}
               />
             </Field>
-            <Field label="Batch options">
+            {draft.feeTrackingEnabled ? <Field label="Batch options">
               <textarea
                 rows={3}
                 value={draft.batchOptions.join("\n")}
@@ -794,7 +805,7 @@ function SettingsTab({
                   },
                 })}
               />
-            </Field>
+            </Field> : null}
             <div className="grid grid-cols-2 gap-3 mb-4">
               <label className="flex items-center gap-2 text-xs text-zinc-400">
                 <input type="checkbox" checked={draft.isEnabled} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, isEnabled: e.target.checked } })} className="accent-amber-500" />

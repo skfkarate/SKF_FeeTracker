@@ -1058,6 +1058,7 @@ export interface AdmissionApplication {
   id: string;
   branchSlug: string;
   branchName: string;
+  feeTrackingEnabled: boolean;
   preferredBatch: string;
   expectedJoinDate: string;
   studentName: string;
@@ -1150,6 +1151,7 @@ export interface AdmissionBranchSettings {
   branchName: string;
   isEnabled: boolean;
   showPublicCta: boolean;
+  feeTrackingEnabled: boolean;
   defaultMonthlyFee: number;
   defaultAdmissionFee: number;
   defaultDressFee: number;
@@ -1277,9 +1279,12 @@ export interface PortalVideo {
   id: string;
   title: string;
   description: string;
+  lessonNote: string;
   category: string;
   durationLabel: string;
   youtubeId: string;
+  contentFormat: "landscape" | "short";
+  folderId: string;
   thumbnailUrl: string;
   branchSlugs: string[];
   batchNames: string[];
@@ -1296,10 +1301,13 @@ export interface PortalVideoInput {
   id?: string;
   title: string;
   description?: string;
+  lessonNote?: string;
   category: string;
   durationLabel?: string;
   youtubeInput?: string;
   youtubeId?: string;
+  contentFormat?: "landscape" | "short";
+  folderId?: string;
   branchSlugs?: string[];
   batchNames?: string[];
   beltLevels?: string[];
@@ -1309,6 +1317,63 @@ export interface PortalVideoInput {
   sortOrder?: number;
 }
 
+export interface PracticeFolder {
+  id: string;
+  parentFolderId: string;
+  title: string;
+  description: string;
+  coverImageUrl: string;
+  branchSlugs: string[];
+  batchNames: string[];
+  beltLevels: string[];
+  isFeatured: boolean;
+  isPublished: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PracticeFolderInput {
+  id?: string;
+  parentFolderId?: string;
+  title: string;
+  description?: string;
+  coverImageUrl?: string;
+  branchSlugs?: string[];
+  batchNames?: string[];
+  beltLevels?: string[];
+  isFeatured?: boolean;
+  isPublished?: boolean;
+  sortOrder?: number;
+}
+
+export interface PracticePhoto {
+  id: string;
+  folderId: string;
+  title: string;
+  description: string;
+  storagePath: string;
+  branchSlugs: string[];
+  batchNames: string[];
+  beltLevels: string[];
+  isPublished: boolean;
+  sortOrder: number;
+}
+
+export interface HomePracticeAnalytics {
+  rangeDays: number;
+  overview: { watchedLessons: number; uniqueAthletes: number; completions: number; completionRate: number; averageProgress: number };
+  videos: Array<{ videoId: string; title: string; folderId: string; contentFormat: "landscape" | "short"; watches: number; uniqueAthletes: number; completions: number; averageProgress: number; lastWatchedAt: string }>;
+  athletes: Array<{ skfId: string; athleteName: string; belt: string; branch: string; watchedLessons: number; completedLessons: number; averageProgress: number; lastWatchedAt: string }>;
+  belts: Array<{ belt: string; watchedLessons: number; uniqueAthletes: number; completions: number; averageProgress: number }>;
+  recent: Array<{ skfId: string; athleteName: string; belt: string; videoTitle: string; progressPercent: number; completed: boolean; watchedAt: string }>;
+}
+
+export async function getHomePracticeAnalytics(rangeDays = 90): Promise<HomePracticeAnalytics> {
+  const data = await apiAction<{ data: HomePracticeAnalytics }>("get_home_practice_analytics", { rangeDays });
+  return data.data;
+}
+
 export async function getPortalVideos(forceRefresh = false): Promise<PortalVideo[]> {
   const cacheKey = "portalVideos";
   if (forceRefresh) invalidateCache(cacheKey);
@@ -1316,6 +1381,65 @@ export async function getPortalVideos(forceRefresh = false): Promise<PortalVideo
     const data = await apiAction<{ data: { videos: PortalVideo[] } }>("get_portal_videos");
     return data.data.videos || [];
   });
+}
+
+export async function getPracticeLibraryAdmin(forceRefresh = false): Promise<{ videos: PortalVideo[]; folders: PracticeFolder[]; photos: PracticePhoto[] }> {
+  const cacheKey = "portalVideos";
+  if (forceRefresh) invalidateCache(cacheKey);
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: { videos: PortalVideo[]; folders: PracticeFolder[]; photos: PracticePhoto[] } }>("get_portal_videos");
+    return { videos: data.data.videos || [], folders: data.data.folders || [], photos: data.data.photos || [] };
+  });
+}
+
+export async function upsertPracticeFolder(input: PracticeFolderInput): Promise<PracticeFolder> {
+  const data = await apiAction<{ data: { folder: PracticeFolder } }>("upsert_practice_folder", {
+    folderId: input.id || "",
+    folder: input,
+  });
+  invalidateCache("portalVideos");
+  return data.data.folder;
+}
+
+export async function deletePracticeFolder(folderId: string): Promise<{ folderId: string }> {
+  const data = await apiAction<{ data: { folderId: string } }>("delete_practice_folder", { folderId });
+  invalidateCache("portalVideos");
+  return data.data;
+}
+
+export async function uploadPracticePhoto(input: {
+  folderId: string;
+  file: File;
+  title: string;
+  description?: string;
+  branchSlugs?: string[];
+  batchNames?: string[];
+  beltLevels?: string[];
+  isPublished?: boolean;
+  sortOrder?: number;
+}): Promise<{ id: string; title: string }> {
+  const compressedPhoto = await compressImage(input.file, 1600, 0.85);
+  const formData = new FormData();
+  formData.set("folderId", input.folderId);
+  formData.set("title", input.title);
+  formData.set("description", input.description || "");
+  formData.set("branchSlugs", JSON.stringify(input.branchSlugs || []));
+  formData.set("batchNames", JSON.stringify(input.batchNames || []));
+  formData.set("beltLevels", JSON.stringify(input.beltLevels || []));
+  formData.set("isPublished", String(input.isPublished !== false));
+  formData.set("sortOrder", String(input.sortOrder || 0));
+  formData.set("photo", compressedPhoto);
+  const response = await fetchWithRetry("/api/feetrack/practice-photos/upload", { method: "POST", body: formData }, MAX_RETRIES, 25_000);
+  const data = await readJsonResponse(response);
+  if (!response.ok || data.success === false) throw new Error(data.error || `Practice photo upload failed (${response.status})`);
+  invalidateCache("portalVideos");
+  return (data.data as { photo: { id: string; title: string } }).photo;
+}
+
+export async function deletePracticePhoto(photoId: string): Promise<{ photoId: string }> {
+  const data = await apiAction<{ data: { photoId: string } }>("delete_practice_photo", { photoId });
+  invalidateCache("portalVideos");
+  return data.data;
 }
 
 export async function upsertPortalVideo(input: PortalVideoInput): Promise<PortalVideo> {
