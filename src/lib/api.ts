@@ -1727,12 +1727,13 @@ export async function approveAdmissionApplication(input: {
   formData.set("reviewNote", input.reviewNote || "");
   if (input.finalPhoto) formData.set("finalPhoto", input.finalPhoto);
 
-  const response = await fetchWithRetry(
+  const response = await fetchWithTimeout(
     `/api/feetrack/admissions/${encodeURIComponent(input.applicationId)}/approve`,
     {
       method: "POST",
       body: formData,
     },
+    60000 // 60-second timeout, no retries
   );
   const data = await readJsonResponse(response);
 

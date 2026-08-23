@@ -283,8 +283,7 @@ export default function CustomPageClient() {
     setSubmittingRemoval(true);
     setSuccessMessage("");
     try {
-      const effectiveBranch = branch || "MPSC";
-      await addRemoval(effectiveBranch, selectedMonth, trimmedTitle, parsedAmount, removalDescription.trim() || undefined, feeYear);
+      await addRemoval(scope, selectedMonth, trimmedTitle, parsedAmount, removalDescription.trim() || undefined, feeYear);
       const msg = `Removed ${formatCurrency(parsedAmount)} for "${trimmedTitle}"`;
       setSuccessMessage(msg);
       toast(msg, "success");
@@ -299,12 +298,11 @@ export default function CustomPageClient() {
     }
   };
 
-  const handleDeleteRemoval = async (removalId: string) => {
+  const handleDeleteRemoval = async (removalId: string, removalBranch: string) => {
     if (deletingId) return;
     setDeletingId(removalId);
     try {
-      const effectiveBranch = branch || "MPSC";
-      await deleteRemoval(effectiveBranch, selectedMonth, removalId, feeYear);
+      await deleteRemoval(removalBranch, selectedMonth, removalId, feeYear);
       toast("Removal deleted", "success");
       await fetchRemovals();
     } catch (deleteError) {
@@ -574,7 +572,7 @@ export default function CustomPageClient() {
                             <p className="mt-0.5 font-mono text-xs text-zinc-500">{removal.date} {removal.branch}</p>
                           </div>
                           <span className="font-mono text-sm font-semibold text-red-400">-{formatCurrency(removal.amount)}</span>
-                          <button type="button" onClick={() => handleDeleteRemoval(removal.id)} disabled={deletingId === removal.id} className="ml-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 transition-colors hover:border-red-500/30 hover:text-red-400 disabled:opacity-50" title="Delete removal">
+                          <button type="button" onClick={() => handleDeleteRemoval(removal.id, removal.branch)} disabled={deletingId === removal.id} className="ml-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 transition-colors hover:border-red-500/30 hover:text-red-400 disabled:opacity-50" title="Delete removal">
                             {deletingId === removal.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                           </button>
                         </div>

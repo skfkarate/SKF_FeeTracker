@@ -1,17 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
   Copy,
   CopyPlus,
+  Eye,
+  EyeOff,
+  FolderInput,
+  FolderOpen,
   FolderPlus,
+  ImagePlus,
+  Link2,
   Loader2,
-  PlayCircle,
+  Pencil,
   PlusCircle,
   RefreshCw,
-  Save,
   Search,
   Trash2,
   X,
@@ -23,6 +28,7 @@ import {
   deletePortalVideo,
   deletePracticeFolder,
   deletePracticePhoto,
+  getHomePracticeAnalytics,
   getPracticeLibraryAdmin,
   upsertPortalVideo,
   upsertPracticeFolder,
@@ -31,202 +37,104 @@ import {
   type PracticeFolderInput,
   type PracticePhoto,
   type PortalVideo,
-  type PortalVideoInput,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 
-const VIDEO_CATEGORIES = [
-  { value: "techniques", label: "Techniques" },
-  { value: "kata", label: "Kata" },
-  { value: "kumite", label: "Kumite" },
-  { value: "bunkai", label: "Bunkai" },
-  { value: "fitness", label: "Conditioning" },
-  { value: "seminar", label: "Seminar" },
-];
+import { SmartCollections } from "./components/SmartCollections";
+import { SortViewControls } from "./components/SortViewControls";
+import { Breadcrumbs } from "./components/Breadcrumbs";
+import { ContextMenuSurface, useContextMenu } from "./components/ContextMenu";
+import { MoveToSheet } from "./components/MoveToSheet";
+import { VideoEditorSheet, draftFromVideo, draftToInput, emptyVideoDraft, type VideoDraft } from "./components/VideoEditorSheet";
+import { FolderEditorSheet, emptyFolderDraft } from "./components/FolderEditorSheet";
+import { LibraryBody } from "./components/LibraryBody";
+import { useFolderNavigation } from "./components/use-folder-navigation";
+import { childrenOf, countSubtree, getAncestorChain, getDescendantIds, searchLibrary, sortVideos } from "./components/tree-utils";
+import type { CollectionKey, SortMode, ViewMode } from "./components/library-shared";
 
-const BRANCH_OPTIONS = [
-  { slug: "m-p-sports-club", label: "MP" },
-  { slug: "herohalli", label: "Herohalli" },
-];
+const VIEW_PREF_KEY = "portal-videos-view-prefs";
+const WATCHED_LIMIT = 8;
 
-const BELT_OPTIONS = ["white", "yellow", "orange", "green-ii", "green-i", "blue", "purple", "brown-iii", "brown-ii", "brown-i", "black"];
-const BELT_LABELS: Record<string, string> = {
-  white: "White Belt · 10th Kyu",
-  yellow: "Yellow Belt · 9th Kyu",
-  orange: "Orange Belt · 8th Kyu",
-  "green-ii": "Green II · 7th Kyu",
-  "green-i": "Green I · 6th Kyu",
-  blue: "Blue Belt · 5th Kyu",
-  purple: "Purple Belt · 4th Kyu",
-  "brown-iii": "Brown III · 3rd Kyu",
-  "brown-ii": "Brown II · 2nd Kyu",
-  "brown-i": "Brown I · 1st Kyu",
-  black: "Black Belt · Dan",
-};
-const YOUTUBE_ID_PATTERN = /^[a-zA-Z0-9_-]{11}$/;
+type ConfirmState = { kind: "video" | "folder" | "photo"; id: string; title: string; message: string } | null;
 
-type VideoDraft = {
-  id: string;
-  title: string;
-  description: string;
-  lessonNote: string;
-  category: string;
-  durationLabel: string;
-  youtubeInput: string;
-  youtubeId: string;
-  contentFormat: "landscape" | "short";
-  folderId: string;
-  branchSlugs: string[];
-  batchNamesText: string;
-  beltLevels: string[];
-  isFeatured: boolean;
-  isPublished: boolean;
-  showInTechniques: boolean;
-  sortOrder: number;
-};
-
-function extractYouTubeId(value: string) {
-  const input = value.trim();
-  if (YOUTUBE_ID_PATTERN.test(input)) return input;
-
-  try {
-    const url = new URL(input);
-    if (url.hostname.includes("youtu.be")) {
-      const id = url.pathname.split("/").filter(Boolean)[0] || "";
-      return YOUTUBE_ID_PATTERN.test(id) ? id : "";
-    }
-    const watchId = url.searchParams.get("v") || "";
-    if (YOUTUBE_ID_PATTERN.test(watchId)) return watchId;
-    const embedMatch = url.pathname.match(/\/(?:embed|shorts)\/([a-zA-Z0-9_-]{11})/);
-    return embedMatch?.[1] || "";
-  } catch {
-    return "";
-  }
-}
-
-function isYouTubeShort(value: string) {
-  return /youtube\.com\/shorts\//i.test(value);
-}
-
-function emptyDraft(): VideoDraft {
-  return {
-    id: "",
-    title: "",
-    description: "",
-    lessonNote: "",
-    category: "techniques",
-    durationLabel: "",
-    youtubeInput: "",
-    youtubeId: "",
-    contentFormat: "landscape",
-    folderId: "",
-    branchSlugs: [],
-    batchNamesText: "",
-    beltLevels: [],
-    isFeatured: false,
-    isPublished: true,
-    showInTechniques: false,
-    sortOrder: 0,
-  };
-}
-
-function draftFromVideo(video: PortalVideo): VideoDraft {
-  return {
-    id: video.id,
-    title: video.title,
-    description: video.description,
-    lessonNote: video.lessonNote || "",
-    category: video.category,
-    durationLabel: video.durationLabel,
-    youtubeInput: video.youtubeId,
-    youtubeId: video.youtubeId,
-    contentFormat: video.contentFormat || "landscape",
-    folderId: video.folderId || "",
-    branchSlugs: video.branchSlugs || [],
-    batchNamesText: (video.batchNames || []).join(", "),
-    beltLevels: video.beltLevels || [],
-    isFeatured: video.isFeatured,
-    isPublished: video.isPublished,
-    showInTechniques: video.showInTechniques,
-    sortOrder: video.sortOrder || 0,
-  };
-}
-
-function emptyFolderDraft(): PracticeFolderInput {
-  return { title: "", description: "", branchSlugs: [], batchNames: [], beltLevels: [], isFeatured: false, isPublished: true, sortOrder: 0 };
-}
-
-function splitCsv(value: string) {
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function folderBeltCategory(folder: PracticeFolder) {
-  if (!folder.beltLevels?.length) return "All belts / shared";
-  return folder.beltLevels.map((belt) => BELT_LABELS[belt] || belt).join(" · ");
-}
-
-function parentFolderLabel(folder: PracticeFolder, folders: PracticeFolder[]) {
-  const parent = folders.find((item) => item.id === folder.parentFolderId);
-  return parent ? `${parent.title} / ${folder.title}` : folder.title;
-}
-
-function thumbnailUrl(youtubeId: string) {
-  return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
-}
-
-function Chip({
-  selected,
-  children,
-  onClick,
-}: {
-  selected: boolean;
-  children: ReactNode;
-  onClick: () => void;
-}) {
+export default function PortalVideosPage() {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`min-h-10 rounded-lg border px-3 text-sm font-semibold transition-colors ${
-        selected
-          ? "border-white bg-white text-black"
-          : "border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700 hover:text-white"
-      }`}
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black text-zinc-300">
+          <div className="flex min-h-screen items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          </div>
+        </div>
+      }
     >
-      {children}
-    </button>
+      <PortalVideosLibrary />
+    </Suspense>
   );
 }
 
-export default function PortalVideosPage() {
+function PortalVideosLibrary() {
   const { user, checking } = useFeeTrackAuth();
+  const { rawFolderId, navigate } = useFolderNavigation();
+
   const [videos, setVideos] = useState<PortalVideo[]>([]);
   const [folders, setFolders] = useState<PracticeFolder[]>([]);
   const [photos, setPhotos] = useState<PracticePhoto[]>([]);
-  const [draft, setDraft] = useState<VideoDraft>(() => emptyDraft());
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [folderEditorOpen, setFolderEditorOpen] = useState(false);
-  const [folderDraft, setFolderDraft] = useState<PracticeFolderInput>(() => emptyFolderDraft());
-  const [selectedFolderId, setSelectedFolderId] = useState("all");
-  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [deletingId, setDeletingId] = useState("");
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [confirmState, setConfirmState] = useState<{ video: PortalVideo } | null>(null);
+
+  const [view, setView] = useState<ViewMode>("grid");
+  const [sortMode, setSortMode] = useState<SortMode>("auto");
+  const [collection, setCollection] = useState<CollectionKey>("");
+  const [query, setQuery] = useState("");
+  const [watchedIds, setWatchedIds] = useState<string[]>([]);
+
+  const [videoDraft, setVideoDraft] = useState<VideoDraft | null>(null);
+  const [folderDraft, setFolderDraft] = useState<PracticeFolderInput | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [editorError, setEditorError] = useState("");
+
+  const [moveState, setMoveState] = useState<{ video: PortalVideo } | null>(null);
+  const [movingBusy, setMovingBusy] = useState(false);
+
+  const [confirmState, setConfirmState] = useState<ConfirmState>(null);
+  const [deletingId, setDeletingId] = useState("");
+
+  const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
+  const [draggingVideoId, setDraggingVideoId] = useState<string | null>(null);
+
+  const { menu, open: openMenu, close: closeMenu } = useContextMenu();
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const uploadingPhotoRef = useRef(false);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      try {
+        const stored = window.localStorage.getItem(VIEW_PREF_KEY);
+        if (!stored) return;
+        const parsed = JSON.parse(stored) as { view?: ViewMode; sort?: SortMode };
+        if (parsed.view === "grid" || parsed.view === "list") setView(parsed.view);
+        if (parsed.sort === "auto" || parsed.sort === "name" || parsed.sort === "newest") setSortMode(parsed.sort);
+      } catch {}
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  const updatePrefs = useCallback((nextView: ViewMode, nextSort: SortMode) => {
+    setView(nextView);
+    setSortMode(nextSort);
+    try {
+      window.localStorage.setItem(VIEW_PREF_KEY, JSON.stringify({ view: nextView, sort: nextSort }));
+    } catch {}
+  }, []);
 
   const loadVideos = useCallback(async (forceRefresh = false) => {
     setError("");
     if (forceRefresh) setRefreshing(true);
     else setLoading(true);
-
     try {
       const library = await getPracticeLibraryAdmin(forceRefresh);
       setVideos(library.videos);
@@ -244,258 +152,259 @@ export default function PortalVideosPage() {
     if (checking || !user) return;
     let cancelled = false;
     const timeoutId = window.setTimeout(() => {
-      if (cancelled) return;
-      void loadVideos();
+      if (!cancelled) void loadVideos();
     }, 0);
-
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
   }, [checking, loadVideos, user]);
 
-  const filteredVideos = useMemo(() => {
-    const term = query.trim().toLowerCase();
-    const scoped = selectedFolderId === "all" ? videos : videos.filter((video) => video.folderId === selectedFolderId);
-    if (!term) return scoped;
-    return scoped.filter((video) =>
-      [
-        video.title,
-        video.lessonNote,
-        video.category,
-        video.youtubeId,
-        ...(video.branchSlugs || []),
-        ...(video.batchNames || []),
-        ...(video.beltLevels || []),
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(term),
-    );
-  }, [query, selectedFolderId, videos]);
+  useEffect(() => {
+    if (checking || !user) return;
+    let cancelled = false;
+    getHomePracticeAnalytics(90)
+      .then((analytics) => {
+        if (cancelled) return;
+        const ranked = [...(analytics.videos || [])]
+          .sort((left, right) => right.watches - left.watches)
+          .slice(0, WATCHED_LIMIT);
+        setWatchedIds(ranked.map((item) => item.videoId));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [checking, user]);
 
-  const beltCategorisedFolders = useMemo(() => [...folders].sort((left, right) => {
-    const leftBelt = BELT_OPTIONS.findIndex((belt) => left.beltLevels?.includes(belt));
-    const rightBelt = BELT_OPTIONS.findIndex((belt) => right.beltLevels?.includes(belt));
-    return (leftBelt < 0 ? 99 : leftBelt) - (rightBelt < 0 ? 99 : rightBelt) || left.sortOrder - right.sortOrder || left.title.localeCompare(right.title);
-  }), [folders]);
-  const draftFolder = folders.find((folder) => folder.id === draft.folderId);
-  const effectiveVideoBelts = draft.beltLevels.length ? draft.beltLevels : (draftFolder?.beltLevels || []);
-  const effectiveBranches = draft.branchSlugs.length ? draft.branchSlugs : (draftFolder?.branchSlugs || []);
-  const effectiveBatches = splitCsv(draft.batchNamesText).length ? splitCsv(draft.batchNamesText) : (draftFolder?.batchNames || []);
-  const audiencePreview = effectiveVideoBelts.length
-    ? effectiveVideoBelts.map((belt) => BELT_LABELS[belt] || belt).join(" · ")
-    : "All belts / shared";
+  const currentFolder = useMemo(() => folders.find((folder) => folder.id === rawFolderId) || null, [folders, rawFolderId]);
+  const activeFolderId = currentFolder?.id || "";
+  const chain = useMemo(() => getAncestorChain(activeFolderId || null, folders), [activeFolderId, folders]);
 
-  function startNewVideo() {
-    setDraft(emptyDraft());
-    setEditorOpen(true);
-    setNotice("");
-    setError("");
+  const [lastFolderId, setLastFolderId] = useState(activeFolderId);
+  if (lastFolderId !== activeFolderId) {
+    setLastFolderId(activeFolderId);
+    setCollection("");
   }
 
-  function openVideo(video: PortalVideo) {
-    setDraft(draftFromVideo(video));
-    setEditorOpen(true);
-    setNotice("");
+  const countsByFolder = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof countSubtree>>();
+    for (const folder of folders) map.set(folder.id, countSubtree(folder.id, folders, videos, photos));
+    return map;
+  }, [folders, videos, photos]);
+
+  const visibleFolders = useMemo(
+    () => (collection || query.trim() ? [] : childrenOf(folders, activeFolderId || null)),
+    [collection, query, folders, activeFolderId],
+  );
+
+  const searchResults = useMemo(() => (query.trim() ? searchLibrary(query, folders, videos, photos) : null), [query, folders, videos, photos]);
+
+  const collectionVideos = useMemo(() => {
+    if (collection === "unfiled") return sortVideos(videos.filter((video) => !video.folderId), sortMode);
+    if (collection === "drafts") return sortVideos(videos.filter((video) => !video.isPublished), sortMode);
+    if (collection === "watched") {
+      const byId = new Map(videos.map((video) => [video.id, video]));
+      return watchedIds.map((id) => byId.get(id)).filter((video): video is PortalVideo => Boolean(video));
+    }
+    return [];
+  }, [collection, videos, watchedIds, sortMode]);
+
+  const locationVideos = useMemo(() => {
+    const scoped = activeFolderId ? videos.filter((video) => video.folderId === activeFolderId) : videos.filter((video) => !video.folderId);
+    return sortVideos(scoped, sortMode);
+  }, [activeFolderId, videos, sortMode]);
+
+  const locationPhotos = useMemo(() => {
+    return activeFolderId ? photos.filter((photo) => photo.folderId === activeFolderId) : photos.filter((photo) => !photo.folderId);
+  }, [activeFolderId, photos]);
+
+  const unfiledCount = videos.filter((video) => !video.folderId).length;
+  const draftsCount = videos.filter((video) => !video.isPublished).length;
+  const bodyVideos = collection ? collectionVideos : locationVideos;
+
+  function flashNotice(message: string) {
     setError("");
+    setNotice(message);
+  }
+
+  function startNewVideo(folderId = "") {
+    setEditorError("");
+    setVideoDraft({ ...emptyVideoDraft(), folderId });
+  }
+
+  function openVideoEditor(video: PortalVideo) {
+    setEditorError("");
+    setVideoDraft(draftFromVideo(video));
   }
 
   function duplicateVideo(video: PortalVideo) {
-    setDraft({ ...draftFromVideo(video), id: "", title: `${video.title} (copy)`, isPublished: false });
-    setEditorOpen(true);
-    setNotice("Video copied as a draft. Review the audience and publish when ready.");
-    setError("");
+    setEditorError("");
+    setVideoDraft({ ...draftFromVideo(video), id: "", title: `${video.title} (copy)`, isPublished: false });
+    flashNotice("Video copied as a draft. Review the audience and publish when ready.");
   }
 
-  function updateDraft(input: Partial<VideoDraft>) {
-    setDraft((current) => ({ ...current, ...input }));
-    setNotice("");
-    setError("");
-  }
-
-  function updateYouTubeInput(value: string) {
-    updateDraft({
-      youtubeInput: value,
-      youtubeId: extractYouTubeId(value),
-      contentFormat: isYouTubeShort(value) ? "short" : draft.contentFormat,
-    });
-  }
-
-  function toggleList(key: "branchSlugs" | "beltLevels", value: string) {
-    setDraft((current) => {
-      const existing = current[key];
-      return {
-        ...current,
-        [key]: existing.includes(value)
-          ? existing.filter((item) => item !== value)
-          : [...existing, value],
-      };
-    });
-  }
-
-  async function handleSubmit() {
-    if (!draft.title.trim()) {
-      setError("Video title is required.");
+  async function submitVideo() {
+    if (!videoDraft) return;
+    if (!videoDraft.title.trim()) {
+      setEditorError("Video title is required.");
       return;
     }
-    if (!draft.youtubeId) {
-      setError("Paste a valid YouTube URL or 11-character video ID.");
+    if (!videoDraft.youtubeId) {
+      setEditorError("Paste a valid YouTube URL or 11-character video ID.");
       return;
     }
-
-    const input: PortalVideoInput = {
-      id: draft.id || undefined,
-      title: draft.title.trim(),
-      description: draft.description.trim(),
-      lessonNote: draft.lessonNote.trim(),
-      category: draft.category,
-      durationLabel: draft.durationLabel.trim(),
-      youtubeInput: draft.youtubeInput || draft.youtubeId,
-      youtubeId: draft.youtubeId,
-      contentFormat: draft.contentFormat,
-      folderId: draft.folderId || undefined,
-      branchSlugs: draft.showInTechniques ? [] : draft.branchSlugs,
-      batchNames: draft.showInTechniques ? [] : splitCsv(draft.batchNamesText),
-      beltLevels: draft.beltLevels,
-      isFeatured: draft.isFeatured,
-      isPublished: draft.isPublished,
-      showInTechniques: draft.showInTechniques,
-      sortOrder: Number(draft.sortOrder || 0),
-    };
-
     setSaving(true);
-    setError("");
-    setNotice("");
-    const wasEditing = Boolean(draft.id);
+    setEditorError("");
+    const wasEditing = Boolean(videoDraft.id);
     try {
-      const saved = await upsertPortalVideo(input);
-      setVideos((current) => {
-        const exists = current.some((video) => video.id === saved.id);
-        return exists
-          ? current.map((video) => (video.id === saved.id ? saved : video))
-          : [saved, ...current];
+      const saved = await upsertPortalVideo(draftToInput(videoDraft));
+      setVideos((currentList) => {
+        const exists = currentList.some((item) => item.id === saved.id);
+        return exists ? currentList.map((item) => (item.id === saved.id ? saved : item)) : [saved, ...currentList];
       });
-      setDraft(draftFromVideo(saved));
-      setEditorOpen(false);
-      setNotice(wasEditing ? "Portal video updated." : "Portal video created.");
+      setVideoDraft(null);
+      flashNotice(wasEditing ? "Portal video updated." : "Portal video created.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to save portal video.");
+      setEditorError(err instanceof Error ? err.message : "Unable to save portal video.");
     } finally {
       setSaving(false);
     }
   }
 
-  function startNewFolder() {
-    setFolderDraft(emptyFolderDraft());
-    setFolderEditorOpen(true);
-    setNotice("");
+  async function toggleVideoPublished(video: PortalVideo) {
+    setSaving(true);
     setError("");
+    try {
+      const saved = await upsertPortalVideo(draftToInput({ ...draftFromVideo(video), isPublished: !video.isPublished }));
+      setVideos((currentList) => currentList.map((item) => (item.id === saved.id ? saved : item)));
+      flashNotice(saved.isPublished ? `“${saved.title}” is live.` : `“${saved.title}” moved to drafts.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to update the video.");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  function openFolder(folder: PracticeFolder) {
+  function startNewFolder(parentId = "") {
+    setEditorError("");
+    setFolderDraft({ ...emptyFolderDraft(), parentFolderId: parentId || "" });
+  }
+
+  function openFolderEditor(folder: PracticeFolder) {
+    setEditorError("");
     setFolderDraft({ ...folder });
-    setFolderEditorOpen(true);
-    setNotice("");
-    setError("");
   }
 
   function duplicateFolder(folder: PracticeFolder) {
+    setEditorError("");
     setFolderDraft({ ...folder, id: undefined, title: `${folder.title} (copy)`, isPublished: false });
-    setFolderEditorOpen(true);
-    setNotice("Folder settings copied as a draft. Add or assign lessons after saving it.");
-    setError("");
+    flashNotice("Folder settings copied as a draft. Add or assign lessons after saving it.");
   }
 
-  async function saveFolder() {
+  async function submitFolder() {
+    if (!folderDraft) return;
     if (!folderDraft.title?.trim()) {
-      setError("Folder title is required.");
+      setEditorError("Folder title is required.");
       return;
     }
     setSaving(true);
+    setEditorError("");
     try {
       const saved = await upsertPracticeFolder({ ...folderDraft, title: folderDraft.title.trim() });
-      setFolders((current) => current.some((folder) => folder.id === saved.id)
-        ? current.map((folder) => folder.id === saved.id ? saved : folder)
-        : [saved, ...current]);
-      setFolderEditorOpen(false);
-      setNotice(folderDraft.id ? "Practice folder updated." : "Practice folder created.");
+      setFolders((currentList) =>
+        currentList.some((folder) => folder.id === saved.id)
+          ? currentList.map((folder) => (folder.id === saved.id ? saved : folder))
+          : [...currentList, saved],
+      );
+      setFolderDraft(null);
+      flashNotice(folderDraft.id ? "Practice folder updated." : "Practice folder created.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to save practice folder.");
+      setEditorError(err instanceof Error ? err.message : "Unable to save practice folder.");
     } finally {
       setSaving(false);
     }
   }
 
-  async function removeFolder(folder: PracticeFolder) {
-    if (!window.confirm(`Delete "${folder.title}"? Videos in it will remain available as unfiled content.`)) return;
-    setDeletingId(folder.id);
-    try {
-      await deletePracticeFolder(folder.id);
-      setFolders((current) => current.filter((item) => item.id !== folder.id));
-      setVideos((current) => current.map((video) => video.folderId === folder.id ? { ...video, folderId: "" } : video));
-      if (selectedFolderId === folder.id) setSelectedFolderId("all");
-      setNotice("Practice folder deleted. Its videos are now unfiled.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to delete practice folder.");
-    } finally {
-      setDeletingId("");
-    }
-  }
-
-  async function uploadFolderPhoto(file: File | undefined) {
-    const folder = folders.find((item) => item.id === selectedFolderId);
-    if (!file || !folder || uploadingPhoto) return;
-    setUploadingPhoto(true);
+  async function toggleFolderPublished(folder: PracticeFolder) {
+    setSaving(true);
     setError("");
     try {
-      const title = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-      await uploadPracticePhoto({ folderId: folder.id, file, title, branchSlugs: folder.branchSlugs, batchNames: folder.batchNames, beltLevels: folder.beltLevels });
-      await loadVideos(true);
-      setNotice(`Photo guide uploaded to ${folder.title}.`);
+      const saved = await upsertPracticeFolder({ ...folder, isPublished: !folder.isPublished });
+      setFolders((currentList) => currentList.map((item) => (item.id === saved.id ? saved : item)));
+      flashNotice(saved.isPublished ? `“${saved.title}” is live.` : `“${saved.title}” moved to drafts.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to upload practice photo.");
+      setError(err instanceof Error ? err.message : "Unable to update the folder.");
     } finally {
-      setUploadingPhoto(false);
+      setSaving(false);
     }
   }
 
-  async function removePhoto(photo: PracticePhoto) {
-    if (!window.confirm(`Delete "${photo.title}"?`)) return;
-    setDeletingId(photo.id);
+  async function moveVideoTo(video: PortalVideo, targetFolderId: string | null) {
+    if ((video.folderId || null) === targetFolderId) return;
+    const previous = videos;
+    setVideos((currentList) => currentList.map((item) => (item.id === video.id ? { ...item, folderId: targetFolderId || "" } : item)));
+    setMovingBusy(true);
+    setError("");
     try {
-      await deletePracticePhoto(photo.id);
-      setPhotos((current) => current.filter((item) => item.id !== photo.id));
-      setNotice("Practice photo deleted.");
+      const saved = await upsertPortalVideo({
+        id: video.id,
+        title: video.title,
+        description: video.description,
+        lessonNote: video.lessonNote,
+        category: video.category,
+        durationLabel: video.durationLabel,
+        youtubeId: video.youtubeId,
+        contentFormat: video.contentFormat,
+        folderId: targetFolderId || undefined,
+        branchSlugs: video.branchSlugs,
+        batchNames: video.batchNames,
+        beltLevels: video.beltLevels,
+        isFeatured: video.isFeatured,
+        isPublished: video.isPublished,
+        showInTechniques: video.showInTechniques,
+        sortOrder: video.sortOrder,
+      });
+      setVideos((currentList) => currentList.map((item) => (item.id === saved.id ? saved : item)));
+      flashNotice(`“${saved.title}” moved.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to delete practice photo.");
+      setVideos(previous);
+      setError(err instanceof Error ? err.message : "Unable to move the video.");
     } finally {
-      setDeletingId("");
+      setMovingBusy(false);
     }
   }
 
-  function handleDelete(video: PortalVideo) {
-    setConfirmState({ video });
+  function requestDelete(kind: "video" | "folder" | "photo", id: string, title: string, message: string) {
+    setConfirmState({ kind, id, title, message });
   }
 
   async function handleConfirmDelete() {
     const state = confirmState;
     if (!state) return;
-    const { video } = state;
     setConfirmState(null);
-    setDeletingId(video.id);
+    setDeletingId(state.id);
     setError("");
     setNotice("");
     try {
-      await deletePortalVideo(video.id);
-      setVideos((current) => current.filter((item) => item.id !== video.id));
-      if (draft.id === video.id) {
-        setDraft(emptyDraft());
-        setEditorOpen(false);
+      if (state.kind === "video") {
+        await deletePortalVideo(state.id);
+        setVideos((currentList) => currentList.filter((item) => item.id !== state.id));
+        if (videoDraft?.id === state.id) setVideoDraft(null);
+        flashNotice("Portal video removed.");
+      } else if (state.kind === "folder") {
+        await deletePracticeFolder(state.id);
+        setFolders((currentList) => currentList.filter((item) => item.id !== state.id));
+        setVideos((currentList) => currentList.map((item) => (item.folderId === state.id ? { ...item, folderId: "" } : item)));
+        if (activeFolderId === state.id) navigate(null);
+        flashNotice("Practice folder deleted. Its videos are now unfiled.");
+      } else {
+        await deletePracticePhoto(state.id);
+        setPhotos((currentList) => currentList.filter((item) => item.id !== state.id));
+        flashNotice("Practice photo deleted.");
       }
-      setNotice("Portal video removed.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to delete portal video.");
+      setError(err instanceof Error ? err.message : "Unable to complete the deletion.");
     } finally {
       setDeletingId("");
     }
@@ -505,11 +414,178 @@ export default function PortalVideosPage() {
     const link = `https://www.skfkarate.org/portal/videos/${encodeURIComponent(video.id)}`;
     try {
       await navigator.clipboard.writeText(link);
-      setNotice("Secure athlete portal link copied. Students must sign in and meet the belt rules to view it.");
+      flashNotice("Secure athlete portal link copied. Students must sign in and meet the belt rules to view it.");
     } catch {
       setError("Unable to copy the lesson link. Please copy it from the browser address bar after opening the lesson.");
     }
   }
+
+  async function uploadFolderPhoto(file: File | undefined) {
+    if (!file || !currentFolder || uploadingPhotoRef.current) return;
+    uploadingPhotoRef.current = true;
+    setError("");
+    setNotice("");
+    try {
+      const title = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+      await uploadPracticePhoto({
+        folderId: currentFolder.id,
+        file,
+        title,
+        branchSlugs: currentFolder.branchSlugs,
+        batchNames: currentFolder.batchNames,
+        beltLevels: currentFolder.beltLevels,
+      });
+      await loadVideos(true);
+      flashNotice(`Photo guide uploaded to ${currentFolder.title}.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to upload practice photo.");
+    } finally {
+      uploadingPhotoRef.current = false;
+    }
+  }
+
+  const openFolderMenu = (folder: PracticeFolder, x: number, y: number) => {
+    const counts = countsByFolder.get(folder.id);
+    openMenu(
+      x,
+      y,
+      folder.title,
+      [
+        { label: "Open", icon: FolderOpen, onSelect: () => navigate(folder.id) },
+        { label: "Edit", icon: Pencil, onSelect: () => openFolderEditor(folder) },
+        { label: "New subfolder here", icon: FolderPlus, onSelect: () => startNewFolder(folder.id) },
+        { label: "Duplicate", icon: Copy, onSelect: () => duplicateFolder(folder) },
+        { label: folder.isPublished ? "Move to drafts" : "Publish", icon: folder.isPublished ? EyeOff : Eye, onSelect: () => void toggleFolderPublished(folder) },
+        {
+          label: "Delete",
+          icon: Trash2,
+          destructive: true,
+          onSelect: () =>
+            requestDelete(
+              "folder",
+              folder.id,
+              folder.title,
+              `Delete “${folder.title}”? Videos and photo guides inside stay available as unfiled content.`,
+            ),
+        },
+      ],
+      counts ? `${counts.total} items · ${counts.folders} subfolders` : undefined,
+    );
+  };
+
+  const openVideoMenu = (video: PortalVideo, x: number, y: number, pathLabel?: string) => {
+    openMenu(
+      x,
+      y,
+      video.title,
+      [
+        { label: "Edit lesson", icon: Pencil, onSelect: () => openVideoEditor(video) },
+        { label: "Move to…", icon: FolderInput, onSelect: () => setMoveState({ video }) },
+        { label: "Duplicate as draft", icon: CopyPlus, onSelect: () => duplicateVideo(video) },
+        { label: "Copy secure link", icon: Link2, onSelect: () => void copyLessonLink(video) },
+        { label: video.isPublished ? "Unpublish" : "Publish now", icon: video.isPublished ? EyeOff : Eye, onSelect: () => void toggleVideoPublished(video) },
+        {
+          label: "Delete",
+          icon: Trash2,
+          destructive: true,
+          onSelect: () => requestDelete("video", video.id, video.title, `Delete “${video.title}”? Athletes will lose access immediately.`),
+        },
+      ],
+      pathLabel || (video.durationLabel ? `${video.category} · ${video.durationLabel}` : video.category),
+    );
+  };
+
+  const openPhotoMenu = (photo: PracticePhoto, x: number, y: number) => {
+    openMenu(
+      x,
+      y,
+      photo.title,
+      [
+        {
+          label: "Delete",
+          icon: Trash2,
+          destructive: true,
+          onSelect: () => requestDelete("photo", photo.id, photo.title, `Delete the photo guide “${photo.title}”?`),
+        },
+      ],
+      photo.isPublished ? "Live guide" : "Draft guide",
+    );
+  };
+
+  const invalidParentIds = useMemo(() => {
+    if (!folderDraft?.id) return new Set<string>();
+    return new Set([folderDraft.id, ...getDescendantIds(folderDraft.id, folders)]);
+  }, [folderDraft, folders]);
+
+  const handleDragStart = useCallback((event: React.DragEvent, video: PortalVideo) => {
+    event.dataTransfer.setData("text/plain", video.id);
+    event.dataTransfer.effectAllowed = "move";
+    setDraggingVideoId(video.id);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggingVideoId(null);
+    setDragOverFolder(null);
+  }, []);
+
+  const handleDragOverTile = useCallback((event: React.DragEvent, folderId: string) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    setDragOverFolder((current) => (current === folderId ? current : folderId));
+  }, []);
+
+  const handleDragLeaveTile = useCallback((folderId: string) => {
+    setDragOverFolder((current) => (current === folderId ? null : current));
+  }, []);
+
+  const handleDropOnTile = useCallback(
+    (event: React.DragEvent, folderId: string) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = event.dataTransfer.getData("text/plain");
+      setDraggingVideoId(null);
+      setDragOverFolder(null);
+      const video = videos.find((item) => item.id === id);
+      if (video) void moveVideoTo(video, folderId);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [videos],
+  );
+
+  const handleDropOnRoot = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+      const id = event.dataTransfer.getData("text/plain");
+      setDraggingVideoId(null);
+      setDragOverFolder(null);
+      const video = videos.find((item) => item.id === id);
+      if (video) void moveVideoTo(video, null);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [videos],
+  );
+
+  const handleBreadcrumbDrop = useCallback(
+    (event: React.DragEvent, folderId: string | null) => {
+      if (folderId) handleDropOnTile(event, folderId);
+      else handleDropOnRoot(event);
+    },
+    [handleDropOnTile, handleDropOnRoot],
+  );
+
+  const headingTitle = query.trim()
+    ? `Search results`
+    : collection === "unfiled"
+      ? "Unfiled lessons"
+      : collection === "drafts"
+        ? "Draft lessons"
+        : collection === "watched"
+          ? "Most watched · last 90 days"
+          : currentFolder
+            ? currentFolder.title
+            : "Belt-Based Home Practice";
+
+  const browsing = !searchResults;
 
   if (checking || !user) {
     return (
@@ -525,402 +601,220 @@ export default function PortalVideosPage() {
     <div className="min-h-screen bg-black text-zinc-300">
       <Navbar showBack title="Portal Videos" rightContent={<NavMenu />} />
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-24">
-        <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div>
+      <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 sm:px-6 sm:pt-28">
+        <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
             <div className="mb-3 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-red-400" />
               <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Portal Operations</p>
             </div>
-            <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Belt-Based Home Practice
+            <h1 className={`font-[family-name:var(--font-space)] font-semibold tracking-tight text-white ${currentFolder && browsing && !collection ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"}`}>
+              {currentFolder && browsing && !collection ? (
+                <button type="button" onClick={() => navigate(chain.length > 1 ? chain[chain.length - 2].id : null)} className="truncate text-left transition-colors hover:text-zinc-300">
+                  {headingTitle}
+                </button>
+              ) : (
+                headingTitle
+              )}
             </h1>
+            {!query.trim() && !collection && currentFolder?.description ? (
+              <p className="mt-1 line-clamp-1 text-sm text-zinc-500">{currentFolder.description}</p>
+            ) : null}
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <button type="button" onClick={startNewFolder} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-zinc-950 px-4 text-sm font-semibold text-zinc-100 hover:border-zinc-500">
-              <FolderPlus className="h-4 w-4" /> Create Folder
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-zinc-950 px-4 text-sm font-semibold text-zinc-100 hover:border-zinc-500">
+              <FolderPlus className="h-4 w-4" /> Folder
             </button>
-            <button
-              type="button"
-              onClick={startNewVideo}
-              className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Create Video
+            <button type="button" onClick={() => startNewVideo(activeFolderId)} className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm">
+              <PlusCircle className="h-4 w-4" /> Video
             </button>
             <button
               type="button"
               onClick={() => loadVideos(true)}
               disabled={refreshing}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-200 hover:border-zinc-600 hover:bg-zinc-900 disabled:opacity-60"
+              aria-label="Refresh library"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-sm font-semibold text-zinc-200 hover:border-zinc-600 hover:bg-zinc-900 disabled:opacity-60"
             >
               {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-              Refresh
             </button>
           </div>
         </header>
-        <button type="button" onClick={startNewFolder} className="fixed bottom-5 right-4 z-30 inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-amber-300/50 bg-amber-300 px-5 text-sm font-bold text-black shadow-xl shadow-black/50 md:hidden">
-          <FolderPlus className="h-4 w-4" /> New Folder
-        </button>
+
+        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          {browsing && chain.length > 0 ? (
+            <Breadcrumbs
+              chain={chain}
+              onNavigate={navigate}
+              dropTargetId={dragOverFolder}
+              onDragEnterNode={(folderId) => setDragOverFolder(folderId ?? "__root__")}
+              onDropOnNode={handleBreadcrumbDrop}
+            />
+          ) : (
+            <span />
+          )}
+          {browsing ? (
+            <SortViewControls view={view} sort={sortMode} onViewChange={(nextView) => updatePrefs(nextView, sortMode)} onSortChange={(nextSort) => updatePrefs(view, nextSort)} />
+          ) : null}
+        </div>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <p>{error}</p>
+            <p className="flex-1">{error}</p>
+            <button type="button" onClick={() => setError("")} className="flex-shrink-0 text-red-300/70 hover:text-red-100" aria-label="Dismiss error"><X className="h-4 w-4" /></button>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+          <div className="mb-4 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <p>{notice}</p>
+            <p className="flex-1">{notice}</p>
+            <button type="button" onClick={() => setNotice("")} className="flex-shrink-0 text-emerald-300/70 hover:text-emerald-100" aria-label="Dismiss notice"><X className="h-4 w-4" /></button>
           </div>
         ) : null}
 
-        <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase tracking-wider text-zinc-500">Practice folders</p><p className="mt-2 text-2xl font-semibold text-white">{folders.length}</p></div>
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase tracking-wider text-zinc-500">Videos</p><p className="mt-2 text-2xl font-semibold text-white">{videos.length}</p></div>
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase tracking-wider text-zinc-500">Photo guides</p><p className="mt-2 text-2xl font-semibold text-white">{photos.length}</p></div>
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4"><p className="text-xs uppercase tracking-wider text-amber-200/70">Needs organising</p><p className="mt-2 text-2xl font-semibold text-amber-200">{videos.filter((video) => !video.folderId).length}</p></div>
-        </section>
+        <div className="relative mb-6 sm:max-w-md">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className="input-minimal min-h-11 pl-11 pr-10"
+            placeholder="Search all folders and lessons…"
+          />
+          {query ? (
+            <button type="button" onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-zinc-500 hover:text-white" aria-label="Clear search">
+              <X className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
 
-        <section className="mb-6 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
-          <div className="flex flex-col gap-3 border-b border-zinc-800 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div><p className="text-xs uppercase tracking-widest text-zinc-500">Practice folders</p><h2 className="text-lg font-semibold text-white">Organise and assign content once</h2></div>
-            <span className="rounded-md border border-zinc-800 px-2 py-1 font-mono text-xs text-zinc-500">{folders.length} folders</span>
+        {!loading && browsing && !activeFolderId ? (
+          <div className="mb-7">
+            <SmartCollections
+              unfiledCount={unfiledCount}
+              draftsCount={draftsCount}
+              watchedCount={watchedIds.length}
+              totalVideos={videos.length}
+              active={collection}
+              onSelect={setCollection}
+            />
           </div>
-          <div className="flex gap-3 overflow-x-auto p-4">
-            <button type="button" onClick={() => setSelectedFolderId("all")} className={`min-w-40 rounded-lg border p-3 text-left ${selectedFolderId === "all" ? "border-white bg-white text-black" : "border-zinc-800 bg-black text-zinc-300 hover:border-zinc-600"}`}><p className="font-semibold">All content</p><p className="mt-1 text-xs opacity-60">{videos.length} lessons</p></button>
-            {beltCategorisedFolders.map((folder) => <article key={folder.id} className={`min-w-52 rounded-lg border p-3 ${selectedFolderId === folder.id ? "border-white bg-zinc-900" : "border-zinc-800 bg-black"}`}>
-              <button type="button" onClick={() => setSelectedFolderId(folder.id)} className="w-full text-left"><p className="text-[10px] font-bold uppercase tracking-wider text-amber-300">{folderBeltCategory(folder)}</p><p className="mt-1 truncate font-semibold text-white">{parentFolderLabel(folder, folders)}</p><p className="mt-1 text-xs text-zinc-500">{videos.filter((video) => video.folderId === folder.id).length + photos.filter((photo) => photo.folderId === folder.id).length} items · {folder.isPublished ? "Live" : "Draft"}</p></button>
-              <div className="mt-3 flex gap-3"><button type="button" onClick={() => openFolder(folder)} className="text-xs font-semibold text-zinc-400 hover:text-white">Edit</button><button type="button" onClick={() => duplicateFolder(folder)} className="text-xs font-semibold text-cyan-300 hover:text-cyan-100">Duplicate</button><button type="button" onClick={() => removeFolder(folder)} disabled={deletingId === folder.id} className="text-xs font-semibold text-red-300 hover:text-red-200">Delete</button></div>
-            </article>)}
+        ) : null}
+
+        {browsing && activeFolderId ? (
+          <div className="mb-6 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white">
+              <FolderPlus className="h-3.5 w-3.5" /> Subfolder
+            </button>
+            <button
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+            >
+              <ImagePlus className="h-3.5 w-3.5" /> Photo guide
+            </button>
+            <p className="ml-auto hidden text-xs text-zinc-600 sm:block">Tip: drag lessons onto a folder or breadcrumb to re-file them.</p>
           </div>
-          {selectedFolderId !== "all" ? <div className="border-t border-zinc-800 px-4 py-3"><label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-zinc-700 px-3 text-sm font-semibold text-zinc-200 hover:border-zinc-500"><PlusCircle className="h-4 w-4" /> {uploadingPhoto ? "Uploading photo…" : "Add Photo Guide"}<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" disabled={uploadingPhoto} onChange={(event) => { void uploadFolderPhoto(event.target.files?.[0]); event.target.value = ""; }} /></label><p className="mt-2 text-xs text-zinc-600">Photos inherit this folder’s belt, branch, and batch access rules.</p></div> : null}
-          {photos.some((photo) => selectedFolderId === "all" ? !photo.folderId : photo.folderId === selectedFolderId) ? <div className="border-t border-zinc-800 p-4"><p className="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">{selectedFolderId === "all" ? "Unfiled photo guides" : "Photo guides"}</p><div className="grid gap-2 sm:grid-cols-2">{photos.filter((photo) => selectedFolderId === "all" ? !photo.folderId : photo.folderId === selectedFolderId).map((photo) => <div key={photo.id} className="flex items-center justify-between rounded-lg border border-zinc-800 bg-black px-3 py-2"><div className="min-w-0"><p className="truncate text-sm font-semibold text-zinc-200">{photo.title}</p><p className="text-xs text-zinc-600">{photo.isPublished ? "Live" : "Draft"}</p></div><button type="button" onClick={() => removePhoto(photo)} disabled={deletingId === photo.id} className="text-xs font-semibold text-red-300 hover:text-red-100">Delete</button></div>)}</div></div> : null}
-        </section>
+        ) : null}
 
-        <section className="card-panel p-4 sm:p-5">
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Library</p>
-                <h2 className="text-lg font-semibold text-white">{videos.length} Videos</h2>
-              </div>
-              <div className="relative sm:w-72">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  className="input-minimal min-h-11 pl-11"
-                  placeholder="Search"
-                />
-              </div>
-            </div>
+        <LibraryBody
+          loading={loading}
+          query={query}
+          searchResults={searchResults}
+          collection={collection}
+          activeFolderId={activeFolderId}
+          view={view}
+          visibleFolders={visibleFolders}
+          countsByFolder={countsByFolder}
+          videos={bodyVideos}
+          photos={locationPhotos}
+          dragOverFolder={dragOverFolder}
+          draggingVideoId={draggingVideoId}
+          onOpenFolder={(folderId) => navigate(folderId)}
+          onFolderContext={openFolderMenu}
+          onVideoOpen={openVideoEditor}
+          onVideoContext={openVideoMenu}
+          onPhotoContext={openPhotoMenu}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragOverTile={handleDragOverTile}
+          onDragLeaveTile={handleDragLeaveTile}
+          onDropOnTile={handleDropOnTile}
+          onDropOnRoot={handleDropOnRoot}
+        />
 
-            {loading ? (
-              <div className="space-y-3">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="h-28 animate-pulse rounded-lg border border-zinc-800 bg-zinc-900/60" />
-                ))}
-              </div>
-            ) : filteredVideos.length === 0 ? (
-              <div className="flex min-h-48 flex-col items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-center">
-                <PlayCircle className="mb-3 h-8 w-8 text-zinc-600" />
-                <p className="text-sm text-zinc-500">No portal videos found.</p>
-                <button
-                  type="button"
-                  onClick={startNewVideo}
-                  className="btn-primary mt-4 inline-flex min-h-10 items-center justify-center gap-2 px-4 text-sm"
-                >
-                  <PlusCircle className="h-4 w-4" />
-                  Create Video
-                </button>
-              </div>
-            ) : (
-              <div className="grid gap-3">
-                {filteredVideos.map((video) => (
-                  <article
-                    key={video.id}
-                    className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 transition-colors hover:border-zinc-700"
-                  >
-                    <div className="grid gap-3 sm:grid-cols-[132px_1fr_auto] sm:items-start">
-                      <button
-                        type="button"
-                        onClick={() => openVideo(video)}
-                        className="relative aspect-video overflow-hidden rounded-md bg-black text-left"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={thumbnailUrl(video.youtubeId)} alt="" className="h-full w-full object-cover" />
-                        <span className="absolute left-2 top-2 rounded bg-black/70 px-2 py-1 text-[10px] uppercase tracking-wider text-white">
-                          {video.isPublished ? "Live" : "Draft"}
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openVideo(video)}
-                        className="min-w-0 text-left"
-                      >
-                        <h3 className="truncate text-sm font-semibold text-white">{video.title}</h3>
-                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">
-                          {video.description || "No description"}
-                        </p>
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          <span className="rounded-md border border-zinc-800 px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-500">
-                            {video.category}
-                          </span>
-                          {video.showInTechniques ? (
-                            <span className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 text-[10px] uppercase tracking-wider text-cyan-300">
-                              Techniques
-                            </span>
-                          ) : null}
-                          <span className="rounded-md border border-zinc-800 px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-500">{video.contentFormat === "short" ? "Quick Drill" : "Full Lesson"}</span>
-                        </div>
-                      </button>
-                      <div className="flex gap-2"><button type="button" onClick={() => copyLessonLink(video)} className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:border-zinc-600 hover:text-white" title="Copy secure lesson link"><Copy className="h-4 w-4" /></button><button type="button" onClick={() => duplicateVideo(video)} className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:border-cyan-500/40 hover:text-cyan-200" title="Duplicate video as draft"><CopyPlus className="h-4 w-4" /></button><button type="button" onClick={() => handleDelete(video)} disabled={deletingId === video.id} className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50" title="Delete video">{deletingId === video.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}</button></div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-        </section>
+        <input
+          ref={photoInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={(event) => {
+            void uploadFolderPhoto(event.target.files?.[0]);
+            event.target.value = "";
+          }}
+        />
 
-        {editorOpen ? (
-          <div
-            className="glass-modal-overlay"
-            onClick={(event) => {
-              if (event.target === event.currentTarget && !saving) setEditorOpen(false);
+        {videoDraft ? (
+          <VideoEditorSheet
+            draft={videoDraft}
+            folders={[...folders].sort((left, right) => left.title.localeCompare(right.title))}
+            saving={saving}
+            error={editorError}
+            onChange={(patch) => {
+              setEditorError("");
+              setNotice("");
+              setVideoDraft((current) => (current ? { ...current, ...patch } : current));
             }}
-          >
-          <aside className="glass-modal !max-w-xl max-h-[90vh] overflow-y-auto p-4 sm:p-5">
-            <div className="mb-5 flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">{draft.id ? "Edit" : "New"}</p>
-                <h2 className="text-lg font-semibold text-white">{draft.id ? "Update Video" : "Create Video"}</h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditorOpen(false)}
-                disabled={saving}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:border-zinc-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                title="Close editor"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <input
-                value={draft.title}
-                onChange={(event) => updateDraft({ title: event.target.value })}
-                className="input-minimal"
-                placeholder="Video title"
-              />
-              <div className="grid grid-cols-2 gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-2">
-                <button type="button" onClick={() => updateDraft({ contentFormat: "short" })} className={`min-h-12 rounded-md border px-3 text-left text-sm font-semibold ${draft.contentFormat === "short" ? "border-white bg-white text-black" : "border-zinc-800 text-zinc-400"}`}><span className="block">Quick Drill</span><span className="text-xs font-normal opacity-70">Portrait 9:16 / Shorts</span></button>
-                <button type="button" onClick={() => updateDraft({ contentFormat: "landscape" })} className={`min-h-12 rounded-md border px-3 text-left text-sm font-semibold ${draft.contentFormat === "landscape" ? "border-white bg-white text-black" : "border-zinc-800 text-zinc-400"}`}><span className="block">Full Lesson</span><span className="text-xs font-normal opacity-70">Landscape 16:9</span></button>
-              </div>
-              <textarea
-                value={draft.description}
-                onChange={(event) => updateDraft({ description: event.target.value })}
-                className="input-minimal min-h-24 resize-none"
-                placeholder="Description"
-              />
-              <div>
-                <textarea
-                  value={draft.lessonNote}
-                  onChange={(event) => updateDraft({ lessonNote: event.target.value.slice(0, 3000) })}
-                  className="input-minimal min-h-24 resize-y"
-                  placeholder="Instructor note shown below the athlete video"
-                  maxLength={3000}
-                />
-                <p className="mt-1 text-xs text-zinc-500">Practice cues, safety reminders, or a repetition target. Visible only with this lesson.</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <select
-                  value={draft.category}
-                  onChange={(event) => updateDraft({ category: event.target.value })}
-                  className="input-minimal"
-                >
-                  {VIDEO_CATEGORIES.map((category) => (
-                    <option key={category.value} value={category.value}>
-                      {category.label}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  value={draft.durationLabel}
-                  onChange={(event) => updateDraft({ durationLabel: event.target.value })}
-                  className="input-minimal"
-                  placeholder="Duration"
-                />
-              </div>
-              <input
-                value={draft.youtubeInput}
-                onChange={(event) => updateYouTubeInput(event.target.value)}
-                className="input-minimal"
-                placeholder="YouTube URL or ID"
-              />
-              <div>
-                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Practice folder</label>
-                <select value={draft.folderId} onChange={(event) => updateDraft({ folderId: event.target.value })} className="input-minimal">
-                  <option value="">No folder (legacy/unfiled)</option>
-                  {beltCategorisedFolders.map((folder) => <option key={folder.id} value={folder.id}>{folderBeltCategory(folder)} — {folder.title}</option>)}
-                </select>
-                <p className="mt-1 text-xs leading-relaxed text-zinc-600">Choose a folder to organise this lesson. Folder rules form the outer audience boundary.</p>
-              </div>
-
-              <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.05] p-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-cyan-200">Athlete portal preview</p>
-                <p className="mt-1 text-sm font-semibold text-zinc-100">Visible to: {audiencePreview}</p>
-                <p className="mt-1 text-xs leading-relaxed text-zinc-500">Branches: {effectiveBranches.length ? effectiveBranches.join(", ") : "All"} · Batches: {effectiveBatches.length ? effectiveBatches.join(", ") : "All"}</p>
-                <p className="mt-1 text-xs leading-relaxed text-zinc-500">{draftFolder ? `Inside “${draftFolder.title}”. Folder rules remain enforced.` : "No folder selected. This video uses its own visibility rules."}</p>
-              </div>
-
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                <div className={`${draft.contentFormat === "short" ? "mx-auto aspect-[9/16] max-w-48" : "aspect-video"} overflow-hidden rounded-md bg-black`}>
-                  {draft.youtubeId ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={thumbnailUrl(draft.youtubeId)} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-xs uppercase tracking-wider text-zinc-600">
-                      YouTube Preview
-                    </div>
-                  )}
-                </div>
-                <p className="mt-2 truncate font-mono text-xs text-zinc-500">
-                  {draft.youtubeId || "No video ID"}
-                </p>
-              </div>
-
-              <input
-                value={draft.batchNamesText}
-                onChange={(event) => updateDraft({ batchNamesText: event.target.value })}
-                className="input-minimal"
-                placeholder="Batches"
-                disabled={draft.showInTechniques}
-              />
-
-              <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Branches</p>
-                <div className="flex flex-wrap gap-2">
-                  {BRANCH_OPTIONS.map((branch) => (
-                    <Chip
-                      key={branch.slug}
-                      selected={draft.branchSlugs.includes(branch.slug)}
-                      onClick={() => toggleList("branchSlugs", branch.slug)}
-                    >
-                      {branch.label}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Video-specific belt rule</p>
-                <div className="flex flex-wrap gap-2">
-                  {BELT_OPTIONS.map((belt) => (
-                    <Chip
-                      key={belt}
-                      selected={draft.beltLevels.includes(belt)}
-                      onClick={() => toggleList("beltLevels", belt)}
-                    >
-                      {belt}
-                    </Chip>
-                  ))}
-                </div>
-                <p className="mt-2 text-xs leading-relaxed text-zinc-600">Leave empty to inherit the folder’s belt audience. Choose one or more belts to limit this individual video further; a video cannot be shared beyond its folder’s belt category.</p>
-              </div>
-
-              <div className="grid gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                <label className="flex items-center justify-between gap-3 text-sm text-zinc-400">
-                  <span>Published</span>
-                  <input
-                    type="checkbox"
-                    checked={draft.isPublished}
-                    onChange={(event) => updateDraft({ isPublished: event.target.checked })}
-                    className="h-4 w-4 accent-white"
-                  />
-                </label>
-                <label className="flex items-center justify-between gap-3 text-sm text-zinc-400">
-                  <span>Technique Library</span>
-                  <input
-                    type="checkbox"
-                    checked={draft.showInTechniques}
-                    onChange={(event) => updateDraft({ showInTechniques: event.target.checked })}
-                    className="h-4 w-4 accent-white"
-                  />
-                </label>
-              </div>
-
-              <div className="rounded-lg border border-zinc-800 bg-black/30 p-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Ready-to-publish checklist</p>
-                <div className="mt-2 grid gap-1.5 text-xs text-zinc-400">
-                  <p>{draft.title.trim() ? "✓" : "○"} Lesson title</p>
-                  <p>{draft.youtubeId ? "✓" : "○"} Valid YouTube link</p>
-                  <p>{draftFolder ? "✓" : "○"} Practice folder</p>
-                  <p>{effectiveVideoBelts.length ? "✓" : "○"} Belt audience</p>
-                  <p>{draft.lessonNote.trim() ? "✓" : "○"} Instructor note (recommended)</p>
-                  <p>{draft.isPublished ? "✓ Published" : "○ Draft — athletes cannot see it yet"}</p>
-                </div>
-              </div>
-
-              <input
-                type="number"
-                value={draft.sortOrder}
-                onChange={(event) => updateDraft({ sortOrder: Number(event.target.value || 0) })}
-                className="input-minimal"
-                placeholder="Sort order"
-              />
-
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={saving}
-                className="btn-primary flex min-h-11 w-full items-center justify-center gap-2"
-              >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                {draft.id ? "Save Video" : "Create Video"}
-              </button>
-            </div>
-          </aside>
-          </div>
+            onSubmit={() => void submitVideo()}
+            onClose={() => setVideoDraft(null)}
+          />
         ) : null}
 
-        {folderEditorOpen ? (
-          <div className="glass-modal-overlay" onClick={(event) => { if (event.target === event.currentTarget && !saving) setFolderEditorOpen(false); }}>
-            <aside className="glass-modal !max-w-xl max-h-[90vh] overflow-y-auto p-4 sm:p-5">
-              <div className="mb-5 flex items-start justify-between gap-3"><div><p className="text-xs uppercase tracking-widest text-zinc-500">{folderDraft.id ? "Edit" : "New"}</p><h2 className="text-lg font-semibold text-white">{folderDraft.id ? "Update Folder" : "Create Practice Folder"}</h2></div><button type="button" onClick={() => setFolderEditorOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-800 text-zinc-400 hover:text-white"><X className="h-4 w-4" /></button></div>
-              <div className="space-y-4">
-                <input value={folderDraft.title || ""} onChange={(event) => setFolderDraft((current) => ({ ...current, title: event.target.value }))} className="input-minimal" placeholder="Folder name, e.g. Yellow Belt Syllabus" />
-                <textarea value={folderDraft.description || ""} onChange={(event) => setFolderDraft((current) => ({ ...current, description: event.target.value }))} className="input-minimal min-h-24 resize-none" placeholder="What should students practise in this folder?" />
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Inside folder (optional)</label>
-                  <select value={folderDraft.parentFolderId || ""} onChange={(event) => setFolderDraft((current) => ({ ...current, parentFolderId: event.target.value }))} className="input-minimal">
-                    <option value="">Top-level practice folder</option>
-                    {beltCategorisedFolders.filter((folder) => folder.id !== folderDraft.id).map((folder) => <option key={folder.id} value={folder.id}>{parentFolderLabel(folder, folders)}</option>)}
-                  </select>
-                  <p className="mt-1 text-xs leading-relaxed text-zinc-600">Use this to build syllabus paths such as Kumite → Techniques. Keep it empty for a main library folder.</p>
-                </div>
-                <input value={folderDraft.batchNames?.join(", ") || ""} onChange={(event) => setFolderDraft((current) => ({ ...current, batchNames: splitCsv(event.target.value) }))} className="input-minimal" placeholder="Optional batches, comma separated" />
-                <div><p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Belt category and visibility</p><div className="flex flex-wrap gap-2">{BELT_OPTIONS.map((belt) => <Chip key={belt} selected={Boolean(folderDraft.beltLevels?.includes(belt))} onClick={() => setFolderDraft((current) => ({ ...current, beltLevels: current.beltLevels?.includes(belt) ? current.beltLevels.filter((item) => item !== belt) : [...(current.beltLevels || []), belt] }))}>{BELT_LABELS[belt]}</Chip>)}</div><p className="mt-2 text-xs text-zinc-600">Selected belts are the category and the only belts that can see this folder. Leave empty only for shared, all-belt content.</p></div>
-                <div><p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Visible to branches</p><div className="flex flex-wrap gap-2">{BRANCH_OPTIONS.map((branch) => <Chip key={branch.slug} selected={Boolean(folderDraft.branchSlugs?.includes(branch.slug))} onClick={() => setFolderDraft((current) => ({ ...current, branchSlugs: current.branchSlugs?.includes(branch.slug) ? current.branchSlugs.filter((item) => item !== branch.slug) : [...(current.branchSlugs || []), branch.slug] }))}>{branch.label}</Chip>)}</div></div>
-                <div className="grid gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3"><label className="flex items-center justify-between text-sm text-zinc-400"><span>Published</span><input type="checkbox" checked={folderDraft.isPublished !== false} onChange={(event) => setFolderDraft((current) => ({ ...current, isPublished: event.target.checked }))} className="h-4 w-4 accent-white" /></label></div>
-                <input type="number" value={folderDraft.sortOrder || 0} onChange={(event) => setFolderDraft((current) => ({ ...current, sortOrder: Number(event.target.value || 0) }))} className="input-minimal" placeholder="Sort order" />
-                <button type="button" onClick={saveFolder} disabled={saving} className="btn-primary flex min-h-11 w-full items-center justify-center gap-2">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}{folderDraft.id ? "Save Folder" : "Create Folder"}</button>
-              </div>
-            </aside>
-          </div>
+        {folderDraft ? (
+          <FolderEditorSheet
+            draft={folderDraft}
+            folders={folders}
+            saving={saving}
+            error={editorError}
+            invalidParentIds={invalidParentIds}
+            onChange={(patch) => {
+              setEditorError("");
+              setNotice("");
+              setFolderDraft((current) => (current ? { ...current, ...patch } : current));
+            }}
+            onSubmit={() => void submitFolder()}
+            onClose={() => setFolderDraft(null)}
+          />
         ) : null}
+
+        {moveState ? (
+          <MoveToSheet
+            key={moveState.video.id}
+            title={moveState.video.title}
+            currentLabel={folders.find((folder) => folder.id === moveState.video.folderId)?.title || "Unfiled"}
+            currentFolderId={moveState.video.folderId || null}
+            folders={folders}
+            busy={movingBusy}
+            onClose={() => setMoveState(null)}
+            onMove={(target) => {
+              const video = moveState.video;
+              setMoveState(null);
+              void moveVideoTo(video, target);
+            }}
+          />
+        ) : null}
+
+        <ContextMenuSurface menu={menu} onClose={closeMenu} />
 
         <ConfirmModal
           open={confirmState !== null}
-          title="Delete Video"
-          message={`Delete "${confirmState?.video.title}"?`}
+          title={confirmState?.kind === "video" ? "Delete Video" : confirmState?.kind === "folder" ? "Delete Folder" : "Delete Photo Guide"}
+          message={confirmState?.message || ""}
           variant="danger"
           confirmLabel="Delete"
-          onConfirm={handleConfirmDelete}
+          onConfirm={() => void handleConfirmDelete()}
           onCancel={() => setConfirmState(null)}
-          loading={deletingId === confirmState?.video.id}
+          loading={Boolean(confirmState && deletingId === confirmState.id)}
         />
       </main>
     </div>
