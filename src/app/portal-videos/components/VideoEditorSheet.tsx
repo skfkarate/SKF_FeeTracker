@@ -134,9 +134,9 @@ export function VideoEditorSheet({
   onClose: () => void;
 }) {
   const draftFolder = folders.find((folder) => folder.id === draft.folderId);
-  const effectiveBelts = draft.beltLevels.length ? draft.beltLevels : draftFolder?.beltLevels || [];
-  const effectiveBranches = draft.branchSlugs.length ? draft.branchSlugs : draftFolder?.branchSlugs || [];
-  const effectiveBatches = splitCsv(draft.batchNamesText).length ? splitCsv(draft.batchNamesText) : draftFolder?.batchNames || [];
+  const effectiveBelts = draft.beltLevels;
+  const effectiveBranches = draft.branchSlugs;
+  const effectiveBatches = splitCsv(draft.batchNamesText);
   const audiencePreview = effectiveBelts.length
     ? effectiveBelts.map((belt) => BELT_LABELS[belt] || belt).join(" · ")
     : "All belts / shared";
@@ -210,14 +210,14 @@ export function VideoEditorSheet({
                 <option key={folder.id} value={folder.id}>{folderPathLabel(folder, folders)}</option>
               ))}
             </select>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-600">Choose a folder to organise this lesson. Folder rules form the outer audience boundary.</p>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-600">Choose a folder to organise this lesson. Folders are just shelves — who sees this video is decided only by the audience below.</p>
           </div>
 
           <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.05] p-3">
             <p className="text-xs font-bold uppercase tracking-wider text-cyan-200">Athlete portal preview</p>
             <p className="mt-1 text-sm font-semibold text-zinc-100">Visible to: {audiencePreview}</p>
             <p className="mt-1 text-xs leading-relaxed text-zinc-500">Branches: {effectiveBranches.length ? effectiveBranches.join(", ") : "All"} · Batches: {effectiveBatches.length ? effectiveBatches.join(", ") : "All"}</p>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-500">{draftFolder ? `Inside “${folderPathLabel(draftFolder, folders)}”. Folder rules remain enforced.` : "No folder selected. This video uses its own visibility rules."}</p>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-500">{draftFolder ? `Filed under “${folderPathLabel(draftFolder, folders)}”. This video's own audience decides who sees it.` : "No folder selected. Unfiled lessons appear at the end of the belt shelf."}</p>
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
@@ -249,7 +249,7 @@ export function VideoEditorSheet({
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Video-specific belt rule</p>
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Belt audience</p>
             <div className="flex flex-wrap gap-2">
               {BELT_OPTIONS.map((belt) => (
                 <Chip key={belt} selected={draft.beltLevels.includes(belt)} onClick={() => toggleList("beltLevels", belt)}>
@@ -257,7 +257,7 @@ export function VideoEditorSheet({
                 </Chip>
               ))}
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-zinc-600">Leave empty to inherit the folder’s belt audience. Choose one or more belts to limit this individual video further; a video cannot be shared beyond its folder’s belt category.</p>
+            <p className="mt-2 text-xs leading-relaxed text-zinc-600">Empty = all belts (shared, leads the shelf). Choose belts to limit who sees this lesson — content climbs White to Black, so keep shared syllabus lessons unrestricted.</p>
           </div>
 
           <div className="grid gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3">

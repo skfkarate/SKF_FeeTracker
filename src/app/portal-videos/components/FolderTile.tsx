@@ -3,7 +3,6 @@
 import { Folder } from "lucide-react";
 import type { PracticeFolder } from "@/lib/api";
 import type { FolderCounts } from "./tree-utils";
-import { folderBeltCategory } from "./library-shared";
 import { useLongPress } from "./use-long-press";
 
 export function FolderTile({
@@ -49,11 +48,6 @@ export function FolderTile({
           : "border-zinc-800 bg-zinc-950 hover:border-zinc-600 hover:bg-zinc-900"
       }`}
     >
-      <span className="pointer-events-none absolute left-4 right-4 top-0 flex h-[3px] gap-1 overflow-hidden rounded-b-full">
-        {(folder.beltLevels?.length ? folder.beltLevels : ["shared"]).slice(0, 6).map((belt, index) => (
-          <span key={`${belt}-${index}`} className={`h-full flex-1 first:rounded-l-full last:rounded-r-full ${beltClass(belt)}`} />
-        ))}
-      </span>
       <div className="mb-3 flex items-start justify-between">
         <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-800 bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-300 shadow-inner shadow-black/40 group-hover:border-zinc-600">
           <Folder className="h-5 w-5" strokeWidth={1.75} />
@@ -64,25 +58,8 @@ export function FolderTile({
       </div>
       <p className="truncate text-sm font-semibold text-white">{folder.title}</p>
       <p className="mt-0.5 truncate text-xs text-zinc-500">{subtitleParts.join(" · ")}</p>
-      <p className="mt-1 truncate text-[10px] font-medium uppercase tracking-wider text-zinc-600">{folderBeltCategory(folder.beltLevels)}</p>
     </button>
   );
-}
-
-function beltClass(belt: string) {
-  switch (belt) {
-    case "white": return "bg-zinc-200";
-    case "yellow": return "bg-yellow-400";
-    case "orange": return "bg-orange-500";
-    case "green-ii": return "bg-emerald-700";
-    case "green-i": return "bg-emerald-400";
-    case "blue": return "bg-sky-500";
-    case "purple": return "bg-purple-500";
-    case "brown-iii": return "bg-amber-800";
-    case "brown-ii": return "bg-amber-700";
-    case "brown-i": return "bg-amber-600";
-    default: return "bg-cyan-400";
-  }
 }
 
 export function FolderSkeleton() {

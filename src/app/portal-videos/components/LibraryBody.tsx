@@ -33,6 +33,8 @@ export function LibraryBody({
   onDragLeaveTile,
   onDropOnTile,
   onDropOnRoot,
+  onVideoMoveUp,
+  onVideoMoveDown,
 }: {
   loading: boolean;
   query: string;
@@ -57,6 +59,8 @@ export function LibraryBody({
   onDragLeaveTile: (folderId: string) => void;
   onDropOnTile: (event: React.DragEvent, folderId: string) => void;
   onDropOnRoot: (event: React.DragEvent) => void;
+  onVideoMoveUp?: (video: PortalVideo) => void;
+  onVideoMoveDown?: (video: PortalVideo) => void;
 }) {
   if (loading) {
     return (
@@ -216,7 +220,7 @@ export function LibraryBody({
             </div>
           ) : (
             <div className="grid gap-2">
-              {videos.map((video) => (
+              {videos.map((video, index) => (
                 <VideoCard
                   key={video.id}
                   video={video}
@@ -226,6 +230,8 @@ export function LibraryBody({
                   onContext={(x, y) => onVideoContext(video, x, y)}
                   onDragStart={(event) => onDragStart(event, video)}
                   onDragEnd={onDragEnd}
+                  onMoveUp={onVideoMoveUp ? (index > 0 ? () => onVideoMoveUp(video) : undefined) : undefined}
+                  onMoveDown={onVideoMoveDown ? (index < videos.length - 1 ? () => onVideoMoveDown(video) : undefined) : undefined}
                 />
               ))}
             </div>

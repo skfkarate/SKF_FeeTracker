@@ -1459,6 +1459,22 @@ export async function deletePortalVideo(videoId: string): Promise<{ videoId: str
   return data.data;
 }
 
+export type PracticeReorderScope = "folders" | "videos" | "photos";
+
+/**
+ * Persists a dragged shelf order to the athlete portal by rewriting
+ * sort_order for every id in `orderedIds` (index × 10). Send the full scope
+ * list the way the website manager does so untouched rows keep their place.
+ */
+export async function reorderPracticeContent(scope: PracticeReorderScope, orderedIds: string[]): Promise<{ scope: PracticeReorderScope; orderedIds: string[] }> {
+  const data = await apiAction<{ data: { scope: PracticeReorderScope; orderedIds: string[] } }>("reorder_practice_content", {
+    scope,
+    orderedIds,
+  });
+  invalidateCache("portalVideos");
+  return data.data;
+}
+
 export const GALLERY_CATEGORIES = [
   "Demonstrations",
   "Tournaments",

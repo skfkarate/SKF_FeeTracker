@@ -30,6 +30,7 @@ import {
   deletePracticePhoto,
   getHomePracticeAnalytics,
   getPracticeLibraryAdmin,
+  reorderPracticeContent,
   upsertPortalVideo,
   upsertPracticeFolder,
   uploadPracticePhoto,
@@ -50,7 +51,7 @@ import { VideoEditorSheet, draftFromVideo, draftToInput, emptyVideoDraft, type V
 import { FolderEditorSheet, emptyFolderDraft } from "./components/FolderEditorSheet";
 import { LibraryBody } from "./components/LibraryBody";
 import { useFolderNavigation } from "./components/use-folder-navigation";
-import { childrenOf, countSubtree, getAncestorChain, getDescendantIds, searchLibrary, sortVideos } from "./components/tree-utils";
+import { childrenOf, countSubtree, flattenVideoScopeIds, getAncestorChain, getDescendantIds, searchLibrary, sortVideos } from "./components/tree-utils";
 import type { CollectionKey, SortMode, ViewMode } from "./components/library-shared";
 
 const VIEW_PREF_KEY = "portal-videos-view-prefs";
@@ -311,7 +312,7 @@ function PortalVideosLibrary() {
     setSaving(true);
     setEditorError("");
     try {
-      const saved = await upsertPracticeFolder({ ...folderDraft, title: folderDraft.title.trim() });
+      const saved = await upsertPracticeFolder({ ...folderDraft, branchSlugs: [], batchNames: [], beltLevels: [], title: folderDraft.title.trim() });
       setFolders((currentList) =>
         currentList.some((folder) => folder.id === saved.id)
           ? currentList.map((folder) => (folder.id === saved.id ? saved : folder))
@@ -431,9 +432,9 @@ function PortalVideosLibrary() {
         folderId: currentFolder.id,
         file,
         title,
-        branchSlugs: currentFolder.branchSlugs,
-        batchNames: currentFolder.batchNames,
-        beltLevels: currentFolder.beltLevels,
+        branchSlugs: [],
+        batchNames: [],
+        beltLevels: [],
       });
       await loadVideos(true);
       flashNotice(`Photo guide uploaded to ${currentFolder.title}.`);
@@ -564,6 +565,37 @@ function PortalVideosLibrary() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [videos],
   );
+
+  async function handleVideoReorder(video: PortalVideo, direction: "up" | "down") {
+    if (searchResults || collection) return;
+    const shelf = bodyVideos;
+    const from = shelf.findIndex((item) => item.id === video.id);
+    const to = from + (direction === "up" ? -1 : 1);
+    if (from < 0 || to < 0 || to >= shelf.length) return;
+
+    const nextShelf = [...shelf];
+    const [moved] = nextShelf.splice(from, 1);
+    nextShelf.splice(to, 0, moved);
+
+    const previous = videos;
+    setError("");
+    setSaving(true);
+    try {
+      const orderedIds = flattenVideoScopeIds(folders, videos, {
+        folderId: activeFolderId || null,
+        ids: nextShelf.map((item) => item.id),
+      });
+      await reorderPracticeContent("videos", orderedIds);
+      const orderBy = new Map(orderedIds.map((id, index) => [id, index * 10]));
+      setVideos((currentList) => currentList.map((item) => ({ ...item, sortOrder: orderBy.get(item.id) ?? item.sortOrder })));
+      flashNotice(`“${video.title}” reordered within the belt shelf.`);
+    } catch (err) {
+      setVideos(previous);
+      setError(err instanceof Error ? err.message : "Unable to reorder the shelf.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const handleBreadcrumbDrop = useCallback(
     (event: React.DragEvent, folderId: string | null) => {
@@ -741,6 +773,8 @@ function PortalVideosLibrary() {
           onDragLeaveTile={handleDragLeaveTile}
           onDropOnTile={handleDropOnTile}
           onDropOnRoot={handleDropOnRoot}
+          onVideoMoveUp={view === "list" && sortMode === "auto" && !collection && !searchResults ? (video) => void handleVideoReorder(video, "up") : undefined}
+          onVideoMoveDown={view === "list" && sortMode === "auto" && !collection && !searchResults ? (video) => void handleVideoReorder(video, "down") : undefined}
         />
 
         <input

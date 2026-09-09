@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, MoreHorizontal, Smartphone, MonitorPlay } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, MoreHorizontal, Smartphone, MonitorPlay } from "lucide-react";
 import type { PortalVideo } from "@/lib/api";
 import { thumbnailUrl } from "./library-shared";
 import { useLongPress } from "./use-long-press";
@@ -14,6 +14,8 @@ export function VideoCard({
   onContext,
   onDragStart,
   onDragEnd,
+  onMoveUp,
+  onMoveDown,
 }: {
   video: PortalVideo;
   variant: "grid" | "list";
@@ -23,6 +25,8 @@ export function VideoCard({
   onContext: (x: number, y: number) => void;
   onDragStart?: (event: React.DragEvent) => void;
   onDragEnd?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }) {
   const longPress = useLongPress(onContext);
 
@@ -49,6 +53,28 @@ export function VideoCard({
             {video.category}{video.durationLabel ? ` · ${video.durationLabel}` : ""}
           </p>
         </div>
+        {onMoveUp || onMoveDown ? (
+          <div className="flex flex-shrink-0 flex-col rounded-lg border border-zinc-800 bg-zinc-900 p-0.5">
+            <button
+              type="button"
+              aria-label="Move up within the shelf"
+              disabled={!onMoveUp}
+              onClick={(event) => { event.stopPropagation(); onMoveUp?.(); }}
+              className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-500"
+            >
+              <ChevronUp className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Move down within the shelf"
+              disabled={!onMoveDown}
+              onClick={(event) => { event.stopPropagation(); onMoveDown?.(); }}
+              className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-500"
+            >
+              <ChevronDown className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : null}
         <button
           type="button"
           aria-label="More actions"

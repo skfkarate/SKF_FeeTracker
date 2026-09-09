@@ -2,8 +2,6 @@
 
 import { AlertCircle, Loader2, Save, X } from "lucide-react";
 import type { PracticeFolderInput } from "@/lib/api";
-import { BELT_LABELS, BELT_OPTIONS, BRANCH_OPTIONS } from "./library-shared";
-import { Chip } from "./Chip";
 import { FolderTreePicker } from "./MoveToSheet";
 
 export function emptyFolderDraft(): PracticeFolderInput {
@@ -79,37 +77,9 @@ export function FolderEditorSheet({
             <p className="mt-1 text-xs leading-relaxed text-zinc-600">Use this to build syllabus paths such as Kumite → Techniques. Keep it empty for a main library folder.</p>
           </div>
 
-          <input value={draft.batchNames?.join(", ") || ""} onChange={(event) => onChange({ batchNames: event.target.value.split(",").map((item) => item.trim()).filter(Boolean) })} className="input-minimal" placeholder="Optional batches, comma separated" />
-
-          <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Belt category and visibility</p>
-            <div className="flex flex-wrap gap-2">
-              {BELT_OPTIONS.map((belt) => (
-                <Chip
-                  key={belt}
-                  selected={Boolean(draft.beltLevels?.includes(belt))}
-                  onClick={() => onChange({ beltLevels: draft.beltLevels?.includes(belt) ? draft.beltLevels.filter((item) => item !== belt) : [...(draft.beltLevels || []), belt] })}
-                >
-                  {BELT_LABELS[belt]}
-                </Chip>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-zinc-600">Selected belts are the category and the only belts that can see this folder. Leave empty only for shared, all-belt content.</p>
-          </div>
-
-          <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Visible to branches</p>
-            <div className="flex flex-wrap gap-2">
-              {BRANCH_OPTIONS.map((branch) => (
-                <Chip
-                  key={branch.slug}
-                  selected={Boolean(draft.branchSlugs?.includes(branch.slug))}
-                  onClick={() => onChange({ branchSlugs: draft.branchSlugs?.includes(branch.slug) ? draft.branchSlugs.filter((item) => item !== branch.slug) : [...(draft.branchSlugs || []), branch.slug] })}
-                >
-                  {branch.label}
-                </Chip>
-              ))}
-            </div>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Shelves do not gate access</p>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-400">Folders only organise the library and set the pre-order of the athlete portal. Who can see content is decided on each video audience (belts, branches, batches), never on the folder itself.</p>
           </div>
 
           <div className="grid gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
