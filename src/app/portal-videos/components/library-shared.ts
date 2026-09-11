@@ -35,6 +35,29 @@ export function thumbnailUrl(youtubeId: string) {
   return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
 }
 
+const isLocalPublicUrl = (value: string) =>
+  /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(?::|\/|$)/i.test(value);
+
+const DEFAULT_KARATE_ORIGIN = "https://www.skfkarate.org";
+
+export function practicePortalBaseUrl() {
+  const configuredBase = process.env.NEXT_PUBLIC_SKF_KARATE_URL?.trim();
+  const base =
+    !configuredBase ||
+    (process.env.NODE_ENV === "production" && isLocalPublicUrl(configuredBase))
+      ? DEFAULT_KARATE_ORIGIN
+      : configuredBase;
+  return (base || DEFAULT_KARATE_ORIGIN).replace(/\/+$/, "");
+}
+
+export function videoPortalShareLink(videoId: string) {
+  return `${practicePortalBaseUrl()}/portal/videos/${encodeURIComponent(videoId)}`;
+}
+
+export function folderPortalShareLink(folderId: string) {
+  return `${practicePortalBaseUrl()}/portal/videos?folder=${encodeURIComponent(folderId)}`;
+}
+
 export function splitCsv(value: string) {
   return value.split(",").map((item) => item.trim()).filter(Boolean);
 }
