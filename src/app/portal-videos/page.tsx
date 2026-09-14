@@ -52,6 +52,7 @@ import { FolderEditorSheet, emptyFolderDraft } from "./components/FolderEditorSh
 import { LibraryBody } from "./components/LibraryBody";
 import { useFolderNavigation } from "./components/use-folder-navigation";
 import { childrenOf, countSubtree, flattenVideoScopeIds, getAncestorChain, getDescendantIds, searchLibrary, sortVideos } from "./components/tree-utils";
+import { folderPortalShareLink, videoPortalShareLink } from "./components/library-shared";
 import type { CollectionKey, SortMode, ViewMode } from "./components/library-shared";
 
 const VIEW_PREF_KEY = "portal-videos-view-prefs";
@@ -412,12 +413,22 @@ function PortalVideosLibrary() {
   }
 
   async function copyLessonLink(video: PortalVideo) {
-    const link = `https://www.skfkarate.org/portal/videos/${encodeURIComponent(video.id)}`;
+    const link = videoPortalShareLink(video.id);
     try {
       await navigator.clipboard.writeText(link);
       flashNotice("Secure athlete portal link copied. Students must sign in and meet the belt rules to view it.");
     } catch {
       setError("Unable to copy the lesson link. Please copy it from the browser address bar after opening the lesson.");
+    }
+  }
+
+  async function copyFolderLink(folder: PracticeFolder) {
+    const link = folderPortalShareLink(folder.id);
+    try {
+      await navigator.clipboard.writeText(link);
+      flashNotice("Secure athlete folder link copied. Students must sign in to open the folder and follow its lessons.");
+    } catch {
+      setError("Unable to copy the folder link. Please copy it from the browser address bar after opening the folder.");
     }
   }
 
@@ -456,6 +467,7 @@ function PortalVideosLibrary() {
         { label: "Edit", icon: Pencil, onSelect: () => openFolderEditor(folder) },
         { label: "New subfolder here", icon: FolderPlus, onSelect: () => startNewFolder(folder.id) },
         { label: "Duplicate", icon: Copy, onSelect: () => duplicateFolder(folder) },
+        { label: "Copy secure link", icon: Link2, onSelect: () => void copyFolderLink(folder) },
         { label: folder.isPublished ? "Move to drafts" : "Publish", icon: folder.isPublished ? EyeOff : Eye, onSelect: () => void toggleFolderPublished(folder) },
         {
           label: "Delete",
@@ -745,6 +757,15 @@ function PortalVideosLibrary() {
             >
               <ImagePlus className="h-3.5 w-3.5" /> Photo guide
             </button>
+            {currentFolder ? (
+              <button
+                type="button"
+                onClick={() => void copyFolderLink(currentFolder)}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+              >
+                <Link2 className="h-3.5 w-3.5" /> Copy folder link
+              </button>
+            ) : null}
             <p className="ml-auto hidden text-xs text-zinc-600 sm:block">Tip: drag lessons onto a folder or breadcrumb to re-file them.</p>
           </div>
         ) : null}
