@@ -2,7 +2,7 @@
 
 import { Image as ImageIcon } from "lucide-react";
 import type { PracticePhoto } from "@/lib/api";
-import { normalizeKarateMediaUrl } from "@/lib/media-url";
+import { practicePhotoUrl } from "@/lib/media-url";
 import { useLongPress } from "./use-long-press";
 
 export function PhotoGuideCard({
@@ -13,7 +13,7 @@ export function PhotoGuideCard({
   onContext: (x: number, y: number) => void;
 }) {
   const longPress = useLongPress(onContext);
-  const src = normalizeKarateMediaUrl(photo.storagePath);
+  const src = practicePhotoUrl(photo.storagePath);
 
   return (
     <button

@@ -24,3 +24,19 @@ export function normalizeKarateMediaUrl(value?: string | null) {
   const mediaPath = normalizeRelativePath(raw);
   return `/api/feetrack/media?path=${encodeURIComponent(mediaPath)}`;
 }
+
+/**
+ * Practice photos live in a private Supabase bucket and are only served to
+ * authenticated portal athletes via short-lived signed URLs. This resolves a
+ * storage path to the staff-gated preview proxy so admins can see them too.
+ */
+export function practicePhotoUrl(value?: string | null) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  if (raw.startsWith("//")) return `https:${raw}`;
+  if (ABSOLUTE_URL_PATTERN.test(raw)) return raw;
+  if (raw.startsWith("/api/feetrack/")) return raw;
+
+  return `/api/feetrack/practice-photos/preview?path=${encodeURIComponent(raw)}`;
+}

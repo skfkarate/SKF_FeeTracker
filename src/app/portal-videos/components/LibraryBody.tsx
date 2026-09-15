@@ -6,7 +6,7 @@ import type { FolderCounts, SearchResults } from "./tree-utils";
 import { FolderSkeleton, FolderTile } from "./FolderTile";
 import { PhotoGuideCard } from "./PhotoGuideCard";
 import { VideoCard } from "./VideoCard";
-import { normalizeKarateMediaUrl } from "@/lib/media-url";
+import { practicePhotoUrl } from "@/lib/media-url";
 import type { CollectionKey, ViewMode } from "./library-shared";
 
 export function LibraryBody({
@@ -131,13 +131,13 @@ export function LibraryBody({
               <button
                 key={photo.id}
                 type="button"
-                onClick={() => window.open(normalizeKarateMediaUrl(photo.storagePath), "_blank")}
+                onClick={() => window.open(practicePhotoUrl(photo.storagePath), "_blank")}
                 onContextMenu={(event) => { event.preventDefault(); onPhotoContext(photo, event.clientX, event.clientY); }}
                 className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-left transition-colors hover:border-zinc-600"
               >
                 <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-black">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={normalizeKarateMediaUrl(photo.storagePath)} alt="" className="h-full w-full object-cover" />
+                  <img src={practicePhotoUrl(photo.storagePath)} alt="" className="h-full w-full object-cover" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold text-white">{photo.title}</span>
