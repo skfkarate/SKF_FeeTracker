@@ -629,6 +629,7 @@ export async function createManualStudentFee(input: {
   invalidateCache(`students:${input.branch}:${input.year ?? getCurrentFeeYear()}:${input.month}`);
   invalidateFinancialCaches(input.branch, input.year ?? getCurrentFeeYear());
   invalidateCache("financeCommand:");
+  invalidateCache("customOperations:");
 
   const entry = data.data?.entry;
   return {
@@ -2228,6 +2229,114 @@ export interface FinanceCommandCenterData {
   formulas: Record<string, string>;
 }
 
+export interface CustomOperationRemoval {
+  id: string;
+  month: number;
+  year: string;
+  title: string;
+  description: string;
+  scope: string;
+  amount: number;
+  dateAdded: string;
+}
+
+export interface CustomOperationDue {
+  id: string;
+  skfId: string;
+  studentName: string;
+  title: string;
+  description: string;
+  branch: string;
+  month: number;
+  monthName: string;
+  year: number;
+  amount: number;
+  status: string;
+  dueDate: string | null;
+  paidDate: string | null;
+}
+
+export interface CustomOperationMonth {
+  month: number;
+  income: number;
+  moneyOut: number;
+  expenses: number;
+  net: number;
+  balance: number;
+}
+
+export interface CustomOperationsData {
+  year: number;
+  balance: {
+    availableBalance: number | null;
+    reserveAmount: number;
+    restricted: boolean;
+    restrictedReason: string;
+    formula: string;
+  };
+  monthly: CustomOperationMonth[];
+  removals: CustomOperationRemoval[];
+  dues: CustomOperationDue[];
+  totals: {
+    moneyOut: number;
+    removalCount: number;
+    pendingDues: number;
+    pendingDueCount: number;
+    paidDues: number;
+    paidDueCount: number;
+    dueCount: number;
+  };
+  permissions: {
+    canWrite: boolean;
+    canDeleteAnyRemoval: boolean;
+    deleteWindowHours: number;
+  };
+}
+
+export async function getCustomOperations(
+  forceRefresh = false,
+  year = getCurrentFeeYear(),
+): Promise<CustomOperationsData> {
+  if (isMockData()) {
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      year,
+      balance: {
+        availableBalance: 142757,
+        reserveAmount: 30000,
+        restricted: false,
+        restrictedReason: "",
+        formula:
+          "Opening reserve + gross income - development expenses - event expenses - custom removals through the selected month.",
+      },
+      monthly: [],
+      removals: [],
+      dues: [],
+      totals: {
+        moneyOut: 0,
+        removalCount: 0,
+        pendingDues: 0,
+        pendingDueCount: 0,
+        paidDues: 0,
+        paidDueCount: 0,
+        dueCount: 0,
+      },
+      permissions: { canWrite: true, canDeleteAnyRemoval: true, deleteWindowHours: 24 },
+    };
+  }
+
+  const cacheKey = `customOperations:${year}`;
+  if (forceRefresh) invalidateCache(cacheKey);
+
+  return cachedFetch(cacheKey, async () => {
+    const data = await apiAction<{ data: CustomOperationsData }>(
+      "get_custom_operations",
+      { year },
+    );
+    return data.data;
+  });
+}
+
 export async function getFinancialSummary(
   branch: string,
   month: number,
@@ -2359,6 +2468,7 @@ export async function addRemoval(
   });
   invalidateCache(`financeCommand:${branch}:${year}:${month}`);
   invalidateCache(`financial:${branch}:${year}:${month}`);
+  invalidateCache("customOperations:");
   return data.data;
 }
 
@@ -2376,6 +2486,7 @@ export async function deleteRemoval(
   });
   invalidateCache(`financeCommand:${branch}:${year}:${month}`);
   invalidateCache(`financial:${branch}:${year}:${month}`);
+  invalidateCache("customOperations:");
   return data.data;
 }
 

@@ -19,16 +19,16 @@ import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { getStudents, Student, uploadStudentProfilePhoto } from "@/lib/api";
-import { initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
+import { initials, hasDisplayPhoto, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
 
 type Branch = "MPSC" | "Herohalli";
-type MissingPhotoStudent = Student & { branch: Branch };
+type PhotoStudent = Student & { branch: Branch };
 
 const BRANCHES: Branch[] = ["MPSC", "Herohalli"];
 const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 
-function studentKey(student: MissingPhotoStudent) {
+function studentKey(student: PhotoStudent) {
   return `${student.branch}:${student.id}`;
 }
 
@@ -37,8 +37,7 @@ function realPhotoUrl(student: Student) {
 }
 
 function needsProfilePhoto(student: Student) {
-  if (student.hasProfilePhoto === true) return false;
-  return !realPhotoUrl(student);
+  return !hasDisplayPhoto(student);
 }
 
 function omitKey<T>(record: Record<string, T>, key: string) {
@@ -53,13 +52,14 @@ function branchDisplayName(branch: Branch) {
 
 export default function ProfilePhotosPage() {
   const { user, checking } = useFeeTrackAuth();
-  const [students, setStudents] = useState<MissingPhotoStudent[]>([]);
+  const [students, setStudents] = useState<PhotoStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [search, setSearch] = useState("");
   const [branchFilter, setBranchFilter] = useState<"All" | Branch>("All");
+  const [photoFilter, setPhotoFilter] = useState<"all" | "missing" | "has">("all");
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File>>({});
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
@@ -95,15 +95,14 @@ export default function ProfilePhotosPage() {
         }),
       );
 
-      const missing = branchResults
+      const roster = branchResults
         .flat()
         .filter((student) => student.status !== "Discontinued")
-        .filter(needsProfilePhoto)
         .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
 
-      setStudents(missing);
+      setStudents(roster);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to load missing profile photos.");
+      setError(err instanceof Error ? err.message : "Unable to load student photos.");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -124,16 +123,34 @@ export default function ProfilePhotosPage() {
     };
   }, [checking, loadStudents, user]);
 
-  const counts = useMemo(() => ({
-    All: students.length,
-    MPSC: students.filter((student) => student.branch === "MPSC").length,
-    Herohalli: students.filter((student) => student.branch === "Herohalli").length,
+  const photoCounts = useMemo(() => ({
+    all: students.length,
+    missing: students.filter((student) => needsProfilePhoto(student)).length,
+    has: students.filter((student) => !needsProfilePhoto(student)).length,
   }), [students]);
+
+  const branchPool = useMemo(
+    () => students.filter((student) => {
+      if (photoFilter === "missing") return needsProfilePhoto(student);
+      if (photoFilter === "has") return !needsProfilePhoto(student);
+      return true;
+    }),
+    [photoFilter, students],
+  );
+
+  const counts = useMemo(() => ({
+    All: branchPool.length,
+    MPSC: branchPool.filter((student) => student.branch === "MPSC").length,
+    Herohalli: branchPool.filter((student) => student.branch === "Herohalli").length,
+  }), [branchPool]);
 
   const filteredStudents = useMemo(() => {
     const query = search.trim().toLowerCase();
     return students.filter((student) => {
       const branchMatch = branchFilter === "All" || student.branch === branchFilter;
+      const photoMatch =
+        photoFilter === "all" ||
+        (photoFilter === "missing" ? needsProfilePhoto(student) : !needsProfilePhoto(student));
       const searchMatch = !query || [
         student.name,
         student.id,
@@ -142,11 +159,11 @@ export default function ProfilePhotosPage() {
         student.branch,
       ].join(" ").toLowerCase().includes(query);
 
-      return branchMatch && searchMatch;
+      return branchMatch && photoMatch && searchMatch;
     });
-  }, [branchFilter, search, students]);
+  }, [branchFilter, photoFilter, search, students]);
 
-  const handleFileChange = (student: MissingPhotoStudent, file: File | null) => {
+  const handleFileChange = (student: PhotoStudent, file: File | null) => {
     const key = studentKey(student);
     setSuccess("");
     setError("");
@@ -178,7 +195,7 @@ export default function ProfilePhotosPage() {
     });
   };
 
-  const handleUpload = async (student: MissingPhotoStudent) => {
+  const handleUpload = async (student: PhotoStudent) => {
     const key = studentKey(student);
     const file = selectedFiles[key];
     if (!file || uploading[key]) return;
@@ -188,14 +205,22 @@ export default function ProfilePhotosPage() {
     setSuccess("");
 
     try {
-      await uploadStudentProfilePhoto(student.id, file);
-      setStudents((prev) => prev.filter((entry) => studentKey(entry) !== key));
+      const result = await uploadStudentProfilePhoto(student.id, file);
+      setStudents((prev) =>
+        prev.map((entry) =>
+          studentKey(entry) === key
+            ? { ...entry, photoUrl: result.photoUrl, hasProfilePhoto: true }
+            : entry,
+        ),
+      );
       setSelectedFiles((prev) => omitKey(prev, key));
       setPreviews((prev) => {
         if (prev[key]) URL.revokeObjectURL(prev[key]);
         return omitKey(prev, key);
       });
-      setSuccess(`${student.name}'s profile photo was saved.`);
+      setSuccess(
+        `${student.name}'s profile photo was ${needsProfilePhoto(student) ? "saved" : "updated"}.`,
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Profile photo upload failed.");
     } finally {
@@ -218,8 +243,11 @@ export default function ProfilePhotosPage() {
                 <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">Portal Profiles</p>
               </div>
               <h1 className="font-[family-name:var(--font-space)] text-3xl md:text-4xl font-semibold tracking-tight text-white">
-                Missing Profile Photos
+                Profile Photos
               </h1>
+              <p className="mt-2 max-w-xl text-sm text-zinc-500">
+                Add a missing photo or replace an existing one. Changes appear on the student portal immediately.
+              </p>
             </div>
 
             <button
@@ -262,6 +290,29 @@ export default function ProfilePhotosPage() {
               </button>
             ))}
           </div>
+
+          <div className="flex flex-wrap items-center gap-2 md:col-span-2">
+            {([
+              ["all", "All students", photoCounts.all],
+              ["missing", "Missing photo", photoCounts.missing],
+              ["has", "Has photo", photoCounts.has],
+            ] as const).map(([value, label, count]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setPhotoFilter(value)}
+                className={`inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold transition-colors ${
+                  photoFilter === value
+                    ? "border-white/20 bg-white text-black"
+                    : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-600 hover:text-white"
+                }`}
+              >
+                {value === "missing" ? <Camera className="h-3.5 w-3.5" /> : value === "has" ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
+                {label}
+                <span className="opacity-60">{count}</span>
+              </button>
+            ))}
+          </div>
         </section>
 
         {error ? (
@@ -289,8 +340,10 @@ export default function ProfilePhotosPage() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-zinc-800 bg-black text-zinc-500">
               <Camera className="h-5 w-5" />
             </div>
-            <h2 className="text-lg font-semibold text-white">All profile photos are updated</h2>
-            <p className="mt-2 text-sm text-zinc-500">No missing students found for the current filter.</p>
+            <h2 className="text-lg font-semibold text-white">
+              {photoFilter === "missing" ? "No missing photos" : photoFilter === "has" ? "No students with photos" : "No students found"}
+            </h2>
+            <p className="mt-2 text-sm text-zinc-500">Try another filter or search term.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
@@ -325,6 +378,13 @@ export default function ProfilePhotosPage() {
                           <span className="rounded-md border border-zinc-800 bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                             {branchDisplayName(student.branch)}
                           </span>
+                          <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            needsProfilePhoto(student)
+                              ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
+                              : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                          }`}>
+                            {needsProfilePhoto(student) ? "Missing photo" : "Has photo"}
+                          </span>
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
                           <span>{student.id}</span>
@@ -350,7 +410,7 @@ export default function ProfilePhotosPage() {
                         className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-200 transition-colors hover:border-zinc-600 hover:bg-zinc-900"
                       >
                         {preview ? <ImagePlus className="h-4 w-4" /> : <UserRound className="h-4 w-4" />}
-                        Choose
+                        {preview ? "Change" : needsProfilePhoto(student) ? "Add photo" : "Replace"}
                       </label>
 
                       <button
