@@ -2,6 +2,7 @@
 
 import { AlertTriangle } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 interface ConfirmModalProps {
   open: boolean;
@@ -44,14 +45,14 @@ export function ConfirmModal({
     return () => window.removeEventListener("keydown", handler);
   }, [open, onCancel]);
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
   const confirmStyles =
     variant === "danger"
       ? "bg-red-600 hover:bg-red-500 text-white"
       : "bg-white hover:opacity-90 text-black";
 
-  return (
+  return createPortal(
     <div
       className="glass-modal-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
@@ -93,6 +94,7 @@ export function ConfirmModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

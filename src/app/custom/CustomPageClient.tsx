@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import {
   AlertCircle,
   ArrowDownRight,
@@ -872,7 +873,7 @@ export default function CustomPageClient() {
           ) : null}
         </main>
 
-        {sheet ? (
+        {sheet ? createPortal(
           <div className="glass-modal-overlay" role="dialog" aria-modal="true">
             <div className="glass-modal animate-slide-up">
               <div className="flex items-start justify-between gap-4 border-b border-zinc-800 p-5">
@@ -1199,7 +1200,8 @@ export default function CustomPageClient() {
                 </form>
               )}
             </div>
-          </div>
+          </div>,
+          document.body,
         ) : null}
 
         <ConfirmModal
