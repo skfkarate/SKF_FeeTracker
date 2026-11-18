@@ -8,32 +8,33 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "audit:production": "node scripts/audit-production.mjs",
     "smoke:production": "node scripts/smoke-production.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "4.5.1",
-    "@sentry/nextjs": "^10.54.0",
+    "@sentry/nextjs": "^11.14.0",
     "lucide-react": "^0.562.0",
-    "next": "16.3.8",
+    "next": "16.4.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
   "devDependencies": {
-    "@next/env": "^16.3.8",
+    "@next/env": "^16.4.6",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19.2.3",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.3.8",
+    "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
   "overrides": {
     "postcss": "8.5.26",
     "browserslist": "4.29.0",
-    "fast-uri": "3.1.8",
+    "fast-uri": "3.1.9",
     "source-map-js": "1.2.2",
     "sharp": "0.35.5",
     "baseline-browser-mapping": "2.11.24",
