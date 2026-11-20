@@ -4,18 +4,18 @@ import { type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useSta
 import {
   AlertCircle,
   CheckCircle2,
-  Clock,
   Download,
   ExternalLink,
   FileImage,
   Percent,
-  Settings2,
-  ShieldCheck,
-  Ticket,
   XCircle,
 } from "lucide-react";
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
 import NavMenu from "@/components/common/NavMenu";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
+import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
+import StatTile from "@/components/ui/StatTile";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import {
   AdmissionApplication,
@@ -30,6 +30,13 @@ import {
 } from "@/lib/api";
 
 type Tab = "pending" | "photos" | "promos" | "settings";
+
+const ADMISSION_TABS: SegmentOption<Tab>[] = [
+  { value: "pending", label: "Approvals" },
+  { value: "photos", label: "Photos" },
+  { value: "promos", label: "Promo Codes" },
+  { value: "settings", label: "Settings" },
+];
 
 const emptyPromo: AdmissionPromoCode = {
   code: "",
@@ -235,56 +242,36 @@ export default function AdmissionsPage() {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
-      <Navbar showBack title="ADMISSIONS" rightContent={<NavMenu />} />
+    <PageShell
+      hud={{
+        title: "People",
+        monthLabel: "Admissions",
+        backHref: "/dashboard",
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <NavMenu />,
+      }}
+    >
+      <p className="mb-5 max-w-2xl text-[13px] leading-relaxed text-zinc-500">
+        Review branch admission forms, approve students into the SKF portal, and manage branch promo codes.
+      </p>
 
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-12">
-        <header className="mb-6 animate-fade-in">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">Student Intake</p>
-            </div>
-            <h1 className="font-[family-name:var(--font-space)] text-4xl font-semibold tracking-tight text-white">
-              Admissions
-            </h1>
-            <p className="mt-3 text-sm text-zinc-500 max-w-2xl">
-              Review branch admission forms, approve students into the SKF portal, and manage branch promo codes.
-            </p>
-          </div>
-        </header>
-
-        {!loading && !error ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 animate-slide-up delay-100">
-            <MetricCard label="Pending" value={summary.pending} icon={Clock} tone="amber" />
-            <MetricCard label="Photos" value={summary.photos} icon={FileImage} tone="white" />
-            <MetricCard label="Promos" value={summary.promos} icon={Ticket} tone="green" />
-            <MetricCard label="Forms" value={summary.forms} icon={ShieldCheck} tone="white" />
-          </div>
-        ) : null}
-
-        <div className="flex p-1 bg-black/20 rounded-xl w-full border border-white/5 mb-5 animate-slide-up delay-100">
-          {[
-            ["pending", "Approvals", ShieldCheck],
-            ["photos", "Photos", FileImage],
-            ["promos", "Promo Codes", Ticket],
-            ["settings", "Settings", Settings2],
-          ].map(([key, label, Icon]) => (
-            <button
-              key={String(key)}
-              type="button"
-              onClick={() => setTab(key as Tab)}
-              className={`flex-1 py-2 rounded-lg text-[11px] sm:text-sm font-[family-name:var(--font-space)] tracking-wider transition-all flex items-center justify-center gap-2 ${
-                tab === key
-                  ? "bg-[var(--surface)] text-white border border-white/10"
-                  : "text-[var(--text-muted)] hover:text-white"
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              {label as string}
-            </button>
-          ))}
+      {!loading && !error ? (
+        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile label="Pending" value={String(summary.pending)} tone="action" />
+          <StatTile label="Photos" value={String(summary.photos)} />
+          <StatTile label="Promos" value={String(summary.promos)} tone="settled" />
+          <StatTile label="Forms" value={String(summary.forms)} />
         </div>
+      ) : null}
+
+      <SegmentedTabs
+        options={ADMISSION_TABS}
+        value={tab}
+        onChange={setTab}
+        ariaLabel="Admissions sections"
+        className="mb-5"
+      />
 
         {notice ? (
           <div className="mb-5 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300 animate-fade-in">
@@ -330,36 +317,12 @@ export default function AdmissionsPage() {
             onSave={handleSaveSettings}
           />
         )}
-      </main>
-    </div>
+    </PageShell>
   );
 }
 
 function profilePhotoDownloadHref(applicationId: string) {
   return `/api/feetrack/admissions/${encodeURIComponent(applicationId)}/profile-photo`;
-}
-
-function MetricCard({
-  label,
-  value,
-  icon: Icon,
-  tone,
-}: {
-  label: string;
-  value: number;
-  icon: typeof Clock;
-  tone: "green" | "amber" | "white";
-}) {
-  const toneClass = tone === "green" ? "text-emerald-400" : tone === "amber" ? "text-amber-400" : "text-zinc-100";
-  return (
-    <div className="card-panel p-4 relative overflow-hidden">
-      <Icon className={`absolute right-3 top-3 w-9 h-9 opacity-10 ${toneClass}`} />
-      <p className="text-zinc-500 text-[10px] uppercase tracking-widest mb-2 font-semibold">{label}</p>
-      <p className={`font-[family-name:var(--font-space)] text-2xl font-medium tracking-tight ${toneClass}`}>
-        {value}
-      </p>
-    </div>
-  );
 }
 
 function ApprovalsTab({
