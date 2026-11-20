@@ -23,7 +23,9 @@ import {
   X,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import AccountMenu from "@/components/common/AccountMenu";
 import { getStudents, type Student } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
@@ -293,34 +295,37 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
-      <Navbar
-        showBack
-        title="Messages"
-        rightContent={
-          <div className="flex items-center gap-1">
+    <PageShell
+      hud={{
+        title: "Messages",
+        backHref: "/dashboard",
+        actions: (
+          <>
+            <GlobalSearch />
             <button
               type="button"
               onClick={() => setShowPromptModal(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
+              className="tap-target grid place-items-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)]"
               title="Message prompt"
+              aria-label="Message prompt"
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
             </button>
             <button
               type="button"
               onClick={() => setShowHelpModal(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
+              className="tap-target grid place-items-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)]"
               title="Placeholder guide"
+              aria-label="Placeholder guide"
             >
-              <HelpCircle className="h-4 w-4" />
+              <HelpCircle className="h-4 w-4" aria-hidden="true" />
             </button>
-            <AccountMenu />
-          </div>
-        }
-      />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-28">
+          </>
+        ),
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
@@ -594,7 +599,6 @@ export default function MessagesPage() {
             </div>
           </aside>
         </div>
-      </main>
 
       {showHelpModal ? (
         <div className="glass-modal-overlay" onClick={(event) => event.target === event.currentTarget && setShowHelpModal(false)}>
@@ -792,6 +796,6 @@ export default function MessagesPage() {
           </div>
         </div>
       ) : null}
-    </div>
+    </PageShell>
   );
 }

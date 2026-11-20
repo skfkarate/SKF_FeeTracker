@@ -15,7 +15,9 @@ import {
   UserRound,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import AccountMenu from "@/components/common/AccountMenu";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { getStudents, Student, uploadStudentProfilePhoto } from "@/lib/api";
@@ -231,10 +233,15 @@ export default function ProfilePhotosPage() {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
-      <Navbar showBack title="Profile Photos" rightContent={<AccountMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-24">
+    <PageShell
+      hud={{
+        title: "Profile Photos",
+        backHref: "/dashboard",
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
         <header className="mb-8 animate-fade-in">
           <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
@@ -437,7 +444,6 @@ export default function ProfilePhotosPage() {
             })}
           </div>
         )}
-      </main>
-    </div>
+    </PageShell>
   );
 }

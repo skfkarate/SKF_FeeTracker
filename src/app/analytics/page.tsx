@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { Activity, AlertCircle, BarChart3, Calendar, IndianRupee, RefreshCw, TrendingUp } from "lucide-react";
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import AccountMenu from "@/components/common/AccountMenu";
 import { getDevelopmentFundData, MonthlyDevFund } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
@@ -101,10 +103,15 @@ export default function AnalyticsPage() {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
-      <Navbar showBack title="Analytics" rightContent={<AccountMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-32 pb-24">
+    <PageShell
+      hud={{
+        title: "Analytics",
+        backHref: "/dashboard",
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
         
         <header className="mb-12 animate-fade-in">
           <div className="flex items-center gap-3 mb-2">
@@ -236,7 +243,6 @@ export default function AnalyticsPage() {
 
           </div>
         )}
-      </main>
-    </div>
+    </PageShell>
   );
 }

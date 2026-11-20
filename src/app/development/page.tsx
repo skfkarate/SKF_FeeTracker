@@ -22,7 +22,10 @@ import { useFeeTrackAuth } from "@/lib/client-auth";
 import { useToast } from "@/lib/use-toast";
 import { getCurrentFeeYear } from "@/lib/fee-year";
 import MonthSelector from "@/components/common/MonthSelector";
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
+import AccountMenu from "@/components/common/AccountMenu";
 
 const MONTHS = [
   "Jan",
@@ -104,8 +107,6 @@ export default function DevelopmentFundPage() {
   );
   const [deleting, setDeleting] = useState(false);
 
-
-
   const loadData = useCallback(async () => {
     if (!user || checking) return;
     setLoading(true);
@@ -133,8 +134,6 @@ export default function DevelopmentFundPage() {
       };
     }
   }, [checking, loadData, user]);
-
-
 
   const handleAddExpenseClick = () => {
     // Validate before showing confirmation
@@ -291,19 +290,22 @@ export default function DevelopmentFundPage() {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
-      {/* Header */}
-      <Navbar
-        title="DEVELOPMENT FUND"
-        showBack
-        rightContent={
-          <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider hidden sm:block">
-            30% Income Fund
-          </div>
-        }
-      />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24">
+    <PageShell
+      hud={{
+        title: "Development Fund",
+        backHref: "/dashboard",
+        actions: (
+          <>
+            <GlobalSearch />
+            <span className="hidden text-[10px] uppercase tracking-wider text-[color:var(--color-text-faint)] sm:inline">
+              30% Income Fund
+            </span>
+          </>
+        ),
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
         {/* View Toggle & Month Selection */}
         <div className="mb-6 space-y-4">
           <div className="flex p-1 bg-[color:var(--color-well)] rounded-xl w-full max-w-md mx-auto border border-[color:var(--color-hairline)]">
@@ -534,10 +536,8 @@ export default function DevelopmentFundPage() {
               </div>
             </section>
 
-
           </>
         )}
-      </main>
 
       {/* Add Expense Modal */}
       {showAddModal && (
@@ -861,6 +861,6 @@ export default function DevelopmentFundPage() {
         </div>
       )}
 
-    </div>
+    </PageShell>
   );
 }

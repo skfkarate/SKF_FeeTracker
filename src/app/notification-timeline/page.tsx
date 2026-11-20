@@ -16,7 +16,9 @@ import {
   Trophy,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import AccountMenu from "@/components/common/AccountMenu";
 import {
   getEventCollections,
@@ -332,10 +334,15 @@ export default function NotificationTimelinePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
-      <Navbar showBack title="Notification Timeline" rightContent={<AccountMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 sm:px-6 sm:pt-28">
+    <PageShell
+      hud={{
+        title: "Notification Timeline",
+        backHref: "/dashboard",
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
         <header className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">Admin Timeline</p>
@@ -467,8 +474,7 @@ export default function NotificationTimelinePage() {
             <p className="mt-1 text-xs text-[color:var(--color-text-dim)]">Try a different filter, search term, or year.</p>
           </div>
         )}
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

@@ -667,7 +667,6 @@ export default function WebsiteAnalyticsPage() {
         backHref: "/dashboard",
         actions: <AccountMenu />,
       }}
-      className="[&>main]:max-w-[1400px]"
     >
       <header className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">

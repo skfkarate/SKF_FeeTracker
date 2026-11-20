@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { use, Suspense } from "react";
 import { Phone, MessageCircle, Trophy, AlertCircle, History, IndianRupee } from "lucide-react";
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import AccountMenu from "@/components/common/AccountMenu";
 import { getStudents, Student } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
@@ -50,10 +52,15 @@ function StudentProfileContent({
   const studentPhotoUrl = student ? normalizeProfilePhotoUrl(student.photoUrl) : "";
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
-      <Navbar showBack title="Student Profile" rightContent={<AccountMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-32 pb-24">
+    <PageShell
+      hud={{
+        title: "Student Profile",
+        backHref: `/students/${branch}`,
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
         {loading ? (
           <div className="flex justify-center items-center h-64">
              <div className="w-8 h-8 border-2 border-[color:var(--color-hairline)] border-t-zinc-400 rounded-full animate-spin" />
@@ -156,7 +163,6 @@ function StudentProfileContent({
 
           </div>
         )}
-      </main>
-    </div>
+    </PageShell>
   );
 }

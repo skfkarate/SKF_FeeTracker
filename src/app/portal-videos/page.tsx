@@ -22,7 +22,9 @@ import {
   X,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import AccountMenu from "@/components/common/AccountMenu";
 import {
   deletePortalVideo,
@@ -642,10 +644,15 @@ function PortalVideosLibrary() {
   }
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
-      <Navbar showBack title="Portal Videos" rightContent={<AccountMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 sm:px-6 sm:pt-28">
+    <PageShell
+      hud={{
+        title: "Portal Videos",
+        backHref: "/dashboard",
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
         <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <div className="mb-3 flex items-center gap-3">
@@ -871,7 +878,6 @@ function PortalVideosLibrary() {
           onCancel={() => setConfirmState(null)}
           loading={Boolean(confirmState && deletingId === confirmState.id)}
         />
-      </main>
-    </div>
+    </PageShell>
   );
 }

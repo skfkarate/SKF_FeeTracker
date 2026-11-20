@@ -15,7 +15,10 @@ import {
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { useToast } from "@/lib/use-toast";
 import { getCurrentFeeYear } from "@/lib/fee-year";
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
+import AccountMenu from "@/components/common/AccountMenu";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 
 const MONTHS = [
@@ -177,15 +180,15 @@ export default function StudentCreditsPage() {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
-      {/* Header */}
-      <Navbar
-        title="STUDENT CREDITS"
-        showBack
-        rightContent={null}
-      />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24">
+    <PageShell
+      hud={{
+        title: "Student Credits",
+        backHref: "/dashboard",
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
         {/* Branch Toggle */}
         <div className="flex p-1 bg-[color:var(--color-well)] rounded-xl w-full max-w-md mx-auto border border-[color:var(--color-hairline)] mb-6">
           <button
@@ -359,7 +362,6 @@ export default function StudentCreditsPage() {
             </div>
           </>
         )}
-      </main>
 
       {/* Add Credit Modal */}
       {showAddModal && (
@@ -689,6 +691,6 @@ export default function StudentCreditsPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

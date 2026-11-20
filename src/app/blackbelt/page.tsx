@@ -13,7 +13,9 @@ import {
   X,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import AccountMenu from "@/components/common/AccountMenu";
 import { getBBCandidates, updateBBCandidate } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
@@ -150,10 +152,15 @@ export default function BlackBeltPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
-      <Navbar showBack title="Black Belt 2026" rightContent={<AccountMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-24">
+    <PageShell
+      hud={{
+        title: "Black Belt 2026",
+        backHref: "/dashboard",
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
@@ -561,7 +568,6 @@ export default function BlackBeltPage() {
             </form>
           </div>
         ) : null}
-      </main>
-    </div>
+    </PageShell>
   );
 }
