@@ -18,6 +18,7 @@ import NavMenu from "@/components/common/NavMenu";
 import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs from "@/components/ui/SegmentedTabs";
+import Sheet from "@/components/ui/Sheet";
 import StatTile from "@/components/ui/StatTile";
 import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import {
@@ -592,39 +593,48 @@ export default function ShopPage() {
                   </div>
                 </div>
               )}
-            {editorOpen ? (
-              <div
-                className="glass-modal-overlay"
-                onClick={(event) => {
-                  if (event.target === event.currentTarget && !savingProduct) setEditorOpen(false);
-                }}
-              >
-            <form onSubmit={handleProductSave} className="glass-modal !max-w-5xl grid gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-              <section className="card-panel p-4 sm:p-5">
-                <div className="mb-5 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-zinc-500">
-                      {isEditingExisting ? "Edit Product" : "Create Product"}
-                    </p>
-                    <h2 className="text-lg font-semibold text-white">
-                      {draft.name || "New product"}
-                    </h2>
-                  </div>
+            <Sheet
+              open={editorOpen}
+              title={isEditingExisting ? "Edit Product" : "Create Product"}
+              onClose={() => {
+                if (!savingProduct) setEditorOpen(false);
+              }}
+              footer={
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_1.5fr]">
+                  <button
+                    type="button"
+                    onClick={resetDraft}
+                    disabled={savingProduct}
+                    className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200 disabled:opacity-50"
+                  >
+                    Reset
+                  </button>
                   <button
                     type="button"
                     onClick={() => setEditorOpen(false)}
                     disabled={savingProduct}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                    aria-label="Close product editor"
+                    className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200 disabled:opacity-50"
                   >
-                    <X className="h-4 w-4" />
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    form="product-form"
+                    disabled={savingProduct}
+                    className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
+                  >
+                    {savingProduct ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {savingProduct ? "Saving" : "Save Product"}
                   </button>
                 </div>
-
+              }
+            >
+              <form id="product-form" onSubmit={handleProductSave} className="grid gap-5 pt-1 lg:grid-cols-[minmax(0,1fr)_260px]">
+                <section className="hud-panel p-4 sm:p-5">
                 <div className="space-y-6">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Product Name</span>
+                      <span className="mb-2 block font-pixel-label text-zinc-500">Product Name</span>
                       <input
                         value={draft.name}
                         onChange={(event) => updateDraft({ name: event.target.value })}
@@ -634,7 +644,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Product ID</span>
+                      <span className="mb-2 block font-pixel-label text-zinc-500">Product ID</span>
                       <input
                         value={draft.id}
                         onChange={(event) => updateDraft({ id: event.target.value })}
@@ -647,7 +657,7 @@ export default function ShopPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Category</span>
+                      <span className="mb-2 block font-pixel-label text-zinc-500">Category</span>
                       <select
                         value={draft.category}
                         onChange={(event) => updateDraft({ category: event.target.value as ShopProductCategory })}
@@ -662,7 +672,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Price</span>
+                      <span className="mb-2 block font-pixel-label text-zinc-500">Price</span>
                       <input
                         type="number"
                         min="0"
@@ -674,7 +684,7 @@ export default function ShopPage() {
                   </div>
 
                   <label className="block">
-                    <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Description</span>
+                    <span className="mb-2 block font-pixel-label text-zinc-500">Description</span>
                     <textarea
                       value={draft.description}
                       onChange={(event) => updateDraft({ description: event.target.value })}
@@ -686,7 +696,7 @@ export default function ShopPage() {
 
                   <div>
                     <label className="block">
-                      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Images</span>
+                      <span className="mb-2 block font-pixel-label text-zinc-500">Images</span>
                       <textarea
                         value={draft.imagesText}
                         onChange={(event) => updateDraft({ imagesText: event.target.value })}
@@ -701,10 +711,10 @@ export default function ShopPage() {
                           key={`${image}-${index}`}
                           src={image}
                           alt={`Product image ${index + 1}`}
-                          className="aspect-square w-full rounded-md border border-zinc-800"
+                          className="aspect-square w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)]"
                         />
                       )) : (
-                        <div className="col-span-full rounded-lg border border-dashed border-zinc-800 p-4 text-sm text-zinc-600">
+                        <div className="col-span-full rounded-[var(--radius-row)] border border-dashed border-[color:var(--color-hairline)] p-4 text-sm text-zinc-600">
                           Add image URLs to preview product photos.
                         </div>
                       )}
@@ -713,7 +723,7 @@ export default function ShopPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <label className="block">
-                      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Access</span>
+                      <span className="mb-2 block font-pixel-label text-zinc-500">Access</span>
                       <select
                         value={draft.isPublic ? "public" : "athlete"}
                         onChange={(event) => updateDraft({ isPublic: event.target.value === "public" })}
@@ -725,7 +735,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Required Belt</span>
+                      <span className="mb-2 block font-pixel-label text-zinc-500">Required Belt</span>
                       <select
                         value={draft.isPublic ? "None" : draft.requiresBelt}
                         onChange={(event) => updateDraft({ requiresBelt: event.target.value })}
@@ -741,7 +751,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Rating</span>
+                      <span className="mb-2 block font-pixel-label text-zinc-500">Rating</span>
                       <input
                         type="number"
                         min="0"
@@ -754,7 +764,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Reviews</span>
+                      <span className="mb-2 block font-pixel-label text-zinc-500">Reviews</span>
                       <input
                         type="number"
                         min="0"
@@ -768,7 +778,7 @@ export default function ShopPage() {
                   <section>
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs uppercase tracking-widest text-zinc-500">Variants and Stock</p>
+                        <p className="font-pixel-label text-zinc-500">Variants and Stock</p>
                         <h3 className="text-sm font-semibold text-white">Sizes, units and approval rules</h3>
                       </div>
                       <button
@@ -783,11 +793,11 @@ export default function ShopPage() {
 
                     <div className="space-y-3">
                       {draft.variants.map((variant, index) => (
-                        <div key={`${variant.id || "variant"}-${index}`} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <div key={`${variant.id || "variant"}-${index}`} className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
                           <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_130px_auto] sm:items-end">
                             <div className="grid gap-3 sm:grid-cols-2">
                               <label className="block">
-                                <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-zinc-600">Size</span>
+                                <span className="mb-2 block font-pixel-label text-zinc-600">Size</span>
                                 <input
                                   value={variant.size}
                                   onChange={(event) => updateVariant(index, { size: event.target.value })}
@@ -796,7 +806,7 @@ export default function ShopPage() {
                                 />
                               </label>
                               <label className="block">
-                                <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-zinc-600">Variant ID</span>
+                                <span className="mb-2 block font-pixel-label text-zinc-600">Variant ID</span>
                                 <input
                                   value={variant.id}
                                   onChange={(event) => updateVariant(index, { id: event.target.value })}
@@ -807,7 +817,7 @@ export default function ShopPage() {
                             </div>
 
                             <label className="block">
-                              <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-zinc-600">Stock</span>
+                              <span className="mb-2 block font-pixel-label text-zinc-600">Stock</span>
                               <input
                                 type="number"
                                 min="0"
@@ -818,7 +828,7 @@ export default function ShopPage() {
                             </label>
 
                             <div className="flex items-center gap-2 sm:flex-col sm:items-stretch">
-                              <label className="flex min-h-11 flex-1 items-center gap-2 rounded-lg border border-zinc-800 bg-black px-3 text-xs font-semibold text-zinc-400">
+                              <label className="flex min-h-11 flex-1 items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-black px-3 text-xs font-semibold text-zinc-400">
                                 <input
                                   type="checkbox"
                                   checked={variant.requiresApproval}
@@ -830,7 +840,7 @@ export default function ShopPage() {
                                 type="button"
                                 onClick={() => removeVariant(index)}
                                 disabled={draft.variants.length === 1}
-                                className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40"
+                                className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] text-zinc-500 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40"
                                 aria-label="Remove variant"
                               >
                                 <X className="h-4 w-4" />
@@ -842,27 +852,10 @@ export default function ShopPage() {
                     </div>
                   </section>
 
-                  <div className="flex flex-col gap-3 border-t border-zinc-800 pt-5 sm:flex-row">
-                    <button
-                      type="submit"
-                      disabled={savingProduct}
-                      className="btn-primary inline-flex min-h-11 flex-1 items-center justify-center gap-2"
-                    >
-                      {savingProduct ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                      {savingProduct ? "Saving" : "Save Product"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={resetDraft}
-                      className="btn-ghost min-h-11"
-                    >
-                      Reset
-                    </button>
-                  </div>
                 </div>
               </section>
 
-              <aside className="card-panel h-fit overflow-hidden">
+              <aside className="hud-panel h-fit overflow-hidden">
                 <div className="aspect-square bg-black">
                   <ImagePreview
                     src={draftImages[0]}
@@ -872,7 +865,7 @@ export default function ShopPage() {
                 </div>
                 <div className="p-4">
                   <div className="mb-3 flex items-center justify-between gap-3">
-                    <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    <span className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                       {draft.category}
                     </span>
                     <span className="text-sm font-semibold text-white">{currency(draft.price)}</span>
@@ -882,23 +875,22 @@ export default function ShopPage() {
                     {draft.description || "Description preview will appear here."}
                   </p>
                   <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
                       <p className="text-zinc-600">Images</p>
                       <p className="mt-1 font-semibold text-white">{draftImages.length}</p>
                     </div>
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
                       <p className="text-zinc-600">Variants</p>
                       <p className="mt-1 font-semibold text-white">{draft.variants.length}</p>
                     </div>
                   </div>
-                  <div className="mt-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-xs text-zinc-500">
+                  <div className="mt-3 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3 text-xs text-zinc-500">
                     {draft.isPublic ? "Available for public checkout." : `Athlete-only${draft.requiresBelt !== "None" ? `, ${draft.requiresBelt}+ belt` : ""}.`}
                   </div>
                 </div>
               </aside>
-            </form>
-          </div>
-            ) : null}
+              </form>
+            </Sheet>
           </section>
         ) : (
           <section className="space-y-5">
