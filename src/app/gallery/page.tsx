@@ -21,7 +21,11 @@ import {
 
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import NavMenu from "@/components/common/NavMenu";
+import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
+import SegmentedTabs from "@/components/ui/SegmentedTabs";
+import StatTile from "@/components/ui/StatTile";
+import StatusPill from "@/components/ui/StatusPill";
 import {
   deleteGalleryPhoto,
   GALLERY_CATEGORIES,
@@ -283,11 +287,9 @@ export default function GalleryManagerPage() {
           <div>
             <div className="mb-3 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-fuchsia-400" />
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Public Website Gallery</p>
+              <p className="font-pixel-label text-zinc-500">Public Website Gallery</p>
             </div>
-            <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Gallery Photos
-            </h1>
+            <h1 className="mt-1 text-[15px] font-semibold text-white">Gallery Photos</h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500">
               Upload public gallery images, assign categories, feature the best moments, and hide drafts until they are ready.
             </p>
@@ -297,7 +299,7 @@ export default function GalleryManagerPage() {
               type="button"
               onClick={() => loadPhotos(true)}
               disabled={refreshing}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:text-white disabled:opacity-60"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-4 text-sm text-zinc-200 disabled:opacity-50"
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
               Refresh
@@ -305,7 +307,7 @@ export default function GalleryManagerPage() {
             <button
               type="button"
               onClick={openCreateModal}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-black transition-opacity hover:opacity-90"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-4 font-pixel-label text-black"
             >
               <Plus className="h-4 w-4" />
               Upload
@@ -313,18 +315,11 @@ export default function GalleryManagerPage() {
           </div>
         </header>
 
-        <section className="mb-6 grid gap-3 sm:grid-cols-4">
-          {[
-            ["Total", counts.total],
-            ["Uploaded", counts.live],
-            ["Published", counts.published],
-            ["Featured", counts.featured],
-          ].map(([label, value]) => (
-            <div key={label} className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-              <p className="text-xs uppercase tracking-widest text-zinc-600">{label}</p>
-              <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
-            </div>
-          ))}
+        <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile label="Total" value={String(counts.total)} />
+          <StatTile label="Uploaded" value={String(counts.live)} />
+          <StatTile label="Published" value={String(counts.published)} tone="settled" />
+          <StatTile label="Featured" value={String(counts.featured)} tone="action" />
         </section>
 
         <section className="mb-6 grid gap-3 lg:grid-cols-[1fr_auto]">
@@ -337,23 +332,16 @@ export default function GalleryManagerPage() {
               placeholder="Search title, category or photo ID"
             />
           </div>
-          <div className="flex min-h-12 max-w-full overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-950">
-            {(["All", ...GALLERY_CATEGORIES] as const).map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setCategory(item)}
-                className={`whitespace-nowrap px-4 text-xs font-bold uppercase tracking-wider transition-colors ${
-                  category === item
-                    ? "bg-white text-black"
-                    : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200"
-                }`}
-              >
-                {item}
-                <span className="ml-2 opacity-60">{categoryCount(photos, item)}</span>
-              </button>
-            ))}
-          </div>
+          <SegmentedTabs
+            ariaLabel="Gallery category"
+            className="max-w-full overflow-x-auto"
+            value={category}
+            onChange={setCategory}
+            options={["All", ...GALLERY_CATEGORIES].map((item) => ({
+              value: item,
+              label: `${item} ${categoryCount(photos, item)}`,
+            }))}
+          />
         </section>
 
         {error ? (
@@ -383,65 +371,52 @@ export default function GalleryManagerPage() {
             <p className="mt-2 text-sm text-zinc-500">Change the filter or upload a new photo.</p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredPhotos.map((photo) => (
-              <article key={photo.id} className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
-                <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={normalizeKarateMediaUrl(photo.src)} alt={photo.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                    {photo.pinned ? (
-                      <span className="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-200">
-                        <Star className="h-3 w-3" />
-                        Featured
-                      </span>
-                    ) : null}
-                    {!photo.isPublished ? (
-                      <span className="inline-flex items-center gap-1 rounded-md border border-zinc-500/30 bg-black/60 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-300">
-                        <EyeOff className="h-3 w-3" />
-                        Draft
-                      </span>
-                    ) : null}
-                  </div>
-                  <span className="absolute bottom-3 left-3 rounded-md border border-white/10 bg-black/65 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-                    {photo.cat}
-                  </span>
-                </div>
-
-                <div className="p-4">
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h2 className="line-clamp-2 text-sm font-semibold text-white">{photo.title}</h2>
-                      <p className="mt-1 text-xs text-zinc-600">{photo.isSeed ? "Seed photo" : "Uploaded photo"}</p>
-                    </div>
-                    <span className="rounded-md border border-zinc-800 bg-black px-2 py-1 font-mono text-[10px] text-zinc-500">
-                      {photo.sortOrder || 0}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(photo)}
-                      disabled={photo.isSeed}
-                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-black px-3 text-sm font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      <Pencil className="h-4 w-4" />
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(photo)}
-                      disabled={photo.isSeed || deletingId === photo.id}
-                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-black px-3 text-sm font-semibold text-zinc-400 transition-colors hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      {deletingId === photo.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
+          <div className="hud-panel overflow-hidden">
+            <div className="divide-y divide-[color:var(--color-hairline)]">
+              {filteredPhotos.map((photo, index) => {
+                const status = photo.isPublished ? "paid" : "due";
+                return (
+                  <LedgerRow
+                    key={photo.id}
+                    index={index}
+                    status={status}
+                    title={photo.title}
+                    subtitle={`${photo.cat} · ${photo.isSeed ? "Seed photo" : "Uploaded photo"}`}
+                    idLabel={`ORDER ${photo.sortOrder || 0} · ${photo.id}`}
+                    trailing={
+                      <div className="flex items-center gap-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={normalizeKarateMediaUrl(photo.src)}
+                          alt={photo.title}
+                          className="h-10 w-10 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] object-cover"
+                        />
+                        {photo.pinned ? <StatusPill status="verifying" label="Featured" /> : null}
+                        <StatusPill status={status} label={photo.isPublished ? "Live" : "Draft"} />
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(photo)}
+                          disabled={photo.isSeed}
+                          aria-label={`Edit ${photo.title}`}
+                          className="tap-target grid w-10 place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-zinc-300 disabled:opacity-40"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(photo)}
+                          disabled={photo.isSeed || deletingId === photo.id}
+                          aria-label={`Delete ${photo.title}`}
+                          className="tap-target grid w-10 place-items-center rounded-[var(--radius-row)] border border-red-500/25 bg-red-500/10 text-red-200 disabled:opacity-40"
+                        >
+                          {deletingId === photo.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    }
+                  />
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
