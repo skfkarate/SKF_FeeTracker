@@ -29,8 +29,8 @@ export type NavigationTile = {
 };
 
 /**
- * Single source of truth for the ten destinations plus the Custom Ops proof
- * page. Bottom tabs, the More sheet and the account drawer derive from this list.
+ * Single source of truth for the ten destinations. Bottom tabs, the desktop
+ * rail and the More sheet derive from this list; there is no hamburger drawer.
  */
 export const DESTINATION_TILES: NavigationTile[] = [
   {

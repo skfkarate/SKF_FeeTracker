@@ -58,9 +58,6 @@
   --text-secondary: var(--color-text-dim);
   --text-tertiary: #768498;
   --text-muted: #97a4b6;
-  --accent-red: var(--color-accent);
-  --accent-red-dim: var(--color-accent-dim);
-
   --radius-row: 12px;
   --radius-card: 18px;
   --radius-pill: 999px;

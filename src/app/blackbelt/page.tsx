@@ -507,7 +507,7 @@ export default function BlackBeltPage() {
                           type="checkbox"
                           checked={editForm.mock_exam_done || false}
                           onChange={(e) => handleFieldChange("mock_exam_done", e.target.checked)}
-                          className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-overdue)] focus:ring-offset-zinc-950"
+                          className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-accent)] focus:ring-offset-[color:var(--color-base-deep)]"
                         />
                         <div>
                           <span className="block text-sm font-semibold text-[color:var(--color-text)]">Mock Examinations Completed</span>
@@ -528,7 +528,7 @@ export default function BlackBeltPage() {
                                 type="checkbox"
                                 checked={isChecked}
                                 onChange={(e) => handleSelfDefenseChange(key, e.target.checked)}
-                                className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-overdue)] focus:ring-offset-zinc-950"
+                                className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-accent)] focus:ring-offset-[color:var(--color-base-deep)]"
                               />
                               <span className="text-xs text-[color:var(--color-text)]">Month {monthNum}</span>
                             </label>

@@ -65,7 +65,7 @@ export function AddExtraIncomeModal({
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder-zinc-600 focus:outline-none focus:border-[color:var(--color-accent-border)]"
+              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-faint)] focus:outline-none focus:border-[color:var(--color-accent-border)]"
               placeholder="e.g. Summer Camp Fees"
               required
             />
@@ -77,7 +77,7 @@ export function AddExtraIncomeModal({
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder-zinc-600 focus:outline-none focus:border-[color:var(--color-accent-border)] font-sans"
+              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-faint)] focus:outline-none focus:border-[color:var(--color-accent-border)] font-sans"
               placeholder="500"
               min="1"
               required
@@ -89,7 +89,7 @@ export function AddExtraIncomeModal({
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder-zinc-600 focus:outline-none focus:border-[color:var(--color-accent-border)] min-h-[80px]"
+              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-faint)] focus:outline-none focus:border-[color:var(--color-accent-border)] min-h-[80px]"
               placeholder="Additional details..."
             />
           </div>
