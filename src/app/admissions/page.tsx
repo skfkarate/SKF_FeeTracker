@@ -13,9 +13,12 @@ import {
 import GlobalSearch from "@/components/common/GlobalSearch";
 import NavMenu from "@/components/common/NavMenu";
 import NotificationBell from "@/components/common/NotificationBell";
+import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
+import Sheet from "@/components/ui/Sheet";
 import StatTile from "@/components/ui/StatTile";
+import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import {
   AdmissionApplication,
@@ -70,6 +73,16 @@ function admissionAge(dob: string) {
 
 function money(amount: number) {
   return `₹${Number(amount || 0).toLocaleString("en-IN")}`;
+}
+
+function num(amount: number) {
+  return Math.round(Number(amount) || 0).toLocaleString("en-IN");
+}
+
+function admissionStatus(application: AdmissionApplication): LedgerStatus {
+  if (application.duplicateWarnings.length > 0) return "overdue";
+  if (application.feeTrackingEnabled && application.paymentProofUrl) return "verifying";
+  return "due";
 }
 
 export default function AdmissionsPage() {
@@ -336,139 +349,193 @@ function ApprovalsTab({
   onApprove: (event: FormEvent<HTMLFormElement>, application: AdmissionApplication) => void;
   onReject: (application: AdmissionApplication) => void;
 }) {
+  const [active, setActive] = useState<AdmissionApplication | null>(null);
+
   if (applications.length === 0) {
     return (
-      <div className="card-panel p-10 text-center animate-fade-in">
-        <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-4" />
-        <h2 className="text-xl text-white font-medium">No pending admissions</h2>
-        <p className="text-sm text-zinc-500 mt-2">New branch submissions will appear here.</p>
+      <div className="hud-panel p-10 text-center">
+        <CheckCircle2 className="mx-auto mb-4 h-10 w-10 text-emerald-400" />
+        <h2 className="text-xl text-white">No pending admissions</h2>
+        <p className="mt-2 text-sm text-zinc-500">New branch submissions will appear here.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3 animate-slide-up">
-      {applications.map((application) => (
-        <article key={application.id} className="card-panel p-4">
-          <div className="flex flex-col lg:flex-row lg:items-start gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="text-[10px] uppercase tracking-widest text-amber-400 border border-amber-500/20 bg-amber-500/10 rounded-md px-2 py-1">
-                  {application.branchName}
+    <>
+      <div className="hud-panel overflow-hidden">
+        <div className="divide-y divide-[color:var(--color-hairline)]">
+          {applications.map((application, index) => {
+            const status = admissionStatus(application);
+            return (
+              <LedgerRow
+                key={application.id}
+                index={index}
+                status={status}
+                title={application.studentName}
+                subtitle={`${application.branchName} · ${application.guardianName} · ${application.studentDob || "DOB not set"}`}
+                idLabel={`APP · ${application.id}`}
+                amount={application.feeTrackingEnabled ? num(application.quotedJoiningTotal) : undefined}
+                amountLabel="joining quote"
+                trailing={
+                  <div className="flex items-center gap-2">
+                    <FileImage className="h-4 w-4 text-zinc-500" aria-hidden="true" />
+                    <StatusPill
+                      status={status}
+                      label={status === "overdue" ? "Check" : status === "verifying" ? "Proof" : "Review"}
+                    />
+                  </div>
+                }
+                onClick={() => setActive(application)}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      <Sheet
+        open={Boolean(active)}
+        title="Review admission"
+        onClose={() => setActive(null)}
+      >
+        {active ? (
+          <div className="space-y-5 pt-1">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-pixel text-[26px] leading-none text-white">
+                  {active.feeTrackingEnabled ? num(active.quotedJoiningTotal) : "Branch"}
+                </p>
+                <p className="mt-2 font-mono text-[11px] text-zinc-500">
+                  {active.branchName} · {active.studentDob}
+                  {admissionAge(active.studentDob) ? ` · ${admissionAge(active.studentDob)}` : ""} · {active.studentGender}
+                </p>
+              </div>
+              <StatusPill
+                status={admissionStatus(active)}
+                label={admissionStatus(active) === "overdue" ? "Check warning" : "Review"}
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <span className="font-pixel-label rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-zinc-200">
+                {active.branchName}
+              </span>
+              {!active.feeTrackingEnabled ? (
+                <span className="font-pixel-label rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-zinc-400">
+                  Branch-managed fees
                 </span>
-                {!application.feeTrackingEnabled ? (
-                  <span className="text-[10px] uppercase tracking-widest text-sky-300 border border-sky-500/20 bg-sky-500/10 rounded-md px-2 py-1">
-                    branch-managed fees
-                  </span>
-                ) : null}
-                {application.promoCode ? (
-                  <span className="text-[10px] uppercase tracking-widest text-emerald-400 border border-emerald-500/20 bg-emerald-500/10 rounded-md px-2 py-1">
-                    {application.promoCode}
-                  </span>
-                ) : null}
-                {application.duplicateWarnings.length > 0 ? (
-                  <span className="text-[10px] uppercase tracking-widest text-red-300 border border-red-500/20 bg-red-500/10 rounded-md px-2 py-1">
-                    duplicate warning
-                  </span>
-                ) : null}
+              ) : null}
+              {active.promoCode ? (
+                <span className="font-pixel-label rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-zinc-200">
+                  {active.promoCode}
+                </span>
+              ) : null}
+            </div>
+
+            {active.duplicateWarnings.length > 0 ? (
+              <div className="rounded-[var(--radius-row)] border border-red-500/25 bg-red-500/10 p-3 text-xs text-red-200">
+                {active.duplicateWarnings.join(" · ")}
               </div>
-              <h2 className="font-[family-name:var(--font-space)] text-2xl text-white font-medium tracking-tight">
-                {application.studentName}
-              </h2>
-              <p className="text-sm text-zinc-500 mt-1">
-                {application.studentDob} {admissionAge(application.studentDob) ? `• ${admissionAge(application.studentDob)}` : ""} • {application.studentGender}
-              </p>
-              <dl className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                <Info label="School" value={application.schoolClass} />
-                <Info label="Guardian" value={`${application.guardianName} (${application.guardianRelationship})`} />
-                <Info label="Phone" value={application.guardianPhone} />
-                <Info label="WhatsApp" value={application.guardianWhatsapp} />
-                <Info label="Email" value={application.guardianEmail || "Not provided"} />
-                <Info label="Emergency" value={`${application.emergencyName} (${application.emergencyRelationship}) ${application.emergencyPhone}`} />
-                {application.feeTrackingEnabled ? <Info label="Batch" value={application.preferredBatch || "To confirm"} /> : null}
-                <Info label="Joining" value={application.expectedJoinDate || "To confirm"} />
-                {application.feeTrackingEnabled ? <Info label="Joining Quote" value={money(application.quotedJoiningTotal)} /> : null}
-                <Info label="Medical" value={application.hasMedicalCondition ? application.medicalDetails || "Yes" : "No"} />
-                <Info label="Previous Training" value={application.hasPreviousTraining ? application.currentBelt || application.martialArtsStyle || "Yes" : "No"} />
-                <Info label="Referral" value={application.referrerName || application.referralSource || "Not provided"} />
-              </dl>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {application.admissionPhotoUrl ? (
-                  <a
-                    href={application.admissionPhotoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-xs text-zinc-300 hover:text-white rounded-lg border border-zinc-800 px-3 py-2 bg-black/30"
-                  >
-                    <FileImage className="w-3.5 h-3.5" />
-                    Student admission photo
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                ) : (
-                  <span className="inline-flex items-center gap-2 text-xs text-red-300 rounded-lg border border-red-500/20 px-3 py-2 bg-red-500/10">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    Student photo missing
-                  </span>
-                )}
-                {application.feeTrackingEnabled && application.paymentProofUrl ? (
-                  <a
-                    href={application.paymentProofUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-xs text-emerald-300 hover:text-emerald-100 rounded-lg border border-emerald-500/20 px-3 py-2 bg-emerald-500/10"
-                  >
-                    <FileImage className="w-3.5 h-3.5" />
-                    Payment screenshot
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                ) : application.feeTrackingEnabled ? (
-                  <span className="inline-flex items-center gap-2 text-xs text-red-300 rounded-lg border border-red-500/20 px-3 py-2 bg-red-500/10">
-                    <AlertCircle className="w-3.5 h-3.5" />
-                    Payment screenshot missing
-                  </span>
-                ) : null}
-              </div>
+            ) : null}
+
+            <dl className="grid grid-cols-1 gap-x-4 gap-y-3 text-sm sm:grid-cols-2">
+              <Info label="School" value={active.schoolClass} />
+              <Info label="Guardian" value={`${active.guardianName} (${active.guardianRelationship})`} />
+              <Info label="Phone" value={active.guardianPhone} />
+              <Info label="WhatsApp" value={active.guardianWhatsapp} />
+              <Info label="Email" value={active.guardianEmail || "Not provided"} />
+              <Info label="Emergency" value={`${active.emergencyName} (${active.emergencyRelationship}) ${active.emergencyPhone}`} />
+              {active.feeTrackingEnabled ? <Info label="Batch" value={active.preferredBatch || "To confirm"} /> : null}
+              <Info label="Joining" value={active.expectedJoinDate || "To confirm"} />
+              {active.feeTrackingEnabled ? <Info label="Joining Quote" value={money(active.quotedJoiningTotal)} /> : null}
+              <Info label="Medical" value={active.hasMedicalCondition ? active.medicalDetails || "Yes" : "No"} />
+              <Info label="Previous Training" value={active.hasPreviousTraining ? active.currentBelt || active.martialArtsStyle || "Yes" : "No"} />
+              <Info label="Referral" value={active.referrerName || active.referralSource || "Not provided"} />
+            </dl>
+
+            <div className="flex flex-wrap gap-2">
+              {active.admissionPhotoUrl ? (
+                <a
+                  href={active.admissionPhotoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 py-2 text-xs text-zinc-200"
+                >
+                  <FileImage className="h-3.5 w-3.5" />
+                  Student photo
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-red-500/25 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  Student photo missing
+                </span>
+              )}
+              {active.feeTrackingEnabled && active.paymentProofUrl ? (
+                <a
+                  href={active.paymentProofUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 py-2 text-xs text-zinc-200"
+                >
+                  <FileImage className="h-3.5 w-3.5" />
+                  Payment screenshot
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : active.feeTrackingEnabled ? (
+                <span className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-red-500/25 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  Payment screenshot missing
+                </span>
+              ) : null}
             </div>
 
             <form
-              onSubmit={(event) => onApprove(event, application)}
-              className="w-full lg:w-[360px] rounded-xl border border-white/5 bg-black/25 p-4"
+              onSubmit={(event) => {
+                onApprove(event, active);
+                setActive(null);
+              }}
+              className="hud-panel space-y-3 p-4"
             >
-              <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-100">
-                {application.feeTrackingEnabled
-                  ? 'Human review pending: verify the payment screenshot, check the student photo, then either use the submitted photo or upload a corrected portal photo.'
-                  : 'Human review pending: check the student information and photo. Fees are collected directly by the Kunigal branch and are not recorded here.'}
+              <div className="rounded-[var(--radius-row)] border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-100">
+                {active.feeTrackingEnabled
+                  ? "Human review pending: verify the payment screenshot, check the student photo, then either use the submitted photo or upload a corrected portal photo."
+                  : "Human review pending: check the student information and photo. Fees are collected directly by the Kunigal branch and are not recorded here."}
               </div>
-              {application.feeTrackingEnabled ? <div className="grid grid-cols-2 gap-3">
-                <Field label="Monthly">
-                  <input name="monthlyFee" type="number" min="0" defaultValue={application.quotedMonthlyFee} />
-                </Field>
-                <Field label="Admission">
-                  <input name="admissionFee" type="number" min="0" defaultValue={application.quotedAdmissionFee} />
-                </Field>
-                {application.quotedDressFee > 0 ? (
-                  <>
-                    <Field label="Dress Fee">
-                      <input name="dressFee" type="number" min="0" defaultValue={application.quotedDressFee} />
-                    </Field>
-                    <Field label="Dress Cost">
-                      <input name="dressCost" type="number" min="0" defaultValue="0" />
-                    </Field>
-                  </>
-                ) : (
-                  <>
-                    <input type="hidden" name="dressFee" value="0" />
-                    <input type="hidden" name="dressCost" value="0" />
-                  </>
-                )}
-              </div> : null}
-              <Field label={application.feeTrackingEnabled ? "Billing Start" : "Enrollment Date"}>
-                <input name="billingStartDate" type="date" defaultValue={application.expectedJoinDate || today()} required />
+              {active.feeTrackingEnabled ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Monthly">
+                    <input name="monthlyFee" type="number" min="0" defaultValue={active.quotedMonthlyFee} />
+                  </Field>
+                  <Field label="Admission">
+                    <input name="admissionFee" type="number" min="0" defaultValue={active.quotedAdmissionFee} />
+                  </Field>
+                  {active.quotedDressFee > 0 ? (
+                    <>
+                      <Field label="Dress Fee">
+                        <input name="dressFee" type="number" min="0" defaultValue={active.quotedDressFee} />
+                      </Field>
+                      <Field label="Dress Cost">
+                        <input name="dressCost" type="number" min="0" defaultValue="0" />
+                      </Field>
+                    </>
+                  ) : (
+                    <>
+                      <input type="hidden" name="dressFee" value="0" />
+                      <input type="hidden" name="dressCost" value="0" />
+                    </>
+                  )}
+                </div>
+              ) : null}
+              <Field label={active.feeTrackingEnabled ? "Billing Start" : "Enrollment Date"}>
+                <input name="billingStartDate" type="date" defaultValue={active.expectedJoinDate || today()} required />
               </Field>
-              <div className={`grid ${application.feeTrackingEnabled ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
-                {application.feeTrackingEnabled ? <Field label="Batch">
-                  <input name="batch" defaultValue={application.preferredBatch} />
-                </Field> : null}
+              <div className={`grid ${active.feeTrackingEnabled ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
+                {active.feeTrackingEnabled ? (
+                  <Field label="Batch">
+                    <input name="batch" defaultValue={active.preferredBatch} />
+                  </Field>
+                ) : null}
                 <Field label="Belt">
                   <select name="belt" defaultValue="white">
                     {["white", "yellow", "orange", "green", "blue", "brown", "black"].map((belt) => (
@@ -479,23 +546,23 @@ function ApprovalsTab({
               </div>
               <Field label="Portal photo">
                 <div className="space-y-2 text-xs text-zinc-400">
-                  <label className={`flex items-start gap-2 rounded-lg border px-3 py-2 ${application.admissionPhotoUrl ? "border-zinc-800 bg-black/40 text-zinc-300" : "border-zinc-800 bg-zinc-950 text-zinc-600"}`}>
+                  <label className={`flex items-start gap-2 rounded-[var(--radius-row)] border px-3 py-2 ${active.admissionPhotoUrl ? "border-[color:var(--color-hairline)] bg-black/40 text-zinc-300" : "border-[color:var(--color-hairline)] bg-[#0a0a0a] text-zinc-600"}`}>
                     <input
                       name="photoAction"
                       type="radio"
                       value="use_submitted"
-                      defaultChecked={Boolean(application.admissionPhotoUrl)}
-                      disabled={!application.admissionPhotoUrl}
+                      defaultChecked={Boolean(active.admissionPhotoUrl)}
+                      disabled={!active.admissionPhotoUrl}
                       className="mt-0.5 accent-amber-500"
                     />
                     <span>Use submitted student photo</span>
                   </label>
-                  <label className="flex items-start gap-2 rounded-lg border border-zinc-800 bg-black/40 px-3 py-2 text-zinc-300">
+                  <label className="flex items-start gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-black/40 px-3 py-2 text-zinc-300">
                     <input
                       name="photoAction"
                       type="radio"
                       value="upload_new"
-                      defaultChecked={!application.admissionPhotoUrl}
+                      defaultChecked={!active.admissionPhotoUrl}
                       className="mt-0.5 accent-amber-500"
                     />
                     <span>Upload corrected photo</span>
@@ -506,38 +573,43 @@ function ApprovalsTab({
               <Field label="Review note">
                 <textarea name="reviewNote" rows={2} />
               </Field>
-              {application.feeTrackingEnabled ? <label className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
-                <input name="paymentVerified" type="checkbox" required className="accent-amber-500" />
-                Payment screenshot checked and amount verified
-              </label> : null}
-              <label className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
+              {active.feeTrackingEnabled ? (
+                <label className="flex items-center gap-2 text-xs text-zinc-400">
+                  <input name="paymentVerified" type="checkbox" required className="accent-amber-500" />
+                  Payment screenshot checked and amount verified
+                </label>
+              ) : null}
+              <label className="flex items-center gap-2 text-xs text-zinc-400">
                 <input name="isPublic" type="checkbox" defaultChecked className="accent-amber-500" />
                 Public profile enabled
               </label>
-              <div className="flex gap-2">
+              <div className="grid gap-2 sm:grid-cols-[1fr_1.4fr]">
                 <button
                   type="button"
-                  onClick={() => onReject(application)}
-                  disabled={actioning === application.id}
-                  className="flex-1 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-xs font-semibold text-red-300 disabled:opacity-50 flex items-center justify-center gap-2"
+                  onClick={() => {
+                    onReject(active);
+                    setActive(null);
+                  }}
+                  disabled={actioning === active.id}
+                  className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-red-500/25 bg-red-500/10 text-xs font-semibold text-red-200 disabled:opacity-50"
                 >
-                  <XCircle className="w-3.5 h-3.5" />
+                  <XCircle className="h-3.5 w-3.5" />
                   Reject
                 </button>
                 <button
                   type="submit"
-                  disabled={actioning === application.id}
-                  className="flex-1 rounded-lg bg-white px-3 py-2.5 text-xs font-semibold text-black disabled:opacity-50 flex items-center justify-center gap-2"
+                  disabled={actioning === active.id}
+                  className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <CheckCircle2 className="h-3.5 w-3.5" />
                   Approve
                 </button>
               </div>
             </form>
           </div>
-        </article>
-      ))}
-    </div>
+        ) : null}
+      </Sheet>
+    </>
   );
 }
 
