@@ -60,7 +60,7 @@ export default function LedgerRow({
   );
 
   const sharedClassName = cx(
-    "hud-row relative w-full py-[14px] pr-[16px] text-left",
+    "hud-row relative w-full py-[14px] pr-[16px] pl-[16px] text-left",
     className,
   );
   const style: CSSProperties = { animationDelay: `${index * 18}ms` };
