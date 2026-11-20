@@ -52,8 +52,11 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { SearchX } from "lucide-react";
 
 import MonthlyFeeReceipt from "@/components/receipts/MonthlyFeeReceipt";
+import AccountMenu from "@/components/common/AccountMenu";
+import GlobalSearch from "@/components/common/GlobalSearch";
 import MonthSelector from "@/components/common/MonthSelector";
-import Navbar from "@/components/common/Navbar";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import { initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
 
 const MONTHS = [
@@ -729,37 +732,32 @@ export default function StudentList({ branch }: { branch: string }) {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
-      {/* Header */}
-      <Navbar
-        title={branchName}
-        showBack
-        rightContent={
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col items-end mr-2">
-              <span className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider">
-                {MONTHS[month]} {selectedYear}
-              </span>
-              <span className="text-[color:var(--color-text-dim)] font-bold text-xs font-sans">
-                {stats.paidCount}/{stats.totalStudents} Paid
-              </span>
-            </div>
-            <MonthSelector
-              selectedMonth={month}
-              year={selectedYear}
-              onMonthChange={(m: number) => {
-                const params = new URLSearchParams(searchParams.toString());
-                params.set("month", m.toString());
-                params.set("year", String(selectedYear));
-                router.push(`/students/${branch}?${params.toString()}`);
-              }}
-              className="scale-90 origin-right"
-            />
-          </div>
-        }
-      />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-16">
+    <PageShell
+      hud={{
+        title: branchName,
+        monthLabel: `${MONTHS[month]} ${selectedYear}`,
+        backHref: "/dashboard",
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <AccountMenu />,
+      }}
+    >
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:mb-6">
+        <p className="text-[13px] leading-relaxed text-[color:var(--color-text-dim)]">
+          {stats.paidCount}/{stats.totalStudents} paid this month
+        </p>
+        <MonthSelector
+          selectedMonth={month}
+          year={selectedYear}
+          onMonthChange={(m: number) => {
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("month", m.toString());
+            params.set("year", String(selectedYear));
+            router.push(`/students/${branch}?${params.toString()}`);
+          }}
+          className="w-full sm:w-[220px]"
+        />
+      </div>
         {/* Stats Dashboard */}
         {!loading && !error && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 animate-fade-in">
@@ -946,7 +944,6 @@ export default function StudentList({ branch }: { branch: string }) {
             )}
           </div>
         )}
-      </main>
 
       {/* Confirm Payment Modal (Keep existing logic, just check styles if needed) */}
       {confirmStudent && (
@@ -1603,6 +1600,6 @@ export default function StudentList({ branch }: { branch: string }) {
         </div>
       )}
 
-    </div>
+    </PageShell>
   );
 }
