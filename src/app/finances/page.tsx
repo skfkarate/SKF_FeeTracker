@@ -27,8 +27,11 @@ import {
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { getCurrentFeeYear } from "@/lib/fee-year";
 
+import GlobalSearch from "@/components/common/GlobalSearch";
 import MonthSelector from "@/components/common/MonthSelector";
-import Navbar from "@/components/common/Navbar";
+import NavMenu from "@/components/common/NavMenu";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import { AddExtraIncomeModal } from "./AddExtraIncomeModal";
 
 const BRANCHES = [
@@ -198,25 +201,40 @@ export default function FinancesPage() {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-deep)" }}>
-      <Navbar
-        title="FINANCE"
-        showBack
-        rightContent={
-          <div className="scale-90 origin-right">
-            <MonthSelector
-              selectedMonth={month}
-              year={feeYear}
-              onMonthChange={(nextMonth) => {
-                setActiveFormula("all");
-                setMonth(nextMonth);
-              }}
-            />
-          </div>
-        }
-      />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-12">
+    <>
+      <PageShell
+        hud={{
+          title: "Money",
+          monthLabel: month === null ? `FY ${feeYear}` : `${MONTHS[month - 1]} ${feeYear}`,
+          branchLabel: branch === "Overall" ? "All branches" : branch,
+          backHref: "/dashboard",
+          actions: (
+            <>
+              <GlobalSearch />
+              <div className="scale-90 origin-right">
+                <MonthSelector
+                  selectedMonth={month}
+                  year={feeYear}
+                  onMonthChange={(nextMonth) => {
+                    setActiveFormula("all");
+                    setMonth(nextMonth);
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => loadData(true)}
+                className="tap-target grid place-items-center rounded-full border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-zinc-300 transition-colors hover:text-white disabled:opacity-50"
+                aria-label="Refresh finance data"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            </>
+          ),
+          bell: <NotificationBell />,
+          account: <NavMenu />,
+        }}
+      >
         <div className="flex p-1 bg-black/20 rounded-xl w-full border border-white/5 mb-5">
           {BRANCHES.map((option) => (
             <button
@@ -274,14 +292,6 @@ export default function FinancesPage() {
                     {data.formulas.availableBalance}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => loadData(true)}
-                  className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 text-[var(--text-secondary)] hover:text-white hover:bg-white/10 flex items-center justify-center transition-colors"
-                  title="Refresh finance data"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
               </div>
 
               <div className="grid grid-cols-3 gap-2 mt-5 text-center">
@@ -676,7 +686,7 @@ export default function FinancesPage() {
             </section>
           </div>
         )}
-      </main>
+      </PageShell>
 
       {month !== null && data && (
         <AddExtraIncomeModal
@@ -687,6 +697,6 @@ export default function FinancesPage() {
           onSuccess={() => loadData(true)}
         />
       )}
-    </div>
+    </>
   );
 }
