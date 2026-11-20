@@ -36,8 +36,8 @@ export default function LedgerRow({
   ) : null;
 
   const body = (
-    <div className="flex w-full min-w-0 flex-wrap items-center gap-x-4 gap-y-1.5">
-      <div className="min-w-0 flex-1 basis-[min(100%,200px)] pl-3.5">
+    <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 gap-y-1.5">
+      <div className="min-w-0">
         <p className="truncate text-[clamp(0.94rem,0.9rem+0.15vw,1rem)] font-semibold leading-snug text-[color:var(--color-text)]">
           {title}
         </p>
@@ -52,7 +52,7 @@ export default function LedgerRow({
       </div>
 
       {amount || trailing ? (
-        <div className="ml-auto flex max-w-full flex-wrap items-center justify-end gap-2.5 sm:gap-3">
+        <div className="flex max-w-full items-start justify-end gap-2.5 sm:gap-3">
           {amount ? (
             <div className="text-right">
               <p className="numeric text-[clamp(1.12rem,1rem+0.45vw,1.4rem)] text-[color:var(--color-text)]">

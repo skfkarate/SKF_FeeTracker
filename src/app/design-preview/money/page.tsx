@@ -4,8 +4,7 @@ import { useState } from "react";
 import { ArrowDownRight, BadgeCheck, Clock, HandCoins, Wallet } from "lucide-react";
 
 import LedgerRow from "@/components/ui/LedgerRow";
-import MeterBar from "@/components/ui/MeterRing";
-import MeterRing from "@/components/ui/MeterRing";
+import MeterRing, { MeterBar } from "@/components/ui/MeterRing";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
 import Sheet from "@/components/ui/Sheet";

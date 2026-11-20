@@ -30,7 +30,7 @@ export default function BottomNav() {
         aria-current={active ? "page" : undefined}
         className={cx(
           "group relative flex flex-col items-center justify-center gap-1.5 transition-colors",
-          compact ? "min-h-16 px-0.5" : "min-h-[72px] flex-1 px-0.5",
+          compact ? "min-h-16 w-14 px-0.5" : "min-h-[72px] flex-1 px-0.5",
           active
             ? "text-[color:var(--color-text)]"
             : "text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text-dim)]",
@@ -54,7 +54,7 @@ export default function BottomNav() {
       aria-expanded={moreOpen}
       className={cx(
         "group relative flex flex-col items-center justify-center gap-1.5 transition-colors",
-        compact ? "min-h-16 px-0.5" : "min-h-[72px] flex-1 px-0.5",
+        compact ? "min-h-16 w-14 px-0.5" : "min-h-[72px] flex-1 px-0.5",
         moreActive || moreOpen
           ? "text-[color:var(--color-text)]"
           : "text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text-dim)]",

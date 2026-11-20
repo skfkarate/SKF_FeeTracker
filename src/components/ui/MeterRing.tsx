@@ -33,7 +33,7 @@ export default function MeterRing({
   const color = TONE_COLOR[tone];
 
   return (
-    <div className={cx("flex items-center gap-3.5", className)}>
+    <div className={cx("flex min-w-0 flex-wrap items-center gap-3.5", className)}>
       <svg
         width={size}
         height={size}
@@ -74,7 +74,7 @@ export default function MeterRing({
           {clamped}
         </text>
       </svg>
-      {caption ? <p className="text-xs leading-snug text-[color:var(--color-text-faint)]">{caption}</p> : null}
+      {caption ? <p className="min-w-0 flex-1 basis-[110px] text-xs leading-snug text-[color:var(--color-text-faint)]">{caption}</p> : null}
     </div>
   );
 }
