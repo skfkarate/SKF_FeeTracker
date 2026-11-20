@@ -26,6 +26,8 @@ import { PageTransition } from "@/components/common/PageTransition";
 import Sheet from "@/components/ui/Sheet";
 import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
 import StatTile from "@/components/ui/StatTile";
+import LedgerRow from "@/components/ui/LedgerRow";
+import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import {
   addRemoval,
   createManualStudentFee,
@@ -144,13 +146,6 @@ function statusLabel(status: string) {
   if (status === "rejected") return "Rejected";
   if (status === "overdue") return "Overdue";
   return "Pending";
-}
-
-function statusClass(status: string) {
-  if (status === "paid") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
-  if (status === "rejected") return "border-red-500/30 bg-red-500/10 text-red-300";
-  if (status === "pending_verification") return "border-sky-500/30 bg-sky-500/10 text-sky-300";
-  return "border-amber-500/30 bg-amber-500/10 text-amber-300";
 }
 
 function balanceClass(amount: number | null) {
@@ -782,65 +777,73 @@ export default function CustomPageClient() {
                           </div>
                         </div>
 
-                        <div className="divide-y divide-zinc-800/60">
-                          {group.items.map((item) => {
+                        <div className="space-y-2 px-4 py-3 sm:px-5">
+                          {group.items.map((item, itemIndex) => {
                             const canDelete = item.removal && data.permissions.canWrite && (
                               data.permissions.canDeleteAnyRemoval ||
                               item.removal.dateAdded === todayInputDate()
                             );
-                            return (
-                              <div key={item.key} className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
-                                <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border ${
-                                  item.kind === "removal"
-                                    ? "border-red-900/40 bg-red-950/30 text-red-400"
-                                    : "border-amber-900/40 bg-amber-950/20 text-amber-300"
-                                }`}>
-                                  {item.kind === "removal" ? <MinusCircle className="h-5 w-5" /> : <HandCoins className="h-5 w-5" />}
-                                </div>
+                            const rowStatus: LedgerStatus =
+                              item.kind === "removal"
+                                ? "overdue"
+                                : item.status === "paid"
+                                  ? "paid"
+                                  : item.status === "overdue"
+                                    ? "overdue"
+                                    : item.status === "rejected"
+                                      ? "rejected"
+                                      : item.status === "pending_verification"
+                                        ? "verifying"
+                                        : "due";
+                            const amountColor =
+                              item.kind === "removal"
+                                ? "text-red-400"
+                                : item.status === "paid"
+                                  ? "text-emerald-400"
+                                  : "text-amber-300";
+                            const amountPrefix = item.kind === "removal" ? "-" : item.status === "paid" ? "+" : "";
 
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <p className="truncate text-sm font-semibold text-white">{item.title}</p>
+                            return (
+                              <LedgerRow
+                                key={item.key}
+                                index={itemIndex}
+                                status={rowStatus}
+                                title={item.title}
+                                subtitle={item.subtitle || "—"}
+                                idLabel={item.sortDate ? displayDate(item.sortDate) : undefined}
+                                amount={
+                                  <span className={amountColor}>
+                                    {amountPrefix}
+                                    {formatCurrency(item.amount)}
+                                  </span>
+                                }
+                                trailing={
+                                  <div className="flex items-center gap-2">
                                     {item.kind === "due" ? (
-                                      <span className={`rounded-md border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusClass(item.status)}`}>
-                                        {statusLabel(item.status)}
-                                      </span>
+                                      <StatusPill status={rowStatus} label={statusLabel(item.status)} />
+                                    ) : null}
+                                    {item.removal ? (
+                                      canDelete ? (
+                                        <button
+                                          type="button"
+                                          onClick={() => setDeleteTarget(item.removal || null)}
+                                          aria-label="Delete removal"
+                                          className="tap-target grid place-items-center rounded-lg border border-zinc-800 text-zinc-600 transition-colors hover:border-red-500/30 hover:text-red-400"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </button>
+                                      ) : (
+                                        <span
+                                          className="tap-target grid place-items-center text-zinc-700"
+                                          title="Removals older than 24 hours need an admin"
+                                        >
+                                          <Clock className="h-4 w-4" />
+                                        </span>
+                                      )
                                     ) : null}
                                   </div>
-                                  <p className="mt-0.5 truncate text-xs text-zinc-500">{item.subtitle || "—"}</p>
-                                  {item.sortDate ? (
-                                    <p className="mt-1 font-mono text-[11px] text-zinc-600">{displayDate(item.sortDate)}</p>
-                                  ) : null}
-                                </div>
-
-                                <span className={`whitespace-nowrap font-mono text-sm font-semibold ${
-                                  item.kind === "removal"
-                                    ? "text-red-400"
-                                    : item.status === "paid"
-                                      ? "text-emerald-400"
-                                      : "text-amber-300"
-                                }`}>
-                                  {item.kind === "removal" ? "-" : item.status === "paid" ? "+" : ""}
-                                  {formatCurrency(item.amount)}
-                                </span>
-
-                                {item.removal ? (
-                                  canDelete ? (
-                                    <button
-                                      type="button"
-                                      onClick={() => setDeleteTarget(item.removal || null)}
-                                      className="ml-1 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 text-zinc-600 transition-colors hover:border-red-500/30 hover:text-red-400"
-                                      title="Delete removal"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </button>
-                                  ) : (
-                                    <span className="ml-1 flex h-9 w-9 flex-shrink-0 items-center justify-center text-zinc-700" title="Removals older than 24 hours need an admin">
-                                      <Clock className="h-4 w-4" />
-                                    </span>
-                                  )
-                                ) : null}
-                              </div>
+                                }
+                              />
                             );
                           })}
                         </div>

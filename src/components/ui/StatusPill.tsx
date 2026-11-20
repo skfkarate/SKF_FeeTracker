@@ -10,7 +10,9 @@ export type LedgerStatus =
   | "break"
   | "discontinued"
   | "credit"
-  | "installment";
+  | "installment"
+  | "rejected"
+  | "verifying";
 
 const STATUS_COLOR: Record<LedgerStatus, string> = {
   due: "var(--color-action)",
@@ -21,6 +23,8 @@ const STATUS_COLOR: Record<LedgerStatus, string> = {
   discontinued: "#71717a",
   credit: "var(--color-settled)",
   installment: "var(--color-action)",
+  rejected: "var(--color-overdue)",
+  verifying: "var(--color-action)",
 };
 
 const STATUS_LABEL: Record<LedgerStatus, string> = {
@@ -32,6 +36,8 @@ const STATUS_LABEL: Record<LedgerStatus, string> = {
   discontinued: "Stopped",
   credit: "Credit",
   installment: "Installment",
+  rejected: "Rejected",
+  verifying: "Verifying",
 };
 
 export function statusLabel(status: LedgerStatus): string {
