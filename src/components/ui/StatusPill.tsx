@@ -15,16 +15,29 @@ export type LedgerStatus =
   | "verifying";
 
 const STATUS_COLOR: Record<LedgerStatus, string> = {
-  due: "var(--color-action)",
-  paid: "var(--color-settled)",
-  partial: "var(--color-action)",
+  due: "var(--color-due)",
+  paid: "var(--color-paid)",
+  partial: "var(--color-due)",
   overdue: "var(--color-overdue)",
   break: "var(--color-text-dim)",
   discontinued: "var(--color-text-faint)",
-  credit: "var(--color-settled)",
-  installment: "var(--color-action)",
+  credit: "var(--color-paid)",
+  installment: "var(--color-due)",
   rejected: "var(--color-overdue)",
-  verifying: "var(--color-action)",
+  verifying: "var(--color-due)",
+};
+
+const STATUS_BACKGROUND: Record<LedgerStatus, string> = {
+  due: "var(--color-due-dim)",
+  paid: "var(--color-paid-dim)",
+  partial: "var(--color-due-dim)",
+  overdue: "var(--color-overdue-dim)",
+  break: "var(--color-glass-hover)",
+  discontinued: "var(--color-glass-hover)",
+  credit: "var(--color-paid-dim)",
+  installment: "var(--color-due-dim)",
+  rejected: "var(--color-overdue-dim)",
+  verifying: "var(--color-due-dim)",
 };
 
 const STATUS_LABEL: Record<LedgerStatus, string> = {
@@ -57,11 +70,10 @@ export default function StatusPill({
   label?: string;
   className?: string;
 }) {
-  const tint = STATUS_COLOR[status];
   const style: CSSProperties = {
-    color: tint,
+    color: STATUS_COLOR[status],
     borderColor: "var(--color-hairline)",
-    backgroundColor: "rgba(244, 239, 227, 0.035)",
+    backgroundColor: STATUS_BACKGROUND[status],
   };
 
   return (
@@ -71,6 +83,7 @@ export default function StatusPill({
         className,
       )}
       style={style}
+      aria-label={label ? `${label} payment status` : `${STATUS_LABEL[status]} payment status`}
     >
       {label ?? STATUS_LABEL[status]}
     </span>

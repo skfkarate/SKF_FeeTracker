@@ -1,8 +1,17 @@
 import { cx } from "@/lib/cx";
 
+type MeterTone = "action" | "settled" | "overdue" | "brand";
+
+const TONE_COLOR: Record<MeterTone, string> = {
+  action: "var(--color-accent)",
+  settled: "var(--color-paid)",
+  overdue: "var(--color-overdue)",
+  brand: "var(--color-accent)",
+};
+
 export default function MeterRing({
   value,
-  size = 72,
+  size = 76,
   thickness = 6,
   label = "progress",
   tone = "action",
@@ -13,7 +22,7 @@ export default function MeterRing({
   size?: number;
   thickness?: number;
   label?: string;
-  tone?: "action" | "settled" | "overdue" | "brand";
+  tone?: MeterTone;
   caption?: string;
   className?: string;
 }) {
@@ -21,18 +30,10 @@ export default function MeterRing({
   const radius = (size - thickness) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (clamped / 100) * circumference;
-
-  const color =
-    tone === "settled"
-      ? "var(--color-settled)"
-      : tone === "overdue"
-        ? "var(--color-overdue)"
-        : tone === "brand"
-          ? "var(--color-brand)"
-          : "var(--color-action)";
+  const color = TONE_COLOR[tone];
 
   return (
-    <div className={cx("flex items-center gap-3", className)}>
+    <div className={cx("flex items-center gap-3.5", className)}>
       <svg
         width={size}
         height={size}
@@ -45,7 +46,7 @@ export default function MeterRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          fill="none"
+          fill="var(--color-well)"
           stroke="var(--color-hairline)"
           strokeWidth={thickness}
         />
@@ -73,7 +74,7 @@ export default function MeterRing({
           {clamped}
         </text>
       </svg>
-      {caption ? <p className="text-xs text-[color:var(--color-text-faint)]">{caption}</p> : null}
+      {caption ? <p className="text-xs leading-snug text-[color:var(--color-text-faint)]">{caption}</p> : null}
     </div>
   );
 }
@@ -86,29 +87,29 @@ export function MeterBar({
 }: {
   value: number;
   label?: string;
-  tone?: "action" | "settled" | "overdue" | "brand";
+  tone?: MeterTone;
   className?: string;
 }) {
   const clamped = Math.max(0, Math.min(100, Math.round(value)));
-  const color =
-    tone === "settled"
-      ? "var(--color-settled)"
-      : tone === "overdue"
-        ? "var(--color-overdue)"
-        : tone === "brand"
-          ? "var(--color-brand)"
-          : "var(--color-action)";
+  const color = TONE_COLOR[tone];
 
   return (
     <div
-      className={cx("h-2 w-full overflow-hidden rounded-[var(--radius-pill)] bg-[color:var(--color-raised)]", className)}
+      className={cx("h-2 w-full overflow-hidden rounded-[var(--radius-pill)] bg-[color:var(--color-well)]", className)}
       role="progressbar"
       aria-valuenow={clamped}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={label ?? "progress"}
     >
-      <div className="h-full rounded-[var(--radius-pill)]" style={{ width: `${clamped}%`, backgroundColor: color }} />
+      <div
+        className="h-full rounded-[var(--radius-pill)]"
+        style={{
+          width: `${clamped}%`,
+          backgroundColor: color,
+          transition: "width 220ms cubic-bezier(0.075, 0.82, 0.165, 1)",
+        }}
+      />
     </div>
   );
 }

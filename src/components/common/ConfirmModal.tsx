@@ -32,14 +32,9 @@ export function ConfirmModal({
 
   useEffect(() => {
     if (!open) return;
-    const timer = setTimeout(() => confirmRef.current?.focus(), 50);
-    return () => clearTimeout(timer);
+    const timer = window.setTimeout(() => confirmRef.current?.focus(), 60);
+    return () => window.clearTimeout(timer);
   }, [open]);
-
-  const confirmStyles =
-    variant === "danger"
-      ? "bg-red-600 hover:bg-red-500 text-white"
-      : "bg-white hover:opacity-90 text-black";
 
   return (
     <Sheet
@@ -47,34 +42,29 @@ export function ConfirmModal({
       title={title}
       onClose={onCancel}
       footer={
-        <div className="flex items-center justify-end gap-3">
-          <button
-            onClick={onCancel}
-            disabled={loading}
-            className="btn-ghost text-sm"
-          >
+        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+          <button type="button" onClick={onCancel} disabled={loading} className="btn-ghost text-sm">
             {cancelLabel}
           </button>
           <button
             ref={confirmRef}
+            type="button"
             onClick={onConfirm}
             disabled={loading}
-            className={`btn-primary text-sm ${confirmStyles} ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className="btn-primary text-sm disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Processing..." : confirmLabel}
+            {loading ? "Working…" : confirmLabel}
           </button>
         </div>
       }
     >
       <div className="flex items-start gap-3 pt-1">
         {variant === "danger" ? (
-          <span className="shrink-0 rounded-full bg-red-500/10 p-2">
-            <AlertTriangle className="h-5 w-5 text-red-400" aria-hidden="true" />
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
+            <AlertTriangle className="h-5 w-5" aria-hidden="true" />
           </span>
         ) : null}
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-400">
-          {message}
-        </p>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-[color:var(--color-text-dim)]">{message}</p>
       </div>
     </Sheet>
   );

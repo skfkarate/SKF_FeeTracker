@@ -6,10 +6,10 @@ export type StatTone = "neutral" | "action" | "settled" | "overdue" | "brand";
 
 const TONE_COLOR: Record<StatTone, string> = {
   neutral: "var(--color-text-dim)",
-  action: "var(--color-action)",
-  settled: "var(--color-settled)",
+  action: "var(--color-accent)",
+  settled: "var(--color-paid)",
   overdue: "var(--color-overdue)",
-  brand: "var(--color-brand)",
+  brand: "var(--color-accent)",
 };
 
 export default function StatTile({
@@ -33,10 +33,10 @@ export default function StatTile({
   const iconStyle: CSSProperties = { color: tint };
 
   return (
-    <div className={cx("hud-panel p-3.5 sm:p-4", className)}>
-      <div className="flex items-center gap-2 eyebrow text-[color:var(--color-text-faint)]">
+    <div className={cx("hud-panel flex min-w-0 flex-col p-4 sm:p-[18px]", className)}>
+      <div className="flex min-w-0 items-center gap-2 eyebrow text-[color:var(--color-text-faint)]">
         {icon ? (
-          <span style={iconStyle} className="flex items-center">
+          <span style={iconStyle} className="flex shrink-0 items-center">
             {icon}
           </span>
         ) : null}
@@ -44,10 +44,10 @@ export default function StatTile({
       </div>
       <p
         className={cx(
-          "numeric mt-3 break-words text-[color:var(--color-text)]",
+          "numeric mt-auto break-words pt-3 text-[color:var(--color-text)]",
           size === "lg"
-            ? "text-[clamp(1.6rem,1.35rem+1vw,2.15rem)]"
-            : "text-[clamp(1.15rem,1.05rem+0.45vw,1.5rem)]",
+            ? "text-[clamp(1.7rem,1.4rem+1vw,2.2rem)]"
+            : "text-[clamp(1.2rem,1.08rem+0.5vw,1.55rem)]",
         )}
       >
         {value}

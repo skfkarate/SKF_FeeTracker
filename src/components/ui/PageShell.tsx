@@ -23,7 +23,7 @@ export default function PageShell({
         <HudBar {...hud} />
         <main
           className={cx(
-            "content-shell pb-28 pt-4 sm:pt-6 md:pb-12",
+            "content-shell pb-32 pt-5 sm:pt-7 md:pb-14",
             mainClassName,
           )}
         >

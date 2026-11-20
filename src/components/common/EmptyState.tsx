@@ -14,22 +14,17 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-6 select-none">
-      <div className="mb-6 rounded-2xl bg-white/[0.03] p-5 ring-1 ring-white/[0.05]">
-        <Icon className="h-10 w-10 text-zinc-600" />
+    <div className="aurora-panel flex flex-col items-center justify-center rounded-[var(--radius-card)] px-6 py-16 text-center select-none">
+      <div className="mb-5 grid h-14 w-14 place-items-center rounded-2xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
+        <Icon className="h-6 w-6 text-[color:var(--color-text-faint)]" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-      <p className="text-sm text-zinc-500 text-center max-w-xs leading-relaxed mb-6">
-        {description}
-      </p>
-      {action && (
-        <button
-          onClick={action.onClick}
-          className="btn-primary text-sm inline-flex items-center gap-2"
-        >
+      <h3 className="font-display text-lg font-semibold text-[color:var(--color-text)]">{title}</h3>
+      <p className="mt-2 max-w-xs text-sm leading-relaxed text-[color:var(--color-text-dim)]">{description}</p>
+      {action ? (
+        <button type="button" onClick={action.onClick} className="btn-primary mt-6 inline-flex items-center gap-2 text-sm">
           {action.label}
         </button>
-      )}
+      ) : null}
     </div>
   );
 }
