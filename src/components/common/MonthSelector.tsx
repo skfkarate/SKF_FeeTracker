@@ -39,8 +39,8 @@ export default function MonthSelector({
         <ChevronLeft className="h-[20px] w-[20px]" aria-hidden="true" />
       </button>
 
-      <div className={`h-[44px] flex-1 overflow-hidden ${compact ? "min-w-[52px] px-[2px]" : "min-w-[112px] px-[8px]"}`}>
-        <p key={selectedMonth} className={`animate-fade-in text-center font-display font-semibold uppercase tracking-[0.02em] text-[color:var(--color-text)] ${compact ? "text-[11px]" : "text-base"}`}>
+      <div className={`flex h-[44px] flex-1 items-center justify-center overflow-hidden px-[8px] ${compact ? "min-w-[72px]" : "min-w-[112px]"}`}>
+        <p key={selectedMonth} className={`animate-fade-in text-center font-display font-semibold uppercase leading-snug tracking-[0.02em] text-[color:var(--color-text)] ${compact ? "text-[13px]" : "text-base"}`}>
           {compact ? `${MONTHS[selectedMonth].slice(0, 3)} ${String(year).slice(-2)}` : MONTHS[selectedMonth]} {!compact ? <span className="ml-[6px] font-mono text-xs text-[color:var(--color-text-faint)]">{year}</span> : null}
         </p>
       </div>
