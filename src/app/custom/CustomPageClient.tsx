@@ -24,6 +24,7 @@ import NavMenu from "@/components/common/NavMenu";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { PageTransition } from "@/components/common/PageTransition";
 import Sheet from "@/components/ui/Sheet";
+import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
 import {
   addRemoval,
   createManualStudentFee,
@@ -66,7 +67,13 @@ const PENDING_STATUSES = new Set(["due", "overdue", "rejected", "pending_verific
 type BranchKey = (typeof BRANCHES)[number]["key"];
 type SearchableStudent = Student & { branch: BranchKey; branchLabel: string };
 type ActivityFilter = "all" | "out" | "dues";
-type Sheet = "due" | "out" | null;
+type CustomSheet = "due" | "out" | null;
+
+const ACTIVITY_FILTERS: SegmentOption<ActivityFilter>[] = [
+  { value: "all", label: "All" },
+  { value: "out", label: "Money out" },
+  { value: "dues", label: "Dues" },
+];
 
 type ActivityItem = {
   key: string;
@@ -163,7 +170,7 @@ export default function CustomPageClient() {
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<ActivityFilter>("all");
   const [search, setSearch] = useState("");
-  const [sheet, setSheet] = useState<Sheet>(null);
+  const [sheet, setSheet] = useState<CustomSheet>(null);
   const [deleteTarget, setDeleteTarget] = useState<CustomOperationRemoval | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -722,26 +729,13 @@ export default function CustomPageClient() {
                     </div>
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                      <div className="flex rounded-lg border border-zinc-800 bg-zinc-950 p-1">
-                        {([
-                          ["all", "All"],
-                          ["out", "Money out"],
-                          ["dues", "Dues"],
-                        ] as const).map(([value, label]) => (
-                          <button
-                            key={value}
-                            type="button"
-                            onClick={() => setFilter(value)}
-                            className={`min-h-9 rounded-md px-3 text-xs font-semibold transition-colors ${
-                              filter === value
-                                ? "bg-white text-black"
-                                : "text-zinc-500 hover:bg-white/[0.05] hover:text-white"
-                            }`}
-                          >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
+                      <SegmentedTabs
+                        options={ACTIVITY_FILTERS}
+                        value={filter}
+                        onChange={setFilter}
+                        ariaLabel="Activity filter"
+                        className="w-full sm:w-72"
+                      />
 
                       <div className="relative min-w-0 sm:w-56">
                         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
