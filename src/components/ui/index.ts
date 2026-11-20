@@ -4,6 +4,8 @@ export { default as SegmentedTabs } from "./SegmentedTabs";
 export { default as Sheet } from "./Sheet";
 export { default as AmountInput } from "./AmountInput";
 export { default as MeterRing, MeterBar } from "./MeterRing";
+export { default as BottomNav } from "./BottomNav";
+export { default as PageShell } from "./PageShell";
 export { default as StatTile } from "./StatTile";
 export type { StatTone } from "./StatTile";
 export { default as StatusPill, statusLabel, statusColor } from "./StatusPill";

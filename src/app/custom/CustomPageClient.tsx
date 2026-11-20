@@ -24,7 +24,7 @@ import NavMenu from "@/components/common/NavMenu";
 import NotificationBell from "@/components/common/NotificationBell";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { PageTransition } from "@/components/common/PageTransition";
-import HudBar from "@/components/ui/HudBar";
+import PageShell from "@/components/ui/PageShell";
 import Sheet from "@/components/ui/Sheet";
 import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
 import StatTile from "@/components/ui/StatTile";
@@ -511,12 +511,12 @@ export default function CustomPageClient() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-black text-zinc-300">
-        <HudBar
-          title="Custom Operations"
-          monthLabel={`FY ${year}`}
-          backHref="/dashboard"
-          actions={
+      <PageShell
+        hud={{
+          title: "Custom Operations",
+          monthLabel: `FY ${year}`,
+          backHref: "/dashboard",
+          actions: (
             <>
               <GlobalSearch />
               <div className="relative">
@@ -546,15 +546,14 @@ export default function CustomPageClient() {
                 {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               </button>
             </>
-          }
-          bell={<NotificationBell />}
-          account={<NavMenu />}
-        />
-
-        <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6">
-          <p className="mb-6 max-w-xl text-[13px] leading-relaxed text-zinc-500">
-            Every custom due and money-out entry for the year on one screen. No month switching.
-          </p>
+          ),
+          bell: <NotificationBell />,
+          account: <NavMenu />,
+        }}
+      >
+        <p className="mb-6 max-w-xl text-[13px] leading-relaxed text-zinc-500">
+          Every custom due and money-out entry for the year on one screen. No month switching.
+        </p>
 
           {error ? (
             <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-100">
@@ -861,7 +860,7 @@ export default function CustomPageClient() {
               </p>
             </>
           ) : null}
-        </main>
+      </PageShell>
 
         <Sheet
           open={Boolean(sheet)}
@@ -1190,7 +1189,6 @@ export default function CustomPageClient() {
             if (!deleting) setDeleteTarget(null);
           }}
         />
-      </div>
     </PageTransition>
   );
 }

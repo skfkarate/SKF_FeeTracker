@@ -8,7 +8,7 @@ import SegmentedTabs from "@/components/ui/SegmentedTabs";
 import Sheet from "@/components/ui/Sheet";
 import StatusPill from "@/components/ui/StatusPill";
 import AmountInput from "@/components/ui/AmountInput";
-import HudBar from "@/components/ui/HudBar";
+import PageShell from "@/components/ui/PageShell";
 
 type TabValue = "month" | "overdue" | "credits";
 
@@ -24,17 +24,18 @@ export default function DesignPreviewPage() {
   const [amount, setAmount] = useState("2000");
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <HudBar
-        title="Fees"
-        monthLabel="Oct 2026"
-        branchLabel="MPSC"
-        onBranchClick={() => undefined}
-        onSearchClick={() => undefined}
-        bell={<span className="font-mono text-[11px] text-zinc-400">12</span>}
-      />
-
-      <main className="mx-auto max-w-6xl px-4 py-6">
+    <>
+      <PageShell
+        hud={{
+          title: "Fees",
+          monthLabel: "Oct 2026",
+          branchLabel: "MPSC",
+          onBranchClick: () => undefined,
+          onSearchClick: () => undefined,
+          bell: <span className="font-mono text-[11px] text-zinc-400">12</span>,
+        }}
+        mainClassName="py-6"
+      >
         <section className="hud-panel p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
@@ -115,7 +116,7 @@ export default function DesignPreviewPage() {
             Open sheet
           </button>
         </section>
-      </main>
+      </PageShell>
 
       <Sheet open={sheetOpen} title="Mark paid" onClose={() => setSheetOpen(false)}>
         <div className="space-y-4">
@@ -130,6 +131,6 @@ export default function DesignPreviewPage() {
           />
         </div>
       </Sheet>
-    </div>
+    </>
   );
 }
