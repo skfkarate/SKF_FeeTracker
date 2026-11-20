@@ -11,7 +11,7 @@
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
 - The final design direction is **Dojo Ledger HUD** — a dark ledger with game-HUD chrome and pixel type used only for money and status words.
-- **17 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on the four primary destinations, rebuild Today/Fees/People/Money with HUD primitives, and partially adopt the system on `/custom`. Documentation commits for this status file are separate and are not implementation work.
+- **23 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on all ten destinations, rebuild all ten destinations with HUD primitives, and partially adopt the system on `/custom`. Documentation commits for this status file are separate and are not implementation work.
 - Nothing is pushed. No database, backend logic, navigation, Black Belt cleanup, or proration work has been changed yet.
 - Working tree is **clean**.
 
@@ -329,8 +329,14 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 | `0038ffd` | `refactor(feetrack): rebuild fees ledger with HUD primitives` | Fees gets stat tiles, Month/Overdue/No phone scopes, ledger rows, and a shared reminder Sheet |
 | `9b3d46c` | `refactor(feetrack): rebuild admissions approvals as HUD ledger` | People review queue uses ledger rows; full review form moves into a shared Sheet |
 | `ac5d5ff` | `refactor(feetrack): rebuild money view as HUD ledger` | Money splits into Overview/Ledger/Fund sections with stat tiles, collection meter, and ledger rows |
+| `8f638e2` | `refactor(feetrack): roll shared shell to secondary destinations` | Events, Media, Shop, Insights, and Settings adopt `PageShell` and `BottomNav` |
+| `88e6659` | `refactor(feetrack): rebuild events list as HUD ledger` | Events metrics, filters, and event selector use HUD primitives |
+| `fae4648` | `refactor(feetrack): rebuild media library as HUD ledger` | Gallery stats, filters, and photo list use HUD primitives |
+| `1c4e940` | `refactor(feetrack): rebuild shop as HUD ledger` | Shop product and order lists become ledger rows with stat tiles and tabs |
+| `fd4aa2a` | `refactor(feetrack): rebuild settings as HUD timetable console` | Timetable branch picker and summary use ledger rows and stat tiles; upload moves to `Sheet` |
+| `cd10219` | `refactor(feetrack): rebuild insights as HUD analytics ledger` | Analytics cards, toggles, and tables become stat tiles, tabs, and ledger rows |
 
-**Nothing has been pushed.** The 17 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
+**Nothing has been pushed.** The 23 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
 
 ### 5.2 Files created
 
@@ -402,7 +408,7 @@ status: clean
 - No receipt recomputation removal.
 - No finance definition choice applied.
 - No `api.ts` dead-wrapper cleanup.
-- Today, Fees, People, and Money are rebuilt from the approved mockups; Events, Media, Shop, Insights, and Settings still need the full rebuild.
+- All ten destinations now use the shared HUD shell and rebuilt ledger-first layouts; secondary create/edit modals remain for a later sheet pass.
 - No push to remote.
 - No DB reads or writes by this agent.
 
@@ -410,12 +416,11 @@ status: clean
 
 ## 7. Next steps (ordered)
 
-1. Roll `PageShell` + `BottomNav` out to Events, Media, Shop, Insights, and Settings.
-2. Rebuild Events, Media, Shop, Settings, Insights.
-3. Add redirects in `next.config.ts`, then remove old URLs one release later.
-4. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
-5. Final cleanup: dead wrappers, navigation tiles, audit parity.
-6. Push / ship when you approve.
+1. Convert remaining secondary create/edit/confirm modals to the shared `Sheet`.
+2. Add redirects in `next.config.ts`, then remove old URLs one release later.
+3. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
+4. Final cleanup: dead wrappers, navigation tiles, audit parity.
+5. Push / ship when you approve.
 
 ---
 
