@@ -11,7 +11,7 @@
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
 - The final design direction is **Dojo Ledger HUD** — a dark ledger with game-HUD chrome and pixel type used only for money and status words.
-- **6 implementation commits are on `main`.** They create the design foundation and partially adopt it on `/custom`. Documentation commits for this status file are separate and are not implementation work.
+- **8 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, and partially adopt it on `/custom`. Documentation commits for this status file are separate and are not implementation work.
 - Nothing is pushed. No database, backend logic, navigation, Black Belt cleanup, or proration work has been changed yet.
 - Working tree is **clean**.
 
@@ -318,17 +318,21 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 | `20d2a79` | `refactor(feetrack): use SegmentedTabs for custom activity filter` | Inline filter buttons replaced with shared `SegmentedTabs`; local `Sheet` type renamed `CustomSheet` |
 | `71e8d4f` | `feat(feetrack): add StatTile and use it for custom stats` | New `StatTile`; four `/custom` summary cards adopt it |
 | `e35b12a` | `refactor(feetrack): use LedgerRow for custom activity rows` | `rejected`/`verifying` states added; `/custom` rows use `LedgerRow`; 44px delete targets |
+| `1f342bf` | `refactor(feetrack): adopt HudBar on custom operations` | Per-page Navbar replaced with `HudBar`; back link, search, bell, menu, year, and refresh moved into the HUD |
+| `080f8d8` | `feat(feetrack): add PageShell and BottomNav` | Shared `PageShell`, responsive `BottomNav` with More sheet, adopted on `/custom` and preview |
 
-**Nothing has been pushed.** The 6 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
+**Nothing has been pushed.** The 8 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
 
 ### 5.2 Files created
 
 - `DESIGN.md`
 - `src/lib/cx.ts`
 - `src/components/ui/AmountInput.tsx`
+- `src/components/ui/BottomNav.tsx`
 - `src/components/ui/HudBar.tsx`
 - `src/components/ui/LedgerRow.tsx`
 - `src/components/ui/MeterRing.tsx` (also exports `MeterBar`)
+- `src/components/ui/PageShell.tsx`
 - `src/components/ui/SegmentedTabs.tsx`
 - `src/components/ui/Sheet.tsx`
 - `src/components/ui/StatTile.tsx`
@@ -342,7 +346,9 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 - `src/app/globals.css` — HUD tokens, pixel/mono utilities, hairlines, safe-area helpers, tap targets
 - `src/app/layout.tsx` — loads Silkscreen and JetBrains Mono
 - `src/components/common/ConfirmModal.tsx` — now wraps shared `Sheet`
-- `src/app/custom/CustomPageClient.tsx` — uses `Sheet`, `SegmentedTabs`, `StatTile`, `LedgerRow`, `StatusPill`
+- `src/components/ui/HudBar.tsx` — optional `backHref`
+- `src/app/custom/CustomPageClient.tsx` — uses `PageShell`, `Sheet`, `SegmentedTabs`, `StatTile`, `LedgerRow`, `StatusPill`
+- `src/app/design-preview/page.tsx` — now exercises `PageShell` and `BottomNav`
 
 ### 5.4 Verification
 
@@ -355,7 +361,8 @@ NODE_OPTIONS=--max-old-space-size=4096 npx next build
 ```
 
 Visual check: dev server `PORT=3100 npm run dev`, preview at `http://127.0.0.1:3100/design-preview`.  
-Screenshot checked at `/tmp/skf-design-preview3.png`; it caught and fixed the Pixelify `2,000` → `8,000` problem.
+Screenshot checked at `/tmp/skf-design-preview3.png`; it caught and fixed the Pixelify `2,000` → `8,000` problem.  
+Shell screenshots: `/tmp/skf-shell-375.png` and `/tmp/skf-shell-1280.png`.
 
 ### 5.5 Current git state
 
@@ -369,9 +376,9 @@ status: clean
 ## 6. What is NOT done
 
 - No real page has been fully rebuilt. `/custom` is only partially adopted.
-- `/custom` still has old page header, description, action buttons, balance-math card, month group header, and empty state styling.
-- No `PageShell` or `BottomNav` component exists yet.
-- No navigation changes: no 10 destinations, no tabs, no More menu, no redirects.
+- `/custom` still has old description, action buttons, balance-math card, month group header, and empty state styling.
+- `PageShell` and `BottomNav` exist, but only `/custom` and the preview route use them.
+- Navigation is not rolled out globally: no 10-destination migration, no redirects. The tab bar and More sheet exist in the shared component only.
 - No BB cleanup in either app.
 - No proration work, no new tables, no schedule actions.
 - No receipt recomputation removal.
@@ -385,15 +392,14 @@ status: clean
 
 ## 7. Next steps (ordered)
 
-1. Rebuild `/custom` header and action buttons with `HudBar`/`PageShell` style.
-2. Create `PageShell` + `BottomNav` so Today/Fees/Money reuse one shell.
-3. Generate mockups for **Today**, **Fees Month**, **Money Overview** at 375 and 1280.
-4. Rebuild Today, Fees, People, Money in that order.
-5. Rebuild Events, Media, Shop, Settings, Insights.
-6. Add redirects in `next.config.ts`, then remove old URLs one release later.
-7. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
-8. Final cleanup: dead wrappers, navigation tiles, audit parity.
-9. Push / ship when you approve.
+1. Generate mockups for **Today**, **Fees Month**, **Money Overview** at 375 and 1280.
+2. Roll `PageShell` + `BottomNav` out to Today, Fees, People, Money in that order.
+3. Rebuild Today, Fees, People, Money in that order.
+4. Rebuild Events, Media, Shop, Settings, Insights.
+5. Add redirects in `next.config.ts`, then remove old URLs one release later.
+6. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
+7. Final cleanup: dead wrappers, navigation tiles, audit parity.
+8. Push / ship when you approve.
 
 ---
 
@@ -415,7 +421,7 @@ status: clean
 
 Read this file first, then `DESIGN.md` for the visual contract.  
 Current working directory: `/home/krish/SKF Karate/website/SKF-FeeTrack`.  
-Use `git log --oneline -6` to confirm the six foundation implementation commits are present before continuing.
+Use `git log --oneline -8` to confirm the eight foundation implementation commits are present before continuing.
 
 ---
 ---
