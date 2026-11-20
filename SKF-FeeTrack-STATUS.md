@@ -11,8 +11,8 @@
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
 - The final design direction is **Dojo Ledger HUD** — a dark ledger with game-HUD chrome and pixel type used only for money and status words.
-- **23 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on all ten destinations, rebuild all ten destinations with HUD primitives, and partially adopt the system on `/custom`. Documentation commits for this status file are separate and are not implementation work.
-- Nothing is pushed. No database, backend logic, navigation, Black Belt cleanup, or proration work has been changed yet.
+- **27 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on all ten destinations, rebuild all ten destinations with HUD primitives, move secondary create/edit dialogs into the shared `Sheet`, and add three transitional redirects. Documentation commits for this status file are separate and are not implementation work.
+- Nothing is pushed. No database, backend logic, Black Belt cleanup, or proration work has been changed yet.
 - Working tree is **clean**.
 
 ---
@@ -335,8 +335,12 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 | `1c4e940` | `refactor(feetrack): rebuild shop as HUD ledger` | Shop product and order lists become ledger rows with stat tiles and tabs |
 | `fd4aa2a` | `refactor(feetrack): rebuild settings as HUD timetable console` | Timetable branch picker and summary use ledger rows and stat tiles; upload moves to `Sheet` |
 | `cd10219` | `refactor(feetrack): rebuild insights as HUD analytics ledger` | Analytics cards, toggles, and tables become stat tiles, tabs, and ledger rows |
+| `5a41116` | `refactor(feetrack): move gallery upload into shared sheet` | Media upload/edit moves into the HUD `Sheet` with a single footer action |
+| `104c49c` | `refactor(feetrack): move product editor into shared sheet` | Shop create/edit moves into the HUD `Sheet` with reset/cancel/save actions |
+| `37ba51c` | `refactor(feetrack): move event editor into shared sheet` | Event create/edit moves into the HUD `Sheet`; tournament fields retained |
+| `4ab1c20` | `feat(feetrack): add transitional redirects for retired routes` | Temporary 307s map `/verifications`, `/profile-photos`, and `/analytics` to their rebuilt destinations |
 
-**Nothing has been pushed.** The 23 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
+**Nothing has been pushed.** The 27 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
 
 ### 5.2 Files created
 
@@ -398,17 +402,16 @@ status: clean
 
 ## 6. What is NOT done
 
-- No real page has been fully rebuilt from the mockups. `/custom` is only partially adopted.
-- `/custom` still has old description, action buttons, balance-math card, month group header, and empty state styling.
-- `PageShell` and `BottomNav` are used by `/custom`, `/dashboard`, `/pending-fees`, `/admissions`, `/finances`, and preview routes.
-- The remaining old routes still use their per-page navigation.
-- Navigation is not rolled out globally: no 10-destination migration, no redirects. The tab bar and More sheet exist in the shared component and are visible on the four primary destinations only.
+- All ten destinations use the shared HUD shell, rebuilt ledger-first layouts, and shared `Sheet` dialogs.
+- `/custom` remains a partially adopted proof page with its old description, balance-math card, month grouping, and empty state.
+- Legacy pages outside the ten destinations still use their old navigation and modal styles; they remain live until their features are absorbed.
+- Transitional 307 redirects exist for `/verifications`, `/profile-photos`, and `/analytics`. Those pages stay for one release before removal.
+- Navigation tiles are still duplicated in `src/lib/navigation.ts`, and the dashboard has hardcoded destination tiles.
 - No BB cleanup in either app.
 - No proration work, no new tables, no schedule actions.
 - No receipt recomputation removal.
 - No finance definition choice applied.
 - No `api.ts` dead-wrapper cleanup.
-- All ten destinations now use the shared HUD shell and rebuilt ledger-first layouts; secondary create/edit modals remain for a later sheet pass.
 - No push to remote.
 - No DB reads or writes by this agent.
 
@@ -416,10 +419,10 @@ status: clean
 
 ## 7. Next steps (ordered)
 
-1. Convert remaining secondary create/edit/confirm modals to the shared `Sheet`.
-2. Add redirects in `next.config.ts`, then remove old URLs one release later.
-3. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
-4. Final cleanup: dead wrappers, navigation tiles, audit parity.
+1. Replace the duplicated navigation tiles with one canonical destination config and update the dashboard tiles in the same change.
+2. After one release of redirects, remove `/verifications`, `/profile-photos`, and `/analytics`; extend redirects as more legacy pages are absorbed.
+3. Only after owner answers: BB cleanup, proration, receipts fix, finance definition, and remaining route absorption.
+4. Final cleanup: dead wrappers and audit parity.
 5. Push / ship when you approve.
 
 ---
