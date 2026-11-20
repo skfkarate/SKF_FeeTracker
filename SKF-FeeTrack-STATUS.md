@@ -11,7 +11,7 @@
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
 - The final design direction is **Dojo Ledger HUD** — a dark ledger with game-HUD chrome and pixel type used only for money and status words.
-- **8 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, and partially adopt it on `/custom`. Documentation commits for this status file are separate and are not implementation work.
+- **9 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, and partially adopt the system on `/custom`. Documentation commits for this status file are separate and are not implementation work.
 - Nothing is pushed. No database, backend logic, navigation, Black Belt cleanup, or proration work has been changed yet.
 - Working tree is **clean**.
 
@@ -320,8 +320,9 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 | `e35b12a` | `refactor(feetrack): use LedgerRow for custom activity rows` | `rejected`/`verifying` states added; `/custom` rows use `LedgerRow`; 44px delete targets |
 | `1f342bf` | `refactor(feetrack): adopt HudBar on custom operations` | Per-page Navbar replaced with `HudBar`; back link, search, bell, menu, year, and refresh moved into the HUD |
 | `080f8d8` | `feat(feetrack): add PageShell and BottomNav` | Shared `PageShell`, responsive `BottomNav` with More sheet, adopted on `/custom` and preview |
+| `9bf5e05` | `feat(feetrack): add hero screen design mockups` | Today, Fees, and Money mockups at 375 and 1280 using the shared HUD primitives |
 
-**Nothing has been pushed.** The 8 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
+**Nothing has been pushed.** The 9 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
 
 ### 5.2 Files created
 
@@ -339,6 +340,9 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 - `src/components/ui/StatusPill.tsx`
 - `src/components/ui/index.ts`
 - `src/app/design-preview/page.tsx` (temporary preview, not linked from product navigation)
+- `src/app/design-preview/today/page.tsx` (Today mockup)
+- `src/app/design-preview/fees/page.tsx` (Fees mockup)
+- `src/app/design-preview/money/page.tsx` (Money mockup)
 - `AGENTS.md`, `CLAUDE.md` (Next.js-generated agent rules; committed to keep tree clean)
 
 ### 5.3 Files modified
@@ -362,7 +366,8 @@ NODE_OPTIONS=--max-old-space-size=4096 npx next build
 
 Visual check: dev server `PORT=3100 npm run dev`, preview at `http://127.0.0.1:3100/design-preview`.  
 Screenshot checked at `/tmp/skf-design-preview3.png`; it caught and fixed the Pixelify `2,000` → `8,000` problem.  
-Shell screenshots: `/tmp/skf-shell-375.png` and `/tmp/skf-shell-1280.png`.
+Shell screenshots: `/tmp/skf-shell-375.png` and `/tmp/skf-shell-1280.png`.  
+Hero mockups: `/tmp/skf-today-{375,1280}.png`, `/tmp/skf-fees-{375,1280}.png`, `/tmp/skf-money-{375,1280}.png`.
 
 ### 5.5 Current git state
 
@@ -384,7 +389,7 @@ status: clean
 - No receipt recomputation removal.
 - No finance definition choice applied.
 - No `api.ts` dead-wrapper cleanup.
-- No mockups for the three hero screens (Today, Fees Month, Money Overview) at 375 and 1280.
+- Hero mockups exist as preview routes and screenshots, but no real page has been rebuilt from them yet.
 - No push to remote.
 - No DB reads or writes by this agent.
 
@@ -392,14 +397,13 @@ status: clean
 
 ## 7. Next steps (ordered)
 
-1. Generate mockups for **Today**, **Fees Month**, **Money Overview** at 375 and 1280.
-2. Roll `PageShell` + `BottomNav` out to Today, Fees, People, Money in that order.
-3. Rebuild Today, Fees, People, Money in that order.
-4. Rebuild Events, Media, Shop, Settings, Insights.
-5. Add redirects in `next.config.ts`, then remove old URLs one release later.
-6. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
-7. Final cleanup: dead wrappers, navigation tiles, audit parity.
-8. Push / ship when you approve.
+1. Roll `PageShell` + `BottomNav` out to Today, Fees, People, Money in that order.
+2. Rebuild Today, Fees, People, Money in that order.
+3. Rebuild Events, Media, Shop, Settings, Insights.
+4. Add redirects in `next.config.ts`, then remove old URLs one release later.
+5. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
+6. Final cleanup: dead wrappers, navigation tiles, audit parity.
+7. Push / ship when you approve.
 
 ---
 
@@ -421,7 +425,7 @@ status: clean
 
 Read this file first, then `DESIGN.md` for the visual contract.  
 Current working directory: `/home/krish/SKF Karate/website/SKF-FeeTrack`.  
-Use `git log --oneline -8` to confirm the eight foundation implementation commits are present before continuing.
+Use `git log --oneline -9` to confirm the nine foundation implementation commits are present before continuing.
 
 ---
 ---
