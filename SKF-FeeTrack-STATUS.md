@@ -11,7 +11,7 @@
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
 - The final design direction is **Dojo Ledger HUD** — a dark ledger with game-HUD chrome and pixel type used only for money and status words.
-- **8 commits are done and committed on `main`:** 6 implementation commits creating the design foundation and partially adopting it on `/custom`, plus 2 documentation commits for this status file.
+- **6 implementation commits are on `main`.** They create the design foundation and partially adopt it on `/custom`. Documentation commits for this status file are separate and are not implementation work.
 - Nothing is pushed. No database, backend logic, navigation, Black Belt cleanup, or proration work has been changed yet.
 - Working tree is **clean**.
 
@@ -318,10 +318,8 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 | `20d2a79` | `refactor(feetrack): use SegmentedTabs for custom activity filter` | Inline filter buttons replaced with shared `SegmentedTabs`; local `Sheet` type renamed `CustomSheet` |
 | `71e8d4f` | `feat(feetrack): add StatTile and use it for custom stats` | New `StatTile`; four `/custom` summary cards adopt it |
 | `e35b12a` | `refactor(feetrack): use LedgerRow for custom activity rows` | `rejected`/`verifying` states added; `/custom` rows use `LedgerRow`; 44px delete targets |
-| `55dfe24` | `docs(feetrack): add master status document` | Created this document |
-| `af13761` | `docs(feetrack): complete master status audit appendix` | Added full audit appendix and corrected owner questions |
 
-**Nothing has been pushed.** The 6 implementation commits above are the only code changes; the last two are documentation only.
+**Nothing has been pushed.** The 6 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
 
 ### 5.2 Files created
 
@@ -364,8 +362,6 @@ Screenshot checked at `/tmp/skf-design-preview3.png`; it caught and fixed the Pi
 ```
 branch: main
 status: clean
-HEAD:   af13761 docs(feetrack): complete master status audit appendix
-commits on main for this work: 8
 ```
 
 ---
@@ -419,7 +415,7 @@ commits on main for this work: 8
 
 Read this file first, then `DESIGN.md` for the visual contract.  
 Current working directory: `/home/krish/SKF Karate/website/SKF-FeeTrack`.  
-Use `git log --oneline -8` to confirm the six foundation commits and two documentation commits are present before continuing.
+Use `git log --oneline -6` to confirm the six foundation implementation commits are present before continuing.
 
 ---
 ---
