@@ -17,10 +17,12 @@ import {
   Wallet,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
 import NavMenu from "@/components/common/NavMenu";
+import NotificationBell from "@/components/common/NotificationBell";
 import { PageTransition } from "@/components/common/PageTransition";
 import { SkeletonDashboard } from "@/components/common/Skeleton";
+import PageShell from "@/components/ui/PageShell";
 import { getDashboardStats, type DashboardStats } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 
@@ -147,25 +149,18 @@ export default function DashboardPage() {
 
   return (
     <PageTransition>
-    <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar rightContent={<NavMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-32 pb-24">
-        <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="mb-2 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">System Online</p>
-            </div>
-            <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Welcome back, <span className="capitalize text-zinc-400">{user}</span>.
-            </h1>
-          </div>
-          <div className="hidden rounded-full border border-zinc-800 bg-zinc-900/50 px-4 py-2 text-xs font-medium text-zinc-500 md:flex md:items-center md:gap-2">
-            <Activity className="h-3.5 w-3.5 text-zinc-400" />
-            <span>FeeTrack Console</span>
-          </div>
-        </header>
+      <PageShell
+        hud={{
+          title: "Today",
+          monthLabel: "Current month",
+          actions: <GlobalSearch />,
+          bell: <NotificationBell />,
+          account: <NavMenu />,
+        }}
+      >
+        <p className="mb-6 text-[13px] text-zinc-500">
+          Welcome back, <span className="capitalize text-zinc-300">{user}</span>. Here is what needs attention.
+        </p>
 
         {dashboardError ? (
           <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
@@ -348,8 +343,7 @@ export default function DashboardPage() {
             ) : null}
           </section>
         </div>
-      </main>
-    </div>
+      </PageShell>
     </PageTransition>
   );
 }
