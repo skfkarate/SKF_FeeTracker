@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, ChevronDown, Search } from "lucide-react";
 
 import { cx } from "@/lib/cx";
 
@@ -7,6 +8,7 @@ export default function HudBar({
   title,
   monthLabel,
   branchLabel,
+  backHref,
   onBranchClick,
   onSearchClick,
   actions,
@@ -17,6 +19,7 @@ export default function HudBar({
   title: string;
   monthLabel?: string;
   branchLabel?: string;
+  backHref?: string;
   onBranchClick?: () => void;
   onSearchClick?: () => void;
   actions?: ReactNode;
@@ -32,6 +35,15 @@ export default function HudBar({
       )}
     >
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+        {backHref ? (
+          <Link
+            href={backHref}
+            aria-label="Back to dashboard"
+            className="tap-target grid shrink-0 place-items-center rounded-full border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-zinc-400 transition-colors hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        ) : null}
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-[17px] font-bold text-white">{title}</h1>
           <div className="mt-1 flex items-center gap-2">

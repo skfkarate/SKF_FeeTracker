@@ -19,10 +19,12 @@ import {
   Wallet,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
 import NavMenu from "@/components/common/NavMenu";
+import NotificationBell from "@/components/common/NotificationBell";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { PageTransition } from "@/components/common/PageTransition";
+import HudBar from "@/components/ui/HudBar";
 import Sheet from "@/components/ui/Sheet";
 import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
 import StatTile from "@/components/ui/StatTile";
@@ -510,21 +512,13 @@ export default function CustomPageClient() {
   return (
     <PageTransition>
       <div className="min-h-screen bg-black text-zinc-300">
-        <Navbar title="Custom Operations" showBack rightContent={<NavMenu />} />
-
-        <main className="mx-auto max-w-6xl px-4 pb-28 pt-24 sm:px-6 sm:pt-32">
-          <header className="mb-7 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="mb-2 text-xs uppercase tracking-widest text-zinc-500">FeeTrack Office</p>
-              <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Custom Operations
-              </h1>
-              <p className="mt-2 max-w-xl text-sm text-zinc-500">
-                Every custom due and money-out entry for the year on one screen. No month switching.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
+        <HudBar
+          title="Custom Operations"
+          monthLabel={`FY ${year}`}
+          backHref="/dashboard"
+          actions={
+            <>
+              <GlobalSearch />
               <div className="relative">
                 <select
                   value={year}
@@ -533,26 +527,34 @@ export default function CustomPageClient() {
                     setStudents([]);
                     setSelectedStudent(null);
                   }}
-                  className="min-h-11 appearance-none rounded-lg border border-zinc-800 bg-zinc-950 pl-4 pr-9 text-sm font-semibold text-white outline-none transition-colors focus:border-zinc-600"
+                  className="tap-target appearance-none rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] pl-3 pr-8 font-mono text-[11px] text-white outline-none transition-colors focus:border-white/40"
                   aria-label="Fee year"
                 >
                   {yearOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+                <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-500" />
               </div>
               <button
                 type="button"
                 onClick={() => void loadData(true)}
                 disabled={refreshing}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-200 transition-colors hover:border-zinc-600 hover:bg-zinc-900 disabled:opacity-50"
+                aria-label="Refresh custom operations"
+                className="tap-target grid place-items-center rounded-full border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-zinc-300 transition-colors hover:text-white disabled:opacity-50"
               >
                 {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                <span className="hidden sm:inline">Refresh</span>
               </button>
-            </div>
-          </header>
+            </>
+          }
+          bell={<NotificationBell />}
+          account={<NavMenu />}
+        />
+
+        <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6">
+          <p className="mb-6 max-w-xl text-[13px] leading-relaxed text-zinc-500">
+            Every custom due and money-out entry for the year on one screen. No month switching.
+          </p>
 
           {error ? (
             <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-100">
