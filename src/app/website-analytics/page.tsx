@@ -112,9 +112,8 @@ function eventDescription(value: string) {
 }
 
 function eventStatus(value: string): LedgerStatus {
-  if (value.includes("failed")) return "overdue";
-  if (value.includes("success") || value.includes("payment")) return "paid";
-  return "due";
+  void value;
+  return "neutral";
 }
 
 function countFor(data: WebsiteAnalyticsData, eventType: string) {
@@ -237,7 +236,7 @@ function DailyTrafficGrid({ rows }: { rows: DailyWebsiteTraffic[] }) {
             >
               <div className="flex h-12 items-end rounded bg-[color:var(--color-panel-strong)]">
                 <div
-                  className="w-full rounded bg-[color:var(--color-paid-dim)]"
+                  className="w-full rounded bg-[color:var(--color-accent-dim)]"
                   style={{ height: `${row.views > 0 ? Math.max((row.views / max) * 100, 6) : 0}%` }}
                 />
               </div>
@@ -454,7 +453,7 @@ function LoginHealth({ data }: { data: WebsiteAnalyticsData }) {
         <MeterRing
           value={successRate}
           caption="success rate"
-          tone={successRate >= 90 ? "settled" : successRate >= 70 ? "action" : "overdue"}
+          tone="action"
         />
       </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -499,7 +498,7 @@ function LeadHealth({ data }: { data: WebsiteAnalyticsData }) {
         ].map(([label, value, tone]) => (
           <div key={label} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-3">
             <p className="truncate text-[11px] text-[color:var(--color-text-faint)]">{label}</p>
-            <p className={`numeric mt-2 break-words text-lg ${tone === "overdue" ? "text-[color:var(--color-overdue)]" : tone === "settled" ? "text-[color:var(--color-settled)]" : tone === "action" ? "text-[color:var(--color-action)]" : "text-[color:var(--color-text)]"}`}>
+            <p className={`numeric mt-2 break-words text-lg ${tone === "overdue" ? "text-[color:var(--color-text-dim)]" : tone === "settled" ? "text-[color:var(--color-accent)]" : tone === "action" ? "text-[color:var(--color-action)]" : "text-[color:var(--color-text)]"}`}>
               {value}
             </p>
           </div>
@@ -516,7 +515,7 @@ function HomePracticePerformance({ analytics }: { analytics: HomePracticeAnalyti
         <div>
           <p className="eyebrow text-[color:var(--color-text-faint)]">Athlete portal</p>
           <h3 className="font-display mt-1 flex items-center gap-2 text-lg text-[color:var(--color-text)]">
-            <BookOpenCheck className="h-5 w-5 text-[color:var(--color-settled)]" />
+            <BookOpenCheck className="h-5 w-5 text-[color:var(--color-accent)]" />
             Home practice
           </h3>
           <p className="mt-1 text-xs text-[color:var(--color-text-dim)]">
@@ -529,9 +528,9 @@ function HomePracticePerformance({ analytics }: { analytics: HomePracticeAnalyti
       </div>
 
       <div className="grid grid-cols-2 gap-3 p-4 sm:p-5 lg:grid-cols-5">
-        <StatTile label="Watches" value={number(analytics.overview.watchedLessons)} tone="settled" />
+        <StatTile label="Watches" value={number(analytics.overview.watchedLessons)} tone="neutral" />
         <StatTile label="Athletes" value={number(analytics.overview.uniqueAthletes)} />
-        <StatTile label="Completions" value={number(analytics.overview.completions)} tone="settled" />
+        <StatTile label="Completions" value={number(analytics.overview.completions)} tone="neutral" />
         <StatTile label="Completion rate" value={percent(analytics.overview.completionRate)} tone="action" />
         <StatTile label="Average progress" value={percent(analytics.overview.averageProgress)} tone="action" />
       </div>
@@ -704,8 +703,8 @@ export default function WebsiteAnalyticsPage() {
       </header>
 
       {error ? (
-        <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue-dim)] p-4 text-sm text-[color:var(--color-text)]">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--color-overdue)]" />
+        <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-glass-hover)] p-4 text-sm text-[color:var(--color-text)]">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--color-text-dim)]" />
           <div className="min-w-0">
             <p className="font-semibold">Website analytics could not be loaded.</p>
             <p className="mt-1 break-words text-[color:var(--color-text-dim)]">{error}</p>
@@ -752,12 +751,12 @@ export default function WebsiteAnalyticsPage() {
               <p className="eyebrow text-[color:var(--color-text-faint)]">People first, then events</p>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-              <MetricCard icon={Users} label="People visited" value={number(analytics.overview.uniqueVisitors)} detail={`${number(analytics.overview.returningVisitors)} returning`} tone="settled" />
+              <MetricCard icon={Users} label="People visited" value={number(analytics.overview.uniqueVisitors)} detail={`${number(analytics.overview.returningVisitors)} returning`} tone="action" />
               <MetricCard icon={Eye} label="Visits" value={number(analytics.overview.visits)} detail={`${number(analytics.overview.visitsToday)} today`} />
               <MetricCard icon={MousePointerClick} label="Page views" value={number(analytics.overview.pageViews)} detail={`${analytics.overview.avgPagesPerVisit} pages per visit`} />
               <MetricCard icon={LogIn} label="Login attempts" value={number(analytics.overview.portalLogins + analytics.overview.portalLoginFailures)} detail="Success and failure together" tone="action" />
-              <MetricCard icon={UserCheck} label="Logged in" value={number(analytics.overview.portalLogins)} detail="Successful portal logins" tone="settled" />
-              <MetricCard icon={AlertCircle} label="Failed logins" value={number(analytics.overview.portalLoginFailures)} detail="Access was denied" tone="overdue" />
+              <MetricCard icon={UserCheck} label="Logged in" value={number(analytics.overview.portalLogins)} detail="Successful portal logins" tone="action" />
+              <MetricCard icon={AlertCircle} label="Failed logins" value={number(analytics.overview.portalLoginFailures)} detail="Access was denied" tone="neutral" />
             </div>
           </section>
 

@@ -324,7 +324,7 @@ export default function MessagesPage() {
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-paid)]" />
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
               <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--color-text-dim)]">Manual WhatsApp Queue</p>
             </div>
             <h1 className="font-sans text-3xl font-semibold tracking-tight text-[color:var(--color-text)] sm:text-4xl">
@@ -348,14 +348,14 @@ export default function MessagesPage() {
         </header>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{notice}</p>
           </div>
@@ -497,7 +497,7 @@ export default function MessagesPage() {
                         onClick={() => toggleStudent(student.id)}
                         className={`w-full rounded-lg border p-3 text-left transition-colors ${
                           selected
-                            ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]"
+                            ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]"
                             : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] hover:border-[color:var(--color-hairline)]"
                         }`}
                       >
@@ -695,7 +695,7 @@ export default function MessagesPage() {
               </button>
             </div>
             {previewIssues.length ? (
-              <div className="mb-4 rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
+              <div className="mb-4 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
                 Unknown placeholders: {previewIssues.join(", ")}
               </div>
             ) : null}
@@ -759,7 +759,7 @@ export default function MessagesPage() {
                   <div
                     key={student.id}
                     className={`rounded-lg border p-3 ${
-                      opened ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)]"
+                      opened ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)]"
                     }`}
                   >
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -778,7 +778,7 @@ export default function MessagesPage() {
                         <button
                           type="button"
                           onClick={() => openSingle(student)}
-                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-3 text-sm font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"
+                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-3 text-sm font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"
                         >
                           <MessageCircle className="h-4 w-4" />
                           Open

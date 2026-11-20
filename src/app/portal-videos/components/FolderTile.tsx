@@ -53,7 +53,7 @@ export function FolderTile({
           <Folder className="h-5 w-5" strokeWidth={1.75} />
         </span>
         {!folder.isPublished ? (
-          <span className="rounded-md border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text)]">Draft</span>
+          <span className="rounded-md border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text)]">Draft</span>
         ) : null}
       </div>
       <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{folder.title}</p>

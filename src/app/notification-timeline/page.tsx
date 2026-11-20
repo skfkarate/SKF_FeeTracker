@@ -129,10 +129,10 @@ function stylesForKind(kind: TimelineKind) {
 
   if (kind === "birthday") {
     return {
-      card: "border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue-dim)] text-[color:var(--color-text)]",
-      rail: "bg-[color:var(--color-overdue)]",
-      icon: "border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue)] text-[color:var(--color-accent-ink)]",
-      badge: "border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]",
+      card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent-dim)] text-[color:var(--color-text)]",
+      rail: "bg-[color:var(--color-accent)]",
+      icon: "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]",
+      badge: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]",
       status: "text-[color:var(--color-text)]",
     };
   }
@@ -435,7 +435,7 @@ export default function NotificationTimelinePage() {
         </section>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>

@@ -675,7 +675,7 @@ export default function MonthlyFeeReceipt({
           <button
             onClick={handleDownloadClick}
             disabled={isDownloading}
-            className="btn-primary flex-1 font-sans tracking-wider flex items-center justify-center gap-2 bg-[color:var(--color-paid)] hover:bg-[color:var(--color-paid)] disabled:opacity-60 disabled:cursor-not-allowed border-none text-[color:var(--color-text)]"
+            className="btn-primary flex-1 font-sans tracking-wider flex items-center justify-center gap-2 bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-strong)] disabled:opacity-60 disabled:cursor-not-allowed border-none text-[color:var(--color-accent-ink)]"
           >
             {isDownloading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -693,7 +693,7 @@ export default function MonthlyFeeReceipt({
           onClick={() => setShowDatePicker(false)}
         >
           <div
-            className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-2xl w-full max-w-sm p-6 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
+            className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-2xl w-full max-w-sm p-6 shadow-[0_0_40px_var(--color-accent-dim)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center mb-6">
@@ -713,7 +713,7 @@ export default function MonthlyFeeReceipt({
                 type="date"
                 value={pickerDate}
                 onChange={(e) => setPickerDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-paid-border)] focus:ring-1 focus:ring-[color:var(--color-paid)] transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-accent-border)] focus:ring-1 focus:ring-[color:var(--color-accent)] transition-all"
                 style={{ colorScheme: "dark" }}
               />
             </div>
@@ -726,7 +726,7 @@ export default function MonthlyFeeReceipt({
                 type="time"
                 value={pickerTime}
                 onChange={(e) => setPickerTime(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-paid-border)] focus:ring-1 focus:ring-[color:var(--color-paid)] transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-accent-border)] focus:ring-1 focus:ring-[color:var(--color-accent)] transition-all"
                 style={{ colorScheme: "dark" }}
               />
             </div>
@@ -741,7 +741,7 @@ export default function MonthlyFeeReceipt({
               <button
                 onClick={confirmDateAndDownload}
                 disabled={isDownloading}
-                className="flex-1 py-3 rounded-xl bg-[color:var(--color-paid)] hover:bg-[color:var(--color-paid)] disabled:opacity-60 disabled:cursor-not-allowed text-[color:var(--color-text)] text-sm font-sans tracking-wider transition-all font-bold shadow-lg shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+                className="flex-1 py-3 rounded-xl bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-strong)] disabled:opacity-60 disabled:cursor-not-allowed text-[color:var(--color-accent-ink)] text-sm font-sans tracking-wider transition-all font-bold shadow-lg shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
               >
                 CONFIRM & DOWNLOAD
               </button>

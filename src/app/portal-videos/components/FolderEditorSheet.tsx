@@ -42,7 +42,7 @@ export function FolderEditorSheet({
 
         <div className="space-y-4">
           {error ? (
-            <div className="flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
+            <div className="flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
               <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <p>{error}</p>
             </div>

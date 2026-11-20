@@ -553,8 +553,8 @@ export default function StudentList({ branch }: { branch: string }) {
     const photoUrl = normalizeProfilePhotoUrl(student.photoUrl);
     const statusStyle = isDiscontinued
       ? {
-        background: "rgba(127, 29, 29, 0.18)",
-        borderColor: "rgba(239, 68, 68, 0.45)",
+        background: "var(--color-glass-hover)",
+        borderColor: "var(--color-hairline)",
       }
       : {};
 
@@ -600,7 +600,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 <span className="text-[10px] px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] uppercase tracking-wider">Break</span>
               )}
               {isDiscontinued && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded border border-[color:var(--color-overdue-border)] text-[color:var(--color-text-dim)] uppercase tracking-wider">Discontinued</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] uppercase tracking-wider">Discontinued</span>
               )}
             </div>
 
@@ -656,7 +656,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 key={due.id}
                 onClick={(e) => handleBeltExamClick(e, student, due)}
                 disabled={markingPaid === student.id || markingStatus === student.id}
-                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-md ${due.status === 'pending_verification' ? 'border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] shadow-[0_18px_45px_rgba(0,0,0,0.28)]' : 'border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] shadow-[0_18px_45px_rgba(0,0,0,0.28)]'}`}
+                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-md ${due.status === 'pending_verification' ? 'border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] shadow-[0_18px_45px_rgba(0,0,0,0.28)]' : 'border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] shadow-[0_18px_45px_rgba(0,0,0,0.28)]'}`}
                 title={due.status === 'pending_verification' ? `Verify ${due.label || 'Payment'}` : `Approve ${due.label || 'Payment'}`}
               >
                 {markingPaid === student.id ? (
@@ -686,7 +686,7 @@ export default function StudentList({ branch }: { branch: string }) {
                     e.stopPropagation();
                     setReceiptStudent(student);
                   }}
-                  className="w-11 h-11 rounded-full bg-[color:var(--color-paid)] flex items-center justify-center hover:bg-[color:var(--color-paid)] transition-all shadow-md shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+                  className="w-11 h-11 rounded-full bg-[color:var(--color-accent)] flex items-center justify-center text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-accent-strong)] transition-all shadow-md shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
                   title="View Receipt"
                 >
                   <svg className="w-4 h-4 text-[color:var(--color-text)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -825,7 +825,7 @@ export default function StudentList({ branch }: { branch: string }) {
 
         {!loading && !error && stats.onBreakCount > 0 && (
           <div className="mb-6 -mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)] animate-fade-in">
-            <span className="rounded-full border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 py-1 text-[color:var(--color-text-dim)]">
+            <span className="rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-1 text-[color:var(--color-text-dim)]">
               {stats.onBreakCount} break excluded
             </span>
           </div>
@@ -848,7 +848,7 @@ export default function StudentList({ branch }: { branch: string }) {
             <button
               onClick={() => setShowPendingOnly(!showPendingOnly)}
               className={`flex-1 px-4 py-2.5 text-sm rounded-lg border transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-2 ${showPendingOnly
-                ? "bg-[color:var(--color-well)] border-[color:var(--color-due-border)] text-[color:var(--color-text-dim)]"
+                ? "bg-[color:var(--color-well)] border-[color:var(--color-accent-border)] text-[color:var(--color-text-dim)]"
                 : "bg-[color:var(--color-well)] border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)]"
                 }`}
             >
@@ -860,7 +860,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 href={adminStudentsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-paid)] hover:text-[color:var(--color-text)] transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-accent-strong)] hover:text-[color:var(--color-accent-ink)] transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-2"
               >
                 <ExternalLink className="w-3 h-3" />
                 <span>Add in Admin</span>
@@ -923,7 +923,7 @@ export default function StudentList({ branch }: { branch: string }) {
                   <div className="mt-4">
                     <button
                       onClick={() => setShowDiscontinued((v) => !v)}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] hover:bg-[color:var(--color-well)] transition-colors text-sm"
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] hover:bg-[color:var(--color-well)] transition-colors text-sm"
                     >
                       <span className="flex items-center gap-2 text-[color:var(--color-text-dim)] font-medium">
                         <AlertCircle className="w-4 h-4" />
@@ -1043,7 +1043,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
                 <button
                   onClick={handleConfirmPaid}
-                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors"
+                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
                 >
                   ✓ CONFIRM
                 </button>
@@ -1101,7 +1101,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 <button
                   onClick={handleApproveBeltExam}
                   disabled={markingPaid === confirmBeltExam.student.id}
-                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors flex items-center justify-center gap-2"
                 >
                   {markingPaid === confirmBeltExam.student.id ? (
                     <><div className="spinner !w-4 !h-4" /> Approving...</>
@@ -1153,7 +1153,7 @@ export default function StudentList({ branch }: { branch: string }) {
               <div className="flex gap-3 mb-6">
                 <a
                   href={`tel:${String(detailStudent.phone || '')}`}
-                  className="flex-1 py-3 bg-[color:var(--color-well)] border border-[color:var(--color-paid-border)] text-[color:var(--color-text-dim)] rounded-lg flex items-center justify-center gap-2 hover:bg-[color:var(--color-well)] transition-colors"
+                  className="flex-1 py-3 bg-[color:var(--color-well)] border border-[color:var(--color-hairline-strong)] text-[color:var(--color-text-dim)] rounded-lg flex items-center justify-center gap-2 hover:bg-[color:var(--color-well)] transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Phone className="w-4 h-4" /> Call
@@ -1408,7 +1408,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
                 <button
                   onClick={handleConfirmBreak}
-                  className="flex-1 py-3 bg-[color:var(--color-due)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-due)] transition-colors"
+                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
                 >
                   ⏸ CONFIRM
                 </button>
@@ -1499,7 +1499,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
                 <button
                   onClick={handleConfirmResume}
-                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors"
+                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
                 >
                   RESUME
                 </button>
@@ -1550,7 +1550,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
                 <button
                   onClick={handleMarkNonRecurringPaid}
-                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors"
+                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
                 >
                   ✓ CONFIRM PAID
                 </button>
@@ -1589,7 +1589,7 @@ export default function StudentList({ branch }: { branch: string }) {
                   href={`/api/feetrack/receipts/${encodeURIComponent(nonRecurringReceipt.receiptId)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   RECEIPT

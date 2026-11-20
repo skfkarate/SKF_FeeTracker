@@ -181,7 +181,7 @@ export default function TimetablePage() {
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-paid)]" />
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
               <p className="eyebrow text-[color:var(--color-text-dim)]">Portal Operations</p>
             </div>
             <h1 className="mt-1 text-[15px] font-semibold text-[color:var(--color-text)]">Branch Timetable</h1>
@@ -197,14 +197,14 @@ export default function TimetablePage() {
         </header>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {saved ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{selectedBranch.label} timetable replaced for {saved.monthLabel || monthLabel || "current month"}.</p>
           </div>
@@ -220,11 +220,11 @@ export default function TimetablePage() {
                   <LedgerRow
                     key={item.value}
                     index={index}
-                    status={branchTimetable ? "paid" : "due"}
+                    status="neutral"
                     title={item.label}
                     subtitle={item.detail}
                     idLabel={branchTimetable?.monthLabel || "NO ACTIVE IMAGE"}
-                    trailing={<StatusPill status={branchTimetable ? "paid" : "due"} label={branchTimetable ? "Live" : "Empty"} />}
+                    trailing={<StatusPill status="neutral" label={branchTimetable ? "Live" : "Empty"} ariaLabel={`${item.label} timetable status`} />}
                     className={branch === item.value ? "bg-[color:var(--color-well)]" : undefined}
                     onClick={() => {
                       setBranch(item.value);
@@ -275,7 +275,7 @@ export default function TimetablePage() {
                 <StatTile
                   label="Status"
                   value={loadingTimetables ? "Loading" : currentTimetable ? "LIVE" : "NONE"}
-                  tone={currentTimetable ? "settled" : "action"}
+                  tone="neutral"
                 />
               </div>
             </div>

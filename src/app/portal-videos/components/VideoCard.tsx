@@ -138,7 +138,7 @@ export function StatusDot({ published }: { published: boolean }) {
   return (
     <span
       title={published ? "Live" : "Draft"}
-      className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${published ? "bg-[color:var(--color-paid)]" : "bg-[color:var(--color-due)]"}`}
+      className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${published ? "bg-[color:var(--color-accent)]" : "bg-[color:var(--color-text-faint)]"}`}
     />
   );
 }

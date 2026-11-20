@@ -8,6 +8,7 @@ export type LedgerStatus =
   | "partial"
   | "overdue"
   | "break"
+  | "neutral"
   | "discontinued"
   | "credit"
   | "installment"
@@ -20,6 +21,7 @@ const STATUS_COLOR: Record<LedgerStatus, string> = {
   partial: "var(--color-due)",
   overdue: "var(--color-overdue)",
   break: "var(--color-text-dim)",
+  neutral: "var(--color-text-dim)",
   discontinued: "var(--color-text-faint)",
   credit: "var(--color-paid)",
   installment: "var(--color-due)",
@@ -33,6 +35,7 @@ const STATUS_BACKGROUND: Record<LedgerStatus, string> = {
   partial: "var(--color-due-dim)",
   overdue: "var(--color-overdue-dim)",
   break: "var(--color-glass-hover)",
+  neutral: "var(--color-glass-hover)",
   discontinued: "var(--color-glass-hover)",
   credit: "var(--color-paid-dim)",
   installment: "var(--color-due-dim)",
@@ -46,6 +49,7 @@ const STATUS_LABEL: Record<LedgerStatus, string> = {
   partial: "Partial",
   overdue: "Overdue",
   break: "Break",
+  neutral: "Status",
   discontinued: "Stopped",
   credit: "Credit",
   installment: "Installment",
@@ -65,10 +69,12 @@ export default function StatusPill({
   status,
   label,
   className,
+  ariaLabel,
 }: {
   status: LedgerStatus;
   label?: string;
   className?: string;
+  ariaLabel?: string;
 }) {
   const style: CSSProperties = {
     color: STATUS_COLOR[status],
@@ -83,7 +89,7 @@ export default function StatusPill({
         className,
       )}
       style={style}
-      aria-label={label ? `${label} payment status` : `${STATUS_LABEL[status]} payment status`}
+      aria-label={ariaLabel ?? `${label ?? STATUS_LABEL[status]} ${status === "neutral" ? "status" : "payment status"}`}
     >
       {label ?? STATUS_LABEL[status]}
     </span>

@@ -19,7 +19,7 @@ import LedgerRow from "@/components/ui/LedgerRow";
 import MeterRing from "@/components/ui/MeterRing";
 import PageShell from "@/components/ui/PageShell";
 import StatTile from "@/components/ui/StatTile";
-import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
+import StatusPill from "@/components/ui/StatusPill";
 import { getDashboardStats, type DashboardStats } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { getDisplayName } from "@/lib/display-name";
@@ -34,12 +34,6 @@ const DASHBOARD_RETRY_DELAY_MS = 5000;
 
 function num(amount: number) {
   return Math.round(Number(amount) || 0).toLocaleString("en-IN");
-}
-
-function branchStatus(rate: number): LedgerStatus {
-  if (rate >= 80) return "paid";
-  if (rate >= 50) return "partial";
-  return "overdue";
 }
 
 function greeting() {
@@ -159,8 +153,8 @@ export default function DashboardPage() {
         </header>
 
         {dashboardError ? (
-          <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue-dim)] p-4 text-sm text-[color:var(--color-text)]">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-overdue)]" />
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-glass-hover)] p-4 text-sm text-[color:var(--color-text)]">
+            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-text-dim)]" />
             <div className="min-w-0">
               <p className="font-semibold">Dashboard stats are waiting for the SKF-Karate backend.</p>
               <p className="mt-1 break-words text-[color:var(--color-text-dim)]">{dashboardError}</p>
@@ -185,7 +179,7 @@ export default function DashboardPage() {
             <MeterRing
               value={stats.rate}
               caption="collection rate"
-              tone={stats.rate >= 80 ? "settled" : stats.rate >= 50 ? "action" : "overdue"}
+              tone="action"
             />
           </div>
         </section>
@@ -209,12 +203,10 @@ export default function DashboardPage() {
             {branches.map((branch, index) => {
               const expected = branch.totalCollected + branch.pendingAmount;
               const rate = expected > 0 ? Math.round((branch.totalCollected / expected) * 100) : 0;
-              const status = branchStatus(rate);
               return (
                 <LedgerRow
                   key={branch.branch}
                   index={index}
-                  status={status}
                   title={branch.label}
                   subtitle={`${branch.paidCount} paid · ${branch.pendingCount} pending`}
                   idLabel={`BRANCH · ${monthLabel.toUpperCase()}`}
@@ -223,7 +215,7 @@ export default function DashboardPage() {
                   trailing={
                     <div className="flex items-center gap-2">
                       <ArrowUpRight className="h-4 w-4 text-[color:var(--color-text-faint)]" aria-hidden="true" />
-                      <StatusPill status={status} label={stats.loaded ? `${rate}%` : "..."} />
+                      <StatusPill status="neutral" label={stats.loaded ? `${rate}%` : "..."} ariaLabel={`${rate}% branch collection rate`} />
                     </div>
                   }
                   onClick={() => router.push(branch.href)}

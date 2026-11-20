@@ -62,7 +62,7 @@ export default function MoneyPreviewPage() {
                   <p className="numeric mt-3 text-[40px] leading-none text-[color:var(--color-text)]">3,42,500</p>
                   <p className="mt-3 text-xs text-[color:var(--color-text-dim)]">Opening reserve included · cash basis</p>
                 </div>
-                <MeterRing value={72} caption="of target" tone="settled" />
+                <MeterRing value={72} caption="of target" tone="action" />
               </div>
               <MeterBar value={72} label="Balance target" className="mt-5" />
             </section>
@@ -70,7 +70,7 @@ export default function MoneyPreviewPage() {
             <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
               <StatTile label="Opening reserve" value="50,000" icon={<Wallet className="h-4 w-4" />} />
               <StatTile label="Fee cash" value="1,24,000" tone="settled" icon={<HandCoins className="h-4 w-4" />} />
-              <StatTile label="Money out" value="43,500" tone="overdue" icon={<ArrowDownRight className="h-4 w-4" />} />
+              <StatTile label="Money out" value="43,500" tone="neutral" icon={<ArrowDownRight className="h-4 w-4" />} />
               <StatTile label="Pending dues" value="36,000" tone="action" icon={<Clock className="h-4 w-4" />} />
             </div>
           </>
@@ -113,7 +113,7 @@ export default function MoneyPreviewPage() {
               </div>
               <BadgeCheck className="h-6 w-6 text-[color:var(--color-text-dim)]" aria-hidden="true" />
             </div>
-            <MeterBar value={45} label="Development fund" className="mt-5" tone="settled" />
+            <MeterBar value={45} label="Development fund" className="mt-5" tone="action" />
           </section>
         ) : null}
       </PageShell>

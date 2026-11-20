@@ -649,7 +649,7 @@ function PortalVideosLibrary() {
         <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-overdue)]" />
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
               <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--color-text-dim)]">Portal Operations</p>
             </div>
             <h1 className={`font-sans font-semibold tracking-tight text-[color:var(--color-text)] ${currentFolder && browsing && !collection ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"}`}>
@@ -702,7 +702,7 @@ function PortalVideosLibrary() {
         </div>
 
         {error ? (
-          <div className="mb-4 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-4 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p className="flex-1">{error}</p>
             <button type="button" onClick={() => setError("")} className="flex-shrink-0 text-[color:var(--color-text)] hover:text-[color:var(--color-text)]" aria-label="Dismiss error"><X className="h-4 w-4" /></button>
@@ -710,7 +710,7 @@ function PortalVideosLibrary() {
         ) : null}
 
         {notice ? (
-          <div className="mb-4 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-4 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p className="flex-1">{notice}</p>
             <button type="button" onClick={() => setNotice("")} className="flex-shrink-0 text-[color:var(--color-text)] hover:text-[color:var(--color-text)]" aria-label="Dismiss notice"><X className="h-4 w-4" /></button>

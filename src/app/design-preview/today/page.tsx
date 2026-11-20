@@ -85,7 +85,7 @@ export default function TodayPreviewPage() {
               <p className="numeric mt-2 text-[40px] leading-none text-[color:var(--color-text)]">12</p>
               <p className="mt-2 text-xs text-[color:var(--color-text-dim)]">4 payment proofs · 3 admissions · 5 orders</p>
             </div>
-            <MeterRing value={68} caption="collection rate" tone="settled" />
+            <MeterRing value={68} caption="collection rate" tone="action" />
           </div>
         </section>
 

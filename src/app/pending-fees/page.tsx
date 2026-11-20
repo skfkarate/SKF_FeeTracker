@@ -22,7 +22,7 @@ import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
 import Sheet from "@/components/ui/Sheet";
 import StatTile from "@/components/ui/StatTile";
-import StatusPill from "@/components/ui/StatusPill";
+import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import { getStudents, type Student } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import {
@@ -318,7 +318,7 @@ export default function PendingFeesPage() {
 
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatTile label="Pending Students" value={num(filteredStudents.length)} tone="action" />
-        <StatTile label="Pending Amount" value={num(totalPending)} tone="overdue" />
+        <StatTile label="Pending Amount" value={num(totalPending)} tone="neutral" />
         <StatTile label="Missing Phone" value={num(missingPhone)} />
       </div>
 
@@ -375,14 +375,14 @@ export default function PendingFeesPage() {
       </section>
 
       {error ? (
-        <div className="mb-5 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+        <div className="mb-5 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
           <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <p>{error}</p>
         </div>
       ) : null}
 
       {notice ? (
-        <div className="mb-5 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+        <div className="mb-5 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
           <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <p>{notice}</p>
         </div>
@@ -414,7 +414,7 @@ export default function PendingFeesPage() {
               const overdue = student.pendingMonths.some((due) => due.monthIndex < month);
               const noPhone = !cleanIndianPhone(phone);
               const dueAmount = scopeAmount(student, scope, month);
-              const status = noPhone ? "overdue" : overdue ? "overdue" : "due";
+              const status: LedgerStatus = noPhone ? "neutral" : overdue ? "overdue" : "due";
               return (
                 <LedgerRow
                   key={`${student.branch}-${student.id}`}
@@ -523,7 +523,7 @@ export default function PendingFeesPage() {
             </div>
 
             {previewIssues.length ? (
-              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
                 Unknown placeholders: {previewIssues.join(", ")}
               </div>
             ) : null}

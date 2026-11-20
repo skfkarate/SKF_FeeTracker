@@ -310,21 +310,21 @@ export default function FinancesPage() {
                 <MeterRing
                   value={data.summary.collectionRate}
                   caption="collection rate"
-                  tone={data.summary.collectionRate >= 80 ? "settled" : data.summary.collectionRate >= 50 ? "action" : "overdue"}
+                  tone="action"
                 />
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <StatTile label="Income" value={num(data.summary.grossIncome)} tone={data.summary.grossIncome < 0 ? "overdue" : "settled"} />
+                <StatTile label="Income" value={num(data.summary.grossIncome)} tone="neutral" />
                 <StatTile
                   label="Expenses"
                   value={num(-(data.summary.developmentExpenses + data.summary.eventExpenses + (data.summary.customRemovals || 0)))}
-                  tone="overdue"
+                  tone="neutral"
                 />
                 <StatTile
                   label="Net"
                   value={num(data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses - (data.summary.customRemovals || 0))}
-                  tone={data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses - (data.summary.customRemovals || 0) < 0 ? "overdue" : "brand"}
+                  tone="neutral"
                 />
                 <StatTile label="Active students" value={num(data.summary.activeStudents)} />
               </div>
@@ -344,8 +344,8 @@ export default function FinancesPage() {
                     style={{
                       borderColor:
                         warning.level === "danger"
-                          ? "rgba(239, 68, 68, 0.35)"
-                          : "rgba(245, 158, 11, 0.35)",
+                          ? "var(--color-hairline-strong)"
+                          : "var(--color-hairline-strong)",
                     }}
                   >
                     <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -424,7 +424,7 @@ export default function FinancesPage() {
                     <LedgerRow
                       key={item.key}
                       index={index}
-                      status={signedAmount < 0 ? "overdue" : "credit"}
+                      status={signedAmount < 0 ? "neutral" : "credit"}
                       title={item.label}
                       idLabel={item.formula}
                       amount={`${signedAmount > 0 ? "+" : signedAmount < 0 ? "-" : ""}${num(Math.abs(signedAmount))}`}
@@ -454,7 +454,7 @@ export default function FinancesPage() {
                 </div>
                 <Link
                   href="/development"
-                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-1 border border-[color:var(--color-due-border)] px-3 py-1.5 rounded-md bg-[color:var(--color-well)]"
+                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-1 border border-[color:var(--color-hairline-strong)] px-3 py-1.5 rounded-md bg-[color:var(--color-well)]"
                 >
                   Expense report <ArrowRight className="w-3 h-3" />
                 </Link>
@@ -528,7 +528,7 @@ export default function FinancesPage() {
                 </div>
                 <button
                   onClick={() => setShowAddIncome(true)}
-                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-1 border border-[color:var(--color-paid-border)] px-3 py-1.5 rounded-md bg-[color:var(--color-well)]"
+                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-1 border border-[color:var(--color-accent-border)] px-3 py-1.5 rounded-md bg-[color:var(--color-well)]"
                 >
                   <Plus className="w-3 h-3" /> Add Income
                 </button>
@@ -567,7 +567,7 @@ export default function FinancesPage() {
                 </div>
                 <Link
                   href="/events"
-                  className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5 hover:border-[color:var(--color-due-border)] transition-colors"
+                  className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5 hover:border-[color:var(--color-hairline-strong)] transition-colors"
                 >
                   <Ticket className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
                   <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
@@ -613,13 +613,13 @@ export default function FinancesPage() {
                         <div className="space-y-1.5">
                           <div className="h-2 rounded-full bg-[color:var(--color-well)] overflow-hidden">
                             <div
-                              className={`h-full ${incomeTone === "red" ? "bg-[color:var(--color-overdue)]" : "bg-[color:var(--color-paid)]"}`}
+                              className={`h-full ${incomeTone === "red" ? "bg-[color:var(--color-text-faint)]" : "bg-[color:var(--color-accent)]"}`}
                               style={{ width: incomeMagnitude > 0 ? `${Math.max(4, (incomeMagnitude / maxFlow) * 100)}%` : 0 }}
                             />
                           </div>
                           <div className="h-2 rounded-full bg-[color:var(--color-well)] overflow-hidden">
                             <div
-                              className="h-full bg-[color:var(--color-overdue)]"
+                              className="h-full bg-[color:var(--color-text-faint)]"
                               style={{ width: row.expenses > 0 ? `${Math.max(4, (row.expenses / maxFlow) * 100)}%` : 0 }}
                             />
                           </div>

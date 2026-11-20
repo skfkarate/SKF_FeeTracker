@@ -1223,7 +1223,7 @@ export default function NotificationBell() {
       >
         <Bell className="h-4 w-4" />
         {count > 0 ? (
-          <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-due)] px-1 text-[10px] font-bold text-[color:var(--color-accent-ink)]">
+          <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-accent)] px-1 text-[10px] font-bold text-[color:var(--color-accent-ink)]">
             {count > 99 ? "99+" : count}
           </span>
         ) : null}
@@ -1263,13 +1263,13 @@ export default function NotificationBell() {
                   type="button"
                   onClick={enableBrowserNotifications}
                   disabled={pushSaving}
-                  className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] transition-colors hover:bg-[color:var(--color-well)] disabled:opacity-60"
+                  className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] transition-colors hover:bg-[color:var(--color-well)] disabled:opacity-60"
                 >
                   {pushSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />}
                   {browserNotificationPermission === "denied" ? "Alerts Blocked in Browser" : pushSaving ? "Enabling Alerts" : "Enable Device Alerts"}
                 </button>
               ) : (
-                <div className="mt-3 rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3 text-xs text-[color:var(--color-text)]">
+                <div className="mt-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-3 text-xs text-[color:var(--color-text)]">
                   Device alerts need HTTPS or localhost. In-app notifications still appear here.
                 </div>
               )
@@ -1282,7 +1282,7 @@ export default function NotificationBell() {
                 <Loader2 className="h-5 w-5 animate-spin text-[color:var(--color-text-dim)]" />
               </div>
             ) : error ? (
-              <div className="rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+              <div className="rounded-xl border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
                 {error}
               </div>
             ) : !hasItems ? (
@@ -1344,7 +1344,7 @@ export default function NotificationBell() {
                               type="button"
                               onClick={() => rejectProof(proof)}
                               disabled={actioningId === proof.id}
-                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
+                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
                             >
                               <XCircle className="h-3.5 w-3.5" />
                               Reject
@@ -1353,7 +1353,7 @@ export default function NotificationBell() {
                               type="button"
                               onClick={() => approveProof(proof)}
                               disabled={actioningId === proof.id}
-                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-paid)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-paid)] disabled:opacity-60"
+                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-accent-strong)] disabled:opacity-60"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
                               Approve
@@ -1429,7 +1429,7 @@ export default function NotificationBell() {
                                 href={waLink || undefined}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-2 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] ${waLink ? "" : "pointer-events-none opacity-40"}`}
+                                className={`inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-2 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] ${waLink ? "" : "pointer-events-none opacity-40"}`}
                               >
                                 WhatsApp
                               </a>
@@ -1577,7 +1577,7 @@ export default function NotificationBell() {
                     </p>
                     <div className="space-y-2">
                       {birthdays.map((birthday) => (
-                        <div key={birthday.reminderKey} className="rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3">
+                        <div key={birthday.reminderKey} className="rounded-xl border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] p-3">
                           <div className="flex items-start gap-3">
                             <Gift className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-text)]" />
                             <div className="min-w-0 flex-1">
@@ -1669,8 +1669,8 @@ function NextQueueCard({
       iconNode: <UserPlus className="h-4 w-4" />,
     },
     birthday: {
-      card: "border-[color:var(--color-due-border)] bg-[color:var(--color-well)]",
-      icon: "bg-[color:var(--color-due)] text-[color:var(--color-accent-ink)]",
+      card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]",
+      icon: "bg-[color:var(--color-accent-dim)] text-[color:var(--color-text-dim)]",
       label: "Birthday Reminder",
       iconNode: <Gift className="h-4 w-4" />,
     },
@@ -1731,7 +1731,7 @@ function NextQueueCard({
             type="button"
             onClick={() => onRejectProof(item.proof)}
             disabled={actioningId === item.proof.id}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
           >
             <XCircle className="h-3.5 w-3.5" />
             Reject
@@ -1740,7 +1740,7 @@ function NextQueueCard({
             type="button"
             onClick={() => onApproveProof(item.proof)}
             disabled={actioningId === item.proof.id}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-paid)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-paid)] disabled:opacity-60"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-accent-strong)] disabled:opacity-60"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
             Approve
@@ -1822,7 +1822,7 @@ function NextQueueCard({
             href={whatsappHref(item.lead.phone, item.lead) || undefined}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-2 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] ${whatsappHref(item.lead.phone, item.lead) ? "" : "pointer-events-none opacity-40"}`}
+            className={`inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-2 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] ${whatsappHref(item.lead.phone, item.lead) ? "" : "pointer-events-none opacity-40"}`}
           >
             WhatsApp
           </a>

@@ -312,10 +312,10 @@ function defaultConfig(event: EventCollectionItem): EventFeeConfig {
 }
 
 function rowTone(status: EventFeePreviewRow["status"]) {
-  if (status === "ready") return "text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]";
+  if (status === "ready") return "text-[color:var(--color-text-dim)] border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]";
   if (status === "waived") return "text-[color:var(--color-text-dim)] border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]";
   if (status === "excluded") return "text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)] bg-[color:var(--color-well)]";
-  return "text-[color:var(--color-text-dim)] border-[color:var(--color-due-border)] bg-[color:var(--color-well)]";
+  return "text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)] bg-[color:var(--color-well)]";
 }
 
 function resultKey(result: EventResultRecord) {
@@ -1111,8 +1111,8 @@ export default function EventCollectionsPage() {
           </div>
         </div>
 
-        {error && <div className="mb-4 rounded-xl border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] px-4 py-3 text-sm text-[color:var(--color-text)]">{error}</div>}
-        {notice && <div className="mb-4 rounded-xl border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-4 py-3 text-sm text-[color:var(--color-text)]">{notice}</div>}
+        {error && <div className="mb-4 rounded-xl border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-4 py-3 text-sm text-[color:var(--color-text)]">{error}</div>}
+        {notice && <div className="mb-4 rounded-xl border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-4 py-3 text-sm text-[color:var(--color-text)]">{notice}</div>}
 
         {loading ? (
           <div className="flex h-56 items-center justify-center">
@@ -1125,7 +1125,7 @@ export default function EventCollectionsPage() {
                 {filteredEvents.map((item, index) => {
                   const published = item.event.isResultsPublished || item.event.resultsAppliedAt;
                   const settled = item.config?.status === "settled";
-                  const rowStatus: LedgerStatus = settled ? "paid" : published ? "verifying" : "due";
+                  const rowStatus: LedgerStatus = settled ? "paid" : "neutral";
                   const rowLabel = settled ? "Settled" : published ? "Published" : item.event.status || "Draft";
                   return (
                     <LedgerRow
@@ -1155,8 +1155,8 @@ export default function EventCollectionsPage() {
                   <div className="min-w-0">
                     <div className="mb-2 flex flex-wrap gap-2">
                       <Badge>{selectedEvent ? eventTypeLabel(selectedEvent.event.type) : "No event selected"}</Badge>
-                      {selectedEvent?.event.isPublished ? <Badge tone="green">Website visible</Badge> : <Badge>Internal</Badge>}
-                      {selectedEvent?.event.resultsAppliedAt ? <Badge tone="green">Profiles synced</Badge> : <Badge>Results draft</Badge>}
+                      {selectedEvent?.event.isPublished ? <Badge>Website visible</Badge> : <Badge>Internal</Badge>}
+                      {selectedEvent?.event.resultsAppliedAt ? <Badge>Profiles synced</Badge> : <Badge>Results draft</Badge>}
                     </div>
                     <h2 className="truncate text-2xl font-semibold text-[color:var(--color-text)]">
                       {selectedEvent?.event.name || "Create or select an event"}
@@ -1181,7 +1181,7 @@ export default function EventCollectionsPage() {
                       type="button"
                       onClick={handleDeleteSelectedEvent}
                       disabled={!selectedEvent || deletingEventId === selectedEvent.event.id}
-                      className="h-10 w-10 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-overdue-border)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:text-[color:var(--color-text-faint)] flex items-center justify-center"
+                      className="h-10 w-10 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline-strong)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:text-[color:var(--color-text-faint)] flex items-center justify-center"
                       title="Delete selected event"
                     >
                       {selectedEvent && deletingEventId === selectedEvent.event.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
@@ -1203,7 +1203,7 @@ export default function EventCollectionsPage() {
                       onClick={() => setStep(value as EventStep)}
                       className={`rounded-lg border px-3 py-2 text-sm font-medium ${
                         step === value
-                          ? "border-[color:var(--color-due-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
+                          ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
                           : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
                       }`}
                     >
@@ -1349,7 +1349,7 @@ function Metric({ icon, label, value }: { icon: ReactNode; label: string; value:
 function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "neutral" | "green" }) {
   return (
     <span className={`rounded-md border px-2 py-1 text-[10px] uppercase tracking-wider ${
-      tone === "green" ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]"
+      tone === "green" ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]"
     }`}>
       {children}
     </span>
@@ -1612,7 +1612,7 @@ function StudentsStep({
                 type="button"
                 onClick={onSyncEligibleBeltExam}
                 disabled={loadingRoster || bulkBusy || beltSyncBusy}
-                className="rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-due-border)] disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-accent-border)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {beltSyncBusy ? "Syncing..." : "Sync Eligible"}
               </button>
@@ -1670,7 +1670,7 @@ function StudentsStep({
         <StudentList title={`Assigned (${selectedParticipants.length})`}>
           {selectedParticipants.map((participant) => (
             <StudentRow key={participant.id || participant.skfId} name={participant.athleteName} meta={`${participant.skfId} • ${participant.branchName || "SKF"}`}>
-              <button type="button" onClick={() => onRemove(participant.id, participant.skfId)} disabled={beltSyncBusy || assignmentBusyId === (participant.id || participant.skfId)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-overdue-border)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50">
+              <button type="button" onClick={() => onRemove(participant.id, participant.skfId)} disabled={beltSyncBusy || assignmentBusyId === (participant.id || participant.skfId)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline-strong)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50">
                 {assignmentBusyId === (participant.id || participant.skfId) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
               </button>
             </StudentRow>
@@ -1771,7 +1771,7 @@ function FeesStep(props: {
         </div>
 
         {isBeltFee && (
-          <div className="rounded-xl border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4">
+          <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
             <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)] mb-2">Grading Savings Summary</p>
             <div className="grid grid-cols-3 gap-3">
               <div>
@@ -1850,7 +1850,7 @@ function FeesStep(props: {
         </div>
 
         {isBeltFee && (
-          <div className="rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3 text-xs leading-5 text-[color:var(--color-text)]">
+          <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 text-xs leading-5 text-[color:var(--color-text)]">
             Grading fees are collected per student and settled as a batch. The total expected collection minus total event expenses becomes the grading savings. Savings are tracked per event and settle to the branch ledger. Eligible students must be active, have completed 5+ months by the exam date, and have no billing break. Belt examination payments do not generate receipts.
           </div>
         )}
@@ -1875,12 +1875,12 @@ function FeesStep(props: {
             Save & Preview
           </button>
           {isBeltFee ? (
-            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-[color:var(--color-paid)] py-3 font-medium text-[color:var(--color-text)] hover:bg-[color:var(--color-paid)] disabled:bg-[color:var(--color-well)] disabled:text-[color:var(--color-text-dim)] flex items-center justify-center gap-2">
+            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-[color:var(--color-accent)] py-3 font-medium text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-accent-strong)] disabled:bg-[color:var(--color-well)] disabled:text-[color:var(--color-text-dim)] flex items-center justify-center gap-2">
               <Wallet className="h-4 w-4" />
               {isSettled ? "Re-Settle Grading Savings" : "Settle Grading Savings"}
             </button>
           ) : (
-            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-[color:var(--color-paid)] py-3 font-medium text-[color:var(--color-text)] hover:bg-[color:var(--color-paid)] disabled:bg-[color:var(--color-well)] disabled:text-[color:var(--color-text-dim)] flex items-center justify-center gap-2">
+            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-[color:var(--color-accent)] py-3 font-medium text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-accent-strong)] disabled:bg-[color:var(--color-well)] disabled:text-[color:var(--color-text-dim)] flex items-center justify-center gap-2">
               <Users className="h-4 w-4" />
               Generate Pending Fees
             </button>
@@ -1912,7 +1912,7 @@ function FeesStep(props: {
                 </div>
                 <input type="number" value={overrides[row.skfId]?.amount ?? row.finalAmount} onChange={(e) => updateOverride(row.skfId, { amount: Number(e.target.value || 0), reason: "Student-specific amount" })} className={baseInputClass()} />
                 <div className="flex gap-1 sm:gap-2">
-                  <button type="button" onClick={() => updateOverride(row.skfId, { included: !overrides[row.skfId]?.included, excluded: false, waived: false, reason: "Manually included for event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.included ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)]"}`}>Include</button>
+                  <button type="button" onClick={() => updateOverride(row.skfId, { included: !overrides[row.skfId]?.included, excluded: false, waived: false, reason: "Manually included for event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.included ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)]"}`}>Include</button>
                   <button type="button" onClick={() => updateOverride(row.skfId, { excluded: !overrides[row.skfId]?.excluded, included: false, waived: false, reason: "Excluded from event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.excluded ? "border-[color:var(--color-hairline-strong)] bg-[color:var(--color-panel-strong)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)]"}`}>Exclude</button>
                   <button type="button" onClick={() => updateOverride(row.skfId, { waived: !overrides[row.skfId]?.waived, excluded: false, included: false, amount: 0, reason: "Waived from event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.waived ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)]"}`}>Waive</button>
                 </div>
@@ -1931,7 +1931,7 @@ function FeesStep(props: {
             <option value="M P Sports Club">MPSC</option>
             <option value="Herohalli">Herohalli</option>
           </select>
-          <button type="button" onClick={onAddExpense} disabled={saving} className="w-full rounded-lg bg-[color:var(--color-well)] py-2 text-sm text-[color:var(--color-text)] hover:bg-[color:var(--color-overdue)] flex items-center justify-center gap-2">
+          <button type="button" onClick={onAddExpense} disabled={saving} className="w-full rounded-lg bg-[color:var(--color-well)] py-2 text-sm text-[color:var(--color-text)] hover:bg-[color:var(--color-glass-hover)] flex items-center justify-center gap-2">
             <Plus className="h-4 w-4" /> Add Expense
           </button>
         </FinanceBox>
@@ -2022,7 +2022,7 @@ function ResultsStep({
         </div>
       </div>
 
-      <div className="rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-4 py-3 text-xs leading-relaxed text-[color:var(--color-text)]">
+      <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 py-3 text-xs leading-relaxed text-[color:var(--color-text)]">
         Publishing updates the website, the student portal, and each athlete profile. Save a draft first when results are still being checked.
       </div>
 
@@ -2042,7 +2042,7 @@ function ResultsStep({
                 <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{result.athleteName || result.skfId}</p>
                 <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">{result.skfId} • {result.branchName || "SKF"} • {result.belt || "Belt not set"}</p>
               </div>
-              <button type="button" onClick={() => updateResult(index, { specialAward: "Best Performer", award: "Best Performer" })} className="rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]">
+              <button type="button" onClick={() => updateResult(index, { specialAward: "Best Performer", award: "Best Performer" })} className="rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]">
                 Mark Best Performer
               </button>
             </div>
@@ -2194,7 +2194,7 @@ function CertificateWorkflowPanel({
             type="button"
             onClick={onPrepare}
             disabled={Boolean(busy)}
-            className="rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-due-border)] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
+            className="rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-accent-border)] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isPreparing ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode className="h-4 w-4" />}
             Prepare QR
@@ -2203,7 +2203,7 @@ function CertificateWorkflowPanel({
             type="button"
             onClick={onPublish}
             disabled={Boolean(busy) || !canPublish}
-            className="rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-paid-border)] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
+            className="rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-accent-border)] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
             Publish Certs
@@ -2227,7 +2227,7 @@ function CertificateWorkflowPanel({
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="truncate text-sm font-medium text-[color:var(--color-text)]">{certificate.studentName}</p>
-                  <span className={`rounded-md border px-2 py-1 text-[10px] uppercase ${certificate.status === "issued" ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : certificate.status === "revoked" ? "border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-due-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"}`}>
+                  <span className={`rounded-md border px-2 py-1 text-[10px] uppercase ${certificate.status === "issued" ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : certificate.status === "revoked" ? "border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"}`}>
                     {certificate.status}
                   </span>
                 </div>
@@ -2418,7 +2418,7 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {photos.map((photo) => (
-              <div key={photo.id} className={`group relative aspect-square overflow-hidden rounded-xl border ${photo.pinned ? "border-[color:var(--color-due-border)] ring-1 ring-[color:var(--color-due)]" : "border-[color:var(--color-hairline)]"}`}>
+              <div key={photo.id} className={`group relative aspect-square overflow-hidden rounded-xl border ${photo.pinned ? "border-[color:var(--color-accent-border)] ring-1 ring-[color:var(--color-accent)]" : "border-[color:var(--color-hairline)]"}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={normalizeKarateMediaUrl(photo.src)} alt={photo.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
 
@@ -2434,7 +2434,7 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
                   <button
                     type="button"
                     onClick={() => handleTogglePin(photo)}
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg border backdrop-blur-md transition-colors ${photo.pinned ? "border-[color:var(--color-due-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"}`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg border backdrop-blur-md transition-colors ${photo.pinned ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"}`}
                     title={photo.pinned ? "Unpin" : "Pin as featured"}
                   >
                     <Award className="h-3.5 w-3.5" />
@@ -2443,7 +2443,7 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
                     type="button"
                     onClick={() => handleDelete(photo.id)}
                     disabled={deletingId === photo.id}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)] backdrop-blur-md transition-colors hover:bg-[color:var(--color-well)] disabled:opacity-50"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-[color:var(--color-text)] backdrop-blur-md transition-colors hover:bg-[color:var(--color-well)] disabled:opacity-50"
                     title="Delete"
                   >
                     {deletingId === photo.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}

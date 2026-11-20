@@ -57,7 +57,7 @@ export function AddExtraIncomeModal({
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          {error && <div className="p-3 bg-[color:var(--color-well)] border border-[color:var(--color-overdue-border)] text-[color:var(--color-text-dim)] rounded-lg text-sm">{error}</div>}
+          {error && <div className="p-3 bg-[color:var(--color-well)] border border-[color:var(--color-hairline-strong)] text-[color:var(--color-text-dim)] rounded-lg text-sm">{error}</div>}
 
           <div>
             <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-2">Title / Reason</label>

@@ -142,10 +142,8 @@ function upsertProductList(products: ShopProduct[], saved: ShopProduct) {
 }
 
 function orderLedgerStatus(status: ShopOrderStatus): LedgerStatus {
-  if (status === "delivered" || status === "approved") return "paid";
-  if (status === "pending-approval" || status === "payment-pending") return "verifying";
-  if (status === "cancelled") return "discontinued";
-  return "due";
+  if (status === "payment-pending") return "verifying";
+  return "neutral";
 }
 
 function ImagePreview({ src, alt, className = "" }: { src?: string; alt: string; className?: string }) {
@@ -451,7 +449,7 @@ export default function ShopPage() {
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-paid)]" />
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
               <p className="eyebrow text-[color:var(--color-text-dim)]">Store Operations</p>
             </div>
             <h1 className="mt-1 text-[15px] font-semibold text-[color:var(--color-text)]">Shop Manager</h1>
@@ -490,14 +488,14 @@ export default function ShopPage() {
         </div>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{notice}</p>
           </div>
@@ -568,7 +566,7 @@ export default function ShopPage() {
                       <LedgerRow
                         key={product.id}
                         index={index}
-                        status={product.is_public ? "paid" : "due"}
+                        status="neutral"
                         title={product.name}
                         subtitle={product.description}
                         idLabel={`${product.id} · ${totalStock(product)} STOCK`}
@@ -582,8 +580,9 @@ export default function ShopPage() {
                               className="h-10 w-10 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)]"
                             />
                             <StatusPill
-                              status={product.is_public ? "paid" : "due"}
+                              status="neutral"
                               label={product.is_public ? "Public" : "Athlete"}
+                              ariaLabel={`${product.name} visibility`}
                             />
                           </div>
                         }

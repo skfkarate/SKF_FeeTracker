@@ -85,8 +85,8 @@ function StudentProfileContent({
                       {student.name}
                     </h1>
                     <span className={`text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-md border ${
-                      student.status.toLowerCase() === 'active' 
-                        ? 'bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)]' 
+                      student.status.toLowerCase() === 'active'
+                        ? 'bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-accent-border)]'
                         : 'bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)]'
                     }`}>
                       {student.status}
@@ -115,9 +115,9 @@ function StudentProfileContent({
                 href={`https://wa.me/91${student.whatsapp?.replace(/\D/g, '') || student.phone?.replace(/\D/g, '')}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="card-panel p-4 flex items-center gap-4 hover:bg-[color:var(--color-well)] transition-all group border-[color:var(--color-paid-border)]"
+                className="card-panel p-4 flex items-center gap-4 hover:bg-[color:var(--color-well)] transition-all group border-[color:var(--color-hairline-strong)]"
               >
-                <div className="w-10 h-10 rounded-full bg-[color:var(--color-well)] border border-[color:var(--color-paid-border)] flex items-center justify-center text-[color:var(--color-text-dim)] group-hover:text-[color:var(--color-text-dim)] transition-colors">
+                <div className="w-10 h-10 rounded-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline-strong)] flex items-center justify-center text-[color:var(--color-text-dim)] group-hover:text-[color:var(--color-text-dim)] transition-colors">
                   <MessageCircle className="w-4 h-4" />
                 </div>
                 <div>

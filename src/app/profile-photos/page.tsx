@@ -239,7 +239,7 @@ export default function ProfilePhotosPage() {
           <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <span className="w-2 h-2 rounded-full bg-[color:var(--color-due)]" />
+                <span className="w-2 h-2 rounded-full bg-[color:var(--color-accent)]" />
                 <p className="text-[color:var(--color-text-dim)] text-xs font-mono uppercase tracking-widest">Portal Profiles</p>
               </div>
               <h1 className="font-sans text-3xl md:text-4xl font-semibold tracking-tight text-[color:var(--color-text)]">
@@ -316,14 +316,14 @@ export default function ProfilePhotosPage() {
         </section>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {success ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{success}</p>
           </div>
@@ -380,8 +380,8 @@ export default function ProfilePhotosPage() {
                           </span>
                           <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                             needsProfilePhoto(student)
-                              ? "border-[color:var(--color-due-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
-                              : "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
+                              ? "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
+                              : "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
                           }`}>
                             {needsProfilePhoto(student) ? "Missing photo" : "Has photo"}
                           </span>

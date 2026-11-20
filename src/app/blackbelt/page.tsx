@@ -157,7 +157,7 @@ export default function BlackBeltPage() {
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-overdue)]" />
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
               <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--color-text-dim)]">Examinations</p>
             </div>
             <h1 className="font-sans text-3xl font-semibold tracking-tight text-[color:var(--color-text)] sm:text-4xl">
@@ -178,7 +178,7 @@ export default function BlackBeltPage() {
         </header>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
@@ -246,7 +246,7 @@ export default function BlackBeltPage() {
             <form onSubmit={handleSubmit} className="glass-modal max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-5">
               <div className="mb-5 flex items-center justify-between gap-3 sticky top-0 bg-[color:var(--color-well)] backdrop-blur-md pb-4 border-b border-[color:var(--color-hairline)] z-10 -mt-4 pt-4 -mx-4 px-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
                     <ShieldCheck className="h-5 w-5" />
                   </div>
                   <div>
@@ -268,28 +268,28 @@ export default function BlackBeltPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("status")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "status" ? "border-[color:var(--color-overdue-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "status" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Overview & Status
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("academics")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "academics" ? "border-[color:var(--color-overdue-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "academics" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Academics & Rules
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("practical")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "practical" ? "border-[color:var(--color-overdue-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "practical" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Practical & Combat
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("continuous")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "continuous" ? "border-[color:var(--color-overdue-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "continuous" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Continuous Tasks
                 </button>
@@ -551,7 +551,7 @@ export default function BlackBeltPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="btn-primary bg-[color:var(--color-overdue)] hover:bg-[color:var(--color-overdue)] text-[color:var(--color-text)] inline-flex min-h-11 items-center justify-center gap-2"
+                    className="btn-primary bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-strong)] text-[color:var(--color-text)] inline-flex min-h-11 items-center justify-center gap-2"
                   >
                     {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                     Save Candidate

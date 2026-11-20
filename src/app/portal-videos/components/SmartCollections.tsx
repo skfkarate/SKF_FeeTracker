@@ -22,7 +22,7 @@ export function SmartCollections({
     { key: "", label: "All content", count: totalVideos, icon: LayoutGrid, accent: "text-[color:var(--color-text)]" },
     { key: "unfiled", label: "Unfiled", count: unfiledCount, icon: Inbox, accent: unfiledCount > 0 ? "text-[color:var(--color-text)]" : "text-[color:var(--color-text-dim)]" },
     { key: "drafts", label: "Drafts", count: draftsCount, icon: PencilLine, accent: draftsCount > 0 ? "text-[color:var(--color-text)]" : "text-[color:var(--color-text-dim)]" },
-    { key: "watched", label: "Most watched", count: watchedCount || null, icon: Flame, accent: "text-orange-300" },
+    { key: "watched", label: "Most watched", count: watchedCount || null, icon: Flame, accent: "text-[color:var(--color-accent)]" },
   ];
 
   return (

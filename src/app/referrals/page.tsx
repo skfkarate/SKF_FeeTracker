@@ -234,7 +234,7 @@ export default function StudentCreditsPage() {
           <>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 animate-fade-in">
-              <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(59, 130, 246, 0.25)" }}>
+              <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "var(--color-accent-border)" }}>
                 <div className="absolute top-0 right-0 p-2 opacity-10">
                   <Trophy className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                 </div>
@@ -249,7 +249,7 @@ export default function StudentCreditsPage() {
                 </p>
               </div>
 
-              <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(34, 197, 94, 0.25)" }}>
+              <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "var(--color-hairline)" }}>
                 <div className="absolute top-0 right-0 p-2 opacity-10">
                   <Zap className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                 </div>
@@ -264,7 +264,7 @@ export default function StudentCreditsPage() {
                 </p>
               </div>
 
-              <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(245, 158, 11, 0.25)" }}>
+              <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "var(--color-hairline)" }}>
                 <div className="absolute top-0 right-0 p-2 opacity-10">
                   <Wallet className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                 </div>
@@ -288,7 +288,7 @@ export default function StudentCreditsPage() {
                 </p>
                 <button
                   onClick={openAddModal}
-                  className="px-4 py-2 text-xs sm:text-sm rounded-lg border border-[color:var(--color-paid-border)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-paid)] hover:text-[color:var(--color-text)] transition-all duration-200 font-medium tracking-wide flex items-center gap-1"
+                  className="px-4 py-2 text-xs sm:text-sm rounded-lg border border-[color:var(--color-accent-border)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-accent-strong)] hover:text-[color:var(--color-accent-ink)] transition-all duration-200 font-medium tracking-wide flex items-center gap-1"
                 >
                   <Plus className="w-4 h-4" /> Add Credit
                 </button>
@@ -316,7 +316,7 @@ export default function StudentCreditsPage() {
                         }}
                         className={`glass-card p-4 transition-all duration-200 cursor-pointer group ${credit.isUsed
                           ? "opacity-60 hover:opacity-80 border-[color:var(--color-hairline)]"
-                          : "hover:border-[color:var(--color-paid-border)] border-[color:var(--color-hairline)]"
+                          : "hover:border-[color:var(--color-accent-border)] border-[color:var(--color-hairline)]"
                           }`}
                       >
                         <div className="flex items-start justify-between">
@@ -327,8 +327,8 @@ export default function StudentCreditsPage() {
                               </p>
                               <span
                                 className={`text-[10px] px-2 py-0.5 border rounded-full whitespace-nowrap flex-shrink-0 ${credit.isUsed
-                                  ? "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-due-border)]"
-                                  : "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)]"
+                                  ? "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)]"
+                                  : "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)]"
                                   }`}
                               >
                                 {credit.isUsed ? "Redeemed" : "Active"}
@@ -477,7 +477,7 @@ export default function StudentCreditsPage() {
                 <button
                   onClick={handleAddCredit}
                   disabled={adding || !newCredit.studentId || !newCredit.reason}
-                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors disabled:opacity-50"
+                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors disabled:opacity-50"
                 >
                   {adding ? (
                     "ADDING..."
@@ -540,8 +540,8 @@ export default function StudentCreditsPage() {
               <div className="flex justify-center mb-5">
                 <span
                   className={`text-xs px-4 py-1.5 border rounded-full font-medium tracking-wide ${selectedCredit.isUsed
-                    ? "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-due-border)]"
-                    : "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)]"
+                    ? "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)]"
+                    : "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)]"
                     }`}
                 >
                   {selectedCredit.isUsed ? "✓ Redeemed" : "● Active"}
@@ -665,7 +665,7 @@ export default function StudentCreditsPage() {
                     <button
                       onClick={handleDeleteCredit}
                       disabled={deleting}
-                      className="px-3 py-2 border border-[color:var(--color-overdue-border)] text-[color:var(--color-text-dim)] rounded-lg tracking-wider text-xs hover:bg-[color:var(--color-well)] transition-colors"
+                      className="px-3 py-2 border border-[color:var(--color-hairline-strong)] text-[color:var(--color-text-dim)] rounded-lg tracking-wider text-xs hover:bg-[color:var(--color-well)] transition-colors"
                       title="Delete Credit"
                     >
                       {deleting ? "..." : "DELETE"}

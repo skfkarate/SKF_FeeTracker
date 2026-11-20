@@ -42,7 +42,6 @@
   --color-ink: var(--color-accent-ink);
   --color-action-dim: var(--color-accent-dim);
   --color-settled-dim: var(--color-paid-dim);
-  --color-overdue-dim: var(--color-overdue-dim);
 
   --bg-base: var(--color-base);
   --bg-deep: var(--color-base-deep);
@@ -414,9 +413,9 @@ textarea {
 }
 
 .badge-discontinued {
-  background: var(--color-overdue-dim);
-  color: var(--color-overdue);
-  border: 1px solid var(--color-overdue-border);
+  background: var(--color-glass-hover);
+  color: var(--color-text-dim);
+  border: 1px solid var(--color-hairline);
 }
 
 .btn-press {

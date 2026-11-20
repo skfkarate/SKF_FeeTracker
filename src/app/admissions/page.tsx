@@ -80,9 +80,8 @@ function num(amount: number) {
 }
 
 function admissionStatus(application: AdmissionApplication): LedgerStatus {
-  if (application.duplicateWarnings.length > 0) return "overdue";
   if (application.feeTrackingEnabled && application.paymentProofUrl) return "verifying";
-  return "due";
+  return "neutral";
 }
 
 export default function AdmissionsPage() {
@@ -273,7 +272,7 @@ export default function AdmissionsPage() {
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatTile label="Pending" value={String(summary.pending)} tone="action" />
           <StatTile label="Photos" value={String(summary.photos)} />
-          <StatTile label="Promos" value={String(summary.promos)} tone="settled" />
+          <StatTile label="Promos" value={String(summary.promos)} tone="neutral" />
           <StatTile label="Forms" value={String(summary.forms)} />
         </div>
       ) : null}
@@ -287,7 +286,7 @@ export default function AdmissionsPage() {
       />
 
         {notice ? (
-          <div className="mb-5 rounded-xl border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-4 py-3 text-sm text-[color:var(--color-text)] animate-fade-in">
+          <div className="mb-5 rounded-xl border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-4 py-3 text-sm text-[color:var(--color-text)] animate-fade-in">
             {notice}
           </div>
         ) : null}
@@ -433,7 +432,7 @@ function ApprovalsTab({
             </div>
 
             {active.duplicateWarnings.length > 0 ? (
-              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-3 text-xs text-[color:var(--color-text)]">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-3 text-xs text-[color:var(--color-text)]">
                 {active.duplicateWarnings.join(" · ")}
               </div>
             ) : null}
@@ -466,7 +465,7 @@ function ApprovalsTab({
                   <ExternalLink className="h-3 w-3" />
                 </a>
               ) : (
-                <span className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)]">
+                <span className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)]">
                   <AlertCircle className="h-3.5 w-3.5" />
                   Student photo missing
                 </span>
@@ -483,7 +482,7 @@ function ApprovalsTab({
                   <ExternalLink className="h-3 w-3" />
                 </a>
               ) : active.feeTrackingEnabled ? (
-                <span className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)]">
+                <span className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)]">
                   <AlertCircle className="h-3.5 w-3.5" />
                   Payment screenshot missing
                 </span>
@@ -497,7 +496,7 @@ function ApprovalsTab({
               }}
               className="hud-panel space-y-3 p-4"
             >
-              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 py-2 text-[11px] leading-relaxed text-[color:var(--color-text)]">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-3 py-2 text-[11px] leading-relaxed text-[color:var(--color-text)]">
                 {active.feeTrackingEnabled
                   ? "Human review pending: verify the payment screenshot, check the student photo, then either use the submitted photo or upload a corrected portal photo."
                   : "Human review pending: check the student information and photo. Fees are collected directly by the Kunigal branch and are not recorded here."}
@@ -553,7 +552,7 @@ function ApprovalsTab({
                       value="use_submitted"
                       defaultChecked={Boolean(active.admissionPhotoUrl)}
                       disabled={!active.admissionPhotoUrl}
-                      className="mt-0.5 accent-[color:var(--color-due)]"
+                      className="mt-0.5 accent-[color:var(--color-accent)]"
                     />
                     <span>Use submitted student photo</span>
                   </label>
@@ -563,7 +562,7 @@ function ApprovalsTab({
                       type="radio"
                       value="upload_new"
                       defaultChecked={!active.admissionPhotoUrl}
-                      className="mt-0.5 accent-[color:var(--color-due)]"
+                      className="mt-0.5 accent-[color:var(--color-accent)]"
                     />
                     <span>Upload corrected photo</span>
                   </label>
@@ -575,12 +574,12 @@ function ApprovalsTab({
               </Field>
               {active.feeTrackingEnabled ? (
                 <label className="flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
-                  <input name="paymentVerified" type="checkbox" required className="accent-[color:var(--color-due)]" />
+                  <input name="paymentVerified" type="checkbox" required className="accent-[color:var(--color-accent)]" />
                   Payment screenshot checked and amount verified
                 </label>
               ) : null}
               <label className="flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
-                <input name="isPublic" type="checkbox" defaultChecked className="accent-[color:var(--color-due)]" />
+                <input name="isPublic" type="checkbox" defaultChecked className="accent-[color:var(--color-accent)]" />
                 Public profile enabled
               </label>
               <div className="grid gap-2 sm:grid-cols-[1fr_1.4fr]">
@@ -591,7 +590,7 @@ function ApprovalsTab({
                     setActive(null);
                   }}
                   disabled={actioning === active.id}
-                  className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-xs font-semibold text-[color:var(--color-text)] disabled:opacity-50"
+                  className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-xs font-semibold text-[color:var(--color-text)] disabled:opacity-50"
                 >
                   <XCircle className="h-3.5 w-3.5" />
                   Reject
@@ -634,7 +633,7 @@ function ProfilePhotosTab({ applications }: { applications: AdmissionApplication
                 <span className="text-[10px] uppercase tracking-widest text-[color:var(--color-text)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] rounded-md px-2 py-1">
                   {application.approvedSkfId || "Approved"}
                 </span>
-                <span className="text-[10px] uppercase tracking-widest text-[color:var(--color-text-dim)] border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] rounded-md px-2 py-1">
+                <span className="text-[10px] uppercase tracking-widest text-[color:var(--color-text-dim)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] rounded-md px-2 py-1">
                   {application.branchName}
                 </span>
               </div>
@@ -758,7 +757,7 @@ function PromosTab({
               </div>
               <span className={`text-[10px] uppercase tracking-widest px-2 py-1 rounded-md border ${
                 promo.status === "active"
-                  ? "text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]"
+                  ? "text-[color:var(--color-text-dim)] border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]"
                   : "text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)] bg-[color:var(--color-well)]"
               }`}>
                 {promo.status}
@@ -843,11 +842,11 @@ function SettingsTab({
             </Field> : null}
             <div className="grid grid-cols-2 gap-3 mb-4">
               <label className="flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
-                <input type="checkbox" checked={draft.isEnabled} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, isEnabled: e.target.checked } })} className="accent-[color:var(--color-due)]" />
+                <input type="checkbox" checked={draft.isEnabled} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, isEnabled: e.target.checked } })} className="accent-[color:var(--color-accent)]" />
                 Form enabled
               </label>
               <label className="flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
-                <input type="checkbox" checked={draft.showPublicCta} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, showPublicCta: e.target.checked } })} className="accent-[color:var(--color-due)]" />
+                <input type="checkbox" checked={draft.showPublicCta} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, showPublicCta: e.target.checked } })} className="accent-[color:var(--color-accent)]" />
                 Show on branch page
               </label>
             </div>

@@ -278,13 +278,13 @@ export default function DevelopmentFundPage() {
   const getScopeBadgeColor = (scope: string): string => {
     switch (scope) {
       case "Herohalli":
-        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-overdue-border)]";
+        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)]";
       case "MPSC":
         return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-accent-border)]";
       case "Both":
-        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)]";
+        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)]";
       default:
-        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-due-border)]";
+        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)]";
     }
   };
 
@@ -381,7 +381,7 @@ export default function DevelopmentFundPage() {
                     From fees, admission and dress profit
                   </p>
                 </div>
-                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-due-border)] rounded-xl p-5 relative overflow-hidden">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-2 opacity-10">
                     <Package className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                   </div>
@@ -395,7 +395,7 @@ export default function DevelopmentFundPage() {
                     {filter === "all" ? "Across all months" : "Selected month"}
                   </p>
                 </div>
-                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-paid-border)] rounded-xl p-5 relative overflow-hidden">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-2 opacity-10">
                     <TrendingUp className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                   </div>
@@ -490,7 +490,7 @@ export default function DevelopmentFundPage() {
                 </div>
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="px-4 py-2.5 text-sm rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-paid)] hover:text-[color:var(--color-text)] transition-all duration-200 font-medium tracking-wide w-full sm:w-auto text-center"
+                  className="px-4 py-2.5 text-sm rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-accent-strong)] hover:text-[color:var(--color-accent-ink)] transition-all duration-200 font-medium tracking-wide w-full sm:w-auto text-center"
                 >
                   + Add Expense
                 </button>
@@ -505,7 +505,7 @@ export default function DevelopmentFundPage() {
                       <div
                         key={expense.id}
                         onClick={() => setSelectedExpense(expense)}
-                        className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-4 cursor-pointer hover:border-[color:var(--color-overdue-border)] hover:bg-[color:var(--color-well)] transition-all duration-200"
+                        className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-4 cursor-pointer hover:border-[color:var(--color-hairline-strong)] hover:bg-[color:var(--color-well)] transition-all duration-200"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -594,7 +594,7 @@ export default function DevelopmentFundPage() {
                         })
                       }
                       placeholder="Enter custom scope..."
-                      className="input-field border-[color:var(--color-due-border)] focus:border-[color:var(--color-due-border)]"
+                      className="input-field border-[color:var(--color-hairline-strong)] focus:border-[color:var(--color-hairline-strong)]"
                       autoFocus
                     />
                   </div>
@@ -686,7 +686,7 @@ export default function DevelopmentFundPage() {
                 </button>
                 <button
                   onClick={handleAddExpenseClick}
-                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors"
+                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
                 >
                   REVIEW & SAVE
                 </button>
@@ -699,7 +699,7 @@ export default function DevelopmentFundPage() {
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="glass-modal-overlay" style={{ zIndex: 110 }} onClick={(e) => e.target === e.currentTarget && setShowConfirmModal(false)}>
-          <div className="glass-modal !max-w-md" style={{ borderColor: "rgba(245, 158, 11, 0.3)" }}>
+          <div className="glass-modal !max-w-md" style={{ borderColor: "var(--color-hairline-strong)" }}>
             <div className="p-6">
               <div className="flex items-center gap-3 mb-6">
                 <AlertTriangle className="w-5 h-5 text-[color:var(--color-text-dim)]" />
@@ -752,7 +752,7 @@ export default function DevelopmentFundPage() {
                 <button
                   onClick={handleConfirmSave}
                   disabled={adding}
-                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors disabled:opacity-50"
+                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors disabled:opacity-50"
                 >
                   {adding ? (
                     "SAVING..."
@@ -839,7 +839,7 @@ export default function DevelopmentFundPage() {
                   <button
                     onClick={handleDeleteExpense}
                     disabled={deleting}
-                    className="w-full py-3 bg-[color:var(--color-well)] border border-[color:var(--color-overdue-border)] text-[color:var(--color-text-dim)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-overdue)] hover:text-[color:var(--color-text)] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-[color:var(--color-well)] border border-[color:var(--color-hairline-strong)] text-[color:var(--color-text-dim)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-glass-hover)] hover:text-[color:var(--color-text)] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" />
                     {deleting ? "DELETING..." : "DELETE EXPENSE"}

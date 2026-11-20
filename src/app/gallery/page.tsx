@@ -318,7 +318,7 @@ export default function GalleryManagerPage() {
         <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatTile label="Total" value={String(counts.total)} />
           <StatTile label="Uploaded" value={String(counts.live)} />
-          <StatTile label="Published" value={String(counts.published)} tone="settled" />
+          <StatTile label="Published" value={String(counts.published)} tone="neutral" />
           <StatTile label="Featured" value={String(counts.featured)} tone="action" />
         </section>
 
@@ -345,14 +345,14 @@ export default function GalleryManagerPage() {
         </section>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{notice}</p>
           </div>
@@ -374,7 +374,7 @@ export default function GalleryManagerPage() {
           <div className="hud-panel overflow-hidden">
             <div className="divide-y divide-[color:var(--color-hairline)]">
               {filteredPhotos.map((photo, index) => {
-                const status = photo.isPublished ? "paid" : "due";
+                const status = "neutral" as const;
                 return (
                   <LedgerRow
                     key={photo.id}
@@ -391,7 +391,7 @@ export default function GalleryManagerPage() {
                           alt={photo.title}
                           className="h-10 w-10 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] object-cover"
                         />
-                        {photo.pinned ? <StatusPill status="verifying" label="Featured" /> : null}
+                        {photo.pinned ? <StatusPill status="neutral" label="Featured" ariaLabel="Featured photo" /> : null}
                         <StatusPill status={status} label={photo.isPublished ? "Live" : "Draft"} />
                         <button
                           type="button"
@@ -407,7 +407,7 @@ export default function GalleryManagerPage() {
                           onClick={() => handleDelete(photo)}
                           disabled={photo.isSeed || deletingId === photo.id}
                           aria-label={`Delete ${photo.title}`}
-                          className="tap-target grid w-10 place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)] disabled:opacity-40"
+                          className="tap-target grid w-10 place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-[color:var(--color-text)] disabled:opacity-40"
                         >
                           {deletingId === photo.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                         </button>

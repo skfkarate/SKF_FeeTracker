@@ -28,7 +28,7 @@ export default function AmountInput({
         className={cx(
           "aurora-well flex min-h-[60px] items-center gap-3 px-4 transition-colors",
           invalid
-            ? "border-[color:var(--color-overdue-border)]"
+            ? "border-[color:var(--color-hairline-strong)]"
             : "focus-within:border-[color:var(--color-accent-border)]",
         )}
       >
