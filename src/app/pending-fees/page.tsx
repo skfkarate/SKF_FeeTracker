@@ -12,12 +12,13 @@ import {
   Phone,
   RefreshCw,
   Search,
-  Wallet,
   X,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
+import GlobalSearch from "@/components/common/GlobalSearch";
 import NavMenu from "@/components/common/NavMenu";
+import NotificationBell from "@/components/common/NotificationBell";
+import PageShell from "@/components/ui/PageShell";
 import { getStudents, type Student } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import {
@@ -248,31 +249,30 @@ export default function PendingFeesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Pending Fees" rightContent={<NavMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 sm:px-6 sm:pt-28">
-        <header className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-3 flex items-center gap-3">
-              <Wallet className="h-4 w-4 text-amber-300" />
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Fee Follow-ups</p>
-            </div>
-            <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Pending Fees
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500">
-              Review monthly dues, call parents, or send the current WhatsApp reminder template from Messages.
-            </p>
-          </div>
-          <Link
-            href="/messages"
-            className="btn-ghost inline-flex min-h-11 items-center justify-center gap-2 px-4"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Edit Message
-          </Link>
-        </header>
+    <>
+    <PageShell
+      hud={{
+        title: "Fees",
+        monthLabel: `${MONTHS_SHORT[month]} ${feeYear}`,
+        branchLabel: branch === "Overall" ? "All branches" : branch,
+        backHref: "/dashboard",
+        actions: <GlobalSearch />,
+        bell: <NotificationBell />,
+        account: <NavMenu />,
+      }}
+    >
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="max-w-2xl text-[13px] leading-relaxed text-zinc-500">
+          Review monthly dues, call parents, or send the current WhatsApp reminder template from Messages.
+        </p>
+        <Link
+          href="/messages"
+          className="btn-ghost inline-flex min-h-11 shrink-0 items-center justify-center gap-2 px-4"
+        >
+          <MessageCircle className="h-4 w-4" />
+          Edit Message
+        </Link>
+      </div>
 
         <section className="mb-5 grid gap-3 sm:grid-cols-3">
           <Metric label="Pending Students" value={String(filteredStudents.length)} />
@@ -426,7 +426,7 @@ export default function PendingFeesPage() {
             </div>
           )}
         </section>
-      </main>
+      </PageShell>
 
       {previewStudent ? (
         <div className="glass-modal-overlay" onClick={(event) => event.target === event.currentTarget && setPreviewStudent(null)}>
@@ -505,7 +505,7 @@ export default function PendingFeesPage() {
           </div>
         </div>
       ) : null}
-    </div>
+    </>
   );
 }
 
