@@ -12,13 +12,17 @@ import {
   Phone,
   RefreshCw,
   Search,
-  X,
 } from "lucide-react";
 
 import GlobalSearch from "@/components/common/GlobalSearch";
 import NavMenu from "@/components/common/NavMenu";
 import NotificationBell from "@/components/common/NotificationBell";
+import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
+import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
+import Sheet from "@/components/ui/Sheet";
+import StatTile from "@/components/ui/StatTile";
+import StatusPill from "@/components/ui/StatusPill";
 import { getStudents, type Student } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import {
@@ -48,11 +52,37 @@ type PendingStudent = Student & {
   totalPending: number;
 };
 
+type FeeScope = "month" | "overdue" | "no_phone";
+
 const BRANCH_OPTIONS: Array<{ value: BranchFilter; label: string }> = [
   { value: "Overall", label: "All Branches" },
   { value: "MPSC", label: "MP" },
   { value: "Herohalli", label: "Herohalli" },
 ];
+
+const FEE_SCOPES: SegmentOption<FeeScope>[] = [
+  { value: "month", label: "Month" },
+  { value: "overdue", label: "Overdue" },
+  { value: "no_phone", label: "No phone" },
+];
+
+function scopeAmount(student: PendingStudent, scope: FeeScope, monthIndex: number) {
+  if (scope === "month") {
+    return student.pendingMonths
+      .filter((due) => due.monthIndex === monthIndex)
+      .reduce((sum, due) => sum + due.amount, 0);
+  }
+  if (scope === "overdue") {
+    return student.pendingMonths
+      .filter((due) => due.monthIndex < monthIndex)
+      .reduce((sum, due) => sum + due.amount, 0);
+  }
+  return student.totalPending;
+}
+
+function num(amount: number) {
+  return Math.round(Number(amount) || 0).toLocaleString("en-IN");
+}
 
 function activeStudent(student: Student) {
   return String(student.status || "").toLowerCase() === "active";
@@ -86,6 +116,7 @@ export default function PendingFeesPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [query, setQuery] = useState("");
+  const [scope, setScope] = useState<FeeScope>("month");
   const [previewStudent, setPreviewStudent] = useState<PendingStudent | null>(null);
   const [previewMonthIndex, setPreviewMonthIndex] = useState<number | null>(null);
   const [messageTemplate, setMessageTemplate] = useState<string>(() => readFeeReminderTemplate());
@@ -192,6 +223,17 @@ export default function PendingFeesPage() {
     );
   }, [query, students]);
 
+  const visibleStudents = useMemo(() => {
+    if (scope === "no_phone") {
+      return filteredStudents.filter((student) => !cleanIndianPhone(phoneValue(student)));
+    }
+    return filteredStudents.filter((student) =>
+      student.pendingMonths.some((due) =>
+        scope === "month" ? due.monthIndex === month : due.monthIndex < month,
+      ),
+    );
+  }, [filteredStudents, month, scope]);
+
   const totalPending = filteredStudents.reduce((sum, student) => sum + student.totalPending, 0);
   const missingPhone = filteredStudents.filter((student) => !cleanIndianPhone(phoneValue(student))).length;
   const selectedMonthLabel = monthRangeLabel(month, feeYear);
@@ -274,183 +316,188 @@ export default function PendingFeesPage() {
         </Link>
       </div>
 
-        <section className="mb-5 grid gap-3 sm:grid-cols-3">
-          <Metric label="Pending Students" value={String(filteredStudents.length)} />
-          <Metric label="Pending Amount" value={`₹${totalPending.toLocaleString("en-IN")}`} />
-          <Metric label="Missing Phone" value={String(missingPhone)} />
-        </section>
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatTile label="Pending Students" value={num(filteredStudents.length)} tone="action" />
+        <StatTile label="Pending Amount" value={num(totalPending)} tone="overdue" />
+        <StatTile label="Missing Phone" value={num(missingPhone)} />
+      </div>
 
-        <section className="card-panel mb-5 p-4 sm:p-5">
-          <div className="grid gap-3 md:grid-cols-[1fr_180px_180px_auto]">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                className="input-minimal min-h-11 pl-11"
-                placeholder="Search name, SKF ID, parent or phone"
-              />
-            </div>
-            <select
-              value={branch}
-              onChange={(event) => setBranch(event.target.value as BranchFilter)}
-              className="input-minimal min-h-11"
-            >
-              {BRANCH_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-            <select
-              value={month}
-              onChange={(event) => setMonth(Number.parseInt(event.target.value, 10))}
-              className="input-minimal min-h-11"
-            >
-              {MONTHS_SHORT.map((label, index) => (
-                <option key={label} value={index}>{label} {feeYear}</option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={() => loadPendingStudents(true)}
-              disabled={refreshing}
-              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-zinc-400 hover:border-zinc-600 hover:text-white disabled:opacity-60"
-              title="Refresh pending fees"
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-            </button>
+      <SegmentedTabs
+        options={FEE_SCOPES}
+        value={scope}
+        onChange={setScope}
+        ariaLabel="Fee ledger scope"
+        className="mb-5"
+      />
+
+      <section className="hud-panel mb-5 p-3 sm:p-4">
+        <div className="grid gap-3 md:grid-cols-[1fr_180px_180px_auto]">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className="input-minimal min-h-11 pl-11"
+              placeholder="Search name, SKF ID, parent or phone"
+            />
           </div>
-        </section>
+          <select
+            value={branch}
+            onChange={(event) => setBranch(event.target.value as BranchFilter)}
+            className="input-minimal min-h-11"
+            aria-label="Branch filter"
+          >
+            {BRANCH_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+          <select
+            value={month}
+            onChange={(event) => setMonth(Number.parseInt(event.target.value, 10))}
+            className="input-minimal min-h-11"
+            aria-label="Month filter"
+          >
+            {MONTHS_SHORT.map((label, index) => (
+              <option key={label} value={index}>{label} {feeYear}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => loadPendingStudents(true)}
+            disabled={refreshing}
+            className="tap-target grid place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-zinc-300 transition-colors hover:text-white disabled:opacity-50"
+            title="Refresh pending fees"
+            aria-label="Refresh pending fees"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+          </button>
+        </div>
+      </section>
 
-        {error ? (
-          <div className="mb-5 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <p>{error}</p>
+      {error ? (
+        <div className="mb-5 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <p>{error}</p>
+        </div>
+      ) : null}
+
+      {notice ? (
+        <div className="mb-5 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <p>{notice}</p>
+        </div>
+      ) : null}
+
+      <section className="hud-panel overflow-hidden">
+        <div className="border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
+          <p className="font-pixel-label text-zinc-500">{selectedMonthLabel}</p>
+          <h2 className="mt-1 text-[15px] font-semibold text-white">
+            {scope === "month" ? "Monthly ledger" : scope === "overdue" ? "Overdue ledger" : "Missing phone ledger"}
+          </h2>
+          <p className="mt-1 text-xs text-zinc-600">Sorted by students with the highest overdue month count first.</p>
+        </div>
+
+        {loading ? (
+          <div className="flex min-h-72 items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
           </div>
-        ) : null}
-
-        {notice ? (
-          <div className="mb-5 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <p>{notice}</p>
+        ) : visibleStudents.length === 0 ? (
+          <div className="flex min-h-72 flex-col items-center justify-center gap-3 p-8 text-center">
+            <CheckCircle2 className="h-9 w-9 text-emerald-400" />
+            <p className="text-sm font-semibold text-white">No students in this ledger</p>
+            <p className="text-sm text-zinc-500">Change the scope, branch, or month filter to see another list.</p>
           </div>
-        ) : null}
-
-        <section className="card-panel overflow-hidden p-0">
-          <div className="border-b border-zinc-800 p-4 sm:p-5">
-              <p className="text-xs uppercase tracking-widest text-zinc-500">{selectedMonthLabel}</p>
-              <h2 className="mt-1 text-lg font-semibold text-white">
-                {branch === "Overall" ? "All Branches" : BRANCH_OPTIONS.find((option) => option.value === branch)?.label} Pending List
-              </h2>
-              <p className="mt-1 text-xs text-zinc-600">Sorted by students with the highest overdue month count first.</p>
-          </div>
-
-          {loading ? (
-            <div className="flex min-h-72 items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
-            </div>
-          ) : filteredStudents.length === 0 ? (
-            <div className="flex min-h-72 flex-col items-center justify-center gap-3 p-8 text-center">
-              <CheckCircle2 className="h-9 w-9 text-emerald-400" />
-              <p className="text-sm font-semibold text-white">No pending fees found</p>
-              <p className="text-sm text-zinc-500">Change the branch or month filter if you need another period.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-zinc-800">
-              {filteredStudents.map((student) => {
-                const phone = phoneValue(student);
-                const callUrl = telHref(student);
-                return (
-                  <div key={`${student.branch}-${student.id}`} className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="truncate text-sm font-semibold text-white">{studentName(student)}</h3>
-                        <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-500">
-                          {student.branch}
-                        </span>
-                        <span className="rounded-md border border-amber-500/20 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
-                          ₹{student.totalPending.toLocaleString("en-IN")}
-                        </span>
-                        <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-500">
-                          {student.pendingMonths.length} month{student.pendingMonths.length === 1 ? "" : "s"}
-                        </span>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-500">
-                        <span className="font-mono">{student.id}</span>
-                        <span>{student.parentName || "Parent not set"}</span>
-                        <span className={phone ? "text-zinc-500" : "text-amber-300"}>{phone || "No phone number"}</span>
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {student.pendingMonths.map((due) => (
-                          <span
-                            key={`${student.branch}-${student.id}-${due.monthIndex}`}
-                            className="rounded-md border border-amber-500/15 bg-amber-500/[0.06] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-200"
-                          >
-                            {due.shortLabel} • ₹{due.amount.toLocaleString("en-IN")}
-                          </span>
-                        ))}
-                      </div>
+        ) : (
+          <div className="divide-y divide-[color:var(--color-hairline)]">
+            {visibleStudents.map((student, index) => {
+              const phone = phoneValue(student);
+              const overdue = student.pendingMonths.some((due) => due.monthIndex < month);
+              const noPhone = !cleanIndianPhone(phone);
+              const dueAmount = scopeAmount(student, scope, month);
+              const status = noPhone ? "overdue" : overdue ? "overdue" : "due";
+              return (
+                <LedgerRow
+                  key={`${student.branch}-${student.id}`}
+                  index={index}
+                  status={status}
+                  title={studentName(student)}
+                  subtitle={`${student.parentName || "Parent not set"} · ${phone || "No phone number"}`}
+                  idLabel={`${student.id} · ${student.branch} · ${student.pendingMonths.length} MONTH${student.pendingMonths.length === 1 ? "" : "S"}`}
+                  amount={num(dueAmount)}
+                  amountLabel="due"
+                  trailing={
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="h-4 w-4 text-zinc-500" aria-hidden="true" />
+                      <StatusPill status={status} label={noPhone ? "No phone" : overdue ? "Overdue" : "Message"} />
                     </div>
-
-                    <div className="grid grid-cols-3 gap-2 sm:flex">
-                      <button
-                        type="button"
-                        onClick={() => openPreview(student)}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
-                      >
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">WhatsApp</span>
-                      </button>
-                      <a
-                        href={callUrl || undefined}
-                        aria-disabled={!callUrl}
-                        className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-semibold ${
-                          callUrl
-                            ? "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-600 hover:text-white"
-                            : "pointer-events-none border-zinc-900 bg-zinc-950 text-zinc-700"
-                        }`}
-                      >
-                        <Phone className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Call</span>
-                      </a>
-                      <Link
-                        href={`/students/${student.branch}/${encodeURIComponent(student.id)}`}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
-                      >
-                        <ArrowRight className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Profile</span>
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                  }
+                  onClick={() => openPreview(student)}
+                />
+              );
+            })}
+          </div>
+        )}
+      </section>
       </PageShell>
 
-      {previewStudent ? (
-        <div className="glass-modal-overlay" onClick={(event) => event.target === event.currentTarget && setPreviewStudent(null)}>
-          <div className="glass-modal !max-w-lg p-4 sm:p-5">
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Reminder Preview</p>
-                <h2 className="mt-1 text-lg font-semibold text-white">{studentName(previewStudent)}</h2>
-                <p className="mt-1 text-xs text-zinc-500">
-                  {previewStudent.id} • {previewStudent.branch} • {previewStudent.pendingMonths.length} pending month{previewStudent.pendingMonths.length === 1 ? "" : "s"}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setPreviewStudent(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:text-white"
-                aria-label="Close reminder preview"
-              >
-                <X className="h-4 w-4" />
-              </button>
+      <Sheet
+        open={Boolean(previewStudent)}
+        title="Reminder preview"
+        onClose={() => {
+          setPreviewStudent(null);
+          setPreviewMonthIndex(null);
+        }}
+        footer={
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => void copyMessage()}
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200"
+            >
+              <Copy className="h-4 w-4" />
+              Copy
+            </button>
+            <button
+              type="button"
+              onClick={openWhatsApp}
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black"
+            >
+              <MessageCircle className="h-4 w-4" />
+              Open WhatsApp
+            </button>
+          </div>
+        }
+      >
+        {previewStudent ? (
+          <div className="space-y-4 pt-1">
+            <div>
+              <p className="text-[15px] font-semibold text-white">{studentName(previewStudent)}</p>
+              <p className="font-mono text-[11px] text-zinc-500">
+                {previewStudent.id} · {previewStudent.branch} · {previewStudent.pendingMonths.length} pending month{previewStudent.pendingMonths.length === 1 ? "" : "s"}
+              </p>
             </div>
 
-            <div className="mb-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Select Pending Month</p>
+            <div className="flex flex-wrap gap-2">
+              {telHref(previewStudent) ? (
+                <a
+                  href={telHref(previewStudent)}
+                  className="tap-target inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-xs text-zinc-200"
+                >
+                  <Phone className="h-4 w-4" />
+                  Call
+                </a>
+              ) : null}
+              <Link
+                href={`/students/${previewStudent.branch}/${encodeURIComponent(previewStudent.id)}`}
+                className="tap-target inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-xs text-zinc-200"
+              >
+                <ArrowRight className="h-4 w-4" />
+                Profile
+              </Link>
+            </div>
+
+            <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
+              <p className="mb-2 font-pixel-label text-zinc-500">Select pending month</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {previewStudent.pendingMonths.map((due) => {
                   const selected = due.monthIndex === previewDue?.monthIndex;
@@ -459,15 +506,15 @@ export default function PendingFeesPage() {
                       key={`${previewStudent.branch}-${previewStudent.id}-${due.monthIndex}`}
                       type="button"
                       onClick={() => setPreviewMonthIndex(due.monthIndex)}
-                      className={`rounded-lg border px-3 py-2 text-left transition-colors ${
+                      className={`tap-target rounded-[var(--radius-row)] border px-3 py-2 text-left transition-colors ${
                         selected
-                          ? "border-white/20 bg-white text-black"
-                          : "border-zinc-800 bg-black text-zinc-300 hover:border-zinc-600 hover:text-white"
+                          ? "border-white/30 bg-white text-black"
+                          : "border-[color:var(--color-hairline)] bg-black text-zinc-300 hover:text-white"
                       }`}
                     >
                       <span className="block text-xs font-semibold">{due.shortLabel}</span>
-                      <span className={`mt-1 block text-[10px] ${selected ? "text-black/60" : "text-zinc-600"}`}>
-                        ₹{due.amount.toLocaleString("en-IN")}
+                      <span className={`mt-1 block font-pixel text-[14px] ${selected ? "text-black/70" : "text-zinc-400"}`}>
+                        {num(due.amount)}
                       </span>
                     </button>
                   );
@@ -476,44 +523,17 @@ export default function PendingFeesPage() {
             </div>
 
             {previewIssues.length ? (
-              <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-200">
+              <div className="rounded-[var(--radius-row)] border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-200">
                 Unknown placeholders: {previewIssues.join(", ")}
               </div>
             ) : null}
 
-            <div className="max-h-[55vh] overflow-y-auto whitespace-pre-wrap rounded-lg border border-zinc-800 bg-zinc-950 p-4 text-sm leading-relaxed text-zinc-300">
+            <div className="max-h-[50vh] overflow-y-auto whitespace-pre-wrap rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-4 text-sm leading-relaxed text-zinc-300">
               {previewMessage}
             </div>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={copyMessage}
-                className="btn-ghost inline-flex min-h-11 items-center justify-center gap-2"
-              >
-                <Copy className="h-4 w-4" />
-                Copy
-              </button>
-              <button
-                type="button"
-                onClick={openWhatsApp}
-                className="btn-primary inline-flex min-h-11 items-center justify-center gap-2"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Open WhatsApp
-              </button>
-            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </Sheet>
     </>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="card-panel p-4">
-      <p className="text-xs uppercase tracking-widest text-zinc-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
-    </div>
   );
 }
