@@ -231,7 +231,7 @@ export default function ProfilePhotosPage() {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
+    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
       <Navbar showBack title="Profile Photos" rightContent={<AccountMenu />} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-24">
@@ -239,13 +239,13 @@ export default function ProfilePhotosPage() {
           <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
-                <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">Portal Profiles</p>
+                <span className="w-2 h-2 rounded-full bg-[color:var(--color-due)]" />
+                <p className="text-[color:var(--color-text-dim)] text-xs font-mono uppercase tracking-widest">Portal Profiles</p>
               </div>
-              <h1 className="font-[family-name:var(--font-space)] text-3xl md:text-4xl font-semibold tracking-tight text-white">
+              <h1 className="font-sans text-3xl md:text-4xl font-semibold tracking-tight text-[color:var(--color-text)]">
                 Profile Photos
               </h1>
-              <p className="mt-2 max-w-xl text-sm text-zinc-500">
+              <p className="mt-2 max-w-xl text-sm text-[color:var(--color-text-dim)]">
                 Add a missing photo or replace an existing one. Changes appear on the student portal immediately.
               </p>
             </div>
@@ -254,7 +254,7 @@ export default function ProfilePhotosPage() {
               type="button"
               onClick={() => loadStudents(true)}
               disabled={refreshing}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-200 transition-colors hover:border-zinc-600 hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               Refresh
@@ -264,7 +264,7 @@ export default function ProfilePhotosPage() {
 
         <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto]">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -273,7 +273,7 @@ export default function ProfilePhotosPage() {
             />
           </div>
 
-          <div className="flex min-h-12 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
+          <div className="flex min-h-12 overflow-hidden rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
             {(["All", "MPSC", "Herohalli"] as const).map((branch) => (
               <button
                 key={branch}
@@ -281,8 +281,8 @@ export default function ProfilePhotosPage() {
                 onClick={() => setBranchFilter(branch)}
                 className={`min-w-20 px-4 text-xs font-bold uppercase tracking-wider transition-colors ${
                   branchFilter === branch
-                    ? "bg-white text-black"
-                    : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200"
+                    ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
+                    : "text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)]"
                 }`}
               >
                 {branch === "All" ? "All" : branchDisplayName(branch)}
@@ -303,8 +303,8 @@ export default function ProfilePhotosPage() {
                 onClick={() => setPhotoFilter(value)}
                 className={`inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold transition-colors ${
                   photoFilter === value
-                    ? "border-white/20 bg-white text-black"
-                    : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-600 hover:text-white"
+                    ? "border-[color:var(--color-hairline)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
+                    : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                 }`}
               >
                 {value === "missing" ? <Camera className="h-3.5 w-3.5" /> : value === "has" ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
@@ -316,14 +316,14 @@ export default function ProfilePhotosPage() {
         </section>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {success ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{success}</p>
           </div>
@@ -332,18 +332,18 @@ export default function ProfilePhotosPage() {
         {loading ? (
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="card-panel h-28 animate-pulse bg-zinc-900/80" />
+              <div key={index} className="card-panel h-28 animate-pulse bg-[color:var(--color-well)]" />
             ))}
           </div>
         ) : filteredStudents.length === 0 ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-10 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-zinc-800 bg-black text-zinc-500">
+          <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-10 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
               <Camera className="h-5 w-5" />
             </div>
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="text-lg font-semibold text-[color:var(--color-text)]">
               {photoFilter === "missing" ? "No missing photos" : photoFilter === "has" ? "No students with photos" : "No students found"}
             </h2>
-            <p className="mt-2 text-sm text-zinc-500">Try another filter or search term.</p>
+            <p className="mt-2 text-sm text-[color:var(--color-text-dim)]">Try another filter or search term.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
@@ -358,7 +358,7 @@ export default function ProfilePhotosPage() {
                 <article key={key} className="card-panel p-4 md:p-5">
                   <div className="flex flex-col gap-4 md:flex-row md:items-center">
                     <div className="flex flex-1 items-center gap-4 min-w-0">
-                      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border border-zinc-800 bg-zinc-950">
+                      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
                         {preview ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={preview} alt="" className="h-full w-full object-cover" />
@@ -366,7 +366,7 @@ export default function ProfilePhotosPage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={realPhotoUrl(student)} alt="" className="h-full w-full object-cover" />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center text-sm font-bold text-zinc-500">
+                          <div className="flex h-full w-full items-center justify-center text-sm font-bold text-[color:var(--color-text-dim)]">
                             {initials(student.name)}
                           </div>
                         )}
@@ -374,25 +374,25 @@ export default function ProfilePhotosPage() {
 
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h2 className="truncate text-base font-semibold text-white">{student.name}</h2>
-                          <span className="rounded-md border border-zinc-800 bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                          <h2 className="truncate text-base font-semibold text-[color:var(--color-text)]">{student.name}</h2>
+                          <span className="rounded-md border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">
                             {branchDisplayName(student.branch)}
                           </span>
                           <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                             needsProfilePhoto(student)
-                              ? "border-amber-500/30 bg-amber-500/10 text-amber-300"
-                              : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                              ? "border-[color:var(--color-due-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
+                              : "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
                           }`}>
                             {needsProfilePhoto(student) ? "Missing photo" : "Has photo"}
                           </span>
                         </div>
-                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500">
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[color:var(--color-text-dim)]">
                           <span>{student.id}</span>
                           {student.parentName ? <span>{student.parentName}</span> : null}
                           {student.phone ? <span>{student.phone}</span> : null}
                         </div>
                         {selectedFile ? (
-                          <p className="mt-2 max-w-full truncate text-xs text-zinc-400">{selectedFile.name}</p>
+                          <p className="mt-2 max-w-full truncate text-xs text-[color:var(--color-text-dim)]">{selectedFile.name}</p>
                         ) : null}
                       </div>
                     </div>
@@ -407,7 +407,7 @@ export default function ProfilePhotosPage() {
                       />
                       <label
                         htmlFor={inputId}
-                        className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-200 transition-colors hover:border-zinc-600 hover:bg-zinc-900"
+                        className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
                       >
                         {preview ? <ImagePlus className="h-4 w-4" /> : <UserRound className="h-4 w-4" />}
                         {preview ? "Change" : needsProfilePhoto(student) ? "Add photo" : "Replace"}
@@ -417,7 +417,7 @@ export default function ProfilePhotosPage() {
                         type="button"
                         onClick={() => handleUpload(student)}
                         disabled={!selectedFile || isUploading}
-                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-4 text-sm font-semibold text-[color:var(--color-accent-ink)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                         Save
@@ -425,7 +425,7 @@ export default function ProfilePhotosPage() {
 
                       <Link
                         href={`/students/${student.branch}/${encodeURIComponent(student.id)}`}
-                        className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-black px-4 text-sm font-semibold text-zinc-400 transition-colors hover:border-zinc-600 hover:text-white md:col-span-1"
+                        className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text-dim)] transition-colors hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] md:col-span-1"
                       >
                         Profile
                         <ArrowUpRight className="h-4 w-4" />

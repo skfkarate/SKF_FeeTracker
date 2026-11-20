@@ -47,37 +47,37 @@ export function AddExtraIncomeModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden relative">
-        <div className="p-5 border-b border-white/5 flex items-center justify-between">
-          <h2 className="text-lg text-white font-medium">Add Extra Income</h2>
-          <button onClick={onClose} className="p-2 text-zinc-400 hover:text-white rounded-lg hover:bg-white/5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[color:var(--color-well)] backdrop-blur-sm">
+      <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-2xl w-full max-w-md overflow-hidden relative">
+        <div className="p-5 border-b border-[color:var(--color-hairline)] flex items-center justify-between">
+          <h2 className="text-lg text-[color:var(--color-text)] font-medium">Add Extra Income</h2>
+          <button onClick={onClose} className="p-2 text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] rounded-lg hover:bg-[color:var(--color-well)]">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          {error && <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-sm">{error}</div>}
+          {error && <div className="p-3 bg-[color:var(--color-well)] border border-[color:var(--color-overdue-border)] text-[color:var(--color-text-dim)] rounded-lg text-sm">{error}</div>}
 
           <div>
-            <label className="block text-xs text-zinc-400 uppercase tracking-wider mb-2">Title / Reason</label>
+            <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-2">Title / Reason</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500/50"
+              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder-zinc-600 focus:outline-none focus:border-[color:var(--color-accent-border)]"
               placeholder="e.g. Summer Camp Fees"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-400 uppercase tracking-wider mb-2">Amount (₹)</label>
+            <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-2">Amount (₹)</label>
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500/50 font-[family-name:var(--font-space)]"
+              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder-zinc-600 focus:outline-none focus:border-[color:var(--color-accent-border)] font-sans"
               placeholder="500"
               min="1"
               required
@@ -85,11 +85,11 @@ export function AddExtraIncomeModal({
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-400 uppercase tracking-wider mb-2">Description (Optional)</label>
+            <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-2">Description (Optional)</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500/50 min-h-[80px]"
+              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder-zinc-600 focus:outline-none focus:border-[color:var(--color-accent-border)] min-h-[80px]"
               placeholder="Additional details..."
             />
           </div>

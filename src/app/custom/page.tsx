@@ -6,8 +6,8 @@ export default function CustomPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-black text-zinc-300">
-          <div className="flex min-h-screen items-center justify-center text-sm text-zinc-500">
+        <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
+          <div className="flex min-h-screen items-center justify-center text-sm text-[color:var(--color-text-dim)]">
             Loading custom operations...
           </div>
         </div>

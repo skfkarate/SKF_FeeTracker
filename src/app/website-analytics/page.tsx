@@ -139,7 +139,7 @@ function metadataSummary(metadata: Record<string, unknown> = {}) {
 
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-28 items-center justify-center rounded-xl border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 px-4 text-center text-sm text-[color:var(--color-text-faint)]">
+    <div className="flex min-h-28 items-center justify-center rounded-xl border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] px-4 text-center text-sm text-[color:var(--color-text-faint)]">
       {children}
     </div>
   );
@@ -232,12 +232,12 @@ function DailyTrafficGrid({ rows }: { rows: DailyWebsiteTraffic[] }) {
           {visible.map((row) => (
             <div
               key={row.date}
-              className="min-w-0 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-1.5"
+              className="min-w-0 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-1.5"
               title={`${formatDateLabel(row.date)}: ${number(row.views)} views`}
             >
-              <div className="flex h-12 items-end rounded bg-[color:var(--color-raised)]/70">
+              <div className="flex h-12 items-end rounded bg-[color:var(--color-panel-strong)]">
                 <div
-                  className="w-full rounded bg-[color:var(--color-settled)]/70"
+                  className="w-full rounded bg-[color:var(--color-paid-dim)]"
                   style={{ height: `${row.views > 0 ? Math.max((row.views / max) * 100, 6) : 0}%` }}
                 />
               </div>
@@ -270,12 +270,12 @@ function HourlyTraffic({ rows }: { rows: WebsiteAnalyticsData["content"]["hourly
         {rows.map((row) => (
           <div
             key={row.hour}
-            className="min-w-0 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-1.5"
+            className="min-w-0 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-1.5"
             title={`${String(row.hour).padStart(2, "0")}:00 — ${number(row.views)} views`}
           >
-            <div className="flex h-10 items-end rounded bg-[color:var(--color-raised)]/70">
+            <div className="flex h-10 items-end rounded bg-[color:var(--color-panel-strong)]">
               <div
-                className="w-full rounded bg-[color:var(--color-brand)]/70"
+                className="w-full rounded bg-[color:var(--color-accent-dim)]"
                 style={{ height: `${row.views > 0 ? Math.max((row.views / max) * 100, 6) : 0}%` }}
               />
             </div>
@@ -464,7 +464,7 @@ function LoginHealth({ data }: { data: WebsiteAnalyticsData }) {
           ["Failed", number(data.overview.portalLoginFailures)],
           ["Identified", number(uniquePortalPeople)],
         ].map(([label, value]) => (
-          <div key={label} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-3">
+          <div key={label} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-3">
             <p className="truncate text-[11px] text-[color:var(--color-text-faint)]">{label}</p>
             <p className="numeric mt-2 break-words text-lg text-[color:var(--color-text)]">{value}</p>
           </div>
@@ -497,7 +497,7 @@ function LeadHealth({ data }: { data: WebsiteAnalyticsData }) {
           ["Fee proofs", number(feeSubmissions), "action"],
           ["Lead failure rate", `${failureRate}%`, failureRate > 10 ? "overdue" : "neutral"],
         ].map(([label, value, tone]) => (
-          <div key={label} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-3">
+          <div key={label} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-3">
             <p className="truncate text-[11px] text-[color:var(--color-text-faint)]">{label}</p>
             <p className={`numeric mt-2 break-words text-lg ${tone === "overdue" ? "text-[color:var(--color-overdue)]" : tone === "settled" ? "text-[color:var(--color-settled)]" : tone === "action" ? "text-[color:var(--color-action)]" : "text-[color:var(--color-text)]"}`}>
               {value}
@@ -704,7 +704,7 @@ export default function WebsiteAnalyticsPage() {
       </header>
 
       {error ? (
-        <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-overdue)]/30 bg-[color:var(--color-overdue)]/10 p-4 text-sm text-[color:var(--color-text)]">
+        <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue-dim)] p-4 text-sm text-[color:var(--color-text)]">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--color-overdue)]" />
           <div className="min-w-0">
             <p className="font-semibold">Website analytics could not be loaded.</p>
@@ -714,14 +714,14 @@ export default function WebsiteAnalyticsPage() {
       ) : null}
 
       {warning ? (
-        <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-action)]/30 bg-[color:var(--color-action)]/10 p-4 text-sm text-[color:var(--color-text)]">
+        <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-accent-border)] bg-[color:var(--color-accent-dim)] p-4 text-sm text-[color:var(--color-text)]">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--color-action)]" />
           <p className="leading-relaxed text-[color:var(--color-text-dim)]">{warning}</p>
         </div>
       ) : null}
 
       {practiceError ? (
-        <div className="mb-4 rounded-xl border border-[color:var(--color-action)]/30 bg-[color:var(--color-action)]/10 p-4 text-sm text-[color:var(--color-text-dim)]">
+        <div className="mb-4 rounded-xl border border-[color:var(--color-accent-border)] bg-[color:var(--color-accent-dim)] p-4 text-sm text-[color:var(--color-text-dim)]">
           {practiceError}
         </div>
       ) : null}
@@ -799,7 +799,7 @@ export default function WebsiteAnalyticsPage() {
             {analytics.insights.length ? (
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {analytics.insights.map((insight) => (
-                  <p key={insight} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-3 text-sm leading-relaxed text-[color:var(--color-text-dim)]">
+                  <p key={insight} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-3 text-sm leading-relaxed text-[color:var(--color-text-dim)]">
                     {insight}
                   </p>
                 ))}

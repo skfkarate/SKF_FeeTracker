@@ -1215,27 +1215,27 @@ export default function NotificationBell() {
         onClick={() => setOpen((current) => !current)}
         className={`relative flex min-h-11 w-11 items-center justify-center rounded-full border transition-colors ${
           open
-            ? "border-white/20 bg-white text-black"
-            : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-600 hover:text-white"
+            ? "border-[color:var(--color-hairline)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
+            : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
         }`}
         aria-label={`${count} notifications`}
         aria-expanded={open}
       >
         <Bell className="h-4 w-4" />
         {count > 0 ? (
-          <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border border-black bg-amber-400 px-1 text-[10px] font-bold text-black">
+          <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-due)] px-1 text-[10px] font-bold text-[color:var(--color-accent-ink)]">
             {count > 99 ? "99+" : count}
           </span>
         ) : null}
       </button>
 
       {open ? (
-        <div className="fixed left-3 right-3 top-20 z-[90] flex max-h-[calc(100dvh-6rem)] flex-col overflow-hidden rounded-2xl border border-white/[0.1] bg-[#050505] shadow-2xl sm:absolute sm:left-auto sm:right-0 sm:top-[3.25rem] sm:w-[420px] sm:max-w-[420px]">
-          <div className="flex-shrink-0 border-b border-white/[0.08] p-4">
+        <div className="fixed left-3 right-3 top-20 z-[90] flex max-h-[calc(100dvh-6rem)] flex-col overflow-hidden rounded-2xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] shadow-2xl sm:absolute sm:left-auto sm:right-0 sm:top-[3.25rem] sm:w-[420px] sm:max-w-[420px]">
+          <div className="flex-shrink-0 border-b border-[color:var(--color-hairline)] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Notifications</p>
-                <h2 className="mt-1 text-lg font-semibold text-white">
+                <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Notifications</p>
+                <h2 className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">
                   {hasItems ? `${count} notification${count === 1 ? "" : "s"}` : "All clear"}
                 </h2>
               </div>
@@ -1243,7 +1243,7 @@ export default function NotificationBell() {
                 type="button"
                 onClick={() => loadNotifications(true)}
                 disabled={refreshing}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 bg-black text-zinc-500 hover:text-white disabled:opacity-60"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] disabled:opacity-60"
                 aria-label="Refresh notifications"
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
@@ -1251,9 +1251,9 @@ export default function NotificationBell() {
             </div>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs sm:grid-cols-7">
               {summary.map((item) => (
-                <div key={item.label} className="rounded-lg border border-zinc-800 bg-zinc-950 p-2">
-                  <p className="font-semibold text-white">{item.value}</p>
-                  <p className="mt-0.5 truncate text-zinc-600">{item.label}</p>
+                <div key={item.label} className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2">
+                  <p className="font-semibold text-[color:var(--color-text)]">{item.value}</p>
+                  <p className="mt-0.5 truncate text-[color:var(--color-text-faint)]">{item.label}</p>
                 </div>
               ))}
             </div>
@@ -1263,13 +1263,13 @@ export default function NotificationBell() {
                   type="button"
                   onClick={enableBrowserNotifications}
                   disabled={pushSaving}
-                  className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 text-xs font-semibold text-amber-100 transition-colors hover:bg-amber-500/15 disabled:opacity-60"
+                  className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] transition-colors hover:bg-[color:var(--color-well)] disabled:opacity-60"
                 >
                   {pushSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />}
                   {browserNotificationPermission === "denied" ? "Alerts Blocked in Browser" : pushSaving ? "Enabling Alerts" : "Enable Device Alerts"}
                 </button>
               ) : (
-                <div className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-100/80">
+                <div className="mt-3 rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3 text-xs text-[color:var(--color-text)]">
                   Device alerts need HTTPS or localhost. In-app notifications still appear here.
                 </div>
               )
@@ -1279,17 +1279,17 @@ export default function NotificationBell() {
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
             {loading ? (
               <div className="flex min-h-40 items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+                <Loader2 className="h-5 w-5 animate-spin text-[color:var(--color-text-dim)]" />
               </div>
             ) : error ? (
-              <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+              <div className="rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
                 {error}
               </div>
             ) : !hasItems ? (
-              <div className="flex min-h-40 flex-col items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950 p-6 text-center">
-                <CheckCircle2 className="mb-3 h-7 w-7 text-emerald-400" />
-                <p className="text-sm font-semibold text-white">No pending reviews</p>
-                <p className="mt-1 text-xs text-zinc-600">New approvals, orders, poster reminders and birthday reminders will appear here.</p>
+              <div className="flex min-h-40 flex-col items-center justify-center rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-6 text-center">
+                <CheckCircle2 className="mb-3 h-7 w-7 text-[color:var(--color-text-dim)]" />
+                <p className="text-sm font-semibold text-[color:var(--color-text)]">No pending reviews</p>
+                <p className="mt-1 text-xs text-[color:var(--color-text-faint)]">New approvals, orders, poster reminders and birthday reminders will appear here.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -1310,20 +1310,20 @@ export default function NotificationBell() {
 
                 {paymentProofs.length ? (
                   <section>
-                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       <Wallet className="h-3.5 w-3.5" />
                       Payment Proofs
                     </p>
                     <div className="space-y-2">
                       {paymentProofs.map((proof) => (
-                        <div key={proof.id} className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3">
+                        <div key={proof.id} className="rounded-xl border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-3">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-white">{proof.studentName}</p>
-                              <p className="mt-1 text-xs text-emerald-100/75">
+                              <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{proof.studentName}</p>
+                              <p className="mt-1 text-xs text-[color:var(--color-text)]">
                                 {proof.studentId} • {proof.branch} • {money(proof.amount)}
                               </p>
-                              <p className="mt-1 text-[10px] text-zinc-500">
+                              <p className="mt-1 text-[10px] text-[color:var(--color-text-dim)]">
                                 {proof.sourceLabel || proof.monthName} {proof.year || ""}
                               </p>
                             </div>
@@ -1332,7 +1332,7 @@ export default function NotificationBell() {
                                 href={proof.proofUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-black text-zinc-400 hover:text-white"
+                                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
                                 aria-label="Open payment proof"
                               >
                                 <ExternalLink className="h-4 w-4" />
@@ -1344,7 +1344,7 @@ export default function NotificationBell() {
                               type="button"
                               onClick={() => rejectProof(proof)}
                               disabled={actioningId === proof.id}
-                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-red-500/25 bg-red-500/10 px-3 text-xs font-semibold text-red-200 hover:bg-red-500/15 disabled:opacity-60"
+                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
                             >
                               <XCircle className="h-3.5 w-3.5" />
                               Reject
@@ -1353,7 +1353,7 @@ export default function NotificationBell() {
                               type="button"
                               onClick={() => approveProof(proof)}
                               disabled={actioningId === proof.id}
-                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-emerald-400 px-3 text-xs font-semibold text-black hover:bg-emerald-300 disabled:opacity-60"
+                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-paid)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-paid)] disabled:opacity-60"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
                               Approve
@@ -1395,7 +1395,7 @@ export default function NotificationBell() {
 
                 {websiteLeads.length ? (
                   <section>
-                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       <UserPlus className="h-3.5 w-3.5" />
                       Website Leads
                     </p>
@@ -1405,22 +1405,22 @@ export default function NotificationBell() {
                         const waLink = whatsappHref(lead.phone, lead);
 
                         return (
-                          <div key={lead.id} className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-3">
+                          <div key={lead.id} className="rounded-xl border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] p-3">
                             <div className="flex items-start gap-3">
-                              <UserPlus className="mt-0.5 h-4 w-4 flex-shrink-0 text-cyan-300" />
+                              <UserPlus className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-text)]" />
                               <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-semibold text-white">{lead.title}</p>
-                                <p className="mt-1 truncate text-xs text-cyan-100/80">
+                                <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{lead.title}</p>
+                                <p className="mt-1 truncate text-xs text-[color:var(--color-text)]">
                                   {websiteLeadLabel(lead.kind)} • {lead.meta || lead.phone}
                                 </p>
-                                {lead.detail ? <p className="mt-1 line-clamp-2 text-[10px] text-zinc-500">{lead.detail}</p> : null}
-                                {lead.submittedAt ? <p className="mt-1 text-[10px] text-zinc-600">{lead.submittedAt}</p> : null}
+                                {lead.detail ? <p className="mt-1 line-clamp-2 text-[10px] text-[color:var(--color-text-dim)]">{lead.detail}</p> : null}
+                                {lead.submittedAt ? <p className="mt-1 text-[10px] text-[color:var(--color-text-faint)]">{lead.submittedAt}</p> : null}
                               </div>
                             </div>
                             <div className="mt-3 grid grid-cols-3 gap-2">
                               <a
                                 href={phoneLink || undefined}
-                                className={`inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-zinc-800 bg-black px-2 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white ${phoneLink ? "" : "pointer-events-none opacity-40"}`}
+                                className={`inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] ${phoneLink ? "" : "pointer-events-none opacity-40"}`}
                               >
                                 <PhoneCall className="h-3.5 w-3.5" />
                                 Call
@@ -1429,7 +1429,7 @@ export default function NotificationBell() {
                                 href={waLink || undefined}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`inline-flex min-h-10 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/15 ${waLink ? "" : "pointer-events-none opacity-40"}`}
+                                className={`inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-2 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] ${waLink ? "" : "pointer-events-none opacity-40"}`}
                               >
                                 WhatsApp
                               </a>
@@ -1437,7 +1437,7 @@ export default function NotificationBell() {
                                 type="button"
                                 onClick={() => markLeadContacted(lead)}
                                 disabled={actioningId === `website:${lead.id}`}
-                                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-white px-2 text-xs font-semibold text-black hover:bg-zinc-200 disabled:opacity-60"
+                                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-[color:var(--color-accent)] px-2 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)] disabled:opacity-60"
                               >
                                 <CheckCircle2 className="h-3.5 w-3.5" />
                                 Done
@@ -1452,32 +1452,32 @@ export default function NotificationBell() {
 
                 {eventUpdates.length ? (
                   <section>
-                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       <Trophy className="h-3.5 w-3.5" />
                       Event Updates
                     </p>
                     <div className="space-y-2">
                       {eventUpdates.map((update) => (
-                        <div key={update.id} className="rounded-xl border border-sky-500/20 bg-sky-500/10 p-3">
+                        <div key={update.id} className="rounded-xl border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] p-3">
                           <div className="flex items-start gap-3">
-                            <Trophy className="mt-0.5 h-4 w-4 flex-shrink-0 text-sky-300" />
+                            <Trophy className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-text)]" />
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-semibold text-white">{update.title}</p>
-                              <p className="mt-1 truncate text-xs text-sky-100/80">{update.meta}</p>
-                              <p className="mt-1 line-clamp-2 text-[10px] text-zinc-500">{update.detail}</p>
+                              <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{update.title}</p>
+                              <p className="mt-1 truncate text-xs text-[color:var(--color-text)]">{update.meta}</p>
+                              <p className="mt-1 line-clamp-2 text-[10px] text-[color:var(--color-text-dim)]">{update.detail}</p>
                             </div>
                           </div>
                           <div className="mt-3 grid grid-cols-2 gap-2">
                             <Link
                               href="/notification-timeline"
-                              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-zinc-800 bg-black px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+                              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                             >
                               Timeline
                             </Link>
                             <button
                               type="button"
                               onClick={() => markEventUpdateSeen(update)}
-                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
                               Seen
@@ -1491,20 +1491,20 @@ export default function NotificationBell() {
 
                 {eventReminders.length ? (
                   <section>
-                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       <Trophy className="h-3.5 w-3.5" />
                       Event Reminders
                     </p>
                     <div className="space-y-2">
                       {eventReminders.map((reminder) => (
-                        <div key={reminder.reminderKey} className="rounded-xl border border-sky-500/20 bg-sky-500/10 p-3">
+                        <div key={reminder.reminderKey} className="rounded-xl border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] p-3">
                           <div className="flex items-start gap-3">
-                            <Trophy className="mt-0.5 h-4 w-4 flex-shrink-0 text-sky-300" />
+                            <Trophy className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-text)]" />
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-semibold text-white">{reminder.name}</p>
-                              <p className="mt-1 truncate text-xs text-sky-100/80">{eventReminderMeta(reminder)}</p>
-                              <p className="mt-1 line-clamp-2 text-[10px] text-zinc-500">{reminder.detail}</p>
-                              <p className="mt-1 text-[10px] text-zinc-500">
+                              <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{reminder.name}</p>
+                              <p className="mt-1 truncate text-xs text-[color:var(--color-text)]">{eventReminderMeta(reminder)}</p>
+                              <p className="mt-1 line-clamp-2 text-[10px] text-[color:var(--color-text-dim)]">{reminder.detail}</p>
+                              <p className="mt-1 text-[10px] text-[color:var(--color-text-dim)]">
                                 {reminder.phase === "review"
                                   ? "Repeats every 4 hours until marked reviewed."
                                   : "Reminder for tomorrow."}
@@ -1514,14 +1514,14 @@ export default function NotificationBell() {
                           <div className="mt-3 grid grid-cols-2 gap-2">
                             <Link
                               href="/notification-timeline"
-                              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-zinc-800 bg-black px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+                              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                             >
                               Timeline
                             </Link>
                             <button
                               type="button"
                               onClick={() => markEventReminderReviewed(reminder)}
-                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
                               Reviewed
@@ -1535,20 +1535,20 @@ export default function NotificationBell() {
 
                 {posterReminders.length ? (
                   <section>
-                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       <Megaphone className="h-3.5 w-3.5" />
                       Poster Reminders
                     </p>
                     <div className="space-y-2">
                       {posterReminders.map((poster) => (
-                        <div key={poster.reminderKey} className="rounded-xl border border-fuchsia-500/20 bg-fuchsia-500/10 p-3">
+                        <div key={poster.reminderKey} className="rounded-xl border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] p-3">
                           <div className="flex items-start gap-3">
-                            <Megaphone className="mt-0.5 h-4 w-4 flex-shrink-0 text-fuchsia-300" />
+                            <Megaphone className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-text)]" />
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-semibold text-white">{poster.name}</p>
-                              <p className="mt-1 truncate text-xs text-fuchsia-100/80">{posterMeta(poster)}</p>
-                              <p className="mt-1 line-clamp-2 text-[10px] text-zinc-500">{poster.notes}</p>
-                              <p className="mt-1 text-[10px] text-zinc-500">
+                              <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{poster.name}</p>
+                              <p className="mt-1 truncate text-xs text-[color:var(--color-text)]">{posterMeta(poster)}</p>
+                              <p className="mt-1 line-clamp-2 text-[10px] text-[color:var(--color-text-dim)]">{poster.notes}</p>
+                              <p className="mt-1 text-[10px] text-[color:var(--color-text-dim)]">
                                 {poster.phase === "publish"
                                   ? "Repeats every 4 hours until marked posted."
                                   : "Reminder to prepare the poster one day before."}
@@ -1558,7 +1558,7 @@ export default function NotificationBell() {
                           <button
                             type="button"
                             onClick={() => markPosterReminderDone(poster)}
-                            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+                            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
                           >
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             {poster.phase === "publish" ? "Posted" : "Prepared"}
@@ -1571,19 +1571,19 @@ export default function NotificationBell() {
 
                 {birthdays.length ? (
                   <section>
-                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       <CalendarDays className="h-3.5 w-3.5" />
                       Birthday Reminders
                     </p>
                     <div className="space-y-2">
                       {birthdays.map((birthday) => (
-                        <div key={birthday.reminderKey} className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3">
+                        <div key={birthday.reminderKey} className="rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3">
                           <div className="flex items-start gap-3">
-                            <Gift className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-300" />
+                            <Gift className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-text)]" />
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-semibold text-white">{birthday.name || birthday.id}</p>
-                              <p className="mt-1 truncate text-xs text-amber-100/80">{birthdayMeta(birthday)}</p>
-                              <p className="mt-1 text-[10px] text-zinc-500">
+                              <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{birthday.name || birthday.id}</p>
+                              <p className="mt-1 truncate text-xs text-[color:var(--color-text)]">{birthdayMeta(birthday)}</p>
+                              <p className="mt-1 text-[10px] text-[color:var(--color-text-dim)]">
                                 {birthday.daysUntil === 0
                                   ? "Repeats every 4 hours until marked wished."
                                   : "Reminder for tomorrow."}
@@ -1593,14 +1593,14 @@ export default function NotificationBell() {
                           <div className="mt-3 grid grid-cols-2 gap-2">
                             <Link
                               href={`/students/${birthday.branch}`}
-                              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-zinc-800 bg-black px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+                              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                             >
                               Open Profile
                             </Link>
                             <button
                               type="button"
                               onClick={() => markBirthdayWished(birthday)}
-                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+                              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
                               Wished
@@ -1645,50 +1645,50 @@ function NextQueueCard({
 }) {
   const styles = {
     payment: {
-      card: "border-emerald-500/30 bg-emerald-500/10",
-      icon: "bg-emerald-400 text-black",
+      card: "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]",
+      icon: "bg-[color:var(--color-paid)] text-[color:var(--color-accent-ink)]",
       label: "Payment Review",
       iconNode: <Wallet className="h-4 w-4" />,
     },
     admission: {
-      card: "border-sky-500/25 bg-sky-500/10",
-      icon: "bg-sky-400 text-black",
+      card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]",
+      icon: "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]",
       label: "Admission Review",
       iconNode: <ShieldCheck className="h-4 w-4" />,
     },
     order: {
-      card: "border-violet-500/25 bg-violet-500/10",
-      icon: "bg-violet-300 text-black",
+      card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]",
+      icon: "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]",
       label: "Shop Review",
       iconNode: <Package className="h-4 w-4" />,
     },
     website: {
-      card: "border-cyan-500/25 bg-cyan-500/10",
-      icon: "bg-cyan-300 text-black",
+      card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]",
+      icon: "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]",
       label: "Website Lead",
       iconNode: <UserPlus className="h-4 w-4" />,
     },
     birthday: {
-      card: "border-amber-500/25 bg-amber-500/10",
-      icon: "bg-amber-300 text-black",
+      card: "border-[color:var(--color-due-border)] bg-[color:var(--color-well)]",
+      icon: "bg-[color:var(--color-due)] text-[color:var(--color-accent-ink)]",
       label: "Birthday Reminder",
       iconNode: <Gift className="h-4 w-4" />,
     },
     poster: {
-      card: "border-fuchsia-500/25 bg-fuchsia-500/10",
-      icon: "bg-fuchsia-300 text-black",
+      card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]",
+      icon: "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]",
       label: item.kind === "poster" && item.poster.phase === "publish" ? "Poster Posting" : "Poster Preparation",
       iconNode: <Megaphone className="h-4 w-4" />,
     },
     event_reminder: {
-      card: "border-sky-500/25 bg-sky-500/10",
-      icon: "bg-sky-300 text-black",
+      card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]",
+      icon: "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]",
       label: item.kind === "event_reminder" && item.reminder.phase === "review" ? "Event Today" : "Event Tomorrow",
       iconNode: <Trophy className="h-4 w-4" />,
     },
     event_update: {
-      card: "border-sky-500/25 bg-sky-500/10",
-      icon: "bg-sky-300 text-black",
+      card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]",
+      icon: "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]",
       label: "Event Update",
       iconNode: <Trophy className="h-4 w-4" />,
     },
@@ -1702,15 +1702,15 @@ function NextQueueCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">Next Notification</p>
-            <span className="rounded-full border border-white/10 bg-black/30 px-2 py-0.5 text-[10px] font-semibold text-white">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">Next Notification</p>
+            <span className="rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--color-text)]">
               {styles.label}
             </span>
           </div>
-          <h3 className="mt-1 truncate text-base font-semibold text-white">{item.title}</h3>
-          <p className="mt-1 text-xs text-zinc-300">{item.meta}</p>
-          {item.detail ? <p className="mt-1 text-[10px] text-zinc-500">{item.detail}</p> : null}
-          <p className="mt-2 text-[10px] text-zinc-500">Resolve this item, then the next notification will move here.</p>
+          <h3 className="mt-1 truncate text-base font-semibold text-[color:var(--color-text)]">{item.title}</h3>
+          <p className="mt-1 text-xs text-[color:var(--color-text)]">{item.meta}</p>
+          {item.detail ? <p className="mt-1 text-[10px] text-[color:var(--color-text-dim)]">{item.detail}</p> : null}
+          <p className="mt-2 text-[10px] text-[color:var(--color-text-dim)]">Resolve this item, then the next notification will move here.</p>
         </div>
       </div>
 
@@ -1721,7 +1721,7 @@ function NextQueueCard({
               href={item.proof.proofUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-black px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Proof
@@ -1731,7 +1731,7 @@ function NextQueueCard({
             type="button"
             onClick={() => onRejectProof(item.proof)}
             disabled={actioningId === item.proof.id}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-red-500/25 bg-red-500/10 px-3 text-xs font-semibold text-red-200 hover:bg-red-500/15 disabled:opacity-60"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
           >
             <XCircle className="h-3.5 w-3.5" />
             Reject
@@ -1740,7 +1740,7 @@ function NextQueueCard({
             type="button"
             onClick={() => onApproveProof(item.proof)}
             disabled={actioningId === item.proof.id}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-emerald-400 px-3 text-xs font-semibold text-black hover:bg-emerald-300 disabled:opacity-60"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-paid)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-paid)] disabled:opacity-60"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
             Approve
@@ -1751,14 +1751,14 @@ function NextQueueCard({
           <Link
             href={item.href}
             onClick={onClose}
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-zinc-800 bg-black px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
           >
             Open Profile
           </Link>
           <button
             type="button"
             onClick={() => onBirthdayWished(item.birthday)}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
             Wished
@@ -1768,7 +1768,7 @@ function NextQueueCard({
         <button
           type="button"
           onClick={() => onPosterReminderDone(item.poster)}
-          className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+          className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
         >
           <CheckCircle2 className="h-3.5 w-3.5" />
           {item.poster.phase === "publish" ? "Posted" : "Prepared"}
@@ -1778,14 +1778,14 @@ function NextQueueCard({
           <Link
             href="/notification-timeline"
             onClick={onClose}
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-zinc-800 bg-black px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
           >
             Timeline
           </Link>
           <button
             type="button"
             onClick={() => onEventReminderReviewed(item.reminder)}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
             Reviewed
@@ -1796,14 +1796,14 @@ function NextQueueCard({
           <Link
             href="/notification-timeline"
             onClick={onClose}
-            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-zinc-800 bg-black px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
           >
             Timeline
           </Link>
           <button
             type="button"
             onClick={() => onEventUpdateSeen(item.update)}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
             Seen
@@ -1813,7 +1813,7 @@ function NextQueueCard({
         <div className="mt-3 grid grid-cols-3 gap-2">
           <a
             href={callHref(item.lead.phone) || undefined}
-            className={`inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-zinc-800 bg-black px-2 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white ${callHref(item.lead.phone) ? "" : "pointer-events-none opacity-40"}`}
+            className={`inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] ${callHref(item.lead.phone) ? "" : "pointer-events-none opacity-40"}`}
           >
             <PhoneCall className="h-3.5 w-3.5" />
             Call
@@ -1822,7 +1822,7 @@ function NextQueueCard({
             href={whatsappHref(item.lead.phone, item.lead) || undefined}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex min-h-10 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/15 ${whatsappHref(item.lead.phone, item.lead) ? "" : "pointer-events-none opacity-40"}`}
+            className={`inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-2 text-xs font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] ${whatsappHref(item.lead.phone, item.lead) ? "" : "pointer-events-none opacity-40"}`}
           >
             WhatsApp
           </a>
@@ -1830,7 +1830,7 @@ function NextQueueCard({
             type="button"
             onClick={() => onWebsiteContacted(item.lead)}
             disabled={actioningId === `website:${item.lead.id}`}
-            className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-white px-2 text-xs font-semibold text-black hover:bg-zinc-200 disabled:opacity-60"
+            className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-[color:var(--color-accent)] px-2 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)] disabled:opacity-60"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
             Done
@@ -1840,7 +1840,7 @@ function NextQueueCard({
         <Link
           href={item.href}
           onClick={onClose}
-          className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+          className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
         >
           Review Now
           <ArrowRight className="h-3.5 w-3.5" />
@@ -1864,11 +1864,11 @@ function NotificationSection({
   return (
     <section>
       <div className="mb-2 flex items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+        <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
           {icon}
           {title}
         </p>
-        <Link href={href} className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 hover:text-white">
+        <Link href={href} className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]">
           Open
         </Link>
       </div>
@@ -1877,14 +1877,14 @@ function NotificationSection({
           <Link
             key={item.id}
             href={item.href || href}
-            className="block rounded-xl border border-zinc-800 bg-zinc-950 p-3 transition-colors hover:border-zinc-700 hover:bg-zinc-900"
+            className="block rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
           >
             <div className="flex items-start gap-3">
-              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-300" />
+              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-text)]" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-white">{item.title}</p>
-                <p className="mt-1 truncate text-xs text-zinc-500">{item.meta}</p>
-                {item.time ? <p className="mt-1 text-[10px] text-zinc-600">{item.time}</p> : null}
+                <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{item.title}</p>
+                <p className="mt-1 truncate text-xs text-[color:var(--color-text-dim)]">{item.meta}</p>
+                {item.time ? <p className="mt-1 text-[10px] text-[color:var(--color-text-faint)]">{item.time}</p> : null}
               </div>
             </div>
           </Link>

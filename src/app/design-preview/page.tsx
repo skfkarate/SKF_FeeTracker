@@ -32,15 +32,15 @@ export default function DesignPreviewPage() {
           branchLabel: "MPSC",
           onBranchClick: () => undefined,
           onSearchClick: () => undefined,
-          bell: <span className="font-mono text-[11px] text-zinc-400">12</span>,
+          bell: <span className="font-mono text-[11px] text-[color:var(--color-text-dim)]">12</span>,
         }}
         mainClassName="py-6"
       >
         <section className="hud-panel p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="eyebrow text-zinc-400">Collected</p>
-              <p className="numeric mt-2 text-[40px] leading-none text-white">Rs. 1,24,000</p>
+              <p className="eyebrow text-[color:var(--color-text-dim)]">Collected</p>
+              <p className="numeric mt-2 text-[40px] leading-none text-[color:var(--color-text)]">Rs. 1,24,000</p>
             </div>
             <MeterRing value={68} label="Collection rate" caption="of monthly fees" />
           </div>
@@ -49,20 +49,20 @@ export default function DesignPreviewPage() {
         <section className="mt-3 hud-panel p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="eyebrow text-zinc-400">Fund target</p>
-              <p className="numeric mt-2 text-[20px] leading-none text-white">Rs. 1,50,000</p>
+              <p className="eyebrow text-[color:var(--color-text-dim)]">Fund target</p>
+              <p className="numeric mt-2 text-[20px] leading-none text-[color:var(--color-text)]">Rs. 1,50,000</p>
             </div>
-            <span className="eyebrow text-zinc-400">45%</span>
+            <span className="eyebrow text-[color:var(--color-text-dim)]">45%</span>
           </div>
           <MeterBar value={45} label="Fund target" className="mt-3" />
         </section>
 
         <section className="mt-6 hud-panel p-4">
-          <p className="eyebrow text-zinc-400">Money type</p>
+          <p className="eyebrow text-[color:var(--color-text-dim)]">Money type</p>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <p className="numeric text-[20px] text-white">2,000</p>
-            <p className="numeric text-[20px] text-white">1,24,000</p>
-            <p className="numeric text-[20px] text-white">10,25,500</p>
+            <p className="numeric text-[20px] text-[color:var(--color-text)]">2,000</p>
+            <p className="numeric text-[20px] text-[color:var(--color-text)]">1,24,000</p>
+            <p className="numeric text-[20px] text-[color:var(--color-text)]">10,25,500</p>
           </div>
         </section>
 
@@ -111,7 +111,7 @@ export default function DesignPreviewPage() {
           <button
             type="button"
             onClick={() => setSheetOpen(true)}
-            className="tap-target mt-4 w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-4 eyebrow text-black"
+            className="tap-target mt-4 w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-4 eyebrow text-[color:var(--color-accent-ink)]"
           >
             Open sheet
           </button>
@@ -120,8 +120,8 @@ export default function DesignPreviewPage() {
 
       <Sheet open={sheetOpen} title="Mark paid" onClose={() => setSheetOpen(false)}>
         <div className="space-y-4">
-          <p className="numeric text-[28px] leading-none text-white">Rs. {amount || "0"}</p>
-          <p className="text-[13px] text-zinc-400">Payment receipt will snapshot the stored charged amount.</p>
+          <p className="numeric text-[28px] leading-none text-[color:var(--color-text)]">Rs. {amount || "0"}</p>
+          <p className="text-[13px] text-[color:var(--color-text-dim)]">Payment receipt will snapshot the stored charged amount.</p>
           <LedgerRow
             status="partial"
             title="Rahul Kumar"

@@ -161,17 +161,17 @@ export function VideoEditorSheet({
       <aside className="glass-modal !max-w-xl max-h-[90vh] overflow-y-auto p-4 sm:p-5">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500">{draft.id ? "Edit" : "New"}</p>
-            <h2 className="text-lg font-semibold text-white">{draft.id ? "Update Video" : "Create Video"}</h2>
+            <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">{draft.id ? "Edit" : "New"}</p>
+            <h2 className="text-lg font-semibold text-[color:var(--color-text)]">{draft.id ? "Update Video" : "Create Video"}</h2>
           </div>
-          <button type="button" onClick={onClose} disabled={saving} className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:border-zinc-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50" title="Close editor">
+          <button type="button" onClick={onClose} disabled={saving} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50" title="Close editor">
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <div className="space-y-4">
           {error ? (
-            <div className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-200">
+            <div className="flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
               <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <p>{error}</p>
             </div>
@@ -179,16 +179,16 @@ export function VideoEditorSheet({
 
           <input value={draft.title} onChange={(event) => onChange({ title: event.target.value })} className="input-minimal" placeholder="Video title" />
 
-          <div className="grid grid-cols-2 gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-2">
-            <button type="button" onClick={() => onChange({ contentFormat: "short" })} className={`min-h-12 rounded-md border px-3 text-left text-sm font-semibold ${draft.contentFormat === "short" ? "border-white bg-white text-black" : "border-zinc-800 text-zinc-400"}`}><span className="block">Quick Drill</span><span className="text-xs font-normal opacity-70">Portrait 9:16 / Shorts</span></button>
-            <button type="button" onClick={() => onChange({ contentFormat: "landscape" })} className={`min-h-12 rounded-md border px-3 text-left text-sm font-semibold ${draft.contentFormat === "landscape" ? "border-white bg-white text-black" : "border-zinc-800 text-zinc-400"}`}><span className="block">Full Lesson</span><span className="text-xs font-normal opacity-70">Landscape 16:9</span></button>
+          <div className="grid grid-cols-2 gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2">
+            <button type="button" onClick={() => onChange({ contentFormat: "short" })} className={`min-h-12 rounded-md border px-3 text-left text-sm font-semibold ${draft.contentFormat === "short" ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]" : "border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)]"}`}><span className="block">Quick Drill</span><span className="text-xs font-normal opacity-70">Portrait 9:16 / Shorts</span></button>
+            <button type="button" onClick={() => onChange({ contentFormat: "landscape" })} className={`min-h-12 rounded-md border px-3 text-left text-sm font-semibold ${draft.contentFormat === "landscape" ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]" : "border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)]"}`}><span className="block">Full Lesson</span><span className="text-xs font-normal opacity-70">Landscape 16:9</span></button>
           </div>
 
           <textarea value={draft.description} onChange={(event) => onChange({ description: event.target.value })} className="input-minimal min-h-24 resize-none" placeholder="Description" />
 
           <div>
             <textarea value={draft.lessonNote} onChange={(event) => onChange({ lessonNote: event.target.value.slice(0, 3000) })} className="input-minimal min-h-24 resize-y" placeholder="Instructor note shown below the athlete video" maxLength={3000} />
-            <p className="mt-1 text-xs text-zinc-500">Practice cues, safety reminders, or a repetition target. Visible only with this lesson.</p>
+            <p className="mt-1 text-xs text-[color:var(--color-text-dim)]">Practice cues, safety reminders, or a repetition target. Visible only with this lesson.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -203,42 +203,42 @@ export function VideoEditorSheet({
           <input value={draft.youtubeInput} onChange={(event) => updateYouTubeInput(event.target.value)} className="input-minimal" placeholder="YouTube URL or ID" />
 
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Practice folder</label>
+            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">Practice folder</label>
             <select value={draft.folderId} onChange={(event) => onChange({ folderId: event.target.value })} className="input-minimal">
               <option value="">Unfiled — top level of library</option>
               {folders.map((folder) => (
                 <option key={folder.id} value={folder.id}>{folderPathLabel(folder, folders)}</option>
               ))}
             </select>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-600">Choose a folder to organise this lesson. Folders are just shelves — who sees this video is decided only by the audience below.</p>
+            <p className="mt-1 text-xs leading-relaxed text-[color:var(--color-text-faint)]">Choose a folder to organise this lesson. Folders are just shelves — who sees this video is decided only by the audience below.</p>
           </div>
 
-          <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/[0.05] p-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-cyan-200">Athlete portal preview</p>
-            <p className="mt-1 text-sm font-semibold text-zinc-100">Visible to: {audiencePreview}</p>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-500">Branches: {effectiveBranches.length ? effectiveBranches.join(", ") : "All"} · Batches: {effectiveBatches.length ? effectiveBatches.join(", ") : "All"}</p>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-500">{draftFolder ? `Filed under “${folderPathLabel(draftFolder, folders)}”. This video's own audience decides who sees it.` : "No folder selected. Unfiled lessons appear at the end of the belt shelf."}</p>
+          <div className="rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-accent-dim)] p-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-[color:var(--color-text)]">Athlete portal preview</p>
+            <p className="mt-1 text-sm font-semibold text-[color:var(--color-text)]">Visible to: {audiencePreview}</p>
+            <p className="mt-1 text-xs leading-relaxed text-[color:var(--color-text-dim)]">Branches: {effectiveBranches.length ? effectiveBranches.join(", ") : "All"} · Batches: {effectiveBatches.length ? effectiveBatches.join(", ") : "All"}</p>
+            <p className="mt-1 text-xs leading-relaxed text-[color:var(--color-text-dim)]">{draftFolder ? `Filed under “${folderPathLabel(draftFolder, folders)}”. This video's own audience decides who sees it.` : "No folder selected. Unfiled lessons appear at the end of the belt shelf."}</p>
           </div>
 
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-            <div className={`${draft.contentFormat === "short" ? "mx-auto aspect-[9/16] max-w-48" : "aspect-video"} overflow-hidden rounded-md bg-black`}>
+          <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+            <div className={`${draft.contentFormat === "short" ? "mx-auto aspect-[9/16] max-w-48" : "aspect-video"} overflow-hidden rounded-md bg-[color:var(--color-well)]`}>
               {draft.youtubeId ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={thumbnailUrl(draft.youtubeId)} alt="" className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full items-center justify-center gap-2 text-xs uppercase tracking-wider text-zinc-600">
+                <div className="flex h-full items-center justify-center gap-2 text-xs uppercase tracking-wider text-[color:var(--color-text-faint)]">
                   {draft.contentFormat === "short" ? <Smartphone className="h-4 w-4" /> : <MonitorPlay className="h-4 w-4" />}
                   YouTube Preview
                 </div>
               )}
             </div>
-            <p className="mt-2 truncate font-mono text-xs text-zinc-500">{draft.youtubeId || "No video ID"}</p>
+            <p className="mt-2 truncate font-mono text-xs text-[color:var(--color-text-dim)]">{draft.youtubeId || "No video ID"}</p>
           </div>
 
           <input value={draft.batchNamesText} onChange={(event) => onChange({ batchNamesText: event.target.value })} className="input-minimal" placeholder="Batches" disabled={draft.showInTechniques} />
 
           <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Branches</p>
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">Branches</p>
             <div className="flex flex-wrap gap-2">
               {BRANCH_OPTIONS.map((branch) => (
                 <Chip key={branch.slug} selected={draft.branchSlugs.includes(branch.slug)} onClick={() => toggleList("branchSlugs", branch.slug)}>
@@ -249,7 +249,7 @@ export function VideoEditorSheet({
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">Belt audience</p>
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">Belt audience</p>
             <div className="flex flex-wrap gap-2">
               {BELT_OPTIONS.map((belt) => (
                 <Chip key={belt} selected={draft.beltLevels.includes(belt)} onClick={() => toggleList("beltLevels", belt)}>
@@ -257,23 +257,23 @@ export function VideoEditorSheet({
                 </Chip>
               ))}
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-zinc-600">Empty = all belts (shared, leads the shelf). Choose belts to limit who sees this lesson — content climbs White to Black, so keep shared syllabus lessons unrestricted.</p>
+            <p className="mt-2 text-xs leading-relaxed text-[color:var(--color-text-faint)]">Empty = all belts (shared, leads the shelf). Choose belts to limit who sees this lesson — content climbs White to Black, so keep shared syllabus lessons unrestricted.</p>
           </div>
 
-          <div className="grid gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-            <label className="flex items-center justify-between gap-3 text-sm text-zinc-400">
+          <div className="grid gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+            <label className="flex items-center justify-between gap-3 text-sm text-[color:var(--color-text-dim)]">
               <span>Published</span>
-              <input type="checkbox" checked={draft.isPublished} onChange={(event) => onChange({ isPublished: event.target.checked })} className="h-4 w-4 accent-white" />
+              <input type="checkbox" checked={draft.isPublished} onChange={(event) => onChange({ isPublished: event.target.checked })} className="h-4 w-4 accent-[color:var(--color-accent)]" />
             </label>
-            <label className="flex items-center justify-between gap-3 text-sm text-zinc-400">
+            <label className="flex items-center justify-between gap-3 text-sm text-[color:var(--color-text-dim)]">
               <span>Technique Library</span>
-              <input type="checkbox" checked={draft.showInTechniques} onChange={(event) => onChange({ showInTechniques: event.target.checked })} className="h-4 w-4 accent-white" />
+              <input type="checkbox" checked={draft.showInTechniques} onChange={(event) => onChange({ showInTechniques: event.target.checked })} className="h-4 w-4 accent-[color:var(--color-accent)]" />
             </label>
           </div>
 
-          <div className="rounded-lg border border-zinc-800 bg-black/30 p-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Ready-to-publish checklist</p>
-            <div className="mt-2 grid gap-1.5 text-xs text-zinc-400">
+          <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">Ready-to-publish checklist</p>
+            <div className="mt-2 grid gap-1.5 text-xs text-[color:var(--color-text-dim)]">
               <p>{draft.title.trim() ? "✓" : "○"} Lesson title</p>
               <p>{draft.youtubeId ? "✓" : "○"} Valid YouTube link</p>
               <p>{draftFolder ? "✓" : "○"} Practice folder</p>

@@ -9,8 +9,8 @@ export function Chip({ selected, children, onClick }: { selected: boolean; child
       onClick={onClick}
       className={`min-h-10 rounded-lg border px-3 text-sm font-semibold transition-colors ${
         selected
-          ? "border-white bg-white text-black"
-          : "border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700 hover:text-white"
+          ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
+          : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
       }`}
     >
       {children}

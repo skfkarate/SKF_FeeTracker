@@ -48,7 +48,7 @@ export default function MoneyPreviewPage() {
           title: "Money",
           monthLabel: "Oct 2026",
           backHref: "/dashboard",
-          bell: <span className="font-mono text-[11px] text-zinc-400">12</span>,
+          bell: <span className="font-mono text-[11px] text-[color:var(--color-text-dim)]">12</span>,
         }}
         mainClassName="py-6"
       >
@@ -59,9 +59,9 @@ export default function MoneyPreviewPage() {
             <section className="hud-panel mt-3 p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="eyebrow text-zinc-400">Available now</p>
-                  <p className="numeric mt-3 text-[40px] leading-none text-white">3,42,500</p>
-                  <p className="mt-3 text-xs text-zinc-500">Opening reserve included · cash basis</p>
+                  <p className="eyebrow text-[color:var(--color-text-dim)]">Available now</p>
+                  <p className="numeric mt-3 text-[40px] leading-none text-[color:var(--color-text)]">3,42,500</p>
+                  <p className="mt-3 text-xs text-[color:var(--color-text-dim)]">Opening reserve included · cash basis</p>
                 </div>
                 <MeterRing value={72} caption="of target" tone="settled" />
               </div>
@@ -80,8 +80,8 @@ export default function MoneyPreviewPage() {
         {section === "activity" ? (
           <section className="hud-panel mt-3 p-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-[15px] font-semibold text-white">October activity</h2>
-              <span className="eyebrow text-zinc-500">Cash basis</span>
+              <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">October activity</h2>
+              <span className="eyebrow text-[color:var(--color-text-dim)]">Cash basis</span>
             </div>
             <div className="mt-3 space-y-2">
               {ACTIVITY.map((row, index) => (
@@ -92,7 +92,7 @@ export default function MoneyPreviewPage() {
                   title={row.title}
                   idLabel={row.idLabel}
                   amount={
-                    <span className={row.prefix === "-" ? "text-red-400" : "text-emerald-400"}>
+                    <span className={row.prefix === "-" ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text-dim)]"}>
                       {row.prefix}{row.amount}
                     </span>
                   }
@@ -108,11 +108,11 @@ export default function MoneyPreviewPage() {
           <section className="hud-panel mt-3 p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-zinc-400">Development fund</p>
-                <p className="numeric mt-3 text-[40px] leading-none text-white">1,50,000</p>
-                <p className="mt-3 text-xs text-zinc-500">Target 3,00,000 · 45% collected</p>
+                <p className="eyebrow text-[color:var(--color-text-dim)]">Development fund</p>
+                <p className="numeric mt-3 text-[40px] leading-none text-[color:var(--color-text)]">1,50,000</p>
+                <p className="mt-3 text-xs text-[color:var(--color-text-dim)]">Target 3,00,000 · 45% collected</p>
               </div>
-              <BadgeCheck className="h-6 w-6 text-emerald-400" aria-hidden="true" />
+              <BadgeCheck className="h-6 w-6 text-[color:var(--color-text-dim)]" aria-hidden="true" />
             </div>
             <MeterBar value={45} label="Development fund" className="mt-5" tone="settled" />
           </section>
@@ -125,11 +125,11 @@ export default function MoneyPreviewPage() {
         onClose={() => setActive(null)}
       >
         <div className="space-y-4 pt-1">
-          <p className="numeric text-[28px] leading-none text-white">
+          <p className="numeric text-[28px] leading-none text-[color:var(--color-text)]">
             {active?.prefix}{active?.amount}
           </p>
-          <p className="font-mono text-[11px] text-zinc-500">{active?.idLabel}</p>
-          <p className="text-[13px] text-zinc-400">Stored amount is authoritative. No recalculation.</p>
+          <p className="font-mono text-[11px] text-[color:var(--color-text-dim)]">{active?.idLabel}</p>
+          <p className="text-[13px] text-[color:var(--color-text-dim)]">Stored amount is authoritative. No recalculation.</p>
         </div>
       </Sheet>
     </>

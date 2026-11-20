@@ -159,7 +159,7 @@ export default function DashboardPage() {
         </header>
 
         {dashboardError ? (
-          <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-overdue)]/30 bg-[color:var(--color-overdue)]/10 p-4 text-sm text-[color:var(--color-text)]">
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue-dim)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-overdue)]" />
             <div className="min-w-0">
               <p className="font-semibold">Dashboard stats are waiting for the SKF-Karate backend.</p>

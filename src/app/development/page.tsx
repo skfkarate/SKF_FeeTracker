@@ -47,7 +47,7 @@ const SCOPE_OPTIONS = [
 ];
 
 function balanceTextClass(amount: number) {
-  return amount < 0 ? "text-red-400" : "text-green-400";
+  return amount < 0 ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text-dim)]";
 }
 
 function formatCurrency(amount: number) {
@@ -278,13 +278,13 @@ export default function DevelopmentFundPage() {
   const getScopeBadgeColor = (scope: string): string => {
     switch (scope) {
       case "Herohalli":
-        return "bg-red-600/20 text-red-400 border-red-600/50";
+        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-overdue-border)]";
       case "MPSC":
-        return "bg-blue-600/20 text-blue-400 border-blue-600/50";
+        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-accent-border)]";
       case "Both":
-        return "bg-green-600/20 text-green-400 border-green-600/50";
+        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)]";
       default:
-        return "bg-yellow-600/20 text-yellow-500 border-yellow-600/50";
+        return "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-due-border)]";
     }
   };
 
@@ -306,21 +306,21 @@ export default function DevelopmentFundPage() {
       <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24">
         {/* View Toggle & Month Selection */}
         <div className="mb-6 space-y-4">
-          <div className="flex p-1 bg-black/20 rounded-xl w-full max-w-md mx-auto border border-white/5">
+          <div className="flex p-1 bg-[color:var(--color-well)] rounded-xl w-full max-w-md mx-auto border border-[color:var(--color-hairline)]">
             <button
               onClick={() => setFilter("all")}
-              className={`flex-1 py-2 rounded-lg text-sm font-[family-name:var(--font-space)] tracking-wider transition-all duration-300 ${filter === "all"
-                ? "bg-[var(--surface)] text-white shadow-lg border border-white/10"
-                : "text-[var(--text-muted)] hover:text-white"
+              className={`flex-1 py-2 rounded-lg text-sm font-sans tracking-wider transition-all duration-300 ${filter === "all"
+                ? "bg-[var(--surface)] text-[color:var(--color-text)] shadow-lg border border-[color:var(--color-hairline)]"
+                : "text-[var(--text-muted)] hover:text-[color:var(--color-text)]"
                 }`}
             >
               OVERVIEW (ALL)
             </button>
             <button
               onClick={() => setFilter(new Date().getMonth())}
-              className={`flex-1 py-2 rounded-lg text-sm font-[family-name:var(--font-space)] tracking-wider transition-all duration-300 ${filter !== "all"
-                ? "bg-[var(--surface)] text-white shadow-lg border border-white/10"
-                : "text-[var(--text-muted)] hover:text-white"
+              className={`flex-1 py-2 rounded-lg text-sm font-sans tracking-wider transition-all duration-300 ${filter !== "all"
+                ? "bg-[var(--surface)] text-[color:var(--color-text)] shadow-lg border border-[color:var(--color-hairline)]"
+                : "text-[var(--text-muted)] hover:text-[color:var(--color-text)]"
                 }`}
             >
               MONTHLY VIEW
@@ -350,7 +350,7 @@ export default function DevelopmentFundPage() {
         {/* Error */}
         {error && (
           <div className="text-center py-16">
-            <p className="text-red-400 mb-4 text-sm">{error}</p>
+            <p className="text-[color:var(--color-text-dim)] mb-4 text-sm">{error}</p>
             <button onClick={loadData} className="btn-primary text-sm">
               Retry
             </button>
@@ -363,55 +363,55 @@ export default function DevelopmentFundPage() {
             {/* Summary Cards */}
             <section className="card-panel p-6 mb-6">
               <div className="flex items-center gap-2 mb-6">
-                <PiggyBank className="w-5 h-5 text-blue-400" />
-                <h2 className="text-white text-lg font-medium tracking-wide">Fund Overview</h2>
+                <PiggyBank className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                <h2 className="text-[color:var(--color-text)] text-lg font-medium tracking-wide">Fund Overview</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 animate-fade-in">
-                <div className="bg-zinc-900/50 border border-blue-500/20 rounded-xl p-5 relative overflow-hidden">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-accent-border)] rounded-xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-2 opacity-10">
-                    <PiggyBank className="w-12 h-12 text-blue-400" />
+                    <PiggyBank className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                   </div>
-                  <p className="text-zinc-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
                     <PiggyBank className="w-3 h-3" /> Total Fund (30%)
                   </p>
-                  <p className="font-[family-name:var(--font-space)] text-xl sm:text-2xl text-blue-400 mt-2">
+                  <p className="font-sans text-xl sm:text-2xl text-[color:var(--color-text-dim)] mt-2">
                     ₹{filteredStats.allocated.toLocaleString()}
                   </p>
-                  <p className="text-[10px] text-zinc-500 mt-1 opacity-70">
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] mt-1 opacity-70">
                     From fees, admission and dress profit
                   </p>
                 </div>
-                <div className="bg-zinc-900/50 border border-amber-500/20 rounded-xl p-5 relative overflow-hidden">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-due-border)] rounded-xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-2 opacity-10">
-                    <Package className="w-12 h-12 text-amber-400" />
+                    <Package className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                   </div>
-                  <p className="text-zinc-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
                     <Package className="w-3 h-3" /> Total Spent
                   </p>
-                  <p className="font-[family-name:var(--font-space)] text-xl sm:text-2xl text-amber-400 mt-2">
+                  <p className="font-sans text-xl sm:text-2xl text-[color:var(--color-text-dim)] mt-2">
                     ₹{filteredStats.spent.toLocaleString()}
                   </p>
-                  <p className="text-[10px] text-zinc-500 mt-1 opacity-70">
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] mt-1 opacity-70">
                     {filter === "all" ? "Across all months" : "Selected month"}
                   </p>
                 </div>
-                <div className="bg-zinc-900/50 border border-green-500/20 rounded-xl p-5 relative overflow-hidden">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-paid-border)] rounded-xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-2 opacity-10">
-                    <TrendingUp className="w-12 h-12 text-green-400" />
+                    <TrendingUp className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                   </div>
-                  <p className="text-zinc-500 text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" /> Running Balance
                   </p>
-                  <p className={`font-[family-name:var(--font-space)] text-xl sm:text-2xl mt-2 ${balanceTextClass(filteredStats.balance)}`}>
+                  <p className={`font-sans text-xl sm:text-2xl mt-2 ${balanceTextClass(filteredStats.balance)}`}>
                     {formatCurrency(filteredStats.balance)}
                   </p>
                   {filter === "all" && data?.reserveUsed && data.reserveUsed > 0 && (
-                    <div className="flex items-center gap-1.5 mt-1 text-[10px] text-amber-400/90 font-medium animate-pulse">
+                    <div className="flex items-center gap-1.5 mt-1 text-[10px] text-[color:var(--color-text-dim)] font-medium animate-pulse">
                       <Zap className="w-3 h-3" />
                       <span>Includes ₹{data.reserveUsed.toLocaleString()} Reserve</span>
                     </div>
                   )}
-                  <p className="text-[10px] text-zinc-500 mt-1 opacity-70">
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] mt-1 opacity-70">
                     {filter === "all" ? "End of year-to-date position" : `After ${MONTHS[filter]}`}
                   </p>
                 </div>
@@ -422,14 +422,14 @@ export default function DevelopmentFundPage() {
             {filter === "all" && (
               <section className="card-panel p-6 mb-6 animate-fade-in" style={{ animationDelay: "100ms" }}>
                 <div className="flex items-center gap-2 mb-6">
-                  <TrendingUp className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-white text-lg font-medium tracking-wide">Monthly Breakdown</h2>
+                  <TrendingUp className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                  <h2 className="text-[color:var(--color-text)] text-lg font-medium tracking-wide">Monthly Breakdown</h2>
                 </div>
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl overflow-hidden">
                   <div className="overflow-x-auto scrollbar-hide">
                     <table className="w-full text-sm min-w-[600px]">
                       <thead>
-                        <tr className="border-b border-zinc-800 text-zinc-500 text-[10px] uppercase tracking-wider bg-zinc-900/30">
+                        <tr className="border-b border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-wider bg-[color:var(--color-well)]">
                           <th className="text-left p-4">Month</th>
                           <th className="text-right p-4">Income</th>
                           <th className="text-right p-4">30% Fund</th>
@@ -441,18 +441,18 @@ export default function DevelopmentFundPage() {
                         {monthlyTimeline.map((m) => (
                             <tr
                               key={m.month}
-                              className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors"
+                              className="border-b border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] transition-colors"
                             >
-                              <td className="p-4 font-[family-name:var(--font-space)] tracking-wider text-sm text-zinc-300">
+                              <td className="p-4 font-sans tracking-wider text-sm text-[color:var(--color-text)]">
                                 {MONTHS[m.month]}
                               </td>
-                              <td className="p-4 text-right text-zinc-400">
+                              <td className="p-4 text-right text-[color:var(--color-text-dim)]">
                                 ₹{m.collected.toLocaleString()}
                               </td>
-                              <td className="p-4 text-right text-blue-400 font-medium">
+                              <td className="p-4 text-right text-[color:var(--color-text-dim)] font-medium">
                                 ₹{m.devFund.toLocaleString()}
                               </td>
-                              <td className="p-4 text-right text-amber-400 font-medium">
+                              <td className="p-4 text-right text-[color:var(--color-text-dim)] font-medium">
                                 {m.spent > 0
                                   ? `₹${m.spent.toLocaleString()}`
                                   : "-"}
@@ -466,7 +466,7 @@ export default function DevelopmentFundPage() {
                             <tr>
                               <td
                                 colSpan={5}
-                                className="p-8 text-center text-zinc-500 text-sm"
+                                className="p-8 text-center text-[color:var(--color-text-dim)] text-sm"
                               >
                                 No income or expenses recorded yet
                               </td>
@@ -483,21 +483,21 @@ export default function DevelopmentFundPage() {
             <section className="card-panel p-6 animate-fade-in" style={{ animationDelay: "200ms" }}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-2">
-                  <Package className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-white text-lg font-medium tracking-wide">
-                    Expenses <span className="text-zinc-500 font-normal text-sm ml-1">{filter !== "all" ? `(${MONTHS[filter]})` : `(${feeYear})`}</span>
+                  <Package className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                  <h2 className="text-[color:var(--color-text)] text-lg font-medium tracking-wide">
+                    Expenses <span className="text-[color:var(--color-text-dim)] font-normal text-sm ml-1">{filter !== "all" ? `(${MONTHS[filter]})` : `(${feeYear})`}</span>
                   </h2>
                 </div>
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="px-4 py-2.5 text-sm rounded-lg border border-green-600/30 bg-green-600/10 text-green-400 hover:bg-green-600 hover:text-white transition-all duration-200 font-medium tracking-wide w-full sm:w-auto text-center"
+                  className="px-4 py-2.5 text-sm rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-paid)] hover:text-[color:var(--color-text)] transition-all duration-200 font-medium tracking-wide w-full sm:w-auto text-center"
                 >
                   + Add Expense
                 </button>
               </div>
               <div className="space-y-3">
                 {filteredExpenses.length === 0 ? (
-                  <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 text-center text-zinc-500 text-sm">
+                  <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-8 text-center text-[color:var(--color-text-dim)] text-sm">
                     No expenses recorded for this period
                   </div>
                 ) : (
@@ -505,12 +505,12 @@ export default function DevelopmentFundPage() {
                       <div
                         key={expense.id}
                         onClick={() => setSelectedExpense(expense)}
-                        className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 cursor-pointer hover:border-red-600/30 hover:bg-zinc-800/50 transition-all duration-200"
+                        className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-4 cursor-pointer hover:border-[color:var(--color-overdue-border)] hover:bg-[color:var(--color-well)] transition-all duration-200"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col items-start gap-1.5 mb-1.5">
-                              <p className="font-[family-name:var(--font-space)] tracking-wide text-sm text-zinc-200 leading-snug">
+                              <p className="font-sans tracking-wide text-sm text-[color:var(--color-text)] leading-snug">
                                 {expense.title || expense.description}
                               </p>
                               <span
@@ -519,12 +519,12 @@ export default function DevelopmentFundPage() {
                                 {getScopeLabel(expense.scope || "Both")}
                               </span>
                             </div>
-                            <p className="text-zinc-500 text-xs">
+                            <p className="text-[color:var(--color-text-dim)] text-xs">
                               {MONTHS[expense.month]} {expense.year} •{" "}
                               {expense.dateAdded}
                             </p>
                           </div>
-                          <p className="font-[family-name:var(--font-space)] text-base sm:text-lg text-amber-400 ml-4">
+                          <p className="font-sans text-base sm:text-lg text-[color:var(--color-text-dim)] ml-4">
                             -₹{expense.amount.toLocaleString()}
                           </p>
                         </div>
@@ -545,12 +545,12 @@ export default function DevelopmentFundPage() {
           <div className="glass-modal !max-w-md max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider">
+                <h2 className="font-sans text-xl tracking-wider">
                   ADD EXPENSE
                 </h2>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="text-[var(--text-muted)] hover:text-white transition-colors"
+                  className="text-[var(--text-muted)] hover:text-[color:var(--color-text)] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -594,7 +594,7 @@ export default function DevelopmentFundPage() {
                         })
                       }
                       placeholder="Enter custom scope..."
-                      className="input-field border-amber-500/30 focus:border-amber-500"
+                      className="input-field border-[color:var(--color-due-border)] focus:border-[color:var(--color-due-border)]"
                       autoFocus
                     />
                   </div>
@@ -680,13 +680,13 @@ export default function DevelopmentFundPage() {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-sm"
+                  className="btn-ghost flex-1 font-sans tracking-wider text-sm"
                 >
                   CANCEL
                 </button>
                 <button
                   onClick={handleAddExpenseClick}
-                  className="flex-1 py-3 bg-green-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-green-500 transition-colors"
+                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors"
                 >
                   REVIEW & SAVE
                 </button>
@@ -702,8 +702,8 @@ export default function DevelopmentFundPage() {
           <div className="glass-modal !max-w-md" style={{ borderColor: "rgba(245, 158, 11, 0.3)" }}>
             <div className="p-6">
               <div className="flex items-center gap-3 mb-6">
-                <AlertTriangle className="w-5 h-5 text-amber-400" />
-                <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider">
+                <AlertTriangle className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                <h2 className="font-sans text-xl tracking-wider">
                   CONFIRM EXPENSE
                 </h2>
               </div>
@@ -715,7 +715,7 @@ export default function DevelopmentFundPage() {
               <div className="glass-surface p-4 space-y-3 mb-6 rounded-lg">
                 <div>
                   <p className="text-[var(--text-muted)] text-[10px] uppercase">Scope</p>
-                  <p className="text-white text-sm">
+                  <p className="text-[color:var(--color-text)] text-sm">
                     {newExpense.scope === "Others"
                       ? newExpense.scopeOther
                       : getScopeLabel(newExpense.scope)}
@@ -723,19 +723,19 @@ export default function DevelopmentFundPage() {
                 </div>
                 <div>
                   <p className="text-[var(--text-muted)] text-[10px] uppercase">Month</p>
-                  <p className="text-white text-sm">{MONTHS[newExpense.month]} {feeYear}</p>
+                  <p className="text-[color:var(--color-text)] text-sm">{MONTHS[newExpense.month]} {feeYear}</p>
                 </div>
                 <div>
                   <p className="text-[var(--text-muted)] text-[10px] uppercase">Title</p>
-                  <p className="text-white text-sm">{newExpense.title}</p>
+                  <p className="text-[color:var(--color-text)] text-sm">{newExpense.title}</p>
                 </div>
                 <div>
                   <p className="text-[var(--text-muted)] text-[10px] uppercase">Description</p>
-                  <p className="text-white text-sm">{newExpense.description}</p>
+                  <p className="text-[color:var(--color-text)] text-sm">{newExpense.description}</p>
                 </div>
                 <div>
                   <p className="text-[var(--text-muted)] text-[10px] uppercase">Amount</p>
-                  <p className="text-amber-400 font-[family-name:var(--font-space)] text-xl">
+                  <p className="text-[color:var(--color-text-dim)] font-sans text-xl">
                     ₹{newExpense.amount.toLocaleString()}
                   </p>
                 </div>
@@ -745,14 +745,14 @@ export default function DevelopmentFundPage() {
                 <button
                   onClick={() => setShowConfirmModal(false)}
                   disabled={adding}
-                  className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-sm disabled:opacity-50"
+                  className="btn-ghost flex-1 font-sans tracking-wider text-sm disabled:opacity-50"
                 >
                   GO BACK
                 </button>
                 <button
                   onClick={handleConfirmSave}
                   disabled={adding}
-                  className="flex-1 py-3 bg-green-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-green-500 transition-colors disabled:opacity-50"
+                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors disabled:opacity-50"
                 >
                   {adding ? (
                     "SAVING..."
@@ -774,12 +774,12 @@ export default function DevelopmentFundPage() {
           <div className="glass-modal !max-w-md">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider">
+                <h2 className="font-sans text-xl tracking-wider">
                   EXPENSE DETAILS
                 </h2>
                 <button
                   onClick={() => setSelectedExpense(null)}
-                  className="text-[var(--text-muted)] hover:text-white transition-colors"
+                  className="text-[var(--text-muted)] hover:text-[color:var(--color-text)] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -799,7 +799,7 @@ export default function DevelopmentFundPage() {
 
                 <div>
                   <p className="text-[var(--text-muted)] text-[10px] uppercase mb-1">Title</p>
-                  <p className="font-[family-name:var(--font-space)] text-lg tracking-wide">
+                  <p className="font-sans text-lg tracking-wide">
                     {selectedExpense.title || selectedExpense.description}
                   </p>
                 </div>
@@ -816,7 +816,7 @@ export default function DevelopmentFundPage() {
 
                 <div>
                   <p className="text-[var(--text-muted)] text-[10px] uppercase mb-1">Amount</p>
-                  <p className="font-[family-name:var(--font-space)] text-2xl text-amber-400">
+                  <p className="font-sans text-2xl text-[color:var(--color-text-dim)]">
                     ₹{selectedExpense.amount.toLocaleString()}
                   </p>
                 </div>
@@ -839,7 +839,7 @@ export default function DevelopmentFundPage() {
                   <button
                     onClick={handleDeleteExpense}
                     disabled={deleting}
-                    className="w-full py-3 bg-red-600/20 border border-red-600/50 text-red-400 rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-red-600 hover:text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-[color:var(--color-well)] border border-[color:var(--color-overdue-border)] text-[color:var(--color-text-dim)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-overdue)] hover:text-[color:var(--color-text)] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" />
                     {deleting ? "DELETING..." : "DELETE EXPENSE"}

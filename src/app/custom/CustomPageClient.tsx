@@ -151,8 +151,8 @@ function statusLabel(status: string) {
 }
 
 function balanceClass(amount: number | null) {
-  if (amount === null) return "text-zinc-300";
-  return amount < 0 ? "text-red-400" : "text-emerald-400";
+  if (amount === null) return "text-[color:var(--color-text)]";
+  return amount < 0 ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text-dim)]";
 }
 
 export default function CustomPageClient() {
@@ -527,21 +527,21 @@ export default function CustomPageClient() {
                     setStudents([]);
                     setSelectedStudent(null);
                   }}
-                  className="tap-target appearance-none rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] pl-3 pr-8 font-mono text-[11px] text-white outline-none transition-colors focus:border-white/40"
+                  className="tap-target appearance-none rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] pl-3 pr-8 font-mono text-[11px] text-[color:var(--color-text)] outline-none transition-colors focus:border-[color:var(--color-hairline)]"
                   aria-label="Fee year"
                 >
                   {yearOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-500" />
+                <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-[color:var(--color-text-dim)]" />
               </div>
               <button
                 type="button"
                 onClick={() => void loadData(true)}
                 disabled={refreshing}
                 aria-label="Refresh custom operations"
-                className="tap-target grid place-items-center rounded-full border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-zinc-300 transition-colors hover:text-white disabled:opacity-50"
+                className="tap-target grid place-items-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] transition-colors hover:text-[color:var(--color-text)] disabled:opacity-50"
               >
                 {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               </button>
@@ -551,21 +551,21 @@ export default function CustomPageClient() {
           account: <AccountMenu />,
         }}
       >
-        <p className="mb-6 max-w-xl text-[13px] leading-relaxed text-zinc-500">
+        <p className="mb-6 max-w-xl text-[13px] leading-relaxed text-[color:var(--color-text-dim)]">
           Every custom due and money-out entry for the year on one screen. No month switching.
         </p>
 
           {error ? (
-            <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-100">
+            <div className="mb-6 flex items-start gap-3 rounded-xl border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
               <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <div className="flex-1">
                 <p className="font-semibold">Could not load custom operations.</p>
-                <p className="mt-1 text-red-100/75">{error}</p>
+                <p className="mt-1 text-[color:var(--color-text)]">{error}</p>
               </div>
               <button
                 type="button"
                 onClick={() => void loadData(false)}
-                className="rounded-lg border border-red-400/30 px-3 py-2 text-xs font-semibold text-red-100 transition-colors hover:bg-red-500/20"
+                className="rounded-lg border border-[color:var(--color-overdue-border)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] transition-colors hover:bg-[color:var(--color-well)]"
               >
                 Retry
               </button>
@@ -576,10 +576,10 @@ export default function CustomPageClient() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="card-panel h-28 animate-pulse bg-zinc-900/80" />
+                  <div key={index} className="card-panel h-28 animate-pulse bg-[color:var(--color-well)]" />
                 ))}
               </div>
-              <div className="card-panel h-72 animate-pulse bg-zinc-900/80" />
+              <div className="card-panel h-72 animate-pulse bg-[color:var(--color-well)]" />
             </div>
           ) : data ? (
             <>
@@ -629,39 +629,39 @@ export default function CustomPageClient() {
                 <button
                   type="button"
                   onClick={openDueSheet}
-                  className="group flex min-h-16 items-center justify-between rounded-xl border border-amber-500/25 bg-amber-500/[0.07] px-5 text-left transition-colors hover:border-amber-400/50 hover:bg-amber-500/10"
+                  className="group flex min-h-16 items-center justify-between rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-due-dim)] px-5 text-left transition-colors hover:border-[color:var(--color-due-border)] hover:bg-[color:var(--color-well)]"
                 >
                   <span className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/15 text-amber-300">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-well)] text-[color:var(--color-text)]">
                       <HandCoins className="h-5 w-5" />
                     </span>
                     <span>
-                      <span className="block text-sm font-semibold text-white">Add student due</span>
-                      <span className="mt-0.5 block text-xs text-zinc-500">One-off fee for a student</span>
+                      <span className="block text-sm font-semibold text-[color:var(--color-text)]">Add student due</span>
+                      <span className="mt-0.5 block text-xs text-[color:var(--color-text-dim)]">One-off fee for a student</span>
                     </span>
                   </span>
-                  <Plus className="h-5 w-5 text-amber-300 transition-transform group-hover:scale-110" />
+                  <Plus className="h-5 w-5 text-[color:var(--color-text)] transition-transform group-hover:scale-110" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSheet("out")}
-                  className="group flex min-h-16 items-center justify-between rounded-xl border border-red-500/25 bg-red-500/[0.07] px-5 text-left transition-colors hover:border-red-400/50 hover:bg-red-500/10"
+                  className="group flex min-h-16 items-center justify-between rounded-xl border border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue-dim)] px-5 text-left transition-colors hover:border-[color:var(--color-overdue-border)] hover:bg-[color:var(--color-well)]"
                 >
                   <span className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/15 text-red-300">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-well)] text-[color:var(--color-text)]">
                       <MinusCircle className="h-5 w-5" />
                     </span>
                     <span>
-                      <span className="block text-sm font-semibold text-white">Record money out</span>
-                      <span className="mt-0.5 block text-xs text-zinc-500">Withdrawal from master ledger</span>
+                      <span className="block text-sm font-semibold text-[color:var(--color-text)]">Record money out</span>
+                      <span className="mt-0.5 block text-xs text-[color:var(--color-text-dim)]">Withdrawal from master ledger</span>
                     </span>
                   </span>
-                  <Plus className="h-5 w-5 text-red-300 transition-transform group-hover:scale-110" />
+                  <Plus className="h-5 w-5 text-[color:var(--color-text)] transition-transform group-hover:scale-110" />
                 </button>
               </section>
               ) : (
-                <div className="mb-7 flex items-center gap-3 rounded-xl border border-dashed border-zinc-800 bg-zinc-950/40 p-4 text-sm text-zinc-500">
+                <div className="mb-7 flex items-center gap-3 rounded-xl border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text-dim)]">
                   <AlertCircle className="h-4 w-4 flex-shrink-0" />
                   Read-only access. Ask an admin to add dues or record money out.
                 </div>
@@ -671,49 +671,49 @@ export default function CustomPageClient() {
                 <section className="card-panel mb-7 p-4 sm:p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Balance math</p>
-                      <h2 className="mt-1 text-sm font-semibold text-white">January–December {year}</h2>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">Balance math</p>
+                      <h2 className="mt-1 text-sm font-semibold text-[color:var(--color-text)]">January–December {year}</h2>
                     </div>
-                    <span className="font-mono text-xs text-zinc-500">
+                    <span className="font-mono text-xs text-[color:var(--color-text-dim)]">
                       {formatCurrency(balanceMath.computed)} = ledger balance
                     </span>
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-5">
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Opening reserve</p>
-                      <p className="mt-1 font-mono text-sm font-semibold text-zinc-200">{formatCurrency(data.balance.reserveAmount)}</p>
+                    <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--color-text-dim)]">Opening reserve</p>
+                      <p className="mt-1 font-mono text-sm font-semibold text-[color:var(--color-text)]">{formatCurrency(data.balance.reserveAmount)}</p>
                     </div>
-                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.05] px-3 py-2.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/70">+ Income</p>
-                      <p className="mt-1 font-mono text-sm font-semibold text-emerald-300">{formatCurrency(balanceMath.income)}</p>
+                    <div className="rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-paid-dim)] px-3 py-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--color-text)]">+ Income</p>
+                      <p className="mt-1 font-mono text-sm font-semibold text-[color:var(--color-text)]">{formatCurrency(balanceMath.income)}</p>
                     </div>
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">− Other expenses</p>
-                      <p className="mt-1 font-mono text-sm font-semibold text-zinc-200">{formatCurrency(balanceMath.otherExpenses)}</p>
+                    <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--color-text-dim)]">− Other expenses</p>
+                      <p className="mt-1 font-mono text-sm font-semibold text-[color:var(--color-text)]">{formatCurrency(balanceMath.otherExpenses)}</p>
                     </div>
-                    <div className="rounded-lg border border-red-500/20 bg-red-500/[0.05] px-3 py-2.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-red-300/70">− Money out</p>
-                      <p className="mt-1 font-mono text-sm font-semibold text-red-300">{formatCurrency(data.totals.moneyOut)}</p>
+                    <div className="rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue-dim)] px-3 py-2.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--color-text)]">− Money out</p>
+                      <p className="mt-1 font-mono text-sm font-semibold text-[color:var(--color-text)]">{formatCurrency(data.totals.moneyOut)}</p>
                     </div>
-                    <div className="col-span-2 rounded-lg border border-white/15 bg-white/[0.05] px-3 py-2.5 sm:col-span-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">= Available</p>
+                    <div className="col-span-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-accent-dim)] px-3 py-2.5 sm:col-span-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--color-text-dim)]">= Available</p>
                       <p className={`mt-1 font-mono text-sm font-semibold ${balanceClass(availableBalance)}`}>{formatCurrency(balanceMath.computed)}</p>
                     </div>
                   </div>
 
-                  <p className="mt-3 text-xs leading-relaxed text-zinc-600">
+                  <p className="mt-3 text-xs leading-relaxed text-[color:var(--color-text-faint)]">
                     Money out includes transfers to savings, FDs, and investments. It is still cash leaving the master ledger, so it reduces the available balance.
                   </p>
                 </section>
               ) : null}
 
               <section className="card-panel overflow-hidden">
-                <div className="border-b border-zinc-800 p-4 sm:p-5">
+                <div className="border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Year activity</p>
-                      <h2 className="mt-1 text-lg font-semibold text-white">{year} at a glance</h2>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">Year activity</p>
+                      <h2 className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">{year} at a glance</h2>
                     </div>
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -726,7 +726,7 @@ export default function CustomPageClient() {
                       />
 
                       <div className="relative min-w-0 sm:w-56">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
                         <input
                           value={search}
                           onChange={(event) => setSearch(event.target.value)}
@@ -740,40 +740,40 @@ export default function CustomPageClient() {
 
                 {activityGroups.length === 0 ? (
                   <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-zinc-800 bg-black text-zinc-500">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
                       <CalendarDays className="h-5 w-5" />
                     </div>
-                    <h3 className="text-base font-semibold text-white">Nothing recorded yet</h3>
-                    <p className="mt-2 max-w-xs text-sm text-zinc-500">
+                    <h3 className="text-base font-semibold text-[color:var(--color-text)]">Nothing recorded yet</h3>
+                    <p className="mt-2 max-w-xs text-sm text-[color:var(--color-text-dim)]">
                       Add a student due or record money out to start the year ledger.
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-zinc-800/80">
+                  <div className="divide-y divide-[color:var(--color-hairline)]">
                     {activityGroups.map((group) => (
                       <div key={group.month}>
-                        <div className="flex flex-wrap items-center justify-between gap-2 bg-zinc-950/60 px-4 py-3 sm:px-5">
+                        <div className="flex flex-wrap items-center justify-between gap-2 bg-[color:var(--color-well)] px-4 py-3 sm:px-5">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-white">{MONTHS_FULL[group.month]}</span>
-                            <span className="rounded-md border border-zinc-800 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                            <span className="text-sm font-semibold text-[color:var(--color-text)]">{MONTHS_FULL[group.month]}</span>
+                            <span className="rounded-md border border-[color:var(--color-hairline)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[color:var(--color-text-dim)]">
                               {group.items.length} entr{group.items.length === 1 ? "y" : "ies"}
                             </span>
                           </div>
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                             {monthBalanceByIndex.get(group.month) ? (
-                              <span className="inline-flex items-center gap-1 rounded-md border border-zinc-700/70 bg-zinc-900/60 px-2 py-1 font-mono text-[11px] font-semibold text-zinc-300">
-                                <Wallet className="h-3 w-3 text-zinc-500" />
+                              <span className="inline-flex items-center gap-1 rounded-md border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 py-1 font-mono text-[11px] font-semibold text-[color:var(--color-text)]">
+                                <Wallet className="h-3 w-3 text-[color:var(--color-text-dim)]" />
                                 Close {formatCurrency(monthBalanceByIndex.get(group.month)?.balance ?? 0)}
                               </span>
                             ) : null}
                             {group.moneyOut > 0 ? (
-                              <span className="text-red-300">Out {formatCurrency(group.moneyOut)}</span>
+                              <span className="text-[color:var(--color-text)]">Out {formatCurrency(group.moneyOut)}</span>
                             ) : null}
                             {group.pendingDues > 0 ? (
-                              <span className="text-amber-300">Pending {formatCurrency(group.pendingDues)}</span>
+                              <span className="text-[color:var(--color-text)]">Pending {formatCurrency(group.pendingDues)}</span>
                             ) : null}
                             {group.paidDues > 0 ? (
-                              <span className="text-emerald-300">Paid {formatCurrency(group.paidDues)}</span>
+                              <span className="text-[color:var(--color-text)]">Paid {formatCurrency(group.paidDues)}</span>
                             ) : null}
                           </div>
                         </div>
@@ -798,10 +798,10 @@ export default function CustomPageClient() {
                                         : "due";
                             const amountColor =
                               item.kind === "removal"
-                                ? "text-red-400"
+                                ? "text-[color:var(--color-text-dim)]"
                                 : item.status === "paid"
-                                  ? "text-emerald-400"
-                                  : "text-amber-300";
+                                  ? "text-[color:var(--color-text-dim)]"
+                                  : "text-[color:var(--color-text)]";
                             const amountPrefix = item.kind === "removal" ? "-" : item.status === "paid" ? "+" : "";
 
                             return (
@@ -829,13 +829,13 @@ export default function CustomPageClient() {
                                           type="button"
                                           onClick={() => setDeleteTarget(item.removal || null)}
                                           aria-label="Delete removal"
-                                          className="tap-target grid place-items-center rounded-lg border border-zinc-800 text-zinc-600 transition-colors hover:border-red-500/30 hover:text-red-400"
+                                          className="tap-target grid place-items-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-faint)] transition-colors hover:border-[color:var(--color-overdue-border)] hover:text-[color:var(--color-text-dim)]"
                                         >
                                           <Trash2 className="h-4 w-4" />
                                         </button>
                                       ) : (
                                         <span
-                                          className="tap-target grid place-items-center text-zinc-700"
+                                          className="tap-target grid place-items-center text-[color:var(--color-text-faint)]"
                                           title="Removals older than 24 hours need an admin"
                                         >
                                           <Clock className="h-4 w-4" />
@@ -854,7 +854,7 @@ export default function CustomPageClient() {
                 )}
               </section>
 
-              <p className="mt-4 text-xs leading-relaxed text-zinc-600">
+              <p className="mt-4 text-xs leading-relaxed text-[color:var(--color-text-faint)]">
                 Balance rule: opening reserve + fee cash + other income − development expenses − event expenses − custom removals.
                 Moving money to savings or investments is still recorded as money out, so it reduces available cash.
               </p>
@@ -869,26 +869,26 @@ export default function CustomPageClient() {
         >
               {sheet === "out" ? (
                 <form onSubmit={handleSubmitOut} className="space-y-4">
-                  <div className={`rounded-xl border p-4 ${projectedBalance !== null && projectedBalance < 0 ? "border-red-500/30 bg-red-500/10" : "border-zinc-800 bg-zinc-950"}`}>
+                  <div className={`rounded-xl border p-4 ${projectedBalance !== null && projectedBalance < 0 ? "border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)]"}`}>
                     <div className="flex items-center justify-between gap-3 text-sm">
-                      <span className="text-zinc-400">Available now</span>
-                      <span className="font-mono font-semibold text-white">
+                      <span className="text-[color:var(--color-text-dim)]">Available now</span>
+                      <span className="font-mono font-semibold text-[color:var(--color-text)]">
                         {availableBalance === null ? "—" : formatCurrency(availableBalance)}
                       </span>
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-3 text-sm">
-                      <span className="text-zinc-400">After this entry</span>
+                      <span className="text-[color:var(--color-text-dim)]">After this entry</span>
                       <span className={`font-mono font-semibold ${balanceClass(projectedBalance)}`}>
                         {projectedBalance === null ? "—" : formatCurrency(projectedBalance)}
                       </span>
                     </div>
                     {projectedBalance !== null && projectedBalance < 0 ? (
-                      <p className="mt-2 text-xs text-red-200">This entry pushes the ledger below zero.</p>
+                      <p className="mt-2 text-xs text-[color:var(--color-text)]">This entry pushes the ledger below zero.</p>
                     ) : null}
                   </div>
 
                   <div>
-                    <label htmlFor="out-title" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                    <label htmlFor="out-title" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       Title
                     </label>
                     <input
@@ -903,7 +903,7 @@ export default function CustomPageClient() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="out-amount" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                      <label htmlFor="out-amount" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                         Amount
                       </label>
                       <input
@@ -916,7 +916,7 @@ export default function CustomPageClient() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="out-month" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                      <label htmlFor="out-month" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                         Month
                       </label>
                       <select
@@ -933,15 +933,15 @@ export default function CustomPageClient() {
                   </div>
 
                   {Number.isFinite(parsedOutAmount) && parsedOutAmount > 0 ? (
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-[color:var(--color-text-dim)]">
                       {formatCurrency(parsedOutAmount)} — {amountToIndianWords(parsedOutAmount)}
                     </p>
                   ) : (
-                    <p className="text-xs text-zinc-600">Smart amounts: 1.5k, 15k, 1.5l, 1,50,000.</p>
+                    <p className="text-xs text-[color:var(--color-text-faint)]">Smart amounts: 1.5k, 15k, 1.5l, 1,50,000.</p>
                   )}
 
                   <div>
-                    <label htmlFor="out-scope" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                    <label htmlFor="out-scope" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       Scope
                     </label>
                     <select
@@ -957,7 +957,7 @@ export default function CustomPageClient() {
                   </div>
 
                   <div>
-                    <label htmlFor="out-description" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                    <label htmlFor="out-description" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       Note
                     </label>
                     <textarea
@@ -985,32 +985,32 @@ export default function CustomPageClient() {
                 </form>
               ) : (
                 <form onSubmit={handleSubmitDue} className="space-y-4">
-                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-4">
+                  <div className="rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-due-dim)] p-4">
                     <div className="flex items-center justify-between gap-3 text-sm">
-                      <span className="text-amber-100/70">Pending dues now</span>
-                      <span className="font-mono font-semibold text-amber-100">
+                      <span className="text-[color:var(--color-text)]">Pending dues now</span>
+                      <span className="font-mono font-semibold text-[color:var(--color-text)]">
                         {formatCurrency(data?.totals.pendingDues ?? 0)}
                       </span>
                     </div>
                     {projectedPendingDues !== null ? (
                       <div className="mt-2 flex items-center justify-between gap-3 text-sm">
-                        <span className="text-amber-100/70">After this due</span>
-                        <span className="font-mono font-semibold text-amber-200">
+                        <span className="text-[color:var(--color-text)]">After this due</span>
+                        <span className="font-mono font-semibold text-[color:var(--color-text)]">
                           {formatCurrency(projectedPendingDues)}
                         </span>
                       </div>
                     ) : null}
-                    <p className="mt-2 text-xs leading-relaxed text-amber-100/60">
+                    <p className="mt-2 text-xs leading-relaxed text-[color:var(--color-text)]">
                       A custom due changes the available balance only after it is marked paid.
                     </p>
                   </div>
 
                   {selectedStudent ? (
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
+                    <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-white">{selectedStudent.name}</p>
-                          <p className="mt-1 font-mono text-xs text-zinc-500">
+                          <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{selectedStudent.name}</p>
+                          <p className="mt-1 font-mono text-xs text-[color:var(--color-text-dim)]">
                             {selectedStudent.id} • {selectedStudent.branchLabel}
                           </p>
                         </div>
@@ -1020,7 +1020,7 @@ export default function CustomPageClient() {
                             setSelectedStudent(null);
                             setStudentSearch("");
                           }}
-                          className="rounded-lg border border-zinc-800 px-3 py-2 text-xs font-semibold text-zinc-400 transition-colors hover:border-zinc-600 hover:text-white"
+                          className="rounded-lg border border-[color:var(--color-hairline)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text-dim)] transition-colors hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                         >
                           Change
                         </button>
@@ -1028,11 +1028,11 @@ export default function CustomPageClient() {
                     </div>
                   ) : (
                     <div>
-                      <label htmlFor="due-student" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                      <label htmlFor="due-student" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                         Student
                       </label>
                       <div className="relative">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
                         <input
                           id="due-student"
                           value={studentSearch}
@@ -1045,15 +1045,15 @@ export default function CustomPageClient() {
 
                       <div className="mt-3 max-h-56 space-y-2 overflow-y-auto">
                         {loadingStudents ? (
-                          <div className="flex h-20 items-center justify-center text-sm text-zinc-500">
+                          <div className="flex h-20 items-center justify-center text-sm text-[color:var(--color-text-dim)]">
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading students
                           </div>
                         ) : studentSearch.trim() && studentResults.length === 0 ? (
-                          <div className="rounded-lg border border-dashed border-zinc-800 px-4 py-6 text-center text-sm text-zinc-500">
+                          <div className="rounded-lg border border-dashed border-[color:var(--color-hairline)] px-4 py-6 text-center text-sm text-[color:var(--color-text-dim)]">
                             No student found.
                           </div>
                         ) : !studentSearch.trim() ? (
-                          <div className="rounded-lg border border-dashed border-zinc-800 px-4 py-6 text-center text-sm text-zinc-500">
+                          <div className="rounded-lg border border-dashed border-[color:var(--color-hairline)] px-4 py-6 text-center text-sm text-[color:var(--color-text-dim)]">
                             Type an SKF ID or student name.
                           </div>
                         ) : (
@@ -1065,14 +1065,14 @@ export default function CustomPageClient() {
                                 setSelectedStudent(student);
                                 setStudentSearch(student.id);
                               }}
-                              className="flex w-full items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2.5 text-left transition-colors hover:border-zinc-600 hover:bg-zinc-900"
+                              className="flex w-full items-center gap-3 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2.5 text-left transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
                             >
-                              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-zinc-800 text-zinc-500">
+                              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)]">
                                 <UserRound className="h-4 w-4" />
                               </span>
                               <span className="min-w-0 flex-1">
-                                <span className="block truncate text-sm font-semibold text-white">{student.name}</span>
-                                <span className="mt-0.5 block font-mono text-xs text-zinc-500">{student.id} • {student.branchLabel}</span>
+                                <span className="block truncate text-sm font-semibold text-[color:var(--color-text)]">{student.name}</span>
+                                <span className="mt-0.5 block font-mono text-xs text-[color:var(--color-text-dim)]">{student.id} • {student.branchLabel}</span>
                               </span>
                             </button>
                           ))
@@ -1082,7 +1082,7 @@ export default function CustomPageClient() {
                   )}
 
                   <div>
-                    <label htmlFor="due-title" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                    <label htmlFor="due-title" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       Title shown to student
                     </label>
                     <input
@@ -1097,7 +1097,7 @@ export default function CustomPageClient() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="due-amount" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                      <label htmlFor="due-amount" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                         Amount
                       </label>
                       <input
@@ -1110,7 +1110,7 @@ export default function CustomPageClient() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="due-month" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                      <label htmlFor="due-month" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                         Month
                       </label>
                       <select
@@ -1127,11 +1127,11 @@ export default function CustomPageClient() {
                   </div>
 
                   {Number.isFinite(parsedDueAmount) && parsedDueAmount > 0 ? (
-                    <p className="text-xs text-zinc-500">{formatCurrency(parsedDueAmount)} — {amountToIndianWords(parsedDueAmount)}</p>
+                    <p className="text-xs text-[color:var(--color-text-dim)]">{formatCurrency(parsedDueAmount)} — {amountToIndianWords(parsedDueAmount)}</p>
                   ) : null}
 
                   <div>
-                    <label htmlFor="due-date" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                    <label htmlFor="due-date" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       Due date
                     </label>
                     <input
@@ -1144,7 +1144,7 @@ export default function CustomPageClient() {
                   </div>
 
                   <div>
-                    <label htmlFor="due-note" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                    <label htmlFor="due-note" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">
                       Internal note
                     </label>
                     <textarea

@@ -29,11 +29,11 @@ export function MoveToSheet({
       <div className="glass-modal !max-w-md max-h-[80vh] overflow-y-auto p-4 sm:p-5">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500">Move item</p>
-            <h2 className="mt-0.5 truncate text-base font-semibold text-white">{title}</h2>
-            {currentLabel ? <p className="mt-0.5 text-xs text-zinc-500">Currently in: {currentLabel}</p> : null}
+            <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Move item</p>
+            <h2 className="mt-0.5 truncate text-base font-semibold text-[color:var(--color-text)]">{title}</h2>
+            {currentLabel ? <p className="mt-0.5 text-xs text-[color:var(--color-text-dim)]">Currently in: {currentLabel}</p> : null}
           </div>
-          <button type="button" onClick={onClose} disabled={busy} className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-800 text-zinc-400 hover:text-white">
+          <button type="button" onClick={onClose} disabled={busy} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -42,7 +42,7 @@ export function MoveToSheet({
           type="button"
           onClick={() => setSelection(null)}
           className={`mb-2 flex min-h-11 w-full items-center gap-3 rounded-xl border px-3 text-left text-sm font-semibold ${
-            selection === null ? "border-white bg-white text-black" : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-600"
+            selection === null ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)]"
           }`}
         >
           <FolderInput className="h-4 w-4" />
@@ -50,9 +50,9 @@ export function MoveToSheet({
           {selection === null ? <Check className="h-4 w-4" /> : null}
         </button>
 
-        <div className="rounded-xl border border-zinc-800 bg-black/40 p-1.5">
+        <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-1.5">
           <FolderTreePicker folders={folders} parentId={null} depth={0} selection={selection} onSelect={setSelection} />
-          {folders.length === 0 ? <p className="px-3 py-4 text-center text-xs text-zinc-600">No folders yet.</p> : null}
+          {folders.length === 0 ? <p className="px-3 py-4 text-center text-xs text-[color:var(--color-text-faint)]">No folders yet.</p> : null}
         </div>
 
         <button
@@ -101,15 +101,15 @@ export function FolderTreePicker({
               style={{ paddingLeft: `${depth * 16 + 12}px` }}
               className={`flex min-h-10 w-full items-center gap-2 rounded-lg pr-3 text-left text-sm ${
                 selection === folder.id
-                  ? "bg-white font-semibold text-black"
+                  ? "bg-[color:var(--color-accent)] font-semibold text-[color:var(--color-accent-ink)]"
                   : isDisabled
-                    ? "cursor-not-allowed text-zinc-700"
-                    : "text-zinc-300 hover:bg-zinc-900"
+                    ? "cursor-not-allowed text-[color:var(--color-text-faint)]"
+                    : "text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"
               }`}
             >
               <Folder className="h-4 w-4 flex-shrink-0 opacity-70" />
               <span className="flex-1 truncate">{folder.title}</span>
-              {!folder.isPublished ? <span className="text-[10px] font-bold uppercase text-amber-400">Draft</span> : null}
+              {!folder.isPublished ? <span className="text-[10px] font-bold uppercase text-[color:var(--color-text-dim)]">Draft</span> : null}
               {isDisabled ? <span className="text-[10px] uppercase tracking-wider opacity-60">inside</span> : null}
             </button>
             <FolderTreePicker folders={folders} parentId={folder.id} depth={depth + 1} selection={selection} onSelect={onSelect} disabledIds={disabledIds} disabledReason={disabledReason} />

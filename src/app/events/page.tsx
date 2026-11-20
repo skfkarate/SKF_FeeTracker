@@ -312,10 +312,10 @@ function defaultConfig(event: EventCollectionItem): EventFeeConfig {
 }
 
 function rowTone(status: EventFeePreviewRow["status"]) {
-  if (status === "ready") return "text-emerald-400 border-emerald-500/20 bg-emerald-500/10";
-  if (status === "waived") return "text-blue-400 border-blue-500/20 bg-blue-500/10";
-  if (status === "excluded") return "text-zinc-500 border-zinc-700 bg-zinc-800/60";
-  return "text-amber-400 border-amber-500/20 bg-amber-500/10";
+  if (status === "ready") return "text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]";
+  if (status === "waived") return "text-[color:var(--color-text-dim)] border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]";
+  if (status === "excluded") return "text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)] bg-[color:var(--color-well)]";
+  return "text-[color:var(--color-text-dim)] border-[color:var(--color-due-border)] bg-[color:var(--color-well)]";
 }
 
 function resultKey(result: EventResultRecord) {
@@ -1066,8 +1066,8 @@ export default function EventCollectionsPage() {
       <div className="mb-6 flex flex-col gap-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="eyebrow text-zinc-500">SKF Karate Operations</p>
-              <h1 className="mt-2 text-[15px] font-semibold text-white">Event Center</h1>
+              <p className="eyebrow text-[color:var(--color-text-dim)]">SKF Karate Operations</p>
+              <h1 className="mt-2 text-[15px] font-semibold text-[color:var(--color-text)]">Event Center</h1>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -1081,7 +1081,7 @@ export default function EventCollectionsPage() {
               <button
                 type="button"
                 onClick={() => loadData(true)}
-                className="h-10 w-10 rounded-lg border border-white/10 bg-white/5 text-zinc-400 hover:text-white flex items-center justify-center"
+                className="h-10 w-10 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] flex items-center justify-center"
                 title="Refresh"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -1090,11 +1090,11 @@ export default function EventCollectionsPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-            <Metric icon={<CalendarDays className="h-4 w-4 text-amber-400" />} label="Events" value={String(data?.events.length || 0)} />
-            <Metric icon={<Users className="h-4 w-4 text-emerald-400" />} label="Assigned" value={String(selectedSummary.assigned)} />
-            <Metric icon={<Trophy className="h-4 w-4 text-blue-400" />} label="Results" value={String(selectedSummary.recorded)} />
-            <Metric icon={<Award className="h-4 w-4 text-purple-300" />} label="Awards" value={String(selectedSummary.recognitions)} />
-            <Metric icon={<Wallet className="h-4 w-4 text-zinc-300" />} label="Collected" value={currency(data?.totals.collected || 0)} />
+            <Metric icon={<CalendarDays className="h-4 w-4 text-[color:var(--color-text-dim)]" />} label="Events" value={String(data?.events.length || 0)} />
+            <Metric icon={<Users className="h-4 w-4 text-[color:var(--color-text-dim)]" />} label="Assigned" value={String(selectedSummary.assigned)} />
+            <Metric icon={<Trophy className="h-4 w-4 text-[color:var(--color-text-dim)]" />} label="Results" value={String(selectedSummary.recorded)} />
+            <Metric icon={<Award className="h-4 w-4 text-[color:var(--color-text)]" />} label="Awards" value={String(selectedSummary.recognitions)} />
+            <Metric icon={<Wallet className="h-4 w-4 text-[color:var(--color-text)]" />} label="Collected" value={currency(data?.totals.collected || 0)} />
           </div>
 
           <div className="flex flex-col gap-3 xl:flex-row">
@@ -1111,12 +1111,12 @@ export default function EventCollectionsPage() {
           </div>
         </div>
 
-        {error && <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}
-        {notice && <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">{notice}</div>}
+        {error && <div className="mb-4 rounded-xl border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] px-4 py-3 text-sm text-[color:var(--color-text)]">{error}</div>}
+        {notice && <div className="mb-4 rounded-xl border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-4 py-3 text-sm text-[color:var(--color-text)]">{notice}</div>}
 
         {loading ? (
           <div className="flex h-56 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+            <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-[360px_1fr]">
@@ -1138,13 +1138,13 @@ export default function EventCollectionsPage() {
                       amount={currency(item.collection.collected)}
                       amountLabel="collected"
                       trailing={<StatusPill status={rowStatus} label={rowLabel} />}
-                      className={selectedEventId === item.event.id ? "bg-[#141414]" : undefined}
+                      className={selectedEventId === item.event.id ? "bg-[color:var(--color-well)]" : undefined}
                       onClick={() => selectEvent(item)}
                     />
                   );
                 })}
                 {filteredEvents.length === 0 && (
-                  <div className="hud-panel p-8 text-center text-sm text-zinc-500">No events in this ledger.</div>
+                  <div className="hud-panel p-8 text-center text-sm text-[color:var(--color-text-dim)]">No events in this ledger.</div>
                 )}
               </div>
             </aside>
@@ -1158,10 +1158,10 @@ export default function EventCollectionsPage() {
                       {selectedEvent?.event.isPublished ? <Badge tone="green">Website visible</Badge> : <Badge>Internal</Badge>}
                       {selectedEvent?.event.resultsAppliedAt ? <Badge tone="green">Profiles synced</Badge> : <Badge>Results draft</Badge>}
                     </div>
-                    <h2 className="truncate text-2xl font-semibold text-white">
+                    <h2 className="truncate text-2xl font-semibold text-[color:var(--color-text)]">
                       {selectedEvent?.event.name || "Create or select an event"}
                     </h2>
-                    <p className="mt-2 text-sm text-zinc-500">
+                    <p className="mt-2 text-sm text-[color:var(--color-text-dim)]">
                       {selectedEvent
                         ? `${selectedEvent.event.date || "No date"} • ${selectedEvent.event.venue || "Venue pending"} • ${eventBranchLabel(selectedEvent.event.hostingBranch)}`
                         : "Use the details step to create the next event."}
@@ -1172,7 +1172,7 @@ export default function EventCollectionsPage() {
                       type="button"
                       onClick={handleEditSelectedEvent}
                       disabled={!selectedEvent}
-                      className="h-10 w-10 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white disabled:text-zinc-700 flex items-center justify-center"
+                      className="h-10 w-10 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] disabled:text-[color:var(--color-text-faint)] flex items-center justify-center"
                       title="Edit selected event"
                     >
                       <PencilLine className="h-4 w-4" />
@@ -1181,7 +1181,7 @@ export default function EventCollectionsPage() {
                       type="button"
                       onClick={handleDeleteSelectedEvent}
                       disabled={!selectedEvent || deletingEventId === selectedEvent.event.id}
-                      className="h-10 w-10 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-300 disabled:text-zinc-700 flex items-center justify-center"
+                      className="h-10 w-10 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-overdue-border)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:text-[color:var(--color-text-faint)] flex items-center justify-center"
                       title="Delete selected event"
                     >
                       {selectedEvent && deletingEventId === selectedEvent.event.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
@@ -1203,8 +1203,8 @@ export default function EventCollectionsPage() {
                       onClick={() => setStep(value as EventStep)}
                       className={`rounded-lg border px-3 py-2 text-sm font-medium ${
                         step === value
-                          ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
-                          : "border-zinc-800 bg-zinc-950 text-zinc-500 hover:text-white"
+                          ? "border-[color:var(--color-due-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
+                          : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
                       }`}
                     >
                       {label}
@@ -1303,7 +1303,7 @@ export default function EventCollectionsPage() {
                 type="button"
                 onClick={closeEventEditor}
                 disabled={creatingEvent}
-                className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200 disabled:opacity-50"
+                className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-sm text-[color:var(--color-text)] disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -1311,7 +1311,7 @@ export default function EventCollectionsPage() {
                 type="submit"
                 form="event-form"
                 disabled={creatingEvent}
-                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black disabled:opacity-50"
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
               >
                 {creatingEvent ? <Loader2 className="h-4 w-4 animate-spin" /> : editingEventId ? <PencilLine className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                 {editingEventId ? "Save" : "Create"}
@@ -1349,7 +1349,7 @@ function Metric({ icon, label, value }: { icon: ReactNode; label: string; value:
 function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "neutral" | "green" }) {
   return (
     <span className={`rounded-md border px-2 py-1 text-[10px] uppercase tracking-wider ${
-      tone === "green" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300" : "border-zinc-800 bg-zinc-900 text-zinc-500"
+      tone === "green" ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]"
     }`}>
       {children}
     </span>
@@ -1359,14 +1359,14 @@ function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "ne
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="space-y-2">
-      <span className="eyebrow text-zinc-500">{label}</span>
+      <span className="eyebrow text-[color:var(--color-text-dim)]">{label}</span>
       {children}
     </label>
   );
 }
 
 function baseInputClass() {
-  return "w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 py-2 font-mono text-sm text-white outline-none focus:border-zinc-500";
+  return "w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 font-mono text-sm text-[color:var(--color-text)] outline-none focus:border-[color:var(--color-hairline-strong)]";
 }
 
 function EventDetailsSummary({
@@ -1381,10 +1381,10 @@ function EventDetailsSummary({
   if (!selectedEvent) {
     return (
       <section className="card-panel flex min-h-64 flex-col items-center justify-center gap-4 p-8 text-center">
-        <CalendarDays className="h-8 w-8 text-zinc-600" />
+        <CalendarDays className="h-8 w-8 text-[color:var(--color-text-faint)]" />
         <div>
-          <h2 className="text-lg font-semibold text-white">No event selected</h2>
-          <p className="mt-2 text-sm text-zinc-500">Create an event to assign students, fees and results.</p>
+          <h2 className="text-lg font-semibold text-[color:var(--color-text)]">No event selected</h2>
+          <p className="mt-2 text-sm text-[color:var(--color-text-dim)]">Create an event to assign students, fees and results.</p>
         </div>
         <button type="button" onClick={onCreate} className="btn-primary inline-flex min-h-10 items-center gap-2 px-4 text-sm">
           <FilePlus2 className="h-4 w-4" />
@@ -1403,16 +1403,16 @@ function EventDetailsSummary({
     <section className="card-panel p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-zinc-500">Event Details</p>
-          <h2 className="truncate text-xl font-semibold text-white">{event.name}</h2>
-          <p className="mt-2 text-sm leading-relaxed text-zinc-500">
+          <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-text-dim)]">Event Details</p>
+          <h2 className="truncate text-xl font-semibold text-[color:var(--color-text)]">{event.name}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-text-dim)]">
             {event.description || "No public description added yet."}
           </p>
         </div>
         <button
           type="button"
           onClick={onEdit}
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900 px-4 text-sm font-semibold text-zinc-200 hover:text-white"
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] hover:text-[color:var(--color-text)]"
         >
           <PencilLine className="h-4 w-4" />
           Edit Details
@@ -1420,40 +1420,40 @@ function EventDetailsSummary({
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500">Type</p>
-          <p className="mt-2 text-sm font-semibold text-white">{eventTypeLabel(event.type)}</p>
+        <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Type</p>
+          <p className="mt-2 text-sm font-semibold text-[color:var(--color-text)]">{eventTypeLabel(event.type)}</p>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500">Date</p>
-          <p className="mt-2 text-sm font-semibold text-white">{event.date || "Pending"}</p>
+        <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Date</p>
+          <p className="mt-2 text-sm font-semibold text-[color:var(--color-text)]">{event.date || "Pending"}</p>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500">Branch</p>
-          <p className="mt-2 text-sm font-semibold text-white">{eventBranchLabel(event.hostingBranch)}</p>
+        <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Branch</p>
+          <p className="mt-2 text-sm font-semibold text-[color:var(--color-text)]">{eventBranchLabel(event.hostingBranch)}</p>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500">Students</p>
-          <p className="mt-2 text-sm font-semibold text-white">{participants.length}</p>
+        <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Students</p>
+          <p className="mt-2 text-sm font-semibold text-[color:var(--color-text)]">{participants.length}</p>
         </div>
       </div>
 
       <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500">Venue</p>
-          <p className="mt-2 truncate text-sm font-semibold text-white">{event.venue || "Pending"}</p>
+        <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Venue</p>
+          <p className="mt-2 truncate text-sm font-semibold text-[color:var(--color-text)]">{event.venue || "Pending"}</p>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500">Website</p>
-          <p className="mt-2 text-sm font-semibold text-white">{published}</p>
+        <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Website</p>
+          <p className="mt-2 text-sm font-semibold text-[color:var(--color-text)]">{published}</p>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500">Results</p>
-          <p className="mt-2 text-sm font-semibold text-white">{resultStatus}</p>
+        <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Results</p>
+          <p className="mt-2 text-sm font-semibold text-[color:var(--color-text)]">{resultStatus}</p>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500">Collected</p>
-          <p className="mt-2 text-sm font-semibold text-emerald-300">{currency(selectedEvent.collection.collected)}</p>
+        <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
+          <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Collected</p>
+          <p className="mt-2 text-sm font-semibold text-[color:var(--color-text)]">{currency(selectedEvent.collection.collected)}</p>
         </div>
       </div>
     </section>
@@ -1525,18 +1525,18 @@ function DetailsStep({
           <input value={eventForm.affiliatedBody} onChange={(e) => setEventForm({ ...eventForm, affiliatedBody: e.target.value })} className={baseInputClass()} />
         </Field>
         <label className="space-y-1 md:col-span-2">
-          <span className="eyebrow text-zinc-500">Description</span>
+          <span className="eyebrow text-[color:var(--color-text-dim)]">Description</span>
           <textarea value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} rows={3} className={`${baseInputClass()} resize-none`} required={isTournamentEvent} />
         </label>
       </div>
 
       <div className="flex flex-wrap gap-4">
-        <label className="inline-flex items-center gap-2 text-xs text-zinc-400">
-          <input type="checkbox" checked={eventForm.isPublished} onChange={(e) => setEventForm({ ...eventForm, isPublished: e.target.checked })} className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 accent-[color:var(--color-brand)]" />
+        <label className="inline-flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
+          <input type="checkbox" checked={eventForm.isPublished} onChange={(e) => setEventForm({ ...eventForm, isPublished: e.target.checked })} className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] accent-[color:var(--color-brand)]" />
           Show on website
         </label>
-        <label className="inline-flex items-center gap-2 text-xs text-zinc-400">
-          <input type="checkbox" checked={eventForm.showInJourney} onChange={(e) => setEventForm({ ...eventForm, showInJourney: e.target.checked })} className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 accent-[color:var(--color-brand)]" />
+        <label className="inline-flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
+          <input type="checkbox" checked={eventForm.showInJourney} onChange={(e) => setEventForm({ ...eventForm, showInJourney: e.target.checked })} className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] accent-[color:var(--color-brand)]" />
           Use for athlete journey
         </label>
       </div>
@@ -1600,11 +1600,11 @@ function StudentsStep({
     <section className="card-panel p-5 space-y-5">
       <StepHeader icon={<UserPlus className="h-4 w-4" />} eyebrow="Step 2" title="Assign Students" />
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4">
+      <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-zinc-500">Default Roster</p>
-            <h3 className="mt-1 text-sm font-semibold text-white">{rosterBranchLabel} students</h3>
+            <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Default Roster</p>
+            <h3 className="mt-1 text-sm font-semibold text-[color:var(--color-text)]">{rosterBranchLabel} students</h3>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex">
             {canSyncBeltExam && (
@@ -1612,7 +1612,7 @@ function StudentsStep({
                 type="button"
                 onClick={onSyncEligibleBeltExam}
                 disabled={loadingRoster || bulkBusy || beltSyncBusy}
-                className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:border-amber-400/50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-due-border)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {beltSyncBusy ? "Syncing..." : "Sync Eligible"}
               </button>
@@ -1621,7 +1621,7 @@ function StudentsStep({
               type="button"
               onClick={() => onToggleAllRosterSelection(unassignedRoster, !allRosterSelected)}
               disabled={loadingRoster || unassignedRoster.length === 0 || bulkBusy || beltSyncBusy}
-              className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {allRosterSelected ? "Clear All" : "Select All"}
             </button>
@@ -1641,7 +1641,7 @@ function StudentsStep({
         <StudentList title={`Roster (${unassignedRoster.length})`}>
           {loadingRoster ? (
             <div className="flex min-h-40 items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+              <Loader2 className="h-5 w-5 animate-spin text-[color:var(--color-text-dim)]" />
             </div>
           ) : unassignedRoster.length ? (
             unassignedRoster.map((student) => {
@@ -1649,13 +1649,13 @@ function StudentsStep({
               const checked = selectedRosterIds.has(key);
               return (
                 <StudentRow key={key} name={studentName(student)} meta={`${student.skfId} • ${student.branchName || "SKF"}${student.currentBelt ? ` • ${student.currentBelt}` : ""}`}>
-                  <label className="flex min-h-9 items-center gap-2 rounded-lg border border-zinc-800 bg-black px-3 text-xs font-semibold text-zinc-300">
+                  <label className="flex min-h-9 items-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)]">
                     <input
                       type="checkbox"
                       checked={checked}
                       onChange={(event) => onToggleRosterSelection(student, event.target.checked)}
                       disabled={bulkBusy || beltSyncBusy}
-                      className="h-4 w-4 accent-white"
+                      className="h-4 w-4 accent-[color:var(--color-accent)]"
                     />
                     Select
                   </label>
@@ -1663,30 +1663,30 @@ function StudentsStep({
               );
             })
           ) : (
-            <p className="py-6 text-sm text-zinc-500">All visible roster students are already assigned.</p>
+            <p className="py-6 text-sm text-[color:var(--color-text-dim)]">All visible roster students are already assigned.</p>
           )}
         </StudentList>
 
         <StudentList title={`Assigned (${selectedParticipants.length})`}>
           {selectedParticipants.map((participant) => (
             <StudentRow key={participant.id || participant.skfId} name={participant.athleteName} meta={`${participant.skfId} • ${participant.branchName || "SKF"}`}>
-              <button type="button" onClick={() => onRemove(participant.id, participant.skfId)} disabled={beltSyncBusy || assignmentBusyId === (participant.id || participant.skfId)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50">
+              <button type="button" onClick={() => onRemove(participant.id, participant.skfId)} disabled={beltSyncBusy || assignmentBusyId === (participant.id || participant.skfId)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-overdue-border)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50">
                 {assignmentBusyId === (participant.id || participant.skfId) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
               </button>
             </StudentRow>
           ))}
-          {selectedParticipants.length === 0 && <p className="py-6 text-sm text-zinc-500">No students assigned.</p>}
+          {selectedParticipants.length === 0 && <p className="py-6 text-sm text-[color:var(--color-text-dim)]">No students assigned.</p>}
         </StudentList>
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4">
+      <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
         <div className="mb-3">
-          <p className="text-[10px] uppercase tracking-wider text-zinc-500">Add From Any Branch</p>
-          <p className="mt-1 text-xs text-zinc-600">Use this when a student from another branch is attending this event.</p>
+          <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Add From Any Branch</p>
+          <p className="mt-1 text-xs text-[color:var(--color-text-faint)]">Use this when a student from another branch is attending this event.</p>
         </div>
         <form onSubmit={onSearch} className="flex gap-2">
           <input value={athleteQuery} onChange={(e) => setAthleteQuery(e.target.value)} placeholder="Search by name or SKF ID" className={`${baseInputClass()} flex-1`} />
-          <button type="submit" disabled={searchingAthletes} className="flex h-10 w-11 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-300 hover:text-white">
+          <button type="submit" disabled={searchingAthletes} className="flex h-10 w-11 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:text-[color:var(--color-text)]">
             {searchingAthletes ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
           </button>
         </form>
@@ -1696,13 +1696,13 @@ function StudentsStep({
             const isAssigned = assignedKeys.has(student.id) || assignedKeys.has(student.skfId);
             return (
               <StudentRow key={busyId} name={studentName(student)} meta={`${student.skfId} • ${student.branchName || "SKF"}${student.currentBelt ? ` • ${student.currentBelt}` : ""}`}>
-                <button type="button" onClick={() => onAssign(student)} disabled={isAssigned || assignmentBusyId === busyId || bulkBusy || beltSyncBusy} className="min-w-20 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-300 hover:text-white disabled:bg-zinc-950 disabled:text-zinc-600">
+                <button type="button" onClick={() => onAssign(student)} disabled={isAssigned || assignmentBusyId === busyId || bulkBusy || beltSyncBusy} className="min-w-20 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)] hover:text-[color:var(--color-text)] disabled:bg-[color:var(--color-well)] disabled:text-[color:var(--color-text-faint)]">
                   {assignmentBusyId === busyId ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : isAssigned ? "Added" : "Assign"}
                 </button>
               </StudentRow>
             );
           })}
-          {athleteResults.length === 0 && <p className="py-6 text-sm text-zinc-500">Search to add students outside the default roster.</p>}
+          {athleteResults.length === 0 && <p className="py-6 text-sm text-[color:var(--color-text-dim)]">Search to add students outside the default roster.</p>}
         </div>
       </div>
     </section>
@@ -1712,7 +1712,7 @@ function StudentsStep({
 function StudentList({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="space-y-2">
-      <p className="text-[10px] uppercase tracking-wider text-zinc-500">{title}</p>
+      <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">{title}</p>
       <div className="max-h-[420px] space-y-2 overflow-auto pr-1">{children}</div>
     </div>
   );
@@ -1720,10 +1720,10 @@ function StudentList({ title, children }: { title: string; children: ReactNode }
 
 function StudentRow({ name, meta, children }: { name: string; meta: string; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3">
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
       <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-white">{name}</p>
-        <p className="truncate text-[10px] uppercase tracking-wider text-zinc-500">{meta}</p>
+        <p className="truncate text-sm font-medium text-[color:var(--color-text)]">{name}</p>
+        <p className="truncate text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">{meta}</p>
       </div>
       {children}
     </div>
@@ -1771,38 +1771,38 @@ function FeesStep(props: {
         </div>
 
         {isBeltFee && (
-          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-            <p className="text-[10px] uppercase tracking-wider text-emerald-400 mb-2">Grading Savings Summary</p>
+          <div className="rounded-xl border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4">
+            <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)] mb-2">Grading Savings Summary</p>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <p className="text-[10px] text-zinc-500">Expected Collection</p>
-                <p className="text-lg font-semibold text-white">{currency(selectedEvent.collection.expected)}</p>
+                <p className="text-[10px] text-[color:var(--color-text-dim)]">Expected Collection</p>
+                <p className="text-lg font-semibold text-[color:var(--color-text)]">{currency(selectedEvent.collection.expected)}</p>
               </div>
               <div>
-                <p className="text-[10px] text-zinc-500">Total Expenses</p>
-                <p className="text-lg font-semibold text-red-400">{currency(selectedEvent.finance.spent)}</p>
+                <p className="text-[10px] text-[color:var(--color-text-dim)]">Total Expenses</p>
+                <p className="text-lg font-semibold text-[color:var(--color-text-dim)]">{currency(selectedEvent.finance.spent)}</p>
               </div>
               <div>
-                <p className="text-[10px] text-zinc-500">Savings (Expected - Expenses)</p>
-                <p className={`text-lg font-semibold ${savings > 0 ? 'text-emerald-400' : savings < 0 ? 'text-red-400' : 'text-zinc-400'}`}>
+                <p className="text-[10px] text-[color:var(--color-text-dim)]">Savings (Expected - Expenses)</p>
+                <p className={`text-lg font-semibold ${savings > 0 ? 'text-[color:var(--color-text-dim)]' : savings < 0 ? 'text-[color:var(--color-text-dim)]' : 'text-[color:var(--color-text-dim)]'}`}>
                   {currency(Math.max(0, selectedEvent.collection.expected - selectedEvent.finance.spent))}
                 </p>
               </div>
             </div>
             <div className="mt-3 grid grid-cols-3 gap-3">
               <div>
-                <p className="text-[10px] text-zinc-500">Collected</p>
-                <p className="text-sm font-semibold text-emerald-300">{currency(selectedEvent.collection.collected)}</p>
+                <p className="text-[10px] text-[color:var(--color-text-dim)]">Collected</p>
+                <p className="text-sm font-semibold text-[color:var(--color-text)]">{currency(selectedEvent.collection.collected)}</p>
               </div>
               <div>
-                <p className="text-[10px] text-zinc-500">Surplus (Collected - Expenses)</p>
-                <p className={`text-sm font-semibold ${surplus > 0 ? 'text-emerald-400' : surplus < 0 ? 'text-red-400' : 'text-zinc-400'}`}>
+                <p className="text-[10px] text-[color:var(--color-text-dim)]">Surplus (Collected - Expenses)</p>
+                <p className={`text-sm font-semibold ${surplus > 0 ? 'text-[color:var(--color-text-dim)]' : surplus < 0 ? 'text-[color:var(--color-text-dim)]' : 'text-[color:var(--color-text-dim)]'}`}>
                   {currency(surplus)}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-zinc-500">Settlement Status</p>
-                <p className={`text-sm font-semibold ${isSettled ? 'text-emerald-400' : 'text-amber-400'}`}>
+                <p className="text-[10px] text-[color:var(--color-text-dim)]">Settlement Status</p>
+                <p className={`text-sm font-semibold ${isSettled ? 'text-[color:var(--color-text-dim)]' : 'text-[color:var(--color-text-dim)]'}`}>
                   {isSettled ? 'Settled' : 'Pending'}
                 </p>
               </div>
@@ -1850,19 +1850,19 @@ function FeesStep(props: {
         </div>
 
         {isBeltFee && (
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-xs leading-5 text-amber-100">
+          <div className="rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3 text-xs leading-5 text-[color:var(--color-text)]">
             Grading fees are collected per student and settled as a batch. The total expected collection minus total event expenses becomes the grading savings. Savings are tracked per event and settle to the branch ledger. Eligible students must be active, have completed 5+ months by the exam date, and have no billing break. Belt examination payments do not generate receipts.
           </div>
         )}
 
         {isBeltFee && data && (
           <div>
-            <p className="mb-2 text-[10px] uppercase tracking-wider text-zinc-500">Promotion target prices</p>
+            <p className="mb-2 text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Promotion target prices</p>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
               {data.beltSequence.map((belt) => (
-                <label key={belt.key} className="rounded-lg border border-zinc-800 bg-zinc-950 p-2">
-                  <span className="block truncate text-[10px] text-zinc-500">{belt.label}</span>
-                  <input type="number" value={config.beltPrices[belt.key] || ""} onChange={(e) => updateBeltPrice(belt.key, e.target.value)} className="mt-1 w-full rounded border border-zinc-800 bg-black px-2 py-1 text-xs text-white" />
+                <label key={belt.key} className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2">
+                  <span className="block truncate text-[10px] text-[color:var(--color-text-dim)]">{belt.label}</span>
+                  <input type="number" value={config.beltPrices[belt.key] || ""} onChange={(e) => updateBeltPrice(belt.key, e.target.value)} className="mt-1 w-full rounded border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 py-1 text-xs text-[color:var(--color-text)]" />
                 </label>
               ))}
             </div>
@@ -1875,12 +1875,12 @@ function FeesStep(props: {
             Save & Preview
           </button>
           {isBeltFee ? (
-            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-emerald-600 py-3 font-medium text-white hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 flex items-center justify-center gap-2">
+            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-[color:var(--color-paid)] py-3 font-medium text-[color:var(--color-text)] hover:bg-[color:var(--color-paid)] disabled:bg-[color:var(--color-well)] disabled:text-[color:var(--color-text-dim)] flex items-center justify-center gap-2">
               <Wallet className="h-4 w-4" />
               {isSettled ? "Re-Settle Grading Savings" : "Settle Grading Savings"}
             </button>
           ) : (
-            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-emerald-600 py-3 font-medium text-white hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-500 flex items-center justify-center gap-2">
+            <button type="button" onClick={onGenerate} disabled={saving || payablePreviewCount === 0} className="flex-1 rounded-lg bg-[color:var(--color-paid)] py-3 font-medium text-[color:var(--color-text)] hover:bg-[color:var(--color-paid)] disabled:bg-[color:var(--color-well)] disabled:text-[color:var(--color-text-dim)] flex items-center justify-center gap-2">
               <Users className="h-4 w-4" />
               Generate Pending Fees
             </button>
@@ -1891,30 +1891,30 @@ function FeesStep(props: {
       {previewRows.length > 0 && (
         <section className="card-panel p-5">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="font-medium text-white">{isBeltFee ? "Belt Examination Preview" : "Fee Preview"}</h3>
-            <p className="text-xs text-zinc-500">{previewSummary.ready} ready • {previewSummary.waived} waived • {previewSummary.review} review • {currency(previewSummary.total)}</p>
+            <h3 className="font-medium text-[color:var(--color-text)]">{isBeltFee ? "Belt Examination Preview" : "Fee Preview"}</h3>
+            <p className="text-xs text-[color:var(--color-text-dim)]">{previewSummary.ready} ready • {previewSummary.waived} waived • {previewSummary.review} review • {currency(previewSummary.total)}</p>
           </div>
           <div className="max-h-[520px] space-y-2 overflow-auto pr-1">
             {previewRows.map((row) => (
-              <div key={row.skfId} className="grid grid-cols-1 items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950/70 p-3 md:grid-cols-[1fr_120px_150px]">
+              <div key={row.skfId} className="grid grid-cols-1 items-center gap-3 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 md:grid-cols-[1fr_120px_150px]">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium text-white">{row.studentName}</p>
-                    <span className="font-mono text-[10px] text-zinc-500">{row.skfId}</span>
+                    <p className="text-sm font-medium text-[color:var(--color-text)]">{row.studentName}</p>
+                    <span className="font-mono text-[10px] text-[color:var(--color-text-dim)]">{row.skfId}</span>
                     <span className={`rounded border px-2 py-0.5 text-[10px] uppercase ${rowTone(row.status)}`}>{row.status.replace("_", " ")}</span>
                   </div>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-[color:var(--color-text-dim)]">
                     {row.branch} {row.targetBelt ? `• ${row.currentBelt || "Current belt"} to ${row.targetBelt}` : ""}
                     {isBeltFee && row.joinedDate ? ` • Joined ${formatDateLabel(row.joinedDate)}` : ""}
                     {isBeltFee && row.eligibilityCutoffDate ? ` • Cutoff ${formatDateLabel(row.eligibilityCutoffDate)}` : ""}
                   </p>
-                  {row.reason && <p className="mt-1 text-xs text-amber-400">{row.reason}</p>}
+                  {row.reason && <p className="mt-1 text-xs text-[color:var(--color-text-dim)]">{row.reason}</p>}
                 </div>
                 <input type="number" value={overrides[row.skfId]?.amount ?? row.finalAmount} onChange={(e) => updateOverride(row.skfId, { amount: Number(e.target.value || 0), reason: "Student-specific amount" })} className={baseInputClass()} />
                 <div className="flex gap-1 sm:gap-2">
-                  <button type="button" onClick={() => updateOverride(row.skfId, { included: !overrides[row.skfId]?.included, excluded: false, waived: false, reason: "Manually included for event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.included ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-300" : "border-zinc-800 text-zinc-400 hover:text-zinc-300 hover:border-zinc-700"}`}>Include</button>
-                  <button type="button" onClick={() => updateOverride(row.skfId, { excluded: !overrides[row.skfId]?.excluded, included: false, waived: false, reason: "Excluded from event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.excluded ? "border-zinc-500 bg-zinc-700 text-white" : "border-zinc-800 text-zinc-400 hover:text-zinc-300 hover:border-zinc-700"}`}>Exclude</button>
-                  <button type="button" onClick={() => updateOverride(row.skfId, { waived: !overrides[row.skfId]?.waived, excluded: false, included: false, amount: 0, reason: "Waived from event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.waived ? "border-blue-500/50 bg-blue-500/10 text-blue-300" : "border-zinc-800 text-zinc-400 hover:text-zinc-300 hover:border-zinc-700"}`}>Waive</button>
+                  <button type="button" onClick={() => updateOverride(row.skfId, { included: !overrides[row.skfId]?.included, excluded: false, waived: false, reason: "Manually included for event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.included ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)]"}`}>Include</button>
+                  <button type="button" onClick={() => updateOverride(row.skfId, { excluded: !overrides[row.skfId]?.excluded, included: false, waived: false, reason: "Excluded from event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.excluded ? "border-[color:var(--color-hairline-strong)] bg-[color:var(--color-panel-strong)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)]"}`}>Exclude</button>
+                  <button type="button" onClick={() => updateOverride(row.skfId, { waived: !overrides[row.skfId]?.waived, excluded: false, included: false, amount: 0, reason: "Waived from event fee" })} className={`flex-1 rounded-lg border px-1 sm:px-2 py-2 text-[10px] sm:text-xs ${overrides[row.skfId]?.waived ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)]"}`}>Waive</button>
                 </div>
               </div>
             ))}
@@ -1923,7 +1923,7 @@ function FeesStep(props: {
       )}
 
       <section className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        <FinanceBox icon={<CircleDollarSign className="h-4 w-4 text-red-400" />} title="Expense">
+        <FinanceBox icon={<CircleDollarSign className="h-4 w-4 text-[color:var(--color-text-dim)]" />} title="Expense">
           <input value={expense.title} onChange={(e) => setExpense({ ...expense, title: e.target.value })} placeholder="Title" className={baseInputClass()} />
           <input type="number" value={expense.amount} onChange={(e) => setExpense({ ...expense, amount: e.target.value })} placeholder="Amount" className={baseInputClass()} />
           <select value={expense.branchScope} onChange={(e) => setExpense({ ...expense, branchScope: e.target.value })} className={baseInputClass()}>
@@ -1931,11 +1931,11 @@ function FeesStep(props: {
             <option value="M P Sports Club">MPSC</option>
             <option value="Herohalli">Herohalli</option>
           </select>
-          <button type="button" onClick={onAddExpense} disabled={saving} className="w-full rounded-lg bg-red-600/90 py-2 text-sm text-white hover:bg-red-500 flex items-center justify-center gap-2">
+          <button type="button" onClick={onAddExpense} disabled={saving} className="w-full rounded-lg bg-[color:var(--color-well)] py-2 text-sm text-[color:var(--color-text)] hover:bg-[color:var(--color-overdue)] flex items-center justify-center gap-2">
             <Plus className="h-4 w-4" /> Add Expense
           </button>
         </FinanceBox>
-        <FinanceBox icon={<Banknote className="h-4 w-4 text-blue-400" />} title="Bank Deposit">
+        <FinanceBox icon={<Banknote className="h-4 w-4 text-[color:var(--color-text-dim)]" />} title="Bank Deposit">
           <input type="number" value={deposit.amount} onChange={(e) => setDeposit({ ...deposit, amount: e.target.value })} placeholder="Amount" className={baseInputClass()} />
           <input value={deposit.reference} onChange={(e) => setDeposit({ ...deposit, reference: e.target.value })} placeholder="Reference" className={baseInputClass()} />
           <select value={deposit.branchScope} onChange={(e) => setDeposit({ ...deposit, branchScope: e.target.value })} className={baseInputClass()}>
@@ -1943,7 +1943,7 @@ function FeesStep(props: {
             <option value="M P Sports Club">MPSC</option>
             <option value="Herohalli">Herohalli</option>
           </select>
-          <button type="button" onClick={onAddDeposit} disabled={saving} className="w-full rounded-lg bg-blue-600/90 py-2 text-sm text-white hover:bg-blue-500 flex items-center justify-center gap-2">
+          <button type="button" onClick={onAddDeposit} disabled={saving} className="w-full rounded-lg bg-[color:var(--color-well)] py-2 text-sm text-[color:var(--color-text)] hover:bg-[color:var(--color-accent)] flex items-center justify-center gap-2">
             <IndianRupee className="h-4 w-4" /> Add Deposit
           </button>
         </FinanceBox>
@@ -1953,11 +1953,11 @@ function FeesStep(props: {
 }
 
 function FeeMetric({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "green" | "red" | "blue" }) {
-  const color = tone === "green" ? "text-emerald-400" : tone === "red" ? "text-red-400" : tone === "blue" ? "text-blue-400" : "text-white";
+  const color = tone === "green" ? "text-[color:var(--color-text-dim)]" : tone === "red" ? "text-[color:var(--color-text-dim)]" : tone === "blue" ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text)]";
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-      <p className="text-[10px] uppercase text-zinc-500">{label}</p>
-      <p className={`font-[family-name:var(--font-space)] text-xl ${color}`}>{value}</p>
+    <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
+      <p className="text-[10px] uppercase text-[color:var(--color-text-dim)]">{label}</p>
+      <p className={`font-sans text-xl ${color}`}>{value}</p>
     </div>
   );
 }
@@ -1965,7 +1965,7 @@ function FeeMetric({ label, value, tone = "default" }: { label: string; value: s
 function FinanceBox({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   return (
     <div className="card-panel p-5">
-      <h3 className="mb-4 flex items-center gap-2 font-medium text-white">{icon} {title}</h3>
+      <h3 className="mb-4 flex items-center gap-2 font-medium text-[color:var(--color-text)]">{icon} {title}</h3>
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -2011,7 +2011,7 @@ function ResultsStep({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <StepHeader icon={<Trophy className="h-4 w-4" />} eyebrow="Step 4" title="Results & Recognition" />
         <div className="flex flex-col gap-2 sm:flex-row">
-          <button type="button" onClick={onSave} disabled={saving} className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-200 hover:text-white flex items-center justify-center gap-2">
+          <button type="button" onClick={onSave} disabled={saving} className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 py-2 text-sm text-[color:var(--color-text)] hover:text-[color:var(--color-text)] flex items-center justify-center gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             Save Draft
           </button>
@@ -2022,7 +2022,7 @@ function ResultsStep({
         </div>
       </div>
 
-      <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs leading-relaxed text-amber-100">
+      <div className="rounded-xl border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-4 py-3 text-xs leading-relaxed text-[color:var(--color-text)]">
         Publishing updates the website, the student portal, and each athlete profile. Save a draft first when results are still being checked.
       </div>
 
@@ -2036,13 +2036,13 @@ function ResultsStep({
 
       <div className="space-y-3">
         {resultDrafts.map((result, index) => (
-          <div key={result.id || result.skfId || index} className="rounded-xl border border-zinc-800 bg-zinc-950/70 p-4">
+          <div key={result.id || result.skfId || index} className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
             <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-white">{result.athleteName || result.skfId}</p>
-                <p className="text-[10px] uppercase tracking-wider text-zinc-500">{result.skfId} • {result.branchName || "SKF"} • {result.belt || "Belt not set"}</p>
+                <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{result.athleteName || result.skfId}</p>
+                <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">{result.skfId} • {result.branchName || "SKF"} • {result.belt || "Belt not set"}</p>
               </div>
-              <button type="button" onClick={() => updateResult(index, { specialAward: "Best Performer", award: "Best Performer" })} className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-200 hover:bg-amber-500/15">
+              <button type="button" onClick={() => updateResult(index, { specialAward: "Best Performer", award: "Best Performer" })} className="rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]">
                 Mark Best Performer
               </button>
             </div>
@@ -2170,21 +2170,21 @@ function CertificateWorkflowPanel({
   const isLoading = busy === "load";
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-black/35 p-4">
+    <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex min-w-0 items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-amber-300">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)]">
             <QrCode className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-zinc-500">Certificate Registry</p>
-            <h3 className="mt-1 text-sm font-semibold text-white">
+            <p className="text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">Certificate Registry</p>
+            <h3 className="mt-1 text-sm font-semibold text-[color:var(--color-text)]">
               {certificates.length
                 ? `${summary?.issuedCount || 0} published / ${certificates.length} prepared`
                 : "No certificate QR prepared"}
             </h3>
             {summary?.skippedCount ? (
-              <p className="mt-1 text-xs text-amber-300">{summary.skippedCount} result row{summary.skippedCount === 1 ? "" : "s"} skipped.</p>
+              <p className="mt-1 text-xs text-[color:var(--color-text)]">{summary.skippedCount} result row{summary.skippedCount === 1 ? "" : "s"} skipped.</p>
             ) : null}
           </div>
         </div>
@@ -2194,7 +2194,7 @@ function CertificateWorkflowPanel({
             type="button"
             onClick={onPrepare}
             disabled={Boolean(busy)}
-            className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:border-amber-400/50 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
+            className="rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-due-border)] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isPreparing ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode className="h-4 w-4" />}
             Prepare QR
@@ -2203,7 +2203,7 @@ function CertificateWorkflowPanel({
             type="button"
             onClick={onPublish}
             disabled={Boolean(busy) || !canPublish}
-            className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-200 hover:border-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
+            className="rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-paid-border)] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
             Publish Certs
@@ -2212,7 +2212,7 @@ function CertificateWorkflowPanel({
             type="button"
             onClick={onRefresh}
             disabled={Boolean(busy)}
-            className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
+            className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             Refresh
@@ -2223,22 +2223,22 @@ function CertificateWorkflowPanel({
       {certificates.length > 0 && (
         <div className="mt-4 grid grid-cols-1 gap-2">
           {certificates.map((certificate) => (
-            <div key={certificate.enrollmentId} className="grid grid-cols-1 gap-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center">
+            <div key={certificate.enrollmentId} className="grid grid-cols-1 gap-3 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="truncate text-sm font-medium text-white">{certificate.studentName}</p>
-                  <span className={`rounded-md border px-2 py-1 text-[10px] uppercase ${certificate.status === "issued" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300" : certificate.status === "revoked" ? "border-red-500/20 bg-red-500/10 text-red-300" : "border-amber-500/20 bg-amber-500/10 text-amber-300"}`}>
+                  <p className="truncate text-sm font-medium text-[color:var(--color-text)]">{certificate.studentName}</p>
+                  <span className={`rounded-md border px-2 py-1 text-[10px] uppercase ${certificate.status === "issued" ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : certificate.status === "revoked" ? "border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-due-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"}`}>
                     {certificate.status}
                   </span>
                 </div>
-                <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-zinc-500">
+                <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">
                   {certificate.skfId} • {certificate.certificateNumber}{certificate.beltLevel ? ` • ${certificate.beltLevel}` : ""}
                 </p>
               </div>
 
               <a
                 href={certificate.qrDownloadUrl}
-                className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs font-semibold text-zinc-200 hover:border-zinc-600 hover:text-white flex items-center justify-center gap-2"
+                className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] flex items-center justify-center gap-2"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -2247,7 +2247,7 @@ function CertificateWorkflowPanel({
               </a>
               <a
                 href={certificate.verifyUrl}
-                className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs font-semibold text-zinc-200 hover:border-zinc-600 hover:text-white flex items-center justify-center gap-2"
+                className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] flex items-center justify-center gap-2"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -2265,10 +2265,10 @@ function CertificateWorkflowPanel({
 function StepHeader({ icon, eyebrow, title }: { icon: ReactNode; eyebrow: string; title: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-400">{icon}</div>
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">{icon}</div>
       <div>
-        <p className="mb-1 text-[10px] uppercase tracking-[0.22em] text-zinc-500">{eyebrow}</p>
-        <h2 className="text-lg font-medium text-white">{title}</h2>
+        <p className="mb-1 text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-text-dim)]">{eyebrow}</p>
+        <h2 className="text-lg font-medium text-[color:var(--color-text)]">{title}</h2>
       </div>
     </div>
   );
@@ -2277,8 +2277,8 @@ function StepHeader({ icon, eyebrow, title }: { icon: ReactNode; eyebrow: string
 function EmptyStep({ icon, title }: { icon: ReactNode; title: string }) {
   return (
     <div className="card-panel flex min-h-52 flex-col items-center justify-center gap-3 p-8 text-center">
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-500">{icon}</div>
-      <p className="text-sm text-zinc-400">{title}</p>
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">{icon}</div>
+      <p className="text-sm text-[color:var(--color-text-dim)]">{title}</p>
     </div>
   );
 }
@@ -2404,28 +2404,28 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
         </div>
 
         {loading ? (
-          <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-950/50">
-            <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
+            <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
           </div>
         ) : photos.length === 0 ? (
-          <div className="flex min-h-40 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-950/50 p-6 text-center">
-            <ImageIcon className="mb-3 h-8 w-8 text-zinc-600" />
-            <p className="text-sm font-medium text-zinc-300">No photos uploaded</p>
-            <p className="mt-1 max-w-sm text-xs text-zinc-500">
+          <div className="flex min-h-40 flex-col items-center justify-center rounded-xl border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-6 text-center">
+            <ImageIcon className="mb-3 h-8 w-8 text-[color:var(--color-text-faint)]" />
+            <p className="text-sm font-medium text-[color:var(--color-text)]">No photos uploaded</p>
+            <p className="mt-1 max-w-sm text-xs text-[color:var(--color-text-dim)]">
               Upload photos for this event. Pinned photos will be featured as the hero image on the event detail page.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {photos.map((photo) => (
-              <div key={photo.id} className={`group relative aspect-square overflow-hidden rounded-xl border ${photo.pinned ? "border-amber-500/50 ring-1 ring-amber-500/50" : "border-zinc-800"}`}>
+              <div key={photo.id} className={`group relative aspect-square overflow-hidden rounded-xl border ${photo.pinned ? "border-[color:var(--color-due-border)] ring-1 ring-[color:var(--color-due)]" : "border-[color:var(--color-hairline)]"}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={normalizeKarateMediaUrl(photo.src)} alt={photo.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--color-panel)] via-[color:var(--color-panel)] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
                 {photo.pinned && (
-                  <div className="absolute left-2 top-2 rounded-md bg-amber-500/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-black shadow-sm">
+                  <div className="absolute left-2 top-2 rounded-md bg-[color:var(--color-well)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-accent-ink)] shadow-sm">
                     Featured
                   </div>
                 )}
@@ -2434,7 +2434,7 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
                   <button
                     type="button"
                     onClick={() => handleTogglePin(photo)}
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg border backdrop-blur-md transition-colors ${photo.pinned ? "border-amber-500/30 bg-amber-500/20 text-amber-300" : "border-white/10 bg-black/50 text-white hover:bg-white/20"}`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg border backdrop-blur-md transition-colors ${photo.pinned ? "border-[color:var(--color-due-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"}`}
                     title={photo.pinned ? "Unpin" : "Pin as featured"}
                   >
                     <Award className="h-3.5 w-3.5" />
@@ -2443,7 +2443,7 @@ function PhotosStep({ selectedEvent }: { selectedEvent: EventCollectionItem | nu
                     type="button"
                     onClick={() => handleDelete(photo.id)}
                     disabled={deletingId === photo.id}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-500/30 bg-red-500/20 text-red-300 backdrop-blur-md transition-colors hover:bg-red-500/40 disabled:opacity-50"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)] backdrop-blur-md transition-colors hover:bg-[color:var(--color-well)] disabled:opacity-50"
                     title="Delete"
                   >
                     {deletingId === photo.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}

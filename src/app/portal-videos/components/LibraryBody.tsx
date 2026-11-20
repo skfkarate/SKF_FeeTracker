@@ -72,7 +72,7 @@ export function LibraryBody({
         </div>
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="h-24 animate-pulse rounded-xl border border-zinc-800 bg-zinc-900/60" />
+            <div key={index} className="h-24 animate-pulse rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]" />
           ))}
         </div>
       </div>
@@ -93,17 +93,17 @@ export function LibraryBody({
                 key={folder.id}
                 type="button"
                 onClick={() => onOpenFolder(folder.id)}
-                className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-left transition-colors hover:border-zinc-600"
+                className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-left transition-colors hover:border-[color:var(--color-hairline)]"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)]">
                   <Folder className="h-4 w-4" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold text-white">{folder.title}</span>
-                  <span className="block truncate text-xs text-zinc-500">{pathLabel || "Top level"}</span>
+                  <span className="block truncate text-sm font-semibold text-[color:var(--color-text)]">{folder.title}</span>
+                  <span className="block truncate text-xs text-[color:var(--color-text-dim)]">{pathLabel || "Top level"}</span>
                 </span>
-                {!folder.isPublished ? <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Draft</span> : null}
-                <ChevronRight className="h-4 w-4 text-zinc-700" />
+                {!folder.isPublished ? <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">Draft</span> : null}
+                <ChevronRight className="h-4 w-4 text-[color:var(--color-text-faint)]" />
               </button>
             ))}
           </ResultGroup>
@@ -133,17 +133,17 @@ export function LibraryBody({
                 type="button"
                 onClick={() => window.open(practicePhotoUrl(photo.storagePath), "_blank")}
                 onContextMenu={(event) => { event.preventDefault(); onPhotoContext(photo, event.clientX, event.clientY); }}
-                className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-left transition-colors hover:border-zinc-600"
+                className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-left transition-colors hover:border-[color:var(--color-hairline)]"
               >
-                <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-black">
+                <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-[color:var(--color-well)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={practicePhotoUrl(photo.storagePath)} alt="" className="h-full w-full object-cover" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold text-white">{photo.title}</span>
-                  <span className="block truncate text-xs text-zinc-500">{pathLabel || "Unfiled"}</span>
+                  <span className="block truncate text-sm font-semibold text-[color:var(--color-text)]">{photo.title}</span>
+                  <span className="block truncate text-xs text-[color:var(--color-text-dim)]">{pathLabel || "Unfiled"}</span>
                 </span>
-                <ChevronRight className="h-4 w-4 text-zinc-700" />
+                <ChevronRight className="h-4 w-4 text-[color:var(--color-text-faint)]" />
               </button>
             ))}
           </ResultGroup>
@@ -162,7 +162,7 @@ export function LibraryBody({
           onClick={(event) => event.preventDefault()}
           onDragOver={(event) => event.preventDefault()}
           onDrop={onDropOnRoot}
-          className="mb-5 flex min-h-16 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-cyan-400/50 bg-cyan-500/5 text-sm font-semibold text-cyan-200"
+          className="mb-5 flex min-h-16 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-sm font-semibold text-[color:var(--color-text)]"
         >
           <FolderInput className="h-4 w-4" /> Drop here to unfile this lesson
         </button>
@@ -257,7 +257,7 @@ export function LibraryBody({
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">{children}</p>;
+  return <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[color:var(--color-text-dim)]">{children}</p>;
 }
 
 function ResultGroup({ label, children }: { label: string; children: React.ReactNode }) {
@@ -271,10 +271,10 @@ function ResultGroup({ label, children }: { label: string; children: React.React
 
 export function EmptyState({ icon: Icon, title, message }: { icon: typeof PlayCircle; title: string; message: string }) {
   return (
-    <div className="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/60 p-8 text-center">
-      <Icon className="mb-3 h-8 w-8 text-zinc-600" strokeWidth={1.5} />
-      <p className="text-sm font-semibold text-zinc-300">{title}</p>
-      <p className="mt-1 max-w-xs text-xs leading-relaxed text-zinc-500">{message}</p>
+    <div className="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-8 text-center">
+      <Icon className="mb-3 h-8 w-8 text-[color:var(--color-text-faint)]" strokeWidth={1.5} />
+      <p className="text-sm font-semibold text-[color:var(--color-text)]">{title}</p>
+      <p className="mt-1 max-w-xs text-xs leading-relaxed text-[color:var(--color-text-dim)]">{message}</p>
     </div>
   );
 }

@@ -141,26 +141,26 @@ export default function BlackBeltPage() {
 
   if (checking || !user) {
     return (
-      <div className="min-h-screen bg-black text-zinc-300">
+      <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
+    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
       <Navbar showBack title="Black Belt 2026" rightContent={<AccountMenu />} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-24">
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-red-500" />
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Examinations</p>
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-overdue)]" />
+              <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--color-text-dim)]">Examinations</p>
             </div>
-            <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            <h1 className="font-sans text-3xl font-semibold tracking-tight text-[color:var(--color-text)] sm:text-4xl">
               Black Belt 2026
             </h1>
           </div>
@@ -169,7 +169,7 @@ export default function BlackBeltPage() {
               type="button"
               onClick={() => loadCandidates(true)}
               disabled={refreshing}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-200 hover:border-zinc-700 hover:bg-zinc-900"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
               Refresh
@@ -178,7 +178,7 @@ export default function BlackBeltPage() {
         </header>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
@@ -186,7 +186,7 @@ export default function BlackBeltPage() {
 
         <div className="card-panel overflow-hidden p-4 sm:p-5">
           <div className="mb-6 max-w-md relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[color:var(--color-text-dim)]" />
             <input
               type="text"
               placeholder="Search candidate..."
@@ -199,10 +199,10 @@ export default function BlackBeltPage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {loading ? (
               <div className="col-span-full py-12 flex justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
               </div>
             ) : filteredCandidates.length === 0 ? (
-              <div className="col-span-full py-12 text-center text-zinc-500">
+              <div className="col-span-full py-12 text-center text-[color:var(--color-text-dim)]">
                 No candidates found.
               </div>
             ) : (
@@ -210,29 +210,29 @@ export default function BlackBeltPage() {
                 <button
                   key={candidate.id}
                   onClick={() => openEditor(candidate)}
-                  className="flex flex-col rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-left transition-colors hover:border-zinc-700 hover:bg-zinc-900 group"
+                  className="flex flex-col rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4 text-left transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] group"
                 >
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-400">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
                         <Trophy className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-semibold text-white">{candidate.display_name}</p>
-                        <p className="text-xs text-zinc-500">{candidate.skf_id}</p>
+                        <p className="font-semibold text-[color:var(--color-text)]">{candidate.display_name}</p>
+                        <p className="text-xs text-[color:var(--color-text-dim)]">{candidate.skf_id}</p>
                       </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-zinc-600 transition-colors group-hover:text-white" />
+                    <ChevronRight className="h-5 w-5 text-[color:var(--color-text-faint)] transition-colors group-hover:text-[color:var(--color-text)]" />
                   </div>
                   
                   <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded border border-zinc-800 bg-black/40 p-2">
-                      <span className="block text-zinc-500">Readiness</span>
-                      <span className="font-medium capitalize text-zinc-300">{candidate.readiness.replace('_', ' ')}</span>
+                    <div className="rounded border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2">
+                      <span className="block text-[color:var(--color-text-dim)]">Readiness</span>
+                      <span className="font-medium capitalize text-[color:var(--color-text)]">{candidate.readiness.replace('_', ' ')}</span>
                     </div>
-                    <div className="rounded border border-zinc-800 bg-black/40 p-2">
-                      <span className="block text-zinc-500">Teaching Hrs</span>
-                      <span className="font-medium text-zinc-300">{candidate.teaching_hours || 0} hrs</span>
+                    <div className="rounded border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2">
+                      <span className="block text-[color:var(--color-text-dim)]">Teaching Hrs</span>
+                      <span className="font-medium text-[color:var(--color-text)]">{candidate.teaching_hours || 0} hrs</span>
                     </div>
                   </div>
                 </button>
@@ -244,52 +244,52 @@ export default function BlackBeltPage() {
         {selectedCandidate ? (
           <div className="glass-modal-overlay" onClick={(e) => e.target === e.currentTarget && closeEditor()}>
             <form onSubmit={handleSubmit} className="glass-modal max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-5">
-              <div className="mb-5 flex items-center justify-between gap-3 sticky top-0 bg-[#050505]/95 backdrop-blur-md pb-4 border-b border-zinc-800 z-10 -mt-4 pt-4 -mx-4 px-4">
+              <div className="mb-5 flex items-center justify-between gap-3 sticky top-0 bg-[color:var(--color-well)] backdrop-blur-md pb-4 border-b border-[color:var(--color-hairline)] z-10 -mt-4 pt-4 -mx-4 px-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-red-500/20 bg-red-500/10 text-red-400">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
                     <ShieldCheck className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-white">{selectedCandidate.display_name}</h2>
-                    <p className="text-xs text-zinc-500">{selectedCandidate.skf_id}</p>
+                    <h2 className="text-lg font-semibold text-[color:var(--color-text)]">{selectedCandidate.display_name}</h2>
+                    <p className="text-xs text-[color:var(--color-text-dim)]">{selectedCandidate.skf_id}</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={closeEditor}
                   disabled={saving}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
 
-              <div className="flex border-b border-zinc-800 mb-4 overflow-x-auto hide-scrollbar">
+              <div className="flex border-b border-[color:var(--color-hairline)] mb-4 overflow-x-auto hide-scrollbar">
                 <button
                   type="button"
                   onClick={() => setActiveTab("status")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "status" ? "border-red-500 text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"}`}
+                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "status" ? "border-[color:var(--color-overdue-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Overview & Status
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("academics")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "academics" ? "border-red-500 text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"}`}
+                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "academics" ? "border-[color:var(--color-overdue-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Academics & Rules
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("practical")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "practical" ? "border-red-500 text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"}`}
+                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "practical" ? "border-[color:var(--color-overdue-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Practical & Combat
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("continuous")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "continuous" ? "border-red-500 text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"}`}
+                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "continuous" ? "border-[color:var(--color-overdue-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Continuous Tasks
                 </button>
@@ -300,7 +300,7 @@ export default function BlackBeltPage() {
                   <section>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Overall Readiness</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Overall Readiness</span>
                         <select
                           className="input-minimal"
                           value={editForm.readiness || "on_track"}
@@ -313,7 +313,7 @@ export default function BlackBeltPage() {
                       </label>
 
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Final Result</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Final Result</span>
                         <select
                           className="input-minimal"
                           value={editForm.exam_result || ""}
@@ -327,7 +327,7 @@ export default function BlackBeltPage() {
                       </label>
 
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Final Score</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Final Score</span>
                         <input
                           type="number"
                           step="0.1"
@@ -338,7 +338,7 @@ export default function BlackBeltPage() {
                       </label>
 
                       <label className="block mt-4 sm:col-span-2">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Instructor Notes</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Instructor Notes</span>
                         <textarea
                           className="input-minimal min-h-[100px] resize-y"
                           value={editForm.instructor_notes || ""}
@@ -354,7 +354,7 @@ export default function BlackBeltPage() {
                   <section>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">First Aid Certification</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">First Aid Certification</span>
                         <select
                           className="input-minimal"
                           value={editForm.first_aid_status || "not_started"}
@@ -366,7 +366,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">WKF Kumite Rules</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">WKF Kumite Rules</span>
                         <select
                           className="input-minimal"
                           value={editForm.wkf_kumite_status || "not_started"}
@@ -378,7 +378,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">WKF Kata Rules</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">WKF Kata Rules</span>
                         <select
                           className="input-minimal"
                           value={editForm.wkf_kata_status || "not_started"}
@@ -390,7 +390,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">WKF Referee Status</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">WKF Referee Status</span>
                         <select
                           className="input-minimal"
                           value={editForm.wkf_referee_status || "not_started"}
@@ -409,7 +409,7 @@ export default function BlackBeltPage() {
                   <section>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Weapon Mastery</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Weapon Mastery</span>
                         <select
                           className="input-minimal"
                           value={editForm.weapon_status || "not_started"}
@@ -421,7 +421,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Bunkai Mechanics</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Bunkai Mechanics</span>
                         <select
                           className="input-minimal"
                           value={editForm.bunkai_status || "not_done"}
@@ -433,7 +433,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Tournament Kata</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Tournament Kata</span>
                         <select
                           className="input-minimal"
                           value={editForm.tournament_kata_status || "not_won"}
@@ -444,7 +444,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Tournament Kumite</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Tournament Kumite</span>
                         <select
                           className="input-minimal"
                           value={editForm.tournament_kumite_status || "not_won"}
@@ -462,7 +462,7 @@ export default function BlackBeltPage() {
                   <section>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Teaching Status</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Teaching Status</span>
                         <select
                           className="input-minimal"
                           value={editForm.teaching_status || "ongoing"}
@@ -474,7 +474,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Teaching Hours</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Teaching Hours</span>
                         <input
                           type="number"
                           className="input-minimal"
@@ -483,7 +483,7 @@ export default function BlackBeltPage() {
                         />
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Video Submissions</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Video Submissions</span>
                         <input
                           type="number"
                           className="input-minimal"
@@ -492,7 +492,7 @@ export default function BlackBeltPage() {
                         />
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-zinc-400">Marketing Enrollment</span>
+                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Marketing Enrollment</span>
                         <select
                           className="input-minimal"
                           value={editForm.marketing_status || "in_progress"}
@@ -502,35 +502,35 @@ export default function BlackBeltPage() {
                           <option value="enrolled">Student Enrolled</option>
                         </select>
                       </label>
-                      <label className="block flex items-center gap-3 p-3 rounded-lg border border-zinc-800 bg-zinc-950 mt-4 sm:col-span-2">
+                      <label className="block flex items-center gap-3 p-3 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] mt-4 sm:col-span-2">
                         <input
                           type="checkbox"
                           checked={editForm.mock_exam_done || false}
                           onChange={(e) => handleFieldChange("mock_exam_done", e.target.checked)}
-                          className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-red-500 focus:ring-red-500 focus:ring-offset-zinc-950"
+                          className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-overdue)] focus:ring-offset-zinc-950"
                         />
                         <div>
-                          <span className="block text-sm font-semibold text-white">Mock Examinations Completed</span>
-                          <span className="block text-xs text-zinc-500">Has the candidate passed the mock examinations?</span>
+                          <span className="block text-sm font-semibold text-[color:var(--color-text)]">Mock Examinations Completed</span>
+                          <span className="block text-xs text-[color:var(--color-text-dim)]">Has the candidate passed the mock examinations?</span>
                         </div>
                       </label>
                     </div>
 
                     <div className="mt-6">
-                      <h4 className="mb-3 text-xs font-semibold text-zinc-400">Self-Defense Monthly Check-ins</h4>
+                      <h4 className="mb-3 text-xs font-semibold text-[color:var(--color-text-dim)]">Self-Defense Monthly Check-ins</h4>
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                         {[1, 2, 3, 4, 5].map((monthNum) => {
                           const key = `month_${monthNum}`;
                           const isChecked = editForm.self_defense_months?.[key] ?? selectedCandidate?.self_defense_months?.[key] ?? false;
                           return (
-                            <label key={key} className="flex items-center gap-2 p-2 rounded-lg border border-zinc-800 bg-zinc-950">
+                            <label key={key} className="flex items-center gap-2 p-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
                               <input
                                 type="checkbox"
                                 checked={isChecked}
                                 onChange={(e) => handleSelfDefenseChange(key, e.target.checked)}
-                                className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-red-500 focus:ring-red-500 focus:ring-offset-zinc-950"
+                                className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-overdue)] focus:ring-offset-zinc-950"
                               />
-                              <span className="text-xs text-zinc-300">Month {monthNum}</span>
+                              <span className="text-xs text-[color:var(--color-text)]">Month {monthNum}</span>
                             </label>
                           );
                         })}
@@ -539,7 +539,7 @@ export default function BlackBeltPage() {
                   </section>
                 )}
 
-                <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end border-t border-zinc-800 mt-6">
+                <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end border-t border-[color:var(--color-hairline)] mt-6">
                   <button
                     type="button"
                     onClick={closeEditor}
@@ -551,7 +551,7 @@ export default function BlackBeltPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="btn-primary bg-red-600 hover:bg-red-500 text-white inline-flex min-h-11 items-center justify-center gap-2"
+                    className="btn-primary bg-[color:var(--color-overdue)] hover:bg-[color:var(--color-overdue)] text-[color:var(--color-text)] inline-flex min-h-11 items-center justify-center gap-2"
                   >
                     {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                     Save Candidate

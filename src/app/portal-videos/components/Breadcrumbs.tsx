@@ -28,7 +28,7 @@ export function Breadcrumbs({
         const isDropTarget = dropTargetId != null && (crumb.id ? dropTargetId === crumb.id : dropTargetId === "__root__");
         return (
           <span key={crumb.id || "root"} className="flex items-center gap-1">
-            {index > 0 ? <ChevronRight className="h-3.5 w-3.5 text-zinc-700" /> : null}
+            {index > 0 ? <ChevronRight className="h-3.5 w-3.5 text-[color:var(--color-text-faint)]" /> : null}
             <button
               type="button"
               onClick={() => onNavigate(crumb.id)}
@@ -37,9 +37,9 @@ export function Breadcrumbs({
               onDrop={(event) => onDropOnNode?.(event, crumb.id)}
               className={`max-w-44 truncate rounded-md px-2 py-1 font-semibold transition-colors ${
                 isLast
-                  ? "text-white"
-                  : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200"
-              } ${isDropTarget ? "ring-2 ring-cyan-400/70 bg-cyan-500/10 text-cyan-100" : ""}`}
+                  ? "text-[color:var(--color-text)]"
+                  : "text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)]"
+              } ${isDropTarget ? "ring-2 ring-[color:var(--color-accent)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : ""}`}
               title={crumb.label}
             >
               {crumb.label}

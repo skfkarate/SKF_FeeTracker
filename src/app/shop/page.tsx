@@ -153,7 +153,7 @@ function ImagePreview({ src, alt, className = "" }: { src?: string; alt: string;
 
   if (!imageUrl) {
     return (
-      <div className={`flex items-center justify-center bg-black text-zinc-700 ${className}`}>
+      <div className={`flex items-center justify-center bg-[color:var(--color-well)] text-[color:var(--color-text-faint)] ${className}`}>
         <ImageIcon className="h-6 w-6" />
       </div>
     );
@@ -429,9 +429,9 @@ export default function ShopPage() {
 
   if (checking || !user) {
     return (
-      <div className="min-h-screen bg-black text-zinc-300">
+      <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -451,11 +451,11 @@ export default function ShopPage() {
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="eyebrow text-zinc-500">Store Operations</p>
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-paid)]" />
+              <p className="eyebrow text-[color:var(--color-text-dim)]">Store Operations</p>
             </div>
-            <h1 className="mt-1 text-[15px] font-semibold text-white">Shop Manager</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500">
+            <h1 className="mt-1 text-[15px] font-semibold text-[color:var(--color-text)]">Shop Manager</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[color:var(--color-text-dim)]">
               Manage products, images, variants, stock and order progress from one simple control screen.
             </p>
           </div>
@@ -490,14 +490,14 @@ export default function ShopPage() {
         </div>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{notice}</p>
           </div>
@@ -508,8 +508,8 @@ export default function ShopPage() {
             <div className="hud-panel p-4">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Catalog</p>
-                  <h2 className="text-lg font-semibold text-white">Products</h2>
+                  <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Catalog</p>
+                  <h2 className="text-lg font-semibold text-[color:var(--color-text)]">Products</h2>
                 </div>
                 <button
                   type="button"
@@ -523,13 +523,13 @@ export default function ShopPage() {
               </div>
 
               <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-                <div className="flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-3">
-                  <Search className="h-4 w-4 text-zinc-600" />
+                <div className="flex items-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3">
+                  <Search className="h-4 w-4 text-[color:var(--color-text-faint)]" />
                   <input
                     value={productSearch}
                     onChange={(event) => setProductSearch(event.target.value)}
                     placeholder="Search products"
-                    className="min-h-11 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-zinc-600"
+                    className="min-h-11 flex-1 bg-transparent text-sm text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)]"
                   />
                 </div>
 
@@ -550,12 +550,12 @@ export default function ShopPage() {
 
               {loadingProducts ? (
                 <div className="flex h-56 items-center justify-center">
-                  <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+                  <Loader2 className="h-5 w-5 animate-spin text-[color:var(--color-text-dim)]" />
                 </div>
               ) : filteredProducts.length === 0 ? (
                 <div className="card-panel flex min-h-56 flex-col items-center justify-center gap-4 p-8 text-center">
-                  <ShoppingBag className="h-8 w-8 text-zinc-600" />
-                  <p className="text-sm text-zinc-500">No products found.</p>
+                  <ShoppingBag className="h-8 w-8 text-[color:var(--color-text-faint)]" />
+                  <p className="text-sm text-[color:var(--color-text-dim)]">No products found.</p>
                   <button type="button" onClick={startNewProduct} className="btn-primary inline-flex items-center gap-2">
                     <PackagePlus className="h-4 w-4" />
                     Create Product
@@ -605,7 +605,7 @@ export default function ShopPage() {
                     type="button"
                     onClick={resetDraft}
                     disabled={savingProduct}
-                    className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200 disabled:opacity-50"
+                    className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-sm text-[color:var(--color-text)] disabled:opacity-50"
                   >
                     Reset
                   </button>
@@ -613,7 +613,7 @@ export default function ShopPage() {
                     type="button"
                     onClick={() => setEditorOpen(false)}
                     disabled={savingProduct}
-                    className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200 disabled:opacity-50"
+                    className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-sm text-[color:var(--color-text)] disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -621,7 +621,7 @@ export default function ShopPage() {
                     type="submit"
                     form="product-form"
                     disabled={savingProduct}
-                    className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black disabled:opacity-50"
+                    className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
                   >
                     {savingProduct ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {savingProduct ? "Saving" : "Save Product"}
@@ -634,7 +634,7 @@ export default function ShopPage() {
                 <div className="space-y-6">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-zinc-500">Product Name</span>
+                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Product Name</span>
                       <input
                         value={draft.name}
                         onChange={(event) => updateDraft({ name: event.target.value })}
@@ -644,7 +644,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-zinc-500">Product ID</span>
+                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Product ID</span>
                       <input
                         value={draft.id}
                         onChange={(event) => updateDraft({ id: event.target.value })}
@@ -657,7 +657,7 @@ export default function ShopPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-zinc-500">Category</span>
+                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Category</span>
                       <select
                         value={draft.category}
                         onChange={(event) => updateDraft({ category: event.target.value as ShopProductCategory })}
@@ -672,7 +672,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-zinc-500">Price</span>
+                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Price</span>
                       <input
                         type="number"
                         min="0"
@@ -684,7 +684,7 @@ export default function ShopPage() {
                   </div>
 
                   <label className="block">
-                    <span className="mb-2 block eyebrow text-zinc-500">Description</span>
+                    <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Description</span>
                     <textarea
                       value={draft.description}
                       onChange={(event) => updateDraft({ description: event.target.value })}
@@ -696,7 +696,7 @@ export default function ShopPage() {
 
                   <div>
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-zinc-500">Images</span>
+                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Images</span>
                       <textarea
                         value={draft.imagesText}
                         onChange={(event) => updateDraft({ imagesText: event.target.value })}
@@ -714,7 +714,7 @@ export default function ShopPage() {
                           className="aspect-square w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)]"
                         />
                       )) : (
-                        <div className="col-span-full rounded-[var(--radius-row)] border border-dashed border-[color:var(--color-hairline)] p-4 text-sm text-zinc-600">
+                        <div className="col-span-full rounded-[var(--radius-row)] border border-dashed border-[color:var(--color-hairline)] p-4 text-sm text-[color:var(--color-text-faint)]">
                           Add image URLs to preview product photos.
                         </div>
                       )}
@@ -723,7 +723,7 @@ export default function ShopPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-zinc-500">Access</span>
+                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Access</span>
                       <select
                         value={draft.isPublic ? "public" : "athlete"}
                         onChange={(event) => updateDraft({ isPublic: event.target.value === "public" })}
@@ -735,7 +735,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-zinc-500">Required Belt</span>
+                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Required Belt</span>
                       <select
                         value={draft.isPublic ? "None" : draft.requiresBelt}
                         onChange={(event) => updateDraft({ requiresBelt: event.target.value })}
@@ -751,7 +751,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-zinc-500">Rating</span>
+                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Rating</span>
                       <input
                         type="number"
                         min="0"
@@ -764,7 +764,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-zinc-500">Reviews</span>
+                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Reviews</span>
                       <input
                         type="number"
                         min="0"
@@ -778,8 +778,8 @@ export default function ShopPage() {
                   <section>
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <div>
-                        <p className="eyebrow text-zinc-500">Variants and Stock</p>
-                        <h3 className="text-sm font-semibold text-white">Sizes, units and approval rules</h3>
+                        <p className="eyebrow text-[color:var(--color-text-dim)]">Variants and Stock</p>
+                        <h3 className="text-sm font-semibold text-[color:var(--color-text)]">Sizes, units and approval rules</h3>
                       </div>
                       <button
                         type="button"
@@ -793,11 +793,11 @@ export default function ShopPage() {
 
                     <div className="space-y-3">
                       {draft.variants.map((variant, index) => (
-                        <div key={`${variant.id || "variant"}-${index}`} className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
+                        <div key={`${variant.id || "variant"}-${index}`} className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
                           <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_130px_auto] sm:items-end">
                             <div className="grid gap-3 sm:grid-cols-2">
                               <label className="block">
-                                <span className="mb-2 block eyebrow text-zinc-600">Size</span>
+                                <span className="mb-2 block eyebrow text-[color:var(--color-text-faint)]">Size</span>
                                 <input
                                   value={variant.size}
                                   onChange={(event) => updateVariant(index, { size: event.target.value })}
@@ -806,7 +806,7 @@ export default function ShopPage() {
                                 />
                               </label>
                               <label className="block">
-                                <span className="mb-2 block eyebrow text-zinc-600">Variant ID</span>
+                                <span className="mb-2 block eyebrow text-[color:var(--color-text-faint)]">Variant ID</span>
                                 <input
                                   value={variant.id}
                                   onChange={(event) => updateVariant(index, { id: event.target.value })}
@@ -817,7 +817,7 @@ export default function ShopPage() {
                             </div>
 
                             <label className="block">
-                              <span className="mb-2 block eyebrow text-zinc-600">Stock</span>
+                              <span className="mb-2 block eyebrow text-[color:var(--color-text-faint)]">Stock</span>
                               <input
                                 type="number"
                                 min="0"
@@ -828,7 +828,7 @@ export default function ShopPage() {
                             </label>
 
                             <div className="flex items-center gap-2 sm:flex-col sm:items-stretch">
-                              <label className="flex min-h-11 flex-1 items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-black px-3 text-xs font-semibold text-zinc-400">
+                              <label className="flex min-h-11 flex-1 items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text-dim)]">
                                 <input
                                   type="checkbox"
                                   checked={variant.requiresApproval}
@@ -840,7 +840,7 @@ export default function ShopPage() {
                                 type="button"
                                 onClick={() => removeVariant(index)}
                                 disabled={draft.variants.length === 1}
-                                className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] text-zinc-500 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40"
+                                className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-40"
                                 aria-label="Remove variant"
                               >
                                 <X className="h-4 w-4" />
@@ -856,7 +856,7 @@ export default function ShopPage() {
               </section>
 
               <aside className="hud-panel h-fit overflow-hidden">
-                <div className="aspect-square bg-black">
+                <div className="aspect-square bg-[color:var(--color-well)]">
                   <ImagePreview
                     src={draftImages[0]}
                     alt={draft.name || "Product preview"}
@@ -865,26 +865,26 @@ export default function ShopPage() {
                 </div>
                 <div className="p-4">
                   <div className="mb-3 flex items-center justify-between gap-3">
-                    <span className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    <span className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">
                       {draft.category}
                     </span>
-                    <span className="text-sm font-semibold text-white">{currency(draft.price)}</span>
+                    <span className="text-sm font-semibold text-[color:var(--color-text)]">{currency(draft.price)}</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-white">{draft.name || "Product preview"}</h3>
-                  <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-zinc-500">
+                  <h3 className="text-lg font-semibold text-[color:var(--color-text)]">{draft.name || "Product preview"}</h3>
+                  <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-[color:var(--color-text-dim)]">
                     {draft.description || "Description preview will appear here."}
                   </p>
                   <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
-                      <p className="text-zinc-600">Images</p>
-                      <p className="mt-1 font-semibold text-white">{draftImages.length}</p>
+                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+                      <p className="text-[color:var(--color-text-faint)]">Images</p>
+                      <p className="mt-1 font-semibold text-[color:var(--color-text)]">{draftImages.length}</p>
                     </div>
-                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
-                      <p className="text-zinc-600">Variants</p>
-                      <p className="mt-1 font-semibold text-white">{draft.variants.length}</p>
+                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+                      <p className="text-[color:var(--color-text-faint)]">Variants</p>
+                      <p className="mt-1 font-semibold text-[color:var(--color-text)]">{draft.variants.length}</p>
                     </div>
                   </div>
-                  <div className="mt-3 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3 text-xs text-zinc-500">
+                  <div className="mt-3 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 text-xs text-[color:var(--color-text-dim)]">
                     {draft.isPublic ? "Available for public checkout." : `Athlete-only${draft.requiresBelt !== "None" ? `, ${draft.requiresBelt}+ belt` : ""}.`}
                   </div>
                 </div>
@@ -902,13 +902,13 @@ export default function ShopPage() {
 
             <div className="card-panel p-4">
               <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-                <div className="flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-3">
-                  <Search className="h-4 w-4 text-zinc-600" />
+                <div className="flex items-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3">
+                  <Search className="h-4 w-4 text-[color:var(--color-text-faint)]" />
                   <input
                     value={orderSearch}
                     onChange={(event) => setOrderSearch(event.target.value)}
                     placeholder="Search order, customer, SKF ID, phone or product"
-                    className="min-h-11 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-zinc-600"
+                    className="min-h-11 flex-1 bg-transparent text-sm text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)]"
                   />
                 </div>
                 <select
@@ -928,12 +928,12 @@ export default function ShopPage() {
 
             {loadingOrders ? (
               <div className="flex h-56 items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
               </div>
             ) : filteredOrders.length === 0 ? (
               <div className="card-panel flex min-h-56 flex-col items-center justify-center gap-3 p-8 text-center">
-                <ShoppingBag className="h-8 w-8 text-zinc-600" />
-                <p className="text-sm text-zinc-500">No shop orders found.</p>
+                <ShoppingBag className="h-8 w-8 text-[color:var(--color-text-faint)]" />
+                <p className="text-sm text-[color:var(--color-text-dim)]">No shop orders found.</p>
               </div>
             ) : (
               <div className="hud-panel overflow-hidden">

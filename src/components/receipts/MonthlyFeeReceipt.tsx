@@ -267,7 +267,7 @@ export default function MonthlyFeeReceipt({
                 alt="SKF"
                 width={54}
                 height={54}
-                className="rounded-full object-contain border-2 border-[#ffb703] bg-white"
+                className="rounded-full object-contain border-2 border-[color:var(--color-hairline)] bg-[color:var(--color-accent)]"
               />
               <div>
                 <h1
@@ -650,7 +650,7 @@ export default function MonthlyFeeReceipt({
         </div>
 
         {downloadError && (
-          <p className="mt-3 text-center text-xs text-red-300">
+          <p className="mt-3 text-center text-xs text-[color:var(--color-text)]">
             {downloadError}
           </p>
         )}
@@ -658,7 +658,7 @@ export default function MonthlyFeeReceipt({
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
-            className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider"
+            className="btn-ghost flex-1 font-sans tracking-wider"
           >
             CLOSE
           </button>
@@ -667,7 +667,7 @@ export default function MonthlyFeeReceipt({
               href={`/api/feetrack/receipts/${encodeURIComponent(student.receiptId)}`}
               target="_blank"
               rel="noreferrer"
-              className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-center"
+              className="btn-ghost flex-1 font-sans tracking-wider text-center"
             >
               OFFICIAL PDF
             </a>
@@ -675,7 +675,7 @@ export default function MonthlyFeeReceipt({
           <button
             onClick={handleDownloadClick}
             disabled={isDownloading}
-            className="btn-primary flex-1 font-[family-name:var(--font-space)] tracking-wider flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed border-none text-white"
+            className="btn-primary flex-1 font-sans tracking-wider flex items-center justify-center gap-2 bg-[color:var(--color-paid)] hover:bg-[color:var(--color-paid)] disabled:opacity-60 disabled:cursor-not-allowed border-none text-[color:var(--color-text)]"
           >
             {isDownloading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -689,44 +689,44 @@ export default function MonthlyFeeReceipt({
 
       {showDatePicker && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-[color:var(--color-well)] backdrop-blur-md p-4"
           onClick={() => setShowDatePicker(false)}
         >
           <div
-            className="bg-[#0a0a0a] border border-white/10 rounded-2xl w-full max-w-sm p-6 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
+            className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-2xl w-full max-w-sm p-6 shadow-[0_0_40px_rgba(34,197,94,0.15)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center mb-6">
-              <h3 className="font-[family-name:var(--font-space)] text-lg font-bold text-white tracking-wider">
+              <h3 className="font-sans text-lg font-bold text-[color:var(--color-text)] tracking-wider">
                 RECEIPT DATE & TIME
               </h3>
-              <p className="text-white/40 text-xs mt-1">
+              <p className="text-[color:var(--color-text)] text-xs mt-1">
                 Set the payment date & time for this receipt
               </p>
             </div>
 
             <div className="mb-4">
-              <label className="text-white/50 text-[10px] uppercase tracking-wider font-bold block mb-2">
+              <label className="text-[color:var(--color-text)] text-[10px] uppercase tracking-wider font-bold block mb-2">
                 Payment Date
               </label>
               <input
                 type="date"
                 value={pickerDate}
                 onChange={(e) => setPickerDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium focus:outline-none focus:border-green-500/50 focus:ring-1 focus:ring-green-500/20 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-paid-border)] focus:ring-1 focus:ring-[color:var(--color-paid)] transition-all"
                 style={{ colorScheme: "dark" }}
               />
             </div>
 
             <div className="mb-6">
-              <label className="text-white/50 text-[10px] uppercase tracking-wider font-bold block mb-2">
+              <label className="text-[color:var(--color-text)] text-[10px] uppercase tracking-wider font-bold block mb-2">
                 Payment Time
               </label>
               <input
                 type="time"
                 value={pickerTime}
                 onChange={(e) => setPickerTime(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium focus:outline-none focus:border-green-500/50 focus:ring-1 focus:ring-green-500/20 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-paid-border)] focus:ring-1 focus:ring-[color:var(--color-paid)] transition-all"
                 style={{ colorScheme: "dark" }}
               />
             </div>
@@ -734,14 +734,14 @@ export default function MonthlyFeeReceipt({
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDatePicker(false)}
-                className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-sm font-[family-name:var(--font-space)] tracking-wider transition-all border border-white/5 hover:border-white/10"
+                className="flex-1 py-3 rounded-xl bg-[color:var(--color-well)] hover:bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:text-[color:var(--color-text)] text-sm font-sans tracking-wider transition-all border border-[color:var(--color-hairline)] hover:border-[color:var(--color-hairline)]"
               >
                 CANCEL
               </button>
               <button
                 onClick={confirmDateAndDownload}
                 disabled={isDownloading}
-                className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-[family-name:var(--font-space)] tracking-wider transition-all font-bold shadow-lg shadow-green-900/30"
+                className="flex-1 py-3 rounded-xl bg-[color:var(--color-paid)] hover:bg-[color:var(--color-paid)] disabled:opacity-60 disabled:cursor-not-allowed text-[color:var(--color-text)] text-sm font-sans tracking-wider transition-all font-bold shadow-lg shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
               >
                 CONFIRM & DOWNLOAD
               </button>

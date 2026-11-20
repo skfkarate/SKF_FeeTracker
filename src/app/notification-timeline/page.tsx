@@ -119,30 +119,30 @@ function studentName(student: Student) {
 function stylesForKind(kind: TimelineKind) {
   if (kind === "event") {
     return {
-      card: "border-cyan-400/25 bg-cyan-400/[0.08] text-cyan-100",
-      rail: "bg-cyan-300",
-      icon: "border-cyan-300/20 bg-cyan-300 text-black",
-      badge: "border-cyan-300/20 bg-cyan-300/10 text-cyan-100",
-      status: "text-cyan-200/70",
+      card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent-dim)] text-[color:var(--color-text)]",
+      rail: "bg-[color:var(--color-accent)]",
+      icon: "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]",
+      badge: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]",
+      status: "text-[color:var(--color-text)]",
     };
   }
 
   if (kind === "birthday") {
     return {
-      card: "border-rose-400/25 bg-rose-500/[0.08] text-rose-100",
-      rail: "bg-rose-300",
-      icon: "border-rose-300/20 bg-rose-300 text-black",
-      badge: "border-rose-300/20 bg-rose-300/10 text-rose-100",
-      status: "text-rose-200/70",
+      card: "border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue-dim)] text-[color:var(--color-text)]",
+      rail: "bg-[color:var(--color-overdue)]",
+      icon: "border-[color:var(--color-overdue-border)] bg-[color:var(--color-overdue)] text-[color:var(--color-accent-ink)]",
+      badge: "border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]",
+      status: "text-[color:var(--color-text)]",
     };
   }
 
   return {
-    card: "border-violet-400/25 bg-violet-500/[0.08] text-violet-100",
-    rail: "bg-violet-300",
-    icon: "border-violet-300/20 bg-violet-300 text-black",
-    badge: "border-violet-300/20 bg-violet-300/10 text-violet-100",
-    status: "text-violet-200/70",
+    card: "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent-dim)] text-[color:var(--color-text)]",
+    rail: "bg-[color:var(--color-accent)]",
+    icon: "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]",
+    badge: "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]",
+    status: "text-[color:var(--color-text)]",
   };
 }
 
@@ -323,23 +323,23 @@ export default function NotificationTimelinePage() {
 
   if (checking || !user) {
     return (
-      <div className="min-h-screen bg-black text-zinc-300">
+      <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Activity className="h-6 w-6 animate-pulse text-zinc-500" />
+          <Activity className="h-6 w-6 animate-pulse text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
+    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
       <Navbar showBack title="Notification Timeline" rightContent={<AccountMenu />} />
 
       <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 sm:px-6 sm:pt-28">
         <header className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Admin Timeline</p>
-            <h1 className="mt-2 font-[family-name:var(--font-space)] text-3xl font-semibold text-white sm:text-4xl">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">Admin Timeline</p>
+            <h1 className="mt-2 font-sans text-3xl font-semibold text-[color:var(--color-text)] sm:text-4xl">
               Notifications and calendar
             </h1>
           </div>
@@ -355,18 +355,18 @@ export default function NotificationTimelinePage() {
           <div className="card-panel p-4">
             <div className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
               <label className="relative block">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search timeline..."
-                  className="min-h-11 w-full rounded-lg border border-zinc-800 bg-black py-2 pl-10 pr-3 text-sm text-white outline-none focus:border-zinc-500"
+                  className="min-h-11 w-full rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] py-2 pl-10 pr-3 text-sm text-[color:var(--color-text)] outline-none focus:border-[color:var(--color-hairline-strong)]"
                 />
               </label>
               <select
                 value={year}
                 onChange={(event) => setYear(Number(event.target.value))}
-                className="min-h-11 rounded-lg border border-zinc-800 bg-black px-3 text-sm text-white outline-none focus:border-zinc-500"
+                className="min-h-11 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-sm text-[color:var(--color-text)] outline-none focus:border-[color:var(--color-hairline-strong)]"
               >
                 {[getCurrentFeeYear() - 1, getCurrentFeeYear(), getCurrentFeeYear() + 1].map((value) => (
                   <option key={value} value={value}>{value}</option>
@@ -376,7 +376,7 @@ export default function NotificationTimelinePage() {
                 type="button"
                 onClick={() => loadTimeline(true)}
                 disabled={refreshing}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-black px-4 text-sm font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white disabled:opacity-60"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] disabled:opacity-60"
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
                 Refresh
@@ -390,8 +390,8 @@ export default function NotificationTimelinePage() {
                   onClick={() => setFilter(item.value)}
                   className={`min-h-10 whitespace-nowrap rounded-full border px-4 text-xs font-semibold transition-colors ${
                     filter === item.value
-                      ? "border-white bg-white text-black"
-                      : "border-zinc-800 bg-black text-zinc-500 hover:border-zinc-600 hover:text-white"
+                      ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
+                      : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                   }`}
                 >
                   {item.label}
@@ -402,12 +402,12 @@ export default function NotificationTimelinePage() {
 
           <div className="card-panel p-4">
             <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-black text-zinc-400">
+              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
                 <Bell className="h-4 w-4" />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-white">Device Alerts</p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="text-sm font-semibold text-[color:var(--color-text)]">Device Alerts</p>
+                <p className="mt-1 text-xs text-[color:var(--color-text-dim)]">
                   {permission === "granted"
                     ? "Enabled on this browser."
                     : permission === "denied"
@@ -423,35 +423,35 @@ export default function NotificationTimelinePage() {
                 <button
                   type="button"
                   onClick={requestDeviceAlerts}
-                  className="min-h-10 rounded-lg bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+                  className="min-h-10 rounded-lg bg-[color:var(--color-accent)] px-3 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)]"
                 >
                   Enable
                 </button>
               ) : (
-                <CheckCircle2 className="mt-2 h-4 w-4 text-emerald-400" />
+                <CheckCircle2 className="mt-2 h-4 w-4 text-[color:var(--color-text-dim)]" />
               )}
             </div>
           </div>
         </section>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {loading ? (
-          <div className="flex min-h-80 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950">
-            <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          <div className="flex min-h-80 items-center justify-center rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
+            <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
           </div>
         ) : groups.length ? (
           <div className="space-y-6">
             {groups.map(([month, items]) => (
               <section key={month}>
                 <div className="mb-3 flex items-center gap-3">
-                  <CalendarDays className="h-4 w-4 text-zinc-500" />
-                  <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-500">{month}</h2>
+                  <CalendarDays className="h-4 w-4 text-[color:var(--color-text-dim)]" />
+                  <h2 className="text-sm font-semibold uppercase tracking-widest text-[color:var(--color-text-dim)]">{month}</h2>
                 </div>
                 <div className="space-y-3">
                   {items.map((item) => (
@@ -462,9 +462,9 @@ export default function NotificationTimelinePage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-8 text-center">
-            <p className="text-sm font-semibold text-white">No timeline items found</p>
-            <p className="mt-1 text-xs text-zinc-500">Try a different filter, search term, or year.</p>
+          <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-8 text-center">
+            <p className="text-sm font-semibold text-[color:var(--color-text)]">No timeline items found</p>
+            <p className="mt-1 text-xs text-[color:var(--color-text-dim)]">Try a different filter, search term, or year.</p>
           </div>
         )}
       </main>
@@ -474,9 +474,9 @@ export default function NotificationTimelinePage() {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-right">
-      <p className="text-lg font-semibold text-white">{value.toLocaleString("en-IN")}</p>
-      <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">{label}</p>
+    <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 py-3 text-right">
+      <p className="text-lg font-semibold text-[color:var(--color-text)]">{value.toLocaleString("en-IN")}</p>
+      <p className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-text-faint)]">{label}</p>
     </div>
   );
 }
@@ -513,14 +513,14 @@ function TimelineCard({ item }: { item: TimelineItem }) {
               </span>
               <span className={`text-[10px] font-semibold uppercase tracking-widest ${styles.status}`}>{item.status}</span>
             </div>
-            <h3 className="mt-2 text-base font-semibold text-white">{item.title}</h3>
-            <p className="mt-1 text-xs text-white/70">{item.meta}</p>
-            <p className="mt-2 text-xs text-white/50">{item.detail}</p>
+            <h3 className="mt-2 text-base font-semibold text-[color:var(--color-text)]">{item.title}</h3>
+            <p className="mt-1 text-xs text-[color:var(--color-text)]">{item.meta}</p>
+            <p className="mt-2 text-xs text-[color:var(--color-text)]">{item.detail}</p>
           </div>
         </div>
         <div className="flex shrink-0 items-center justify-between gap-3 sm:block sm:text-right">
-          <p className="text-sm font-semibold text-white">{formatDate(item.date)}</p>
-          <p className="mt-1 text-xs text-white/45">{relative}</p>
+          <p className="text-sm font-semibold text-[color:var(--color-text)]">{formatDate(item.date)}</p>
+          <p className="mt-1 text-xs text-[color:var(--color-text)]">{relative}</p>
         </div>
       </div>
     </div>

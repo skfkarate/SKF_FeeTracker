@@ -94,12 +94,12 @@ function ledgerStatus(status: FinanceLedgerRow["status"]): LedgerStatus {
 
 function toneClass(tone: "green" | "amber" | "blue" | "red" | "purple" | "white") {
   const map = {
-    green: "text-green-400",
-    amber: "text-amber-400",
-    blue: "text-blue-400",
-    red: "text-red-400",
-    purple: "text-purple-400",
-    white: "text-white",
+    green: "text-[color:var(--color-text-dim)]",
+    amber: "text-[color:var(--color-text-dim)]",
+    blue: "text-[color:var(--color-text-dim)]",
+    red: "text-[color:var(--color-text-dim)]",
+    purple: "text-[color:var(--color-text-dim)]",
+    white: "text-[color:var(--color-text)]",
   };
   return map[tone];
 }
@@ -126,14 +126,14 @@ function MetricCard({
       type="button"
       onClick={onClick}
       className={`glass-card p-4 text-left relative overflow-hidden transition-all ${
-        active ? "border-white/30 bg-white/[0.04]" : "hover:border-white/15"
+        active ? "border-[color:var(--color-hairline)] bg-[color:var(--color-accent-dim)]" : "hover:border-[color:var(--color-hairline)]"
       }`}
     >
       <Icon className={`absolute right-3 top-3 w-10 h-10 opacity-10 ${toneClass(tone)}`} />
       <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">
         {label}
       </p>
-      <p className={`font-[family-name:var(--font-space)] text-xl ${toneClass(tone)}`}>
+      <p className={`font-sans text-xl ${toneClass(tone)}`}>
         {value}
       </p>
       <p className="text-[10px] text-[var(--text-muted)] mt-1">{note}</p>
@@ -250,7 +250,7 @@ export default function FinancesPage() {
               <button
                 type="button"
                 onClick={() => loadData(true)}
-                className="tap-target grid place-items-center rounded-full border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-zinc-300 transition-colors hover:text-white disabled:opacity-50"
+                className="tap-target grid place-items-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] transition-colors hover:text-[color:var(--color-text)] disabled:opacity-50"
                 aria-label="Refresh finance data"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -288,7 +288,7 @@ export default function FinancesPage() {
 
         {error && (
           <div className="text-center py-16">
-            <p className="text-red-400 mb-4 text-sm">{error}</p>
+            <p className="text-[color:var(--color-text-dim)] mb-4 text-sm">{error}</p>
             <button onClick={() => loadData(true)} className="btn-primary text-sm">
               Retry
             </button>
@@ -301,11 +301,11 @@ export default function FinancesPage() {
             <section className="hud-panel p-5 sm:p-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="eyebrow text-zinc-400">{data.branch} · {data.periodLabel}</p>
-                  <p className={`numeric mt-3 text-[40px] leading-none ${data.summary.availableBalance < 0 ? "text-red-400" : "text-white"}`}>
+                  <p className="eyebrow text-[color:var(--color-text-dim)]">{data.branch} · {data.periodLabel}</p>
+                  <p className={`numeric mt-3 text-[40px] leading-none ${data.summary.availableBalance < 0 ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text)]"}`}>
                     {num(data.summary.availableBalance)}
                   </p>
-                  <p className="mt-3 max-w-xl text-xs text-zinc-500">{data.formulas.availableBalance}</p>
+                  <p className="mt-3 max-w-xl text-xs text-[color:var(--color-text-dim)]">{data.formulas.availableBalance}</p>
                 </div>
                 <MeterRing
                   value={data.summary.collectionRate}
@@ -338,8 +338,8 @@ export default function FinancesPage() {
                     key={warning.message}
                     className={`glass-card p-3 flex items-start gap-3 ${
                       warning.level === "danger"
-                        ? "text-red-300"
-                        : "text-amber-300"
+                        ? "text-[color:var(--color-text)]"
+                        : "text-[color:var(--color-text)]"
                     }`}
                     style={{
                       borderColor:
@@ -358,8 +358,8 @@ export default function FinancesPage() {
             {section === "overview" ? (
             <section className="hud-panel p-6">
               <div className="flex items-center gap-2 mb-6">
-                <BarChart3 className="w-5 h-5 text-blue-400" />
-                <h2 className="text-[15px] font-semibold text-white">Fee Position</h2>
+                <BarChart3 className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Fee Position</h2>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <MetricCard
@@ -405,13 +405,13 @@ export default function FinancesPage() {
             <section className="hud-panel p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Calculator className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-[15px] font-semibold text-white">Calculation</h2>
+                  <Calculator className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                  <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Calculation</h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveFormula("all")}
-                  className="text-xs text-zinc-400 hover:text-white transition-colors border border-zinc-800 px-3 py-1.5 rounded-md"
+                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors border border-[color:var(--color-hairline)] px-3 py-1.5 rounded-md"
                 >
                   Show all ledger rows
                 </button>
@@ -429,7 +429,7 @@ export default function FinancesPage() {
                       idLabel={item.formula}
                       amount={`${signedAmount > 0 ? "+" : signedAmount < 0 ? "-" : ""}${num(Math.abs(signedAmount))}`}
                       trailing={<StatusPill status={signedAmount < 0 ? "overdue" : "credit"} label={signedAmount < 0 ? "Out" : "In"} />}
-                      className={activeFormula === item.key ? "bg-[#141414]" : undefined}
+                      className={activeFormula === item.key ? "bg-[color:var(--color-well)]" : undefined}
                       onClick={() => setActiveFormula(item.key)}
                     />
                   );
@@ -449,12 +449,12 @@ export default function FinancesPage() {
             <section className="hud-panel p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Wallet className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-[15px] font-semibold text-white">Fund & Tools</h2>
+                  <Wallet className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                  <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Fund & Tools</h2>
                 </div>
                 <Link
                   href="/development"
-                  className="text-xs text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 border border-amber-500/30 px-3 py-1.5 rounded-md bg-amber-500/5"
+                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-1 border border-[color:var(--color-due-border)] px-3 py-1.5 rounded-md bg-[color:var(--color-well)]"
                 >
                   Expense report <ArrowRight className="w-3 h-3" />
                 </Link>
@@ -523,69 +523,69 @@ export default function FinancesPage() {
             <section className="hud-panel p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Ticket className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-[15px] font-semibold text-white">Income Sources</h2>
+                  <Ticket className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                  <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Income Sources</h2>
                 </div>
                 <button
                   onClick={() => setShowAddIncome(true)}
-                  className="text-xs text-green-400 hover:text-green-300 transition-colors flex items-center gap-1 border border-green-500/30 px-3 py-1.5 rounded-md bg-green-500/5"
+                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-1 border border-[color:var(--color-paid-border)] px-3 py-1.5 rounded-md bg-[color:var(--color-well)]"
                 >
                   <Plus className="w-3 h-3" /> Add Income
                 </button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
-                  <Ticket className="w-5 h-5 text-blue-400 mb-3" />
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5">
+                  <Ticket className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
                     Admission
                   </p>
-                  <p className="font-[family-name:var(--font-space)] text-2xl text-blue-400">
+                  <p className="font-sans text-2xl text-[color:var(--color-text-dim)]">
                     {currency(data.summary.admissionCollected)}
                   </p>
                 </div>
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
-                  <Shirt className="w-5 h-5 text-pink-400 mb-3" />
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5">
+                  <Shirt className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
                     Dress Profit
                   </p>
                   <p
-                    className={`font-[family-name:var(--font-space)] text-2xl ${
-                      data.summary.dressProfit < 0 ? "text-red-400" : "text-pink-400"
+                    className={`font-sans text-2xl ${
+                      data.summary.dressProfit < 0 ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text-dim)]"
                     }`}
                   >
                     {currency(data.summary.dressProfit)}
                   </p>
                 </div>
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
-                  <Wallet className="w-5 h-5 text-green-400 mb-3" />
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5">
+                  <Wallet className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
                     Extra Income
                   </p>
-                  <p className="font-[family-name:var(--font-space)] text-2xl text-green-400">
+                  <p className="font-sans text-2xl text-[color:var(--color-text-dim)]">
                     {currency(data.summary.extraIncome)}
                   </p>
                 </div>
                 <Link
                   href="/events"
-                  className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 hover:border-amber-500/50 transition-colors"
+                  className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5 hover:border-[color:var(--color-due-border)] transition-colors"
                 >
-                  <Ticket className="w-5 h-5 text-amber-400 mb-3" />
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                  <Ticket className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
                     Event Income
                   </p>
-                  <p className="font-[family-name:var(--font-space)] text-2xl text-amber-400">
+                  <p className="font-sans text-2xl text-[color:var(--color-text-dim)]">
                     {currency(data.summary.eventIncome)}
                   </p>
                 </Link>
                 <Link
                   href="/referrals"
-                  className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 hover:border-purple-500/50 transition-colors"
+                  className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5 hover:border-[color:var(--color-accent-border)] transition-colors"
                 >
-                  <Gift className="w-5 h-5 text-purple-400 mb-3" />
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                  <Gift className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
                     Referral Credits
                   </p>
-                  <p className="font-[family-name:var(--font-space)] text-2xl text-purple-400">
+                  <p className="font-sans text-2xl text-[color:var(--color-text-dim)]">
                     {currency(data.summary.creditsApplied)}
                   </p>
                 </Link>
@@ -596,8 +596,8 @@ export default function FinancesPage() {
             {section === "fund" ? (
             <section className="hud-panel p-6">
               <div className="flex items-center gap-2 mb-6">
-                <BarChart3 className="w-5 h-5 text-zinc-400" />
-                <h2 className="text-[15px] font-semibold text-white">Year Cash Flow</h2>
+                <BarChart3 className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Year Cash Flow</h2>
               </div>
               <div className="space-y-4">
                 {data.cashFlowByMonth
@@ -607,34 +607,34 @@ export default function FinancesPage() {
                     const incomeTone = row.income < 0 ? "red" : "green";
                     return (
                       <div key={`${row.year}-${row.month}`} className="grid grid-cols-[44px_1fr_92px] gap-3 items-center">
-                        <p className="text-xs text-zinc-500 font-[family-name:var(--font-space)]">
+                        <p className="text-xs text-[color:var(--color-text-dim)] font-sans">
                           {MONTHS[row.month]}
                         </p>
                         <div className="space-y-1.5">
-                          <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+                          <div className="h-2 rounded-full bg-[color:var(--color-well)] overflow-hidden">
                             <div
-                              className={`h-full ${incomeTone === "red" ? "bg-red-500" : "bg-green-500"}`}
+                              className={`h-full ${incomeTone === "red" ? "bg-[color:var(--color-overdue)]" : "bg-[color:var(--color-paid)]"}`}
                               style={{ width: incomeMagnitude > 0 ? `${Math.max(4, (incomeMagnitude / maxFlow) * 100)}%` : 0 }}
                             />
                           </div>
-                          <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+                          <div className="h-2 rounded-full bg-[color:var(--color-well)] overflow-hidden">
                             <div
-                              className="h-full bg-red-500"
+                              className="h-full bg-[color:var(--color-overdue)]"
                               style={{ width: row.expenses > 0 ? `${Math.max(4, (row.expenses / maxFlow) * 100)}%` : 0 }}
                             />
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`text-xs font-medium ${incomeTone === "red" ? "text-red-400" : "text-green-400"}`}>
+                          <p className={`text-xs font-medium ${incomeTone === "red" ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text-dim)]"}`}>
                             {currency(row.income)}
                           </p>
-                          <p className="text-xs text-red-400 font-medium">-{currency(row.expenses)}</p>
+                          <p className="text-xs text-[color:var(--color-text-dim)] font-medium">-{currency(row.expenses)}</p>
                         </div>
                       </div>
                     );
                   })}
                 {data.cashFlowByMonth.every((row) => row.income === 0 && row.expenses === 0) && (
-                  <p className="text-sm text-zinc-500 text-center py-6">
+                  <p className="text-sm text-[color:var(--color-text-dim)] text-center py-6">
                     No finance activity recorded for this year.
                   </p>
                 )}
@@ -646,18 +646,18 @@ export default function FinancesPage() {
             <section className="hud-panel p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Package className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-[15px] font-semibold text-white">Ledger Rows</h2>
+                  <Package className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+                  <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Ledger Rows</h2>
                 </div>
-                <div className="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full">
-                  <p className="text-[10px] text-zinc-400 uppercase tracking-wider">
+                <div className="px-3 py-1 bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-full">
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider">
                     {filteredLedger.length} Records
                   </p>
                 </div>
               </div>
               <div className="divide-y divide-[color:var(--color-hairline)]">
                 {filteredLedger.length === 0 ? (
-                  <p className="py-8 text-center text-sm text-zinc-500">
+                  <p className="py-8 text-center text-sm text-[color:var(--color-text-dim)]">
                     No rows match this calculation.
                   </p>
                 ) : (

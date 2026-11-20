@@ -282,9 +282,9 @@ export default function PendingFeesPage() {
 
   if (checking || !user) {
     return (
-      <div className="min-h-screen bg-black text-zinc-300">
+      <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -304,7 +304,7 @@ export default function PendingFeesPage() {
       }}
     >
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-2xl text-[13px] leading-relaxed text-zinc-500">
+        <p className="max-w-2xl text-[13px] leading-relaxed text-[color:var(--color-text-dim)]">
           Review monthly dues, call parents, or send the current WhatsApp reminder template from Messages.
         </p>
         <Link
@@ -333,7 +333,7 @@ export default function PendingFeesPage() {
       <section className="hud-panel mb-5 p-3 sm:p-4">
         <div className="grid gap-3 md:grid-cols-[1fr_180px_180px_auto]">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -365,7 +365,7 @@ export default function PendingFeesPage() {
             type="button"
             onClick={() => loadPendingStudents(true)}
             disabled={refreshing}
-            className="tap-target grid place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-zinc-300 transition-colors hover:text-white disabled:opacity-50"
+            className="tap-target grid place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] transition-colors hover:text-[color:var(--color-text)] disabled:opacity-50"
             title="Refresh pending fees"
             aria-label="Refresh pending fees"
           >
@@ -375,14 +375,14 @@ export default function PendingFeesPage() {
       </section>
 
       {error ? (
-        <div className="mb-5 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+        <div className="mb-5 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
           <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <p>{error}</p>
         </div>
       ) : null}
 
       {notice ? (
-        <div className="mb-5 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+        <div className="mb-5 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
           <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <p>{notice}</p>
         </div>
@@ -390,22 +390,22 @@ export default function PendingFeesPage() {
 
       <section className="hud-panel overflow-hidden">
         <div className="border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
-          <p className="eyebrow text-zinc-500">{selectedMonthLabel}</p>
-          <h2 className="mt-1 text-[15px] font-semibold text-white">
+          <p className="eyebrow text-[color:var(--color-text-dim)]">{selectedMonthLabel}</p>
+          <h2 className="mt-1 text-[15px] font-semibold text-[color:var(--color-text)]">
             {scope === "month" ? "Monthly ledger" : scope === "overdue" ? "Overdue ledger" : "Missing phone ledger"}
           </h2>
-          <p className="mt-1 text-xs text-zinc-600">Sorted by students with the highest overdue month count first.</p>
+          <p className="mt-1 text-xs text-[color:var(--color-text-faint)]">Sorted by students with the highest overdue month count first.</p>
         </div>
 
         {loading ? (
           <div className="flex min-h-72 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+            <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
           </div>
         ) : visibleStudents.length === 0 ? (
           <div className="flex min-h-72 flex-col items-center justify-center gap-3 p-8 text-center">
-            <CheckCircle2 className="h-9 w-9 text-emerald-400" />
-            <p className="text-sm font-semibold text-white">No students in this ledger</p>
-            <p className="text-sm text-zinc-500">Change the scope, branch, or month filter to see another list.</p>
+            <CheckCircle2 className="h-9 w-9 text-[color:var(--color-text-dim)]" />
+            <p className="text-sm font-semibold text-[color:var(--color-text)]">No students in this ledger</p>
+            <p className="text-sm text-[color:var(--color-text-dim)]">Change the scope, branch, or month filter to see another list.</p>
           </div>
         ) : (
           <div className="divide-y divide-[color:var(--color-hairline)]">
@@ -427,7 +427,7 @@ export default function PendingFeesPage() {
                   amountLabel="due"
                   trailing={
                     <div className="flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4 text-zinc-500" aria-hidden="true" />
+                      <MessageCircle className="h-4 w-4 text-[color:var(--color-text-dim)]" aria-hidden="true" />
                       <StatusPill status={status} label={noPhone ? "No phone" : overdue ? "Overdue" : "Message"} />
                     </div>
                   }
@@ -452,7 +452,7 @@ export default function PendingFeesPage() {
             <button
               type="button"
               onClick={() => void copyMessage()}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-sm text-[color:var(--color-text)]"
             >
               <Copy className="h-4 w-4" />
               Copy
@@ -460,7 +460,7 @@ export default function PendingFeesPage() {
             <button
               type="button"
               onClick={openWhatsApp}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)]"
             >
               <MessageCircle className="h-4 w-4" />
               Open WhatsApp
@@ -471,8 +471,8 @@ export default function PendingFeesPage() {
         {previewStudent ? (
           <div className="space-y-4 pt-1">
             <div>
-              <p className="text-[15px] font-semibold text-white">{studentName(previewStudent)}</p>
-              <p className="font-mono text-[11px] text-zinc-500">
+              <p className="text-[15px] font-semibold text-[color:var(--color-text)]">{studentName(previewStudent)}</p>
+              <p className="font-mono text-[11px] text-[color:var(--color-text-dim)]">
                 {previewStudent.id} · {previewStudent.branch} · {previewStudent.pendingMonths.length} pending month{previewStudent.pendingMonths.length === 1 ? "" : "s"}
               </p>
             </div>
@@ -481,7 +481,7 @@ export default function PendingFeesPage() {
               {telHref(previewStudent) ? (
                 <a
                   href={telHref(previewStudent)}
-                  className="tap-target inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-xs text-zinc-200"
+                  className="tap-target inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs text-[color:var(--color-text)]"
                 >
                   <Phone className="h-4 w-4" />
                   Call
@@ -489,15 +489,15 @@ export default function PendingFeesPage() {
               ) : null}
               <Link
                 href={`/students/${previewStudent.branch}/${encodeURIComponent(previewStudent.id)}`}
-                className="tap-target inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-xs text-zinc-200"
+                className="tap-target inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs text-[color:var(--color-text)]"
               >
                 <ArrowRight className="h-4 w-4" />
                 Profile
               </Link>
             </div>
 
-            <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
-              <p className="mb-2 eyebrow text-zinc-500">Select pending month</p>
+            <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+              <p className="mb-2 eyebrow text-[color:var(--color-text-dim)]">Select pending month</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {previewStudent.pendingMonths.map((due) => {
                   const selected = due.monthIndex === previewDue?.monthIndex;
@@ -508,12 +508,12 @@ export default function PendingFeesPage() {
                       onClick={() => setPreviewMonthIndex(due.monthIndex)}
                       className={`tap-target rounded-[var(--radius-row)] border px-3 py-2 text-left transition-colors ${
                         selected
-                          ? "border-white/30 bg-white text-black"
-                          : "border-[color:var(--color-hairline)] bg-black text-zinc-300 hover:text-white"
+                          ? "border-[color:var(--color-hairline)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
+                          : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:text-[color:var(--color-text)]"
                       }`}
                     >
                       <span className="block text-xs font-semibold">{due.shortLabel}</span>
-                      <span className={`mt-1 block numeric text-[14px] ${selected ? "text-black/70" : "text-zinc-400"}`}>
+                      <span className={`mt-1 block numeric text-[14px] ${selected ? "text-[color:var(--color-accent-ink)]" : "text-[color:var(--color-text-dim)]"}`}>
                         {num(due.amount)}
                       </span>
                     </button>
@@ -523,12 +523,12 @@ export default function PendingFeesPage() {
             </div>
 
             {previewIssues.length ? (
-              <div className="rounded-[var(--radius-row)] border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-200">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
                 Unknown placeholders: {previewIssues.join(", ")}
               </div>
             ) : null}
 
-            <div className="max-h-[50vh] overflow-y-auto whitespace-pre-wrap rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-4 text-sm leading-relaxed text-zinc-300">
+            <div className="max-h-[50vh] overflow-y-auto whitespace-pre-wrap rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4 text-sm leading-relaxed text-[color:var(--color-text)]">
               {previewMessage}
             </div>
           </div>

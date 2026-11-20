@@ -90,7 +90,7 @@ export default function GlobalSearch() {
 
       {isOpen ? (
         <div
-          className="fixed inset-0 z-[100] flex items-start justify-center bg-[rgba(8,10,15,0.84)] pt-[12vh] backdrop-blur-md"
+          className="fixed inset-0 z-[100] flex items-start justify-center bg-[color:var(--color-well)] pt-[12vh] backdrop-blur-md"
           role="dialog"
           aria-modal="true"
           aria-label="Student search"

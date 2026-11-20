@@ -44,7 +44,7 @@ export default function Sheet({
         type="button"
         aria-label="Close sheet"
         onClick={onClose}
-        className="absolute inset-0 bg-[rgba(8,10,15,0.82)] backdrop-blur-md"
+        className="absolute inset-0 bg-[color:var(--color-well)] backdrop-blur-md"
       />
       <div
         role="dialog"

@@ -44,24 +44,24 @@ export function FolderTile({
       onDrop={onDropOnTile ? (event) => onDropOnTile(event, folder.id) : undefined}
       className={`group relative flex flex-col rounded-2xl border p-4 text-left transition-all active:scale-[0.98] ${
         isDropTarget
-          ? "border-cyan-400/70 bg-cyan-500/10 ring-2 ring-cyan-400/50"
-          : "border-zinc-800 bg-zinc-950 hover:border-zinc-600 hover:bg-zinc-900"
+          ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] ring-2 ring-[color:var(--color-accent)]"
+          : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
       }`}
     >
       <div className="mb-3 flex items-start justify-between">
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-800 bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-300 shadow-inner shadow-black/40 group-hover:border-zinc-600">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[color:var(--color-hairline)] bg-gradient-to-br from-[color:var(--color-panel)] to-[color:var(--color-panel)] text-[color:var(--color-text)] shadow-inner shadow-[0_18px_45px_rgba(0,0,0,0.28)] group-hover:border-[color:var(--color-hairline)]">
           <Folder className="h-5 w-5" strokeWidth={1.75} />
         </span>
         {!folder.isPublished ? (
-          <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">Draft</span>
+          <span className="rounded-md border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text)]">Draft</span>
         ) : null}
       </div>
-      <p className="truncate text-sm font-semibold text-white">{folder.title}</p>
-      <p className="mt-0.5 truncate text-xs text-zinc-500">{subtitleParts.join(" · ")}</p>
+      <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{folder.title}</p>
+      <p className="mt-0.5 truncate text-xs text-[color:var(--color-text-dim)]">{subtitleParts.join(" · ")}</p>
     </button>
   );
 }
 
 export function FolderSkeleton() {
-  return <div className="h-36 animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900/60" aria-hidden />;
+  return <div className="h-36 animate-pulse rounded-2xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]" aria-hidden />;
 }

@@ -101,28 +101,28 @@ export default function AnalyticsPage() {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
+    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
       <Navbar showBack title="Analytics" rightContent={<AccountMenu />} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-32 pb-24">
         
         <header className="mb-12 animate-fade-in">
           <div className="flex items-center gap-3 mb-2">
-            <Activity className="w-5 h-5 text-emerald-500" />
-            <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">Financial Intelligence</p>
+            <Activity className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+            <p className="text-[color:var(--color-text-dim)] text-xs font-mono uppercase tracking-widest">Financial Intelligence</p>
           </div>
-          <h1 className="font-[family-name:var(--font-space)] text-4xl font-semibold tracking-tight text-white mt-2">
+          <h1 className="font-sans text-4xl font-semibold tracking-tight text-[color:var(--color-text)] mt-2">
             Revenue Analytics
           </h1>
-          <p className="text-zinc-400 text-sm mt-3 max-w-xl leading-relaxed">
+          <p className="text-[color:var(--color-text-dim)] text-sm mt-3 max-w-xl leading-relaxed">
             Macro-level view of your treasury&apos;s performance over the {getCurrentFeeYear()} fiscal year.
           </p>
         </header>
 
         {error ? (
           <div className="card-panel flex flex-col items-center justify-center gap-4 p-8 text-center">
-            <AlertCircle className="h-8 w-8 text-red-400" />
-            <p className="max-w-xl text-sm text-red-200">{error}</p>
+            <AlertCircle className="h-8 w-8 text-[color:var(--color-text-dim)]" />
+            <p className="max-w-xl text-sm text-[color:var(--color-text)]">{error}</p>
             <button
               type="button"
               onClick={loadAnalytics}
@@ -134,7 +134,7 @@ export default function AnalyticsPage() {
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="w-8 h-8 border-2 border-zinc-700 border-t-zinc-400 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[color:var(--color-hairline)] border-t-zinc-400 rounded-full animate-spin" />
           </div>
         ) : (
           <div className="space-y-8 animate-slide-up">
@@ -143,36 +143,36 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="card-panel p-6 flex flex-col justify-between h-32 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                  <IndianRupee className="w-16 h-16 text-emerald-500" />
+                  <IndianRupee className="w-16 h-16 text-[color:var(--color-text-dim)]" />
                 </div>
-                <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest font-semibold flex items-center gap-1.5">
                   <TrendingUp className="w-3.5 h-3.5" /> Total YTD Revenue
                 </p>
-                <p className="font-[family-name:var(--font-space)] text-3xl font-medium text-white">
+                <p className="font-sans text-3xl font-medium text-[color:var(--color-text)]">
                   ₹{stats.totalCollected.toLocaleString()}
                 </p>
               </div>
 
               <div className="card-panel p-6 flex flex-col justify-between h-32 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                  <Calendar className="w-16 h-16 text-zinc-400" />
+                  <Calendar className="w-16 h-16 text-[color:var(--color-text-dim)]" />
                 </div>
-                <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest font-semibold flex items-center gap-1.5">
                   <BarChart3 className="w-3.5 h-3.5" /> Avg Monthly Run Rate
                 </p>
-                <p className="font-[family-name:var(--font-space)] text-3xl font-medium text-white">
+                <p className="font-sans text-3xl font-medium text-[color:var(--color-text)]">
                   ₹{stats.avgMonthly.toLocaleString()}
                 </p>
               </div>
 
               <div className="card-panel p-6 flex flex-col justify-between h-32 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                  <Activity className="w-16 h-16 text-amber-400" />
+                  <Activity className="w-16 h-16 text-[color:var(--color-text-dim)]" />
                 </div>
-                <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold flex items-center gap-1.5">
+                <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest font-semibold flex items-center gap-1.5">
                   <Activity className="w-3.5 h-3.5" /> Development Fund
                 </p>
-                <p className="font-[family-name:var(--font-space)] text-3xl font-medium text-white">
+                <p className="font-sans text-3xl font-medium text-[color:var(--color-text)]">
                   ₹{stats.totalDevFund.toLocaleString()}
                 </p>
               </div>
@@ -180,15 +180,15 @@ export default function AnalyticsPage() {
 
             {/* Main Bar Chart */}
             <div className="card-panel p-8">
-              <h3 className="text-sm font-semibold text-white mb-8 flex items-center gap-2">
-                Monthly Gross Collection <span className="text-zinc-600 font-normal text-xs">({getCurrentFeeYear()})</span>
+              <h3 className="text-sm font-semibold text-[color:var(--color-text)] mb-8 flex items-center gap-2">
+                Monthly Gross Collection <span className="text-[color:var(--color-text-faint)] font-normal text-xs">({getCurrentFeeYear()})</span>
               </h3>
               
               <div className="overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
-                <div className="h-72 min-w-[560px] border-t border-zinc-800/50 pt-4">
+                <div className="h-72 min-w-[560px] border-t border-[color:var(--color-hairline)] pt-4">
                   {stats.totalCollected <= 0 ? (
-                    <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-zinc-800 bg-black/20 text-center">
-                      <p className="px-4 text-sm text-zinc-500">
+                    <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-center">
+                      <p className="px-4 text-sm text-[color:var(--color-text-dim)]">
                         No monthly gross collection has been recorded for {getCurrentFeeYear()} yet.
                       </p>
                     </div>
@@ -201,28 +201,28 @@ export default function AnalyticsPage() {
                         return (
                           <div key={i} className="group relative flex h-full min-w-0 flex-1 flex-col items-center gap-2">
                             {/* Tooltip */}
-                            <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-800 text-white text-[10px] py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
+                            <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-[color:var(--color-well)] text-[color:var(--color-text)] text-[10px] py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
                               ₹{monthData.collected.toLocaleString()}
                             </div>
 
-                            <span className="h-5 text-[10px] font-semibold tabular-nums text-zinc-500">
+                            <span className="h-5 text-[10px] font-semibold tabular-nums text-[color:var(--color-text-dim)]">
                               {monthData.collected > 0 ? `₹${monthData.collected.toLocaleString()}` : ""}
                             </span>
 
                             {/* Bar */}
-                            <div className="relative flex min-h-0 w-full flex-1 items-end justify-center rounded-t bg-black/25">
+                            <div className="relative flex min-h-0 w-full flex-1 items-end justify-center rounded-t bg-[color:var(--color-well)]">
                               <div
                                 data-analytics-bar="collection"
                                 aria-label={`${MONTHS[i]} collection ₹${monthData.collected.toLocaleString()}`}
                                 className={`w-full max-w-[40px] rounded-t-sm transition-all duration-500 ${
-                                  isCurrent ? "bg-emerald-500/80" : "bg-zinc-700/50 group-hover:bg-zinc-600"
+                                  isCurrent ? "bg-[color:var(--color-well)]" : "bg-[color:var(--color-well)] group-hover:bg-[color:var(--color-panel-strong)]"
                                 }`}
                                 style={{ height: height > 0 ? `${Math.max(height, 4)}%` : "0%" }}
                               />
                             </div>
 
                             {/* Label */}
-                            <span className={`text-[10px] uppercase tracking-wider ${isCurrent ? "text-emerald-400 font-bold" : "text-zinc-500"}`}>
+                            <span className={`text-[10px] uppercase tracking-wider ${isCurrent ? "text-[color:var(--color-text-dim)] font-bold" : "text-[color:var(--color-text-dim)]"}`}>
                               {MONTHS[i]}
                             </span>
                           </div>

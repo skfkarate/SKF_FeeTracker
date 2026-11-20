@@ -58,7 +58,7 @@ export default function FeesPreviewPage() {
           branchLabel: "MPSC",
           backHref: "/dashboard",
           onBranchClick: () => undefined,
-          bell: <span className="font-mono text-[11px] text-zinc-400">12</span>,
+          bell: <span className="font-mono text-[11px] text-[color:var(--color-text-dim)]">12</span>,
         }}
         mainClassName="py-6"
       >
@@ -78,10 +78,10 @@ export default function FeesPreviewPage() {
         />
 
         <div className="mt-3 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-white">
+          <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">
             {section === "month" ? "October ledger" : section === "overdue" ? "Overdue ledger" : "Credit ledger"}
           </h2>
-          <span className="eyebrow text-zinc-500">MPSC</span>
+          <span className="eyebrow text-[color:var(--color-text-dim)]">MPSC</span>
         </div>
 
         <div className="mt-3 space-y-2">
@@ -107,11 +107,11 @@ export default function FeesPreviewPage() {
         onClose={() => setActive(null)}
       >
         <div className="space-y-4 pt-1">
-          <p className="text-[15px] font-semibold text-white">{active?.name}</p>
+          <p className="text-[15px] font-semibold text-[color:var(--color-text)]">{active?.name}</p>
           <AmountInput label="Amount received" value={amount} onChange={setAmount} hint="Stored charged amount is used for receipts." />
           <button
             type="button"
-            className="tap-target w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black"
+            className="tap-target w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)]"
             onClick={() => setActive(null)}
           >
             Confirm payment

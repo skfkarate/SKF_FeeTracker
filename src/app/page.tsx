@@ -47,7 +47,7 @@ export default function LoginPage() {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black px-4 text-zinc-300">
+      <div className="min-h-screen flex items-center justify-center bg-[color:var(--color-well)] px-4 text-[color:var(--color-text)]">
         <div className="flex flex-col items-center gap-4">
           <Image
             src="/logo.png"
@@ -57,16 +57,16 @@ export default function LoginPage() {
             priority
             className="rounded-full opacity-90"
           />
-          <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+          <Loader2 className="h-5 w-5 animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-black relative">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-[color:var(--color-well)] relative">
       {/* Extremely subtle ambient light */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[color:var(--color-accent-dim)] rounded-full blur-[100px] pointer-events-none" />
 
       <div className="w-full max-w-[340px] z-10">
 
@@ -80,16 +80,16 @@ export default function LoginPage() {
             priority
             className="rounded-full mb-6 opacity-90"
           />
-          <h1 className="font-[family-name:var(--font-space)] text-2xl font-medium tracking-tight text-white mb-1">
+          <h1 className="font-sans text-2xl font-medium tracking-tight text-[color:var(--color-text)] mb-1">
             SKF Treasury
           </h1>
-          <p className="text-zinc-500 text-sm">Sign in to manage operations</p>
+          <p className="text-[color:var(--color-text-dim)] text-sm">Sign in to manage operations</p>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4 animate-slide-up delay-100">
           <div>
-            <label htmlFor="feetrack-username" className="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-widest text-center">
+            <label htmlFor="feetrack-username" className="block text-xs font-medium text-[color:var(--color-text-dim)] mb-2 uppercase tracking-widest text-center">
               Username
             </label>
             <input
@@ -98,14 +98,14 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => { setUsername(e.target.value); setError(""); }}
               placeholder=""
-              className="input-minimal text-center font-[family-name:var(--font-space)] text-lg"
+              className="input-minimal text-center font-sans text-lg"
               autoCapitalize="none"
               autoComplete="username"
               autoFocus
             />
           </div>
           <div>
-            <label htmlFor="feetrack-password" className="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-widest text-center">
+            <label htmlFor="feetrack-password" className="block text-xs font-medium text-[color:var(--color-text-dim)] mb-2 uppercase tracking-widest text-center">
               Password
             </label>
             <input
@@ -114,14 +114,14 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(""); }}
               placeholder=""
-              className="input-minimal text-center font-[family-name:var(--font-space)] text-lg"
+              className="input-minimal text-center font-sans text-lg"
               autoComplete="current-password"
             />
           </div>
 
           {error && (
             <div className="pt-2">
-              <p className="text-red-500 text-xs text-center">{error}</p>
+              <p className="text-[color:var(--color-text-dim)] text-xs text-center">{error}</p>
             </div>
           )}
 
@@ -137,7 +137,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-12 text-center animate-fade-in delay-300">
-          <p className="text-zinc-600 text-[10px] uppercase tracking-widest">
+          <p className="text-[color:var(--color-text-faint)] text-[10px] uppercase tracking-widest">
             Internal Secure System
           </p>
         </div>

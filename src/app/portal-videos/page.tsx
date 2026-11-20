@@ -64,9 +64,9 @@ export default function PortalVideosPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-black text-zinc-300">
+        <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
           <div className="flex min-h-screen items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+            <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
           </div>
         </div>
       }
@@ -633,28 +633,28 @@ function PortalVideosLibrary() {
 
   if (checking || !user) {
     return (
-      <div className="min-h-screen bg-black text-zinc-300">
+      <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
+    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
       <Navbar showBack title="Portal Videos" rightContent={<AccountMenu />} />
 
       <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 sm:px-6 sm:pt-28">
         <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-red-400" />
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Portal Operations</p>
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-overdue)]" />
+              <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--color-text-dim)]">Portal Operations</p>
             </div>
-            <h1 className={`font-[family-name:var(--font-space)] font-semibold tracking-tight text-white ${currentFolder && browsing && !collection ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"}`}>
+            <h1 className={`font-sans font-semibold tracking-tight text-[color:var(--color-text)] ${currentFolder && browsing && !collection ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"}`}>
               {currentFolder && browsing && !collection ? (
-                <button type="button" onClick={() => navigate(chain.length > 1 ? chain[chain.length - 2].id : null)} className="truncate text-left transition-colors hover:text-zinc-300">
+                <button type="button" onClick={() => navigate(chain.length > 1 ? chain[chain.length - 2].id : null)} className="truncate text-left transition-colors hover:text-[color:var(--color-text)]">
                   {headingTitle}
                 </button>
               ) : (
@@ -662,11 +662,11 @@ function PortalVideosLibrary() {
               )}
             </h1>
             {!query.trim() && !collection && currentFolder?.description ? (
-              <p className="mt-1 line-clamp-1 text-sm text-zinc-500">{currentFolder.description}</p>
+              <p className="mt-1 line-clamp-1 text-sm text-[color:var(--color-text-dim)]">{currentFolder.description}</p>
             ) : null}
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-zinc-950 px-4 text-sm font-semibold text-zinc-100 hover:border-zinc-500">
+            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline-strong)]">
               <FolderPlus className="h-4 w-4" /> Folder
             </button>
             <button type="button" onClick={() => startNewVideo(activeFolderId)} className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm">
@@ -677,7 +677,7 @@ function PortalVideosLibrary() {
               onClick={() => loadVideos(true)}
               disabled={refreshing}
               aria-label="Refresh library"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-sm font-semibold text-zinc-200 hover:border-zinc-600 hover:bg-zinc-900 disabled:opacity-60"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
             >
               {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             </button>
@@ -702,23 +702,23 @@ function PortalVideosLibrary() {
         </div>
 
         {error ? (
-          <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="mb-4 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p className="flex-1">{error}</p>
-            <button type="button" onClick={() => setError("")} className="flex-shrink-0 text-red-300/70 hover:text-red-100" aria-label="Dismiss error"><X className="h-4 w-4" /></button>
+            <button type="button" onClick={() => setError("")} className="flex-shrink-0 text-[color:var(--color-text)] hover:text-[color:var(--color-text)]" aria-label="Dismiss error"><X className="h-4 w-4" /></button>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-4 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+          <div className="mb-4 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p className="flex-1">{notice}</p>
-            <button type="button" onClick={() => setNotice("")} className="flex-shrink-0 text-emerald-300/70 hover:text-emerald-100" aria-label="Dismiss notice"><X className="h-4 w-4" /></button>
+            <button type="button" onClick={() => setNotice("")} className="flex-shrink-0 text-[color:var(--color-text)] hover:text-[color:var(--color-text)]" aria-label="Dismiss notice"><X className="h-4 w-4" /></button>
           </div>
         ) : null}
 
         <div className="relative mb-6 sm:max-w-md">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -726,7 +726,7 @@ function PortalVideosLibrary() {
             placeholder="Search all folders and lessons…"
           />
           {query ? (
-            <button type="button" onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-zinc-500 hover:text-white" aria-label="Clear search">
+            <button type="button" onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]" aria-label="Clear search">
               <X className="h-4 w-4" />
             </button>
           ) : null}
@@ -747,13 +747,13 @@ function PortalVideosLibrary() {
 
         {browsing && activeFolderId ? (
           <div className="mb-6 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white">
+            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]">
               <FolderPlus className="h-3.5 w-3.5" /> Subfolder
             </button>
             <button
               type="button"
               onClick={() => photoInputRef.current?.click()}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
             >
               <ImagePlus className="h-3.5 w-3.5" /> Photo guide
             </button>
@@ -761,12 +761,12 @@ function PortalVideosLibrary() {
               <button
                 type="button"
                 onClick={() => void copyFolderLink(currentFolder)}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
               >
                 <Link2 className="h-3.5 w-3.5" /> Copy folder link
               </button>
             ) : null}
-            <p className="ml-auto hidden text-xs text-zinc-600 sm:block">Tip: drag lessons onto a folder or breadcrumb to re-file them.</p>
+            <p className="ml-auto hidden text-xs text-[color:var(--color-text-faint)] sm:block">Tip: drag lessons onto a folder or breadcrumb to re-file them.</p>
           </div>
         ) : null}
 

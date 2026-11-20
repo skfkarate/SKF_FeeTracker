@@ -187,21 +187,21 @@ export default function StudentCreditsPage() {
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24">
         {/* Branch Toggle */}
-        <div className="flex p-1 bg-black/20 rounded-xl w-full max-w-md mx-auto border border-white/5 mb-6">
+        <div className="flex p-1 bg-[color:var(--color-well)] rounded-xl w-full max-w-md mx-auto border border-[color:var(--color-hairline)] mb-6">
           <button
             onClick={() => setBranch("Herohalli")}
-            className={`flex-1 py-2 rounded-lg text-sm font-[family-name:var(--font-space)] tracking-wider transition-all duration-300 ${branch === "Herohalli"
-              ? "bg-red-600/90 text-white shadow-lg shadow-red-900/20 border border-white/10"
-              : "text-[var(--text-muted)] hover:text-white"
+            className={`flex-1 py-2 rounded-lg text-sm font-sans tracking-wider transition-all duration-300 ${branch === "Herohalli"
+              ? "bg-[color:var(--color-well)] text-[color:var(--color-text)] shadow-lg shadow-[0_18px_45px_rgba(0,0,0,0.28)] border border-[color:var(--color-hairline)]"
+              : "text-[var(--text-muted)] hover:text-[color:var(--color-text)]"
               }`}
           >
             HEROHALLI
           </button>
           <button
             onClick={() => setBranch("MPSC")}
-            className={`flex-1 py-2 rounded-lg text-sm font-[family-name:var(--font-space)] tracking-wider transition-all duration-300 ${branch === "MPSC"
-              ? "bg-blue-600/90 text-white shadow-lg shadow-blue-900/20 border border-white/10"
-              : "text-[var(--text-muted)] hover:text-white"
+            className={`flex-1 py-2 rounded-lg text-sm font-sans tracking-wider transition-all duration-300 ${branch === "MPSC"
+              ? "bg-[color:var(--color-well)] text-[color:var(--color-text)] shadow-lg shadow-[0_18px_45px_rgba(0,0,0,0.28)] border border-[color:var(--color-hairline)]"
+              : "text-[var(--text-muted)] hover:text-[color:var(--color-text)]"
               }`}
           >
             MP SPORTS CLUB
@@ -219,7 +219,7 @@ export default function StudentCreditsPage() {
         {/* Error */}
         {error && (
           <div className="text-center py-16">
-            <p className="text-red-400 mb-4 text-sm">{error}</p>
+            <p className="text-[color:var(--color-text-dim)] mb-4 text-sm">{error}</p>
             <button
               onClick={loadData}
               className="btn-primary text-sm"
@@ -236,12 +236,12 @@ export default function StudentCreditsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 animate-fade-in">
               <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(59, 130, 246, 0.25)" }}>
                 <div className="absolute top-0 right-0 p-2 opacity-10">
-                  <Trophy className="w-12 h-12 text-blue-400" />
+                  <Trophy className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                 </div>
                 <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
                   <Trophy className="w-3 h-3" /> Total Issued
                 </p>
-                <p className="font-[family-name:var(--font-space)] text-lg sm:text-xl text-blue-400">
+                <p className="font-sans text-lg sm:text-xl text-[color:var(--color-text-dim)]">
                   ₹{stats.totalAmount.toLocaleString()}
                 </p>
                 <p className="text-[10px] text-[var(--text-muted)] mt-1 opacity-70">
@@ -251,12 +251,12 @@ export default function StudentCreditsPage() {
 
               <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(34, 197, 94, 0.25)" }}>
                 <div className="absolute top-0 right-0 p-2 opacity-10">
-                  <Zap className="w-12 h-12 text-green-400" />
+                  <Zap className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                 </div>
                 <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
                   <Zap className="w-3 h-3" /> Active
                 </p>
-                <p className="font-[family-name:var(--font-space)] text-lg sm:text-xl text-green-400">
+                <p className="font-sans text-lg sm:text-xl text-[color:var(--color-text-dim)]">
                   ₹{stats.activeAmount.toLocaleString()}
                 </p>
                 <p className="text-[10px] text-[var(--text-muted)] mt-1 opacity-70">
@@ -266,12 +266,12 @@ export default function StudentCreditsPage() {
 
               <div className="glass-card p-4 relative overflow-hidden" style={{ borderColor: "rgba(245, 158, 11, 0.25)" }}>
                 <div className="absolute top-0 right-0 p-2 opacity-10">
-                  <Wallet className="w-12 h-12 text-amber-400" />
+                  <Wallet className="w-12 h-12 text-[color:var(--color-text-dim)]" />
                 </div>
                 <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1">
                   <Wallet className="w-3 h-3" /> Redeemed
                 </p>
-                <p className="font-[family-name:var(--font-space)] text-lg sm:text-xl text-amber-400">
+                <p className="font-sans text-lg sm:text-xl text-[color:var(--color-text-dim)]">
                   ₹{stats.redeemedAmount.toLocaleString()}
                 </p>
                 <p className="text-[10px] text-[var(--text-muted)] mt-1 opacity-70">
@@ -288,7 +288,7 @@ export default function StudentCreditsPage() {
                 </p>
                 <button
                   onClick={openAddModal}
-                  className="px-4 py-2 text-xs sm:text-sm rounded-lg border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white transition-all duration-200 font-medium tracking-wide flex items-center gap-1"
+                  className="px-4 py-2 text-xs sm:text-sm rounded-lg border border-[color:var(--color-paid-border)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-paid)] hover:text-[color:var(--color-text)] transition-all duration-200 font-medium tracking-wide flex items-center gap-1"
                 >
                   <Plus className="w-4 h-4" /> Add Credit
                 </button>
@@ -315,20 +315,20 @@ export default function StudentCreditsPage() {
                           setIsEditing(false);
                         }}
                         className={`glass-card p-4 transition-all duration-200 cursor-pointer group ${credit.isUsed
-                          ? "opacity-60 hover:opacity-80 border-white/5"
-                          : "hover:border-green-400/30 border-white/10"
+                          ? "opacity-60 hover:opacity-80 border-[color:var(--color-hairline)]"
+                          : "hover:border-[color:var(--color-paid-border)] border-[color:var(--color-hairline)]"
                           }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col items-start gap-1.5 mb-1.5">
-                              <p className="font-[family-name:var(--font-space)] tracking-wide text-sm text-white group-hover:text-green-200 transition-colors leading-snug">
+                              <p className="font-sans tracking-wide text-sm text-[color:var(--color-text)] group-hover:text-[color:var(--color-text)] transition-colors leading-snug">
                                 {credit.studentName}
                               </p>
                               <span
                                 className={`text-[10px] px-2 py-0.5 border rounded-full whitespace-nowrap flex-shrink-0 ${credit.isUsed
-                                  ? "bg-amber-600/10 text-amber-500 border-amber-600/30"
-                                  : "bg-green-600/20 text-green-400 border-green-600/50"
+                                  ? "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-due-border)]"
+                                  : "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)]"
                                   }`}
                               >
                                 {credit.isUsed ? "Redeemed" : "Active"}
@@ -342,11 +342,11 @@ export default function StudentCreditsPage() {
                           </div>
 
                           <div className="ml-4 text-right">
-                            <p className={`font-[family-name:var(--font-space)] text-lg ${credit.isUsed ? "text-[var(--text-muted)]" : "text-green-400"}`}>
+                            <p className={`font-sans text-lg ${credit.isUsed ? "text-[var(--text-muted)]" : "text-[color:var(--color-text-dim)]"}`}>
                               ₹{credit.amount.toLocaleString()}
                             </p>
                             {credit.isUsed && credit.usedInMonth !== null && (
-                              <p className="text-[10px] text-amber-400/80 mt-0.5">
+                              <p className="text-[10px] text-[color:var(--color-text-dim)] mt-0.5">
                                 Used in {MONTHS[credit.usedInMonth]}
                               </p>
                             )}
@@ -367,12 +367,12 @@ export default function StudentCreditsPage() {
           <div className="glass-modal !max-w-md">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider">
+                <h2 className="font-sans text-xl tracking-wider">
                   ADD CREDIT
                 </h2>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="text-[var(--text-muted)] hover:text-white transition-colors"
+                  className="text-[var(--text-muted)] hover:text-[color:var(--color-text)] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -470,14 +470,14 @@ export default function StudentCreditsPage() {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="btn-ghost flex-1 font-[family-name:var(--font-space)] tracking-wider text-sm"
+                  className="btn-ghost flex-1 font-sans tracking-wider text-sm"
                 >
                   CANCEL
                 </button>
                 <button
                   onClick={handleAddCredit}
                   disabled={adding || !newCredit.studentId || !newCredit.reason}
-                  className="flex-1 py-3 bg-green-600 text-white rounded-lg font-[family-name:var(--font-space)] tracking-wider text-sm hover:bg-green-500 transition-colors disabled:opacity-50"
+                  className="flex-1 py-3 bg-[color:var(--color-paid)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-paid)] transition-colors disabled:opacity-50"
                 >
                   {adding ? (
                     "ADDING..."
@@ -525,12 +525,12 @@ export default function StudentCreditsPage() {
           <div className="glass-modal !max-w-md">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-[family-name:var(--font-space)] text-xl tracking-wider flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-purple-400" /> CREDIT DETAILS
+                <h2 className="font-sans text-xl tracking-wider flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-[color:var(--color-text-dim)]" /> CREDIT DETAILS
                 </h2>
                 <button
                   onClick={() => setSelectedCredit(null)}
-                  className="text-[var(--text-muted)] hover:text-white transition-colors"
+                  className="text-[var(--text-muted)] hover:text-[color:var(--color-text)] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -540,8 +540,8 @@ export default function StudentCreditsPage() {
               <div className="flex justify-center mb-5">
                 <span
                   className={`text-xs px-4 py-1.5 border rounded-full font-medium tracking-wide ${selectedCredit.isUsed
-                    ? "bg-amber-600/10 text-amber-500 border-amber-600/30"
-                    : "bg-green-600/20 text-green-400 border-green-600/50"
+                    ? "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-due-border)]"
+                    : "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] border-[color:var(--color-paid-border)]"
                     }`}
                 >
                   {selectedCredit.isUsed ? "✓ Redeemed" : "● Active"}
@@ -593,7 +593,7 @@ export default function StudentCreditsPage() {
                     <button
                       onClick={handleEditCredit}
                       disabled={updating}
-                      className="flex-1 py-2 bg-blue-600/80 text-white rounded-lg tracking-wider text-xs hover:bg-blue-500 transition-colors"
+                      className="flex-1 py-2 bg-[color:var(--color-well)] text-[color:var(--color-text)] rounded-lg tracking-wider text-xs hover:bg-[color:var(--color-accent)] transition-colors"
                     >
                       {updating ? "SAVING..." : "SAVE CHANGES"}
                     </button>
@@ -603,7 +603,7 @@ export default function StudentCreditsPage() {
                 <>
                   {/* Amount */}
                   <div className="text-center mb-6">
-                    <p className={`font-[family-name:var(--font-space)] text-3xl ${selectedCredit.isUsed ? "text-[var(--text-muted)]" : "text-green-400"
+                    <p className={`font-sans text-3xl ${selectedCredit.isUsed ? "text-[var(--text-muted)]" : "text-[color:var(--color-text-dim)]"
                       }`}>
                       ₹{selectedCredit.amount.toLocaleString()}
                     </p>
@@ -613,36 +613,36 @@ export default function StudentCreditsPage() {
                   <div className="space-y-3">
                     <div className="glass-surface p-3 rounded-lg">
                       <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Student</p>
-                      <p className="text-white text-sm font-medium">{selectedCredit.studentName}</p>
+                      <p className="text-[color:var(--color-text)] text-sm font-medium">{selectedCredit.studentName}</p>
                       <p className="text-[var(--text-muted)] text-xs">ID: {selectedCredit.studentId}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="glass-surface p-3 rounded-lg">
                         <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Credit ID</p>
-                        <p className="text-white text-sm font-mono truncate">{selectedCredit.id}</p>
+                        <p className="text-[color:var(--color-text)] text-sm font-mono truncate">{selectedCredit.id}</p>
                       </div>
                       <div className="glass-surface p-3 rounded-lg">
                         <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Reason</p>
-                        <p className="text-white text-sm line-clamp-1">{selectedCredit.reason}</p>
+                        <p className="text-[color:var(--color-text)] text-sm line-clamp-1">{selectedCredit.reason}</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="glass-surface p-3 rounded-lg">
                         <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Date Earned</p>
-                        <p className="text-white text-sm">{selectedCredit.dateEarned}</p>
+                        <p className="text-[color:var(--color-text)] text-sm">{selectedCredit.dateEarned}</p>
                       </div>
                       {selectedCredit.isUsed && selectedCredit.usedDate && (
                         <div className="glass-surface p-3 rounded-lg">
                           <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Redeemed On</p>
-                          <p className="text-amber-400 text-sm">{selectedCredit.usedDate.split('T')[0]}</p>
+                          <p className="text-[color:var(--color-text-dim)] text-sm">{selectedCredit.usedDate.split('T')[0]}</p>
                         </div>
                       )}
                       {selectedCredit.isUsed && selectedCredit.usedInMonth !== null && (
                         <div className="glass-surface p-3 rounded-lg">
                           <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Applied For</p>
-                          <p className="text-amber-400 text-sm">
+                          <p className="text-[color:var(--color-text-dim)] text-sm">
                             {MONTHS[selectedCredit.usedInMonth] || "Unknown"}
                           </p>
                         </div>
@@ -652,7 +652,7 @@ export default function StudentCreditsPage() {
                     {selectedCredit.description && (
                       <div className="glass-surface p-3 rounded-lg">
                         <p className="text-[var(--text-muted)] text-[10px] uppercase tracking-wider mb-0.5">Description</p>
-                        <p className="text-white text-sm whitespace-pre-wrap">{selectedCredit.description}</p>
+                        <p className="text-[color:var(--color-text)] text-sm whitespace-pre-wrap">{selectedCredit.description}</p>
                       </div>
                     )}
                   </div>
@@ -665,14 +665,14 @@ export default function StudentCreditsPage() {
                     <button
                       onClick={handleDeleteCredit}
                       disabled={deleting}
-                      className="px-3 py-2 border border-red-500/30 text-red-400 rounded-lg tracking-wider text-xs hover:bg-red-500/20 transition-colors"
+                      className="px-3 py-2 border border-[color:var(--color-overdue-border)] text-[color:var(--color-text-dim)] rounded-lg tracking-wider text-xs hover:bg-[color:var(--color-well)] transition-colors"
                       title="Delete Credit"
                     >
                       {deleting ? "..." : "DELETE"}
                     </button>
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="px-3 py-2 border border-blue-500/30 text-blue-400 rounded-lg tracking-wider text-xs hover:bg-blue-500/20 transition-colors"
+                      className="px-3 py-2 border border-[color:var(--color-accent-border)] text-[color:var(--color-text-dim)] rounded-lg tracking-wider text-xs hover:bg-[color:var(--color-well)] transition-colors"
                     >
                       EDIT
                     </button>
@@ -680,7 +680,7 @@ export default function StudentCreditsPage() {
                 )}
                 <button
                   onClick={() => setSelectedCredit(null)}
-                  className="flex-1 btn-ghost font-[family-name:var(--font-space)] tracking-wider text-sm"
+                  className="flex-1 btn-ghost font-sans tracking-wider text-sm"
                 >
                   CLOSE
                 </button>

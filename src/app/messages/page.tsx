@@ -284,16 +284,16 @@ export default function MessagesPage() {
 
   if (checking || !user) {
     return (
-      <div className="min-h-screen bg-black text-zinc-300">
+      <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
+    <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
       <Navbar
         showBack
         title="Messages"
@@ -302,7 +302,7 @@ export default function MessagesPage() {
             <button
               type="button"
               onClick={() => setShowPromptModal(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-600 hover:text-white"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
               title="Message prompt"
             >
               <Sparkles className="h-4 w-4" />
@@ -310,7 +310,7 @@ export default function MessagesPage() {
             <button
               type="button"
               onClick={() => setShowHelpModal(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-600 hover:text-white"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
               title="Placeholder guide"
             >
               <HelpCircle className="h-4 w-4" />
@@ -324,38 +324,38 @@ export default function MessagesPage() {
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Manual WhatsApp Queue</p>
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-paid)]" />
+              <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--color-text-dim)]">Manual WhatsApp Queue</p>
             </div>
-            <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            <h1 className="font-sans text-3xl font-semibold tracking-tight text-[color:var(--color-text)] sm:text-4xl">
               Fee Reminders
             </h1>
           </div>
-          <div className="grid grid-cols-3 gap-2 rounded-xl border border-zinc-800 bg-zinc-950 p-2 text-center text-xs">
+          <div className="grid grid-cols-3 gap-2 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2 text-center text-xs">
             <div className="px-3 py-2">
-              <p className="font-semibold text-white">{pendingStudents.length}</p>
-              <p className="mt-1 text-zinc-600">Pending</p>
+              <p className="font-semibold text-[color:var(--color-text)]">{pendingStudents.length}</p>
+              <p className="mt-1 text-[color:var(--color-text-faint)]">Pending</p>
             </div>
-            <div className="border-x border-zinc-800 px-3 py-2">
-              <p className="font-semibold text-white">{selectedStudentsList.length}</p>
-              <p className="mt-1 text-zinc-600">Selected</p>
+            <div className="border-x border-[color:var(--color-hairline)] px-3 py-2">
+              <p className="font-semibold text-[color:var(--color-text)]">{selectedStudentsList.length}</p>
+              <p className="mt-1 text-[color:var(--color-text-faint)]">Selected</p>
             </div>
             <div className="px-3 py-2">
-              <p className="font-semibold text-white">₹{totalPendingAmount.toLocaleString("en-IN")}</p>
-              <p className="mt-1 text-zinc-600">Amount</p>
+              <p className="font-semibold text-[color:var(--color-text)]">₹{totalPendingAmount.toLocaleString("en-IN")}</p>
+              <p className="mt-1 text-[color:var(--color-text-faint)]">Amount</p>
             </div>
           </div>
         </header>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{notice}</p>
           </div>
@@ -366,8 +366,8 @@ export default function MessagesPage() {
             <div className="card-panel p-4 sm:p-5">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Message Template</p>
-                  <h2 className="text-lg font-semibold text-white">Composer</h2>
+                  <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Message Template</p>
+                  <h2 className="text-lg font-semibold text-[color:var(--color-text)]">Composer</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button type="button" onClick={() => wrapSelection("*")} className="btn-ghost flex h-10 w-10 items-center justify-center p-0" title="Bold">
@@ -400,7 +400,7 @@ export default function MessagesPage() {
                     key={placeholder.key}
                     type="button"
                     onClick={() => insertText(placeholder.key)}
-                    className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs font-semibold text-zinc-400 hover:border-zinc-600 hover:text-white"
+                    className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                   >
                     {placeholder.label}
                   </button>
@@ -411,7 +411,7 @@ export default function MessagesPage() {
             <div className="card-panel p-4 sm:p-5">
               <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_160px_160px_auto]">
                 <div className="relative">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-600" />
+                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
                   <input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
@@ -451,7 +451,7 @@ export default function MessagesPage() {
                   type="button"
                   onClick={() => loadStudents(true)}
                   disabled={refreshing}
-                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-zinc-400 hover:border-zinc-600 hover:text-white disabled:opacity-60"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] disabled:opacity-60"
                   title="Refresh students"
                 >
                   <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
@@ -463,8 +463,8 @@ export default function MessagesPage() {
                 onClick={toggleAllPending}
                 className={`mb-4 flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border px-4 text-left text-sm font-semibold transition-colors ${
                   selectedStudents.size === pendingStudents.length && pendingStudents.length > 0
-                    ? "border-white bg-white text-black"
-                    : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700 hover:text-white"
+                    ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
+                    : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                 }`}
               >
                 <span className="inline-flex items-center gap-2">
@@ -478,12 +478,12 @@ export default function MessagesPage() {
 
               {loading ? (
                 <div className="flex min-h-72 items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+                  <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
                 </div>
               ) : visibleStudents.length === 0 ? (
-                <div className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-8 text-center">
-                  <Users className="h-8 w-8 text-zinc-600" />
-                  <p className="text-sm text-zinc-500">No pending students found for {selectedMonthLabel}.</p>
+                <div className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-8 text-center">
+                  <Users className="h-8 w-8 text-[color:var(--color-text-faint)]" />
+                  <p className="text-sm text-[color:var(--color-text-dim)]">No pending students found for {selectedMonthLabel}.</p>
                 </div>
               ) : (
                 <div className="max-h-[560px] space-y-2 overflow-y-auto pr-1">
@@ -497,28 +497,28 @@ export default function MessagesPage() {
                         onClick={() => toggleStudent(student.id)}
                         className={`w-full rounded-lg border p-3 text-left transition-colors ${
                           selected
-                            ? "border-emerald-500/30 bg-emerald-500/10"
-                            : "border-zinc-800 bg-zinc-950 hover:border-zinc-700"
+                            ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]"
+                            : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] hover:border-[color:var(--color-hairline)]"
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex min-w-0 items-start gap-3">
                             {selected ? (
-                              <CheckSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-300" />
+                              <CheckSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-[color:var(--color-text)]" />
                             ) : (
-                              <Square className="mt-0.5 h-5 w-5 flex-shrink-0 text-zinc-600" />
+                              <Square className="mt-0.5 h-5 w-5 flex-shrink-0 text-[color:var(--color-text-faint)]" />
                             )}
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-white">{studentName(student)}</p>
-                              <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-zinc-500">
+                              <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{studentName(student)}</p>
+                              <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">
                                 {student.id} • {student.parentName || "Parent"}
                               </p>
-                              <p className={`mt-1 truncate text-xs ${hasPhone ? "text-zinc-500" : "text-amber-300"}`}>
+                              <p className={`mt-1 truncate text-xs ${hasPhone ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text)]"}`}>
                                 {phoneValue(student) || "No WhatsApp number"}
                               </p>
                             </div>
                           </div>
-                          <span className="whitespace-nowrap font-mono text-sm font-semibold text-white">
+                          <span className="whitespace-nowrap font-mono text-sm font-semibold text-[color:var(--color-text)]">
                             ₹{Number(student.fee || 0).toLocaleString("en-IN")}
                           </span>
                         </div>
@@ -534,8 +534,8 @@ export default function MessagesPage() {
             <div className="card-panel p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Preview</p>
-                  <h2 className="text-lg font-semibold text-white">
+                  <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Preview</p>
+                  <h2 className="text-lg font-semibold text-[color:var(--color-text)]">
                     {firstPreviewStudent ? studentName(firstPreviewStudent) : "No student"}
                   </h2>
                 </div>
@@ -549,22 +549,22 @@ export default function MessagesPage() {
                   <Eye className="h-4 w-4" />
                 </button>
               </div>
-              <div className="min-h-72 rounded-lg border border-zinc-800 bg-zinc-950 p-4 text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
+              <div className="min-h-72 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4 text-sm leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap">
                 {firstPreviewStudent ? replacePlaceholders(messageTemplate, firstPreviewStudent) : "Select a pending student to preview the message."}
               </div>
             </div>
 
             <div className="card-panel p-4 sm:p-5">
-              <p className="text-xs uppercase tracking-widest text-zinc-500">Queue</p>
-              <h2 className="mt-1 text-lg font-semibold text-white">{sendableStudents.length} Ready</h2>
+              <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Queue</p>
+              <h2 className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">{sendableStudents.length} Ready</h2>
               <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                  <p className="text-zinc-600">Missing Phone</p>
-                  <p className="mt-1 text-lg font-semibold text-amber-300">{missingPhoneCount}</p>
+                <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+                  <p className="text-[color:var(--color-text-faint)]">Missing Phone</p>
+                  <p className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">{missingPhoneCount}</p>
                 </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                  <p className="text-zinc-600">Opened</p>
-                  <p className="mt-1 text-lg font-semibold text-emerald-300">{queueDone}/{sendableStudents.length}</p>
+                <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+                  <p className="text-[color:var(--color-text-faint)]">Opened</p>
+                  <p className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">{queueDone}/{sendableStudents.length}</p>
                 </div>
               </div>
 
@@ -601,13 +601,13 @@ export default function MessagesPage() {
           <div className="glass-modal !max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Message Fields</p>
-                <h2 className="text-lg font-semibold text-white">Placeholders</h2>
+                <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Message Fields</p>
+                <h2 className="text-lg font-semibold text-[color:var(--color-text)]">Placeholders</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setShowHelpModal(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -618,13 +618,13 @@ export default function MessagesPage() {
                   key={placeholder.key}
                   type="button"
                   onClick={() => insertText(placeholder.key)}
-                  className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-left hover:border-zinc-700"
+                  className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 text-left hover:border-[color:var(--color-hairline)]"
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <code className="rounded bg-zinc-900 px-2 py-1 text-xs text-emerald-300">{placeholder.key}</code>
-                    <span className="text-xs text-zinc-500">{placeholder.example}</span>
+                    <code className="rounded bg-[color:var(--color-well)] px-2 py-1 text-xs text-[color:var(--color-text)]">{placeholder.key}</code>
+                    <span className="text-xs text-[color:var(--color-text-dim)]">{placeholder.example}</span>
                   </div>
-                  <p className="mt-2 text-sm font-semibold text-white">{placeholder.label}</p>
+                  <p className="mt-2 text-sm font-semibold text-[color:var(--color-text)]">{placeholder.label}</p>
                 </button>
               ))}
             </div>
@@ -637,13 +637,13 @@ export default function MessagesPage() {
           <div className="glass-modal !max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">AI Prompt</p>
-                <h2 className="text-lg font-semibold text-white">Message Guidelines</h2>
+                <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">AI Prompt</p>
+                <h2 className="text-lg font-semibold text-[color:var(--color-text)]">Message Guidelines</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setShowPromptModal(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -683,23 +683,23 @@ export default function MessagesPage() {
           <div className="glass-modal !max-w-lg p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Preview</p>
-                <h2 className="text-lg font-semibold text-white">{studentName(previewStudent)}</h2>
+                <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Preview</p>
+                <h2 className="text-lg font-semibold text-[color:var(--color-text)]">{studentName(previewStudent)}</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setPreviewStudent(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
             {previewIssues.length ? (
-              <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-200">
+              <div className="mb-4 rounded-lg border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
                 Unknown placeholders: {previewIssues.join(", ")}
               </div>
             ) : null}
-            <div className="max-h-[55vh] overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950 p-4 text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
+            <div className="max-h-[55vh] overflow-y-auto rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4 text-sm leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap">
               {previewMessage}
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -729,8 +729,8 @@ export default function MessagesPage() {
           <div className="glass-modal !max-w-3xl max-h-[88vh] overflow-y-auto p-4 sm:p-5">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Bulk Queue</p>
-                <h2 className="text-lg font-semibold text-white">{queueDone}/{sendableStudents.length} Opened</h2>
+                <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Bulk Queue</p>
+                <h2 className="text-lg font-semibold text-[color:var(--color-text)]">{queueDone}/{sendableStudents.length} Opened</h2>
               </div>
               <div className="flex gap-2">
                 <button
@@ -745,7 +745,7 @@ export default function MessagesPage() {
                 <button
                   type="button"
                   onClick={() => setQueueOpen(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:text-white"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -759,26 +759,26 @@ export default function MessagesPage() {
                   <div
                     key={student.id}
                     className={`rounded-lg border p-3 ${
-                      opened ? "border-emerald-500/20 bg-emerald-500/10" : "border-zinc-800 bg-zinc-950"
+                      opened ? "border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)]"
                     }`}
                   >
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-white">{studentName(student)}</p>
-                        <p className="mt-1 truncate text-xs text-zinc-500">{student.id} • {phoneValue(student)}</p>
+                        <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{studentName(student)}</p>
+                        <p className="mt-1 truncate text-xs text-[color:var(--color-text-dim)]">{student.id} • {phoneValue(student)}</p>
                       </div>
                       <div className="grid grid-cols-2 gap-2 sm:flex">
                         <button
                           type="button"
                           onClick={() => copyText(replacePlaceholders(messageTemplate, student), `${studentName(student)} message copied.`)}
-                          className="inline-flex min-h-10 items-center justify-center rounded-lg border border-zinc-800 px-3 text-sm text-zinc-300 hover:border-zinc-600 hover:text-white"
+                          className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] px-3 text-sm text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                         >
                           <Copy className="h-4 w-4" />
                         </button>
                         <button
                           type="button"
                           onClick={() => openSingle(student)}
-                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/15"
+                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] px-3 text-sm font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"
                         >
                           <MessageCircle className="h-4 w-4" />
                           Open

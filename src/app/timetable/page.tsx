@@ -161,9 +161,9 @@ export default function TimetablePage() {
 
   if (checking || !user) {
     return (
-      <div className="min-h-screen bg-black text-zinc-300">
+      <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -181,10 +181,10 @@ export default function TimetablePage() {
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="eyebrow text-zinc-500">Portal Operations</p>
+              <span className="h-2 w-2 rounded-full bg-[color:var(--color-paid)]" />
+              <p className="eyebrow text-[color:var(--color-text-dim)]">Portal Operations</p>
             </div>
-            <h1 className="mt-1 text-[15px] font-semibold text-white">Branch Timetable</h1>
+            <h1 className="mt-1 text-[15px] font-semibold text-[color:var(--color-text)]">Branch Timetable</h1>
           </div>
           <button
             type="button"
@@ -197,14 +197,14 @@ export default function TimetablePage() {
         </header>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-overdue-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {saved ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-paid-border)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
             <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>{selectedBranch.label} timetable replaced for {saved.monthLabel || monthLabel || "current month"}.</p>
           </div>
@@ -225,7 +225,7 @@ export default function TimetablePage() {
                     subtitle={item.detail}
                     idLabel={branchTimetable?.monthLabel || "NO ACTIVE IMAGE"}
                     trailing={<StatusPill status={branchTimetable ? "paid" : "due"} label={branchTimetable ? "Live" : "Empty"} />}
-                    className={branch === item.value ? "bg-[#141414]" : undefined}
+                    className={branch === item.value ? "bg-[color:var(--color-well)]" : undefined}
                     onClick={() => {
                       setBranch(item.value);
                       setSaved(null);
@@ -240,12 +240,12 @@ export default function TimetablePage() {
             <div className="hud-panel p-4 sm:p-5">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-400">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
                     <CalendarDays className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs uppercase tracking-widest text-zinc-500">Monthly Replacement</p>
-                    <h2 className="truncate text-lg font-semibold text-white">{selectedBranch.detail}</h2>
+                    <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Monthly Replacement</p>
+                    <h2 className="truncate text-lg font-semibold text-[color:var(--color-text)]">{selectedBranch.detail}</h2>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:flex">
@@ -253,7 +253,7 @@ export default function TimetablePage() {
                     type="button"
                     onClick={() => loadTimetables(true)}
                     disabled={refreshingTimetables}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-200 hover:border-zinc-600 hover:bg-zinc-900 disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
                   >
                     <RefreshCw className={`h-4 w-4 ${refreshingTimetables ? "animate-spin" : ""}`} />
                     Refresh
@@ -283,8 +283,8 @@ export default function TimetablePage() {
             <div className="hud-panel overflow-hidden">
               <div className="flex flex-col gap-3 border-b border-[color:var(--color-hairline)] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Current Timetable Image</p>
-                  <h3 className="mt-1 text-lg font-semibold text-white">
+                  <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Current Timetable Image</p>
+                  <h3 className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">
                     {currentTimetable?.title || `${selectedBranch.detail} Timetable`}
                   </h3>
                 </div>
@@ -293,7 +293,7 @@ export default function TimetablePage() {
                     href={currentImageUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-sm font-semibold text-zinc-300 hover:border-zinc-600 hover:text-white"
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Open
@@ -301,13 +301,13 @@ export default function TimetablePage() {
                 ) : null}
               </div>
 
-              <div className="bg-black p-3 sm:p-4">
+              <div className="bg-[color:var(--color-well)] p-3 sm:p-4">
                 {loadingTimetables ? (
-                  <div className="flex min-h-[420px] items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950">
-                    <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+                  <div className="flex min-h-[420px] items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
+                    <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
                   </div>
                 ) : currentImageUrl ? (
-                  <div className="mx-auto flex max-w-3xl justify-center overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
+                  <div className="mx-auto flex max-w-3xl justify-center overflow-hidden rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={currentImageUrl}
@@ -316,9 +316,9 @@ export default function TimetablePage() {
                     />
                   </div>
                 ) : (
-                  <div className="flex min-h-[420px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-zinc-800 bg-zinc-950 p-8 text-center">
-                    <ImagePlus className="h-10 w-10 text-zinc-700" />
-                    <p className="text-sm text-zinc-500">No active timetable image found for {selectedBranch.label}.</p>
+                  <div className="flex min-h-[420px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-8 text-center">
+                    <ImagePlus className="h-10 w-10 text-[color:var(--color-text-faint)]" />
+                    <p className="text-sm text-[color:var(--color-text-dim)]">No active timetable image found for {selectedBranch.label}.</p>
                     <button
                       type="button"
                       onClick={() => setEditorOpen(true)}
@@ -332,7 +332,7 @@ export default function TimetablePage() {
               </div>
 
               {currentTimetable?.notes ? (
-                <div className="border-t border-zinc-800 px-4 py-3 text-sm text-zinc-500 sm:px-5">
+                <div className="border-t border-[color:var(--color-hairline)] px-4 py-3 text-sm text-[color:var(--color-text-dim)] sm:px-5">
                   {currentTimetable.notes}
                 </div>
               ) : null}
@@ -350,7 +350,7 @@ export default function TimetablePage() {
                 type="button"
                 onClick={closeEditor}
                 disabled={saving}
-                className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200 disabled:opacity-50"
+                className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-sm text-[color:var(--color-text)] disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -358,7 +358,7 @@ export default function TimetablePage() {
                 type="submit"
                 form="timetable-form"
                 disabled={saving || !file}
-                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black disabled:opacity-50"
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                 Replace
@@ -370,19 +370,19 @@ export default function TimetablePage() {
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
               <div className="space-y-4">
                 <label className="block">
-                  <span className="mb-2 block eyebrow text-zinc-500">New timetable image</span>
+                  <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">New timetable image</span>
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
                     onChange={(event) => handleFile(event.currentTarget.files?.[0] || null)}
-                    className="w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 py-3 text-sm text-zinc-300 file:mr-3 file:rounded-md file:border-0 file:bg-zinc-800 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-zinc-200"
+                    className="w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-3 text-sm text-[color:var(--color-text)] file:mr-3 file:rounded-md file:border-0 file:bg-[color:var(--color-well)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[color:var(--color-text)]"
                     required
                   />
                 </label>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="block">
-                    <span className="mb-2 block eyebrow text-zinc-500">Month</span>
+                    <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Month</span>
                     <input
                       value={monthLabel}
                       onChange={(event) => setMonthLabel(event.target.value)}
@@ -390,7 +390,7 @@ export default function TimetablePage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-2 block eyebrow text-zinc-500">Notes</span>
+                    <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Notes</span>
                     <input
                       value={notes}
                       onChange={(event) => setNotes(event.target.value)}
@@ -401,20 +401,20 @@ export default function TimetablePage() {
                 </div>
               </div>
 
-              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
-                <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-md bg-black">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+                <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-md bg-[color:var(--color-well)]">
                   {preview ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={preview} alt={`${selectedBranch.label} timetable preview`} className="h-full w-full object-contain" />
                   ) : (
-                    <div className="flex flex-col items-center gap-3 text-zinc-600">
+                    <div className="flex flex-col items-center gap-3 text-[color:var(--color-text-faint)]">
                       <ImagePlus className="h-8 w-8" />
                       <span className="text-xs uppercase tracking-wider">No image selected</span>
                     </div>
                   )}
                 </div>
                 {file ? (
-                  <p className="mt-3 truncate text-xs text-zinc-500">{file.name}</p>
+                  <p className="mt-3 truncate text-xs text-[color:var(--color-text-dim)]">{file.name}</p>
                 ) : null}
               </div>
             </div>

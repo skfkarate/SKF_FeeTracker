@@ -74,16 +74,16 @@ export default function TodayPreviewPage() {
           title: "Today",
           monthLabel: "Oct 2026",
           backHref: "/dashboard",
-          bell: <span className="font-mono text-[11px] text-zinc-400">12</span>,
+          bell: <span className="font-mono text-[11px] text-[color:var(--color-text-dim)]">12</span>,
         }}
         mainClassName="py-6"
       >
         <section className="hud-panel p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="eyebrow text-zinc-400">Needs action</p>
-              <p className="numeric mt-2 text-[40px] leading-none text-white">12</p>
-              <p className="mt-2 text-xs text-zinc-500">4 payment proofs · 3 admissions · 5 orders</p>
+              <p className="eyebrow text-[color:var(--color-text-dim)]">Needs action</p>
+              <p className="numeric mt-2 text-[40px] leading-none text-[color:var(--color-text)]">12</p>
+              <p className="mt-2 text-xs text-[color:var(--color-text-dim)]">4 payment proofs · 3 admissions · 5 orders</p>
             </div>
             <MeterRing value={68} caption="collection rate" tone="settled" />
           </div>
@@ -97,8 +97,8 @@ export default function TodayPreviewPage() {
         </div>
 
         <div className="mt-6 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-white">Run list</h2>
-          <span className="eyebrow text-zinc-500">Urgency first</span>
+          <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Run list</h2>
+          <span className="eyebrow text-[color:var(--color-text-dim)]">Urgency first</span>
         </div>
 
         <div className="mt-3 space-y-2">
@@ -113,13 +113,13 @@ export default function TodayPreviewPage() {
                 subtitle={item.subtitle}
                 idLabel={item.idLabel}
                 amount={
-                  <span className={item.status === "overdue" ? "text-red-400" : "text-white"}>
+                  <span className={item.status === "overdue" ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text)]"}>
                     {item.amount}
                   </span>
                 }
                 trailing={
                   <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-zinc-500" aria-hidden="true" />
+                    <Icon className="h-4 w-4 text-[color:var(--color-text-dim)]" aria-hidden="true" />
                     <StatusPill status={item.status} label={item.statusText} />
                   </div>
                 }
@@ -136,12 +136,12 @@ export default function TodayPreviewPage() {
         onClose={() => setActive(null)}
       >
         <div className="space-y-4 pt-1">
-          <p className="numeric text-[28px] leading-none text-white">{active?.amount ?? "—"}</p>
-          <p className="text-[13px] text-zinc-400">{active?.subtitle}</p>
-          <p className="font-mono text-[11px] text-zinc-500">{active?.idLabel}</p>
+          <p className="numeric text-[28px] leading-none text-[color:var(--color-text)]">{active?.amount ?? "—"}</p>
+          <p className="text-[13px] text-[color:var(--color-text-dim)]">{active?.subtitle}</p>
+          <p className="font-mono text-[11px] text-[color:var(--color-text-dim)]">{active?.idLabel}</p>
           <button
             type="button"
-            className="tap-target w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black"
+            className="tap-target w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)]"
             onClick={() => setActive(null)}
           >
             Resolve

@@ -36,13 +36,13 @@ export function ContextMenuSurface({ menu, onClose }: { menu: MenuState; onClose
     <div className="fixed inset-0 z-[70]" onClick={onClose} onContextMenu={(event) => { event.preventDefault(); onClose(); }}>
       {isCoarse ? (
         <div
-          className="absolute inset-x-0 bottom-0 animate-slide-up rounded-t-2xl border-t border-zinc-800 bg-zinc-950/95 p-3 pb-6 shadow-2xl shadow-black/60 backdrop-blur-xl"
+          className="absolute inset-x-0 bottom-0 animate-slide-up rounded-t-2xl border-t border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 pb-6 shadow-2xl shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl"
           onClick={(event) => event.stopPropagation()}
           style={{ left: 0, right: 0 }}
         >
           <div className="mb-2 px-2 pt-1 text-center">
-            <p className="truncate text-sm font-semibold text-white">{menu.title}</p>
-            {menu.subtitle ? <p className="truncate text-xs text-zinc-500">{menu.subtitle}</p> : null}
+            <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{menu.title}</p>
+            {menu.subtitle ? <p className="truncate text-xs text-[color:var(--color-text-dim)]">{menu.subtitle}</p> : null}
           </div>
           <div className="grid gap-1">
             {menu.items.map((item) => (
@@ -51,7 +51,7 @@ export function ContextMenuSurface({ menu, onClose }: { menu: MenuState; onClose
                 type="button"
                 onClick={() => { onClose(); item.onSelect(); }}
                 className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-semibold ${
-                  item.destructive ? "text-red-400 hover:bg-red-500/10" : "text-zinc-200 hover:bg-zinc-900"
+                  item.destructive ? "text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)]" : "text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"
                 }`}
               >
                 {item.icon ? <item.icon className="h-4 w-4" /> : null}
@@ -62,13 +62,13 @@ export function ContextMenuSurface({ menu, onClose }: { menu: MenuState; onClose
         </div>
       ) : (
         <div
-          className="absolute overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950/95 py-1 shadow-2xl shadow-black/60 backdrop-blur-xl"
+          className="absolute overflow-hidden rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] py-1 shadow-2xl shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl"
           style={{ left, top, width }}
           onClick={(event) => event.stopPropagation()}
         >
-          <div className="border-b border-zinc-800 px-3 py-2">
-            <p className="truncate text-xs font-semibold text-white">{menu.title}</p>
-            {menu.subtitle ? <p className="truncate text-[11px] text-zinc-500">{menu.subtitle}</p> : null}
+          <div className="border-b border-[color:var(--color-hairline)] px-3 py-2">
+            <p className="truncate text-xs font-semibold text-[color:var(--color-text)]">{menu.title}</p>
+            {menu.subtitle ? <p className="truncate text-[11px] text-[color:var(--color-text-dim)]">{menu.subtitle}</p> : null}
           </div>
           {menu.items.map((item) => (
             <button
@@ -76,7 +76,7 @@ export function ContextMenuSurface({ menu, onClose }: { menu: MenuState; onClose
               type="button"
               onClick={() => { onClose(); item.onSelect(); }}
               className={`flex min-h-9 w-full items-center gap-2.5 px-3 text-left text-[13px] font-medium ${
-                item.destructive ? "text-red-400 hover:bg-red-500/10" : "text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                item.destructive ? "text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)]" : "text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)]"
               }`}
             >
               {item.icon ? <item.icon className="h-3.5 w-3.5" /> : null}
