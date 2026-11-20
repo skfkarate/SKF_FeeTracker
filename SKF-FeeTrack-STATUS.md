@@ -11,7 +11,7 @@
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
 - The final design direction is **Dojo Ledger HUD** — a dark ledger with game-HUD chrome and pixel type used only for money and status words.
-- **9 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, and partially adopt the system on `/custom`. Documentation commits for this status file are separate and are not implementation work.
+- **13 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on the four primary destinations, and partially adopt the system on `/custom`. Documentation commits for this status file are separate and are not implementation work.
 - Nothing is pushed. No database, backend logic, navigation, Black Belt cleanup, or proration work has been changed yet.
 - Working tree is **clean**.
 
@@ -321,8 +321,12 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 | `1f342bf` | `refactor(feetrack): adopt HudBar on custom operations` | Per-page Navbar replaced with `HudBar`; back link, search, bell, menu, year, and refresh moved into the HUD |
 | `080f8d8` | `feat(feetrack): add PageShell and BottomNav` | Shared `PageShell`, responsive `BottomNav` with More sheet, adopted on `/custom` and preview |
 | `9bf5e05` | `feat(feetrack): add hero screen design mockups` | Today, Fees, and Money mockups at 375 and 1280 using the shared HUD primitives |
+| `b6f5136` | `refactor(feetrack): adopt PageShell on dashboard` | Today destination gets the shared HUD, navigation, search, bell, and account menu |
+| `c1fa9fd` | `refactor(feetrack): adopt PageShell on pending fees` | Fees destination gets the shared HUD, branch/month context, search, bell, and account menu |
+| `7899349` | `refactor(feetrack): adopt PageShell on admissions` | People destination gets the shared HUD, segmented tabs, stat tiles, and navigation |
+| `948bf19` | `refactor(feetrack): adopt PageShell on finance command center` | Money destination gets the shared HUD, month/branch context, refresh, and navigation |
 
-**Nothing has been pushed.** The 9 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
+**Nothing has been pushed.** The 13 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
 
 ### 5.2 Files created
 
@@ -352,6 +356,10 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 - `src/components/common/ConfirmModal.tsx` — now wraps shared `Sheet`
 - `src/components/ui/HudBar.tsx` — optional `backHref`
 - `src/app/custom/CustomPageClient.tsx` — uses `PageShell`, `Sheet`, `SegmentedTabs`, `StatTile`, `LedgerRow`, `StatusPill`
+- `src/app/dashboard/page.tsx` — now uses `PageShell` and shared HUD controls
+- `src/app/pending-fees/page.tsx` — now uses `PageShell` and shared HUD controls
+- `src/app/admissions/page.tsx` — now uses `PageShell`, `SegmentedTabs`, and `StatTile`
+- `src/app/finances/page.tsx` — now uses `PageShell` and shared HUD controls
 - `src/app/design-preview/page.tsx` — now exercises `PageShell` and `BottomNav`
 
 ### 5.4 Verification
@@ -380,10 +388,11 @@ status: clean
 
 ## 6. What is NOT done
 
-- No real page has been fully rebuilt. `/custom` is only partially adopted.
+- No real page has been fully rebuilt from the mockups. `/custom` is only partially adopted.
 - `/custom` still has old description, action buttons, balance-math card, month group header, and empty state styling.
-- `PageShell` and `BottomNav` exist, but only `/custom` and the preview route use them.
-- Navigation is not rolled out globally: no 10-destination migration, no redirects. The tab bar and More sheet exist in the shared component only.
+- `PageShell` and `BottomNav` are used by `/custom`, `/dashboard`, `/pending-fees`, `/admissions`, `/finances`, and preview routes.
+- The remaining old routes still use their per-page navigation.
+- Navigation is not rolled out globally: no 10-destination migration, no redirects. The tab bar and More sheet exist in the shared component and are visible on the four primary destinations only.
 - No BB cleanup in either app.
 - No proration work, no new tables, no schedule actions.
 - No receipt recomputation removal.
@@ -397,8 +406,8 @@ status: clean
 
 ## 7. Next steps (ordered)
 
-1. Roll `PageShell` + `BottomNav` out to Today, Fees, People, Money in that order.
-2. Rebuild Today, Fees, People, Money in that order.
+1. Rebuild Today, Fees, People, Money in that order from the approved mockups.
+2. Roll `PageShell` + `BottomNav` out to Events, Media, Shop, Insights, and Settings.
 3. Rebuild Events, Media, Shop, Settings, Insights.
 4. Add redirects in `next.config.ts`, then remove old URLs one release later.
 5. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
@@ -425,7 +434,7 @@ status: clean
 
 Read this file first, then `DESIGN.md` for the visual contract.  
 Current working directory: `/home/krish/SKF Karate/website/SKF-FeeTrack`.  
-Use `git log --oneline -9` to confirm the nine foundation implementation commits are present before continuing.
+Use `git log --oneline -13` to confirm the foundation and four-destination shell commits are present before continuing.
 
 ---
 ---
