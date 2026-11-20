@@ -57,7 +57,8 @@ import GlobalSearch from "@/components/common/GlobalSearch";
 import MonthSelector from "@/components/common/MonthSelector";
 import NotificationBell from "@/components/common/NotificationBell";
 import PageShell from "@/components/ui/PageShell";
-import { avatarTintStyle, initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
+import StudentAvatar from "@/components/ui/StudentAvatar";
+import { normalizeProfilePhotoUrl } from "@/lib/profile-photo";
 
 const MONTHS = [
   "Jan",
@@ -576,16 +577,7 @@ export default function StudentList({ branch }: { branch: string }) {
       >
         <div className="flex items-start justify-between gap-[12px]">
           <div className="flex min-w-[0px] flex-1 items-start gap-[12px]">
-            <div className="relative h-[44px] w-[44px] flex-shrink-0 overflow-hidden rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
-              {photoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={photoUrl} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-bold" style={avatarTintStyle(student.name)}>
-                  {initials(student.name)}
-                </div>
-              )}
-            </div>
+            <StudentAvatar name={student.name} photoUrl={photoUrl} className="h-[44px] w-[44px]" />
             <div className="min-w-[0px] flex-1">
             <div className="flex items-center gap-[8px] mb-[4px]">
               <h3 className={`font-sans text-base tracking-wide transition-colors truncate ${
@@ -1121,16 +1113,11 @@ export default function StudentList({ branch }: { branch: string }) {
           <div className="card-panel max-w-sm w-full p-[24px]" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-[24px]">
               <div className="flex min-w-[0px] items-center gap-[12px]">
-                <div className="relative h-[48px] w-[48px] flex-shrink-0 overflow-hidden rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
-                  {normalizeProfilePhotoUrl(detailStudent.photoUrl) ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={normalizeProfilePhotoUrl(detailStudent.photoUrl)} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs font-bold" style={avatarTintStyle(detailStudent.name)}>
-                      {initials(detailStudent.name)}
-                    </div>
-                  )}
-                </div>
+                <StudentAvatar
+                  name={detailStudent.name}
+                  photoUrl={normalizeProfilePhotoUrl(detailStudent.photoUrl)}
+                  className="h-[48px] w-[48px]"
+                />
                 <div className="min-w-[0px]">
                   <h2 className="truncate font-sans text-xl tracking-wider text-[color:var(--color-text)]">
                     {detailStudent.name}
