@@ -38,7 +38,11 @@ import {
 } from "lucide-react";
 
 import NavMenu from "@/components/common/NavMenu";
+import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
+import SegmentedTabs from "@/components/ui/SegmentedTabs";
+import StatTile from "@/components/ui/StatTile";
+import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import {
   addEventDeposit,
   addEventExpense,
@@ -1062,8 +1066,8 @@ export default function EventCollectionsPage() {
       <div className="mb-6 flex flex-col gap-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="mb-2 text-[10px] uppercase tracking-[0.25em] text-zinc-500">SKF Karate Operations</p>
-              <h1 className="font-[family-name:var(--font-space)] text-3xl text-white sm:text-4xl">Event Center</h1>
+              <p className="font-pixel-label text-zinc-500">SKF Karate Operations</p>
+              <h1 className="mt-2 text-[15px] font-semibold text-white">Event Center</h1>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -1094,7 +1098,8 @@ export default function EventCollectionsPage() {
           </div>
 
           <div className="flex flex-col gap-3 xl:flex-row">
-            <Segmented
+            <SegmentedTabs
+              ariaLabel="Event branch"
               value={branch}
               options={BRANCHES.map(({ value, label }) => ({ value, label }))}
               onChange={(value) => {
@@ -1102,7 +1107,7 @@ export default function EventCollectionsPage() {
                 setEventForm((current) => current.name.trim() ? current : { ...current, hostingBranch: adminBranch(value) });
               }}
             />
-            <Segmented value={typeFilter} options={EVENT_FILTERS} onChange={setTypeFilter} />
+            <SegmentedTabs ariaLabel="Event type" value={typeFilter} options={EVENT_FILTERS} onChange={setTypeFilter} />
           </div>
         </div>
 
@@ -1115,57 +1120,37 @@ export default function EventCollectionsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-[360px_1fr]">
-            <aside className="card-panel h-fit p-3">
+            <aside className="hud-panel h-fit overflow-hidden">
               <div className="space-y-2">
-                {filteredEvents.map((item) => {
+                {filteredEvents.map((item, index) => {
                   const published = item.event.isResultsPublished || item.event.resultsAppliedAt;
+                  const settled = item.config?.status === "settled";
+                  const rowStatus: LedgerStatus = settled ? "paid" : published ? "verifying" : "due";
+                  const rowLabel = settled ? "Settled" : published ? "Published" : item.event.status || "Draft";
                   return (
-                    <button
+                    <LedgerRow
                       key={item.event.id}
-                      type="button"
+                      index={index}
+                      status={rowStatus}
+                      title={item.event.name}
+                      subtitle={`${eventTypeLabel(item.event.type)} · ${eventBranchLabel(item.event.hostingBranch)}`}
+                      idLabel={`${eventParticipants(item).length} STUDENTS · ${item.event.date || "DATE PENDING"}`}
+                      amount={currency(item.collection.collected)}
+                      amountLabel="collected"
+                      trailing={<StatusPill status={rowStatus} label={rowLabel} />}
+                      className={selectedEventId === item.event.id ? "bg-[#141414]" : undefined}
                       onClick={() => selectEvent(item)}
-                      className={`w-full rounded-xl border p-4 text-left transition-colors ${
-                        selectedEventId === item.event.id
-                          ? "border-white/20 bg-white/[0.06]"
-                          : "border-zinc-800 bg-zinc-950/50 hover:border-zinc-700"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-white">{item.event.name}</p>
-                          <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-zinc-500">
-                            {eventTypeLabel(item.event.type)} • {eventBranchLabel(item.event.hostingBranch)}
-                          </p>
-                        </div>
-                        <div className="flex gap-1">
-                          {item.config?.status === "settled" && (
-                            <span className="rounded-md border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase text-emerald-300">
-                              Settled
-                            </span>
-                          )}
-                          <span className={`rounded-md border px-2 py-1 text-[10px] uppercase ${
-                            published ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300" : "border-zinc-800 bg-zinc-900 text-zinc-500"
-                          }`}>
-                            {published ? "Published" : item.event.status || "Draft"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
-                        <span className="text-zinc-400">{eventParticipants(item).length} students</span>
-                        <span className="text-emerald-400">{currency(item.collection.collected)}</span>
-                        <span className="text-amber-400">{currency(item.collection.pending)}</span>
-                      </div>
-                    </button>
+                    />
                   );
                 })}
                 {filteredEvents.length === 0 && (
-                  <p className="py-8 text-center text-sm text-zinc-500">No events found.</p>
+                  <div className="hud-panel p-8 text-center text-sm text-zinc-500">No events in this ledger.</div>
                 )}
               </div>
             </aside>
 
             <section className="space-y-5">
-              <div className="card-panel p-5">
+              <div className="hud-panel p-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
                     <div className="mb-2 flex flex-wrap gap-2">
@@ -1343,13 +1328,7 @@ export default function EventCollectionsPage() {
 }
 
 function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
-  return (
-    <div className="card-panel p-4">
-      <div className="mb-2">{icon}</div>
-      <p className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</p>
-      <p className="font-[family-name:var(--font-space)] text-xl text-white">{value}</p>
-    </div>
-  );
+  return <StatTile label={label} value={value} icon={icon} />;
 }
 
 function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "neutral" | "green" }) {
@@ -1359,33 +1338,6 @@ function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "ne
     }`}>
       {children}
     </span>
-  );
-}
-
-function Segmented({
-  value,
-  options,
-  onChange,
-}: {
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div className="flex flex-1 rounded-xl border border-zinc-800 bg-zinc-950 p-1">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          onClick={() => onChange(option.value)}
-          className={`min-h-9 flex-1 rounded-lg px-2 text-xs font-semibold ${
-            value === option.value ? "bg-zinc-800 text-white" : "text-zinc-500 hover:text-zinc-300"
-          }`}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
   );
 }
 
