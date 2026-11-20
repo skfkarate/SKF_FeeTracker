@@ -31,13 +31,31 @@ import GlobalSearch from "@/components/common/GlobalSearch";
 import MonthSelector from "@/components/common/MonthSelector";
 import NavMenu from "@/components/common/NavMenu";
 import NotificationBell from "@/components/common/NotificationBell";
+import LedgerRow from "@/components/ui/LedgerRow";
+import MeterRing from "@/components/ui/MeterRing";
 import PageShell from "@/components/ui/PageShell";
+import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
+import StatTile from "@/components/ui/StatTile";
+import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import { AddExtraIncomeModal } from "./AddExtraIncomeModal";
 
+type MoneySection = "overview" | "ledger" | "fund";
+
 const BRANCHES = [
-  { value: "Overall", label: "OVERALL" },
-  { value: "Herohalli", label: "HEROHALLI" },
-  { value: "MPSC", label: "MP SPORTS" },
+  { value: "Overall", label: "Overall" },
+  { value: "Herohalli", label: "Herohalli" },
+  { value: "MPSC", label: "MP Sports" },
+];
+
+const BRANCH_TABS: SegmentOption<string>[] = BRANCHES.map((branch) => ({
+  value: branch.value,
+  label: branch.label,
+}));
+
+const MONEY_SECTIONS: SegmentOption<MoneySection>[] = [
+  { value: "overview", label: "Overview" },
+  { value: "ledger", label: "Ledger" },
+  { value: "fund", label: "Fund" },
 ];
 
 const MONTHS = [
@@ -59,6 +77,19 @@ function currency(amount: number) {
   const rounded = Math.round(Number(amount) || 0);
   const prefix = rounded < 0 ? "-₹" : "₹";
   return `${prefix}${Math.abs(rounded).toLocaleString("en-IN")}`;
+}
+
+function num(amount: number) {
+  return Math.round(Number(amount) || 0).toLocaleString("en-IN");
+}
+
+function ledgerStatus(status: FinanceLedgerRow["status"]): LedgerStatus {
+  const value = String(status);
+  if (value === "paid" || value === "settled") return "paid";
+  if (value === "credit") return "credit";
+  if (value === "due" || value === "pending") return "due";
+  if (value === "partial") return "partial";
+  return "overdue";
 }
 
 function toneClass(tone: "green" | "amber" | "blue" | "red" | "purple" | "white") {
@@ -110,12 +141,6 @@ function MetricCard({
   );
 }
 
-function ledgerTone(row: FinanceLedgerRow) {
-  if (row.type === "expense" || row.type === "credit") return "text-red-400";
-  if (row.type === "pending") return "text-amber-400";
-  return "text-green-400";
-}
-
 function rowMatchesFormula(row: FinanceLedgerRow, formulaKey: string) {
   if (formulaKey === "all") return row.type !== "pending";
   if (formulaKey === "expected") return true;
@@ -148,6 +173,7 @@ export default function FinancesPage() {
   const [error, setError] = useState("");
   const [activeFormula, setActiveFormula] = useState("all");
   const [showAddIncome, setShowAddIncome] = useState(false);
+  const [section, setSection] = useState<MoneySection>("overview");
 
   const loadData = useCallback(
     async (forceRefresh = false) => {
@@ -235,24 +261,23 @@ export default function FinancesPage() {
           account: <NavMenu />,
         }}
       >
-        <div className="flex p-1 bg-black/20 rounded-xl w-full border border-white/5 mb-5">
-          {BRANCHES.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => {
-                setActiveFormula("all");
-                setBranch(option.value);
-              }}
-              className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-[family-name:var(--font-space)] tracking-wider transition-all ${
-                branch === option.value
-                  ? "bg-[var(--surface)] text-white border border-white/10"
-                  : "text-[var(--text-muted)] hover:text-white"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        <SegmentedTabs
+          options={BRANCH_TABS}
+          value={branch}
+          onChange={(nextBranch) => {
+            setActiveFormula("all");
+            setBranch(nextBranch);
+          }}
+          ariaLabel="Finance branch"
+          className="mb-3"
+        />
+        <SegmentedTabs
+          options={MONEY_SECTIONS}
+          value={section}
+          onChange={setSection}
+          ariaLabel="Money section"
+          className="mb-6"
+        />
 
         {loading && (
           <div className="text-center py-16">
@@ -272,61 +297,41 @@ export default function FinancesPage() {
 
         {!loading && !error && data && (
           <div className="space-y-6">
-            <section
-              className="glass-card p-5 sm:p-6"
-              style={{ borderColor: "rgba(34, 197, 94, 0.35)" }}
-            >
-              <div className="flex items-start justify-between gap-4">
+            {section === "overview" ? (
+            <section className="hud-panel p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-[var(--text-muted)] mb-2">
-                    {data.branch} • {data.periodLabel}
+                  <p className="font-pixel-label text-zinc-400">{data.branch} · {data.periodLabel}</p>
+                  <p className={`font-pixel mt-3 text-[40px] leading-none ${data.summary.availableBalance < 0 ? "text-red-400" : "text-white"}`}>
+                    {num(data.summary.availableBalance)}
                   </p>
-                  <h1
-                    className={`font-[family-name:var(--font-space)] text-3xl sm:text-4xl ${
-                      data.summary.availableBalance < 0 ? "text-red-400" : "text-green-400"
-                    }`}
-                  >
-                    {currency(data.summary.availableBalance)}
-                  </h1>
-                  <p className="text-xs text-[var(--text-muted)] mt-2 max-w-xl">
-                    {data.formulas.availableBalance}
-                  </p>
+                  <p className="mt-3 max-w-xl text-xs text-zinc-500">{data.formulas.availableBalance}</p>
                 </div>
+                <MeterRing
+                  value={data.summary.collectionRate}
+                  caption="collection rate"
+                  tone={data.summary.collectionRate >= 80 ? "settled" : data.summary.collectionRate >= 50 ? "action" : "overdue"}
+                />
               </div>
 
-              <div className="grid grid-cols-3 gap-2 mt-5 text-center">
-                <div className="rounded-lg bg-white/[0.03] border border-white/5 p-3">
-                  <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Income</p>
-                  <p
-                    className={`font-[family-name:var(--font-space)] ${
-                      data.summary.grossIncome < 0 ? "text-red-400" : "text-green-400"
-                    }`}
-                  >
-                    {currency(data.summary.grossIncome)}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-white/[0.03] border border-white/5 p-3">
-                  <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Expenses</p>
-                  <p className="text-red-400 font-[family-name:var(--font-space)]">
-                    {currency(data.summary.developmentExpenses + data.summary.eventExpenses + (data.summary.customRemovals || 0))}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-white/[0.03] border border-white/5 p-3">
-                  <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Net</p>
-                  <p
-                    className={`font-[family-name:var(--font-space)] ${
-                      data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses - (data.summary.customRemovals || 0) < 0
-                        ? "text-red-400"
-                        : "text-blue-400"
-                    }`}
-                  >
-                    {currency(data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses - (data.summary.customRemovals || 0))}
-                  </p>
-                </div>
+              <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <StatTile label="Income" value={num(data.summary.grossIncome)} tone={data.summary.grossIncome < 0 ? "overdue" : "settled"} />
+                <StatTile
+                  label="Expenses"
+                  value={num(-(data.summary.developmentExpenses + data.summary.eventExpenses + (data.summary.customRemovals || 0)))}
+                  tone="overdue"
+                />
+                <StatTile
+                  label="Net"
+                  value={num(data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses - (data.summary.customRemovals || 0))}
+                  tone={data.summary.grossIncome - data.summary.developmentExpenses - data.summary.eventExpenses - (data.summary.customRemovals || 0) < 0 ? "overdue" : "brand"}
+                />
+                <StatTile label="Active students" value={num(data.summary.activeStudents)} />
               </div>
             </section>
+            ) : null}
 
-            {data.warnings.length > 0 && (
+            {section === "overview" && data.warnings.length > 0 && (
               <section className="space-y-2">
                 {data.warnings.map((warning) => (
                   <div
@@ -350,10 +355,11 @@ export default function FinancesPage() {
               </section>
             )}
 
-            <section className="card-panel p-6">
+            {section === "overview" ? (
+            <section className="hud-panel p-6">
               <div className="flex items-center gap-2 mb-6">
                 <BarChart3 className="w-5 h-5 text-blue-400" />
-                <h2 className="text-white text-lg font-medium tracking-wide">Fee Position</h2>
+                <h2 className="text-[15px] font-semibold text-white">Fee Position</h2>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <MetricCard
@@ -393,12 +399,14 @@ export default function FinancesPage() {
                 />
               </div>
             </section>
+            ) : null}
 
-            <section className="card-panel p-6">
+            {section === "ledger" ? (
+            <section className="hud-panel p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <Calculator className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-white text-lg font-medium tracking-wide">Calculation</h2>
+                  <h2 className="text-[15px] font-semibold text-white">Calculation</h2>
                 </div>
                 <button
                   type="button"
@@ -409,52 +417,40 @@ export default function FinancesPage() {
                 </button>
               </div>
 
-              <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
-                {[...data.incomeBreakdown, ...data.expenseBreakdown].map((item) => {
+              <div className="divide-y divide-[color:var(--color-hairline)]">
+                {[...data.incomeBreakdown, ...data.expenseBreakdown].map((item, index) => {
                   const signedAmount = item.key === "developmentExpenses" || item.key === "eventExpenses" || item.key === "customRemovals" ? -Math.abs(item.amount) : item.amount;
                   return (
-                    <button
+                    <LedgerRow
                       key={item.key}
-                      type="button"
+                      index={index}
+                      status={signedAmount < 0 ? "overdue" : "credit"}
+                      title={item.label}
+                      idLabel={item.formula}
+                      amount={`${signedAmount > 0 ? "+" : signedAmount < 0 ? "-" : ""}${num(Math.abs(signedAmount))}`}
+                      trailing={<StatusPill status={signedAmount < 0 ? "overdue" : "credit"} label={signedAmount < 0 ? "Out" : "In"} />}
+                      className={activeFormula === item.key ? "bg-[#141414]" : undefined}
                       onClick={() => setActiveFormula(item.key)}
-                      className={`w-full p-4 flex items-start justify-between gap-4 border-b border-zinc-800 last:border-b-0 text-left hover:bg-zinc-800 transition-colors ${
-                        activeFormula === item.key ? "bg-zinc-800/80" : ""
-                      }`}
-                    >
-                      <div>
-                        <p className="text-sm text-zinc-100 font-medium">{item.label}</p>
-                        <p className="text-xs text-zinc-500 mt-1">{item.formula}</p>
-                      </div>
-                      <p
-                        className={`font-[family-name:var(--font-space)] text-lg ${
-                          signedAmount < 0 ? "text-red-400" : "text-green-400"
-                        }`}
-                      >
-                        {signedAmount > 0 ? "+" : ""}
-                        {currency(signedAmount)}
-                      </p>
-                    </button>
+                    />
                   );
                 })}
-                <div className="p-4 flex items-start justify-between gap-4 border-t border-blue-500/20 bg-blue-500/5">
-                  <div>
-                    <p className="text-sm text-blue-300 font-medium">Development fund contribution</p>
-                    <p className="text-xs text-blue-300/60 mt-1">
-                      {data.formulas.developmentFundContribution}
-                    </p>
-                  </div>
-                  <p className="font-[family-name:var(--font-space)] text-lg text-blue-400">
-                    {currency(data.summary.developmentFundContribution)}
-                  </p>
-                </div>
+                <LedgerRow
+                  status="credit"
+                  title="Development fund contribution"
+                  idLabel={data.formulas.developmentFundContribution}
+                  amount={num(data.summary.developmentFundContribution)}
+                  trailing={<StatusPill status="credit" label="Fund" />}
+                />
               </div>
             </section>
+            ) : null}
 
-            <section className="card-panel p-6">
+            {section === "fund" ? (
+            <section className="hud-panel p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-white text-lg font-medium tracking-wide">Fund & Tools</h2>
+                  <h2 className="text-[15px] font-semibold text-white">Fund & Tools</h2>
                 </div>
                 <Link
                   href="/development"
@@ -521,12 +517,14 @@ export default function FinancesPage() {
                 />
               </div>
             </section>
+            ) : null}
 
-            <section className="card-panel p-6">
+            {section === "overview" ? (
+            <section className="hud-panel p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <Ticket className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-white text-lg font-medium tracking-wide">Income Sources</h2>
+                  <h2 className="text-[15px] font-semibold text-white">Income Sources</h2>
                 </div>
                 <button
                   onClick={() => setShowAddIncome(true)}
@@ -593,11 +591,13 @@ export default function FinancesPage() {
                 </Link>
               </div>
             </section>
+            ) : null}
 
-            <section className="card-panel p-6">
+            {section === "fund" ? (
+            <section className="hud-panel p-6">
               <div className="flex items-center gap-2 mb-6">
                 <BarChart3 className="w-5 h-5 text-zinc-400" />
-                <h2 className="text-white text-lg font-medium tracking-wide">Year Cash Flow</h2>
+                <h2 className="text-[15px] font-semibold text-white">Year Cash Flow</h2>
               </div>
               <div className="space-y-4">
                 {data.cashFlowByMonth
@@ -640,12 +640,14 @@ export default function FinancesPage() {
                 )}
               </div>
             </section>
+            ) : null}
 
-            <section className="card-panel p-6">
+            {section === "ledger" ? (
+            <section className="hud-panel p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <Package className="w-5 h-5 text-zinc-400" />
-                  <h2 className="text-white text-lg font-medium tracking-wide">Ledger Rows</h2>
+                  <h2 className="text-[15px] font-semibold text-white">Ledger Rows</h2>
                 </div>
                 <div className="px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full">
                   <p className="text-[10px] text-zinc-400 uppercase tracking-wider">
@@ -653,37 +655,32 @@ export default function FinancesPage() {
                   </p>
                 </div>
               </div>
-              <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
+              <div className="divide-y divide-[color:var(--color-hairline)]">
                 {filteredLedger.length === 0 ? (
-                  <p className="text-sm text-zinc-500 text-center py-8">
+                  <p className="py-8 text-center text-sm text-zinc-500">
                     No rows match this calculation.
                   </p>
                 ) : (
-                  filteredLedger.map((row) => (
-                    <div
-                      key={`${row.type}-${row.id}-${row.label}`}
-                      className="p-4 border-b border-zinc-800 last:border-b-0 flex items-start justify-between gap-4 hover:bg-zinc-800/30 transition-colors"
-                    >
-                      <div className="min-w-0">
-                        <div className="flex flex-col items-start gap-1.5 mb-1.5">
-                          <p className="text-sm text-zinc-200 font-medium leading-snug">{row.label}</p>
-                          <span className="text-[10px] px-2 py-0.5 rounded-md border border-zinc-700 bg-zinc-800 text-zinc-400 whitespace-nowrap flex-shrink-0">
-                            {row.branch}
-                          </span>
-                        </div>
-                        <p className="text-xs text-zinc-500">
-                          {row.date || `${MONTHS[row.month]} ${row.year}`} • {row.status === "due" ? "pending" : row.status}
-                          {row.receiptId ? ` • ${row.receiptId}` : ""}
-                        </p>
-                      </div>
-                      <p className={`font-[family-name:var(--font-space)] text-sm sm:text-base ${ledgerTone(row)}`}>
-                        {currency(row.amount)}
-                      </p>
-                    </div>
-                  ))
+                  filteredLedger.map((row, index) => {
+                    const status = ledgerStatus(row.status);
+                    return (
+                      <LedgerRow
+                        key={`${row.type}-${row.id}-${row.label}`}
+                        index={index}
+                        status={status}
+                        title={row.label}
+                        subtitle={`${row.date || `${MONTHS[row.month]} ${row.year}`} · ${row.status === "due" ? "pending" : row.status}`}
+                        idLabel={`${row.branch}${row.receiptId ? ` · ${row.receiptId}` : ""}`}
+                        amount={num(row.amount)}
+                        amountLabel={row.type}
+                        trailing={<StatusPill status={status} />}
+                      />
+                    );
+                  })
                 )}
               </div>
             </section>
+            ) : null}
           </div>
         )}
       </PageShell>
