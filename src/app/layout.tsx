@@ -46,7 +46,7 @@ const themeBootstrap = `
     var theme = localStorage.getItem('aurora-theme');
     if (theme === 'day') document.documentElement.dataset.theme = 'day';
     var fx = localStorage.getItem('aurora-fx');
-    if (fx === 'lite' || fx === 'drift') document.documentElement.dataset.fx = fx;
+    if (fx === 'lite') document.documentElement.dataset.fx = 'lite';
   } catch (error) {}
 })();
 `;

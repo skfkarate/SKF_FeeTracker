@@ -51,6 +51,7 @@ Night is default. Day mode is `:root[data-theme="day"]`.
 | `--btn-primary-fg` | `#0a0d16` | `#f8fafc` | Main button text |
 | `--glow-teal` | `rgba(45,212,191,.20)` | `rgba(45,212,191,.18)` | Top-right glow |
 | `--glow-violet` | `rgba(109,91,255,.18)` | `rgba(109,91,255,.12)` | Top-left glow |
+| `--header-bg` | `rgba(3,4,7,.72)` | `rgba(243,245,250,.82)` | Translucent header and navigation |
 
 ### Status colors
 
@@ -104,7 +105,7 @@ Two fonts only, self-hosted through `next/font`:
 
 ## Glass, glow and depth
 
-The fixed glow is painted by `body::before`: a 680px teal circle 200px in from the right and 100px down, plus a 600px violet circle 80px from the left and 100px down. It does not scroll or capture clicks. Optional drift exists but is off by default.
+The fixed glow is painted as a `background-image` on `body` with `background-attachment: fixed`: a 680px teal circle 200px in from the right and 100px down, plus a 600px violet circle 80px from the left and 100px down. It does not scroll or capture clicks. Page wrappers stay transparent so the glow is never covered; the sticky header and bottom navigation use translucent `--header-bg` so the aurora flows behind them.
 
 Depth levels:
 
@@ -116,7 +117,7 @@ Depth levels:
 | 3 | Sheets / dialogs | `--glass-strong`, 28px blur, `--shadow-3` |
 | 4 | Toasts | `--glass-strong`, 28px blur, `--shadow-2` |
 
-Fallbacks: solid `--surface-solid` when blur is unsupported, when `prefers-reduced-transparency` is set, or when `data-fx="lite"` is chosen in the account menu. `prefers-reduced-motion` shortens all motion.
+Fallbacks: solid `--surface-solid` when blur is unsupported, when `prefers-reduced-transparency` is set, or when `data-fx="lite"` is chosen in the account menu. Lite also removes the fixed glow image. `prefers-reduced-motion` shortens all motion.
 
 ## Motion
 

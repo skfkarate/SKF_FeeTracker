@@ -15,7 +15,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="min-h-dvh bg-[color:var(--color-well)] text-[color:var(--color-text)] flex items-center justify-center px-[24px]">
+    <main className="min-h-dvh text-[color:var(--color-text)] flex items-center justify-center px-[24px]">
       <section className="max-w-md text-center">
         <h1 className="text-2xl font-semibold mb-[12px]">Something went wrong</h1>
         <p className="text-[color:var(--color-text-dim)] mb-[24px]">FeeTrack hit an unexpected error and the team has been notified.</p>

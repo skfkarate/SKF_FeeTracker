@@ -286,7 +286,7 @@ export default function MessagesPage() {
 
   if (checking || !user) {
     return (
-      <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
+      <div className="min-h-screen text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
           <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>

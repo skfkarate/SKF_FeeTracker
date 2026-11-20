@@ -654,7 +654,7 @@ export default function WebsiteAnalyticsPage() {
 
   if (checking || !user) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-[color:var(--color-base)] text-[color:var(--color-text-faint)]">
+      <div className="flex min-h-dvh items-center justify-center text-[color:var(--color-text-faint)]">
         <RefreshCw className="h-[24px] w-[24px] animate-spin" />
       </div>
     );

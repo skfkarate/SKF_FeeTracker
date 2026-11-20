@@ -30,7 +30,7 @@ export default function HudBar({
   return (
     <header
       className={cx(
-        "sticky top-[0px] z-40 border-b border-[color:var(--color-hairline)] bg-[color:var(--color-base)] backdrop-blur-xl",
+        "sticky top-[0px] z-40 border-b border-[color:var(--color-hairline)] bg-[color:var(--header-bg)] backdrop-blur-xl",
         className,
       )}
     >

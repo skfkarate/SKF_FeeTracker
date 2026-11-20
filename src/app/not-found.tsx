@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <main className="min-h-dvh bg-[color:var(--color-well)] text-[color:var(--color-text)] flex items-center justify-center px-[24px]">
+    <main className="min-h-dvh text-[color:var(--color-text)] flex items-center justify-center px-[24px]">
       <section className="max-w-md text-center">
         <h1 className="text-2xl font-semibold mb-[12px]">Page not found</h1>
         <p className="text-[color:var(--color-text-dim)] mb-[24px]">The page you are looking for does not exist in FeeTrack.</p>

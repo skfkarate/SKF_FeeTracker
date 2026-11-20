@@ -325,7 +325,7 @@ export default function NotificationTimelinePage() {
 
   if (checking || !user) {
     return (
-      <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
+      <div className="min-h-screen text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
           <Activity className="h-[24px] w-[24px] animate-pulse text-[color:var(--color-text-dim)]" />
         </div>

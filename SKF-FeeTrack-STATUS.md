@@ -10,7 +10,7 @@
 
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
-- The final design direction is **Aurora Glass v1.0**, defined by `Aurora Glass complete theme and implementation plan.md` sections 1–7. It uses a near-black `#030407` night base with a faint blue undertone, a `#F3F5FA` day mode, frosted glass cards, solid rows, large Space Grotesk numbers, Inter body text, and a fixed teal/violet aurora glow. Sumi Ledger and Dojo Ledger HUD are retired.
+- The final design direction is **Aurora Glass v1.0**, defined by `Aurora Glass complete theme and implementation plan.md` sections 1–7. It uses a near-black `#030407` night base with a faint blue undertone, a `#F3F5FA` day mode, frosted glass cards, solid rows, large Space Grotesk numbers, Inter body text, and a fixed teal/violet aurora glow painted on the page background. The sticky header, desktop rail and bottom bar are translucent, so the glow flows behind them instead of being covered. Sumi Ledger and Dojo Ledger HUD are retired.
 - The supplied plan is **theme-only**: status calculation, totals, money rules, labels, routes, access and workflows are unchanged. Plan sections 7.2–7.3 are explicitly not implemented; existing logic remains authoritative.
 - Implementation commits are on `main` and pushed directly to `origin/main`. They cover the shared shell, ten destinations, sheets, redirects, navigation cleanup, both Aurora Glass passes, the simplified dashboard, and the full website signal funnel.
 - No PR was opened and no deploy was triggered. No database, backend logic, Black Belt cleanup, or proration work has been changed.
@@ -274,6 +274,7 @@ Night is default; day mode swaps token values only.
 | `--text` / `--text-2` / `--text-3` | `#f1f4fa` / `#aeb6c8` / `#9ca5ba` | `#0b1220` / `#4a5468` / `#5e6779` |
 | `--accent` / `--accent-2` / `--accent-text` | `#4fe3b6` / `#22d3ee` / `#7cf0cf` | `#0e9f78` / `#0891b2` / `#0a7a5c` |
 | `--btn-primary-bg` / `--btn-primary-fg` | `#f1f4fa` / `#0a0d16` | `#0b1220` / `#f8fafc` |
+| `--header-bg` | `rgba(3,4,7,.72)` | `rgba(243,245,250,.82)` |
 | Payment status solids | paid `#4fe3b6`, pending `#fbbf24`, partial `#60a5fa`, overdue `#ff6b6b` | paid `#059669`, pending `#d97706`, partial `#2563eb`, overdue `#d92d20` |
 | Focus | 2px `--accent-text`, offset 3px | same |
 | Spacing | 4, 8, 12, 16, 20, 24, 32, 40, 48, 64 | same |
@@ -386,7 +387,7 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 
 ### 5.3 Files modified
 
-- `src/app/globals.css` — Aurora Glass tokens, frosted surfaces, near-black wells, hairlines, focus rings, safe-area helpers and fixed-px tap targets
+- `src/app/globals.css` — Aurora Glass tokens, fixed page-level aurora glow, translucent header/navigation, frosted surfaces, near-black wells, hairlines, focus rings, safe-area helpers and fixed-px tap targets
 - `src/app/layout.tsx` — loads DM Sans and IBM Plex Mono only; dark theme color
 - `src/components/common/AccountMenu.tsx` — compact top-right account/logout control
 - `src/components/common/NavMenu.tsx` — removed with the hamburger/full drawer

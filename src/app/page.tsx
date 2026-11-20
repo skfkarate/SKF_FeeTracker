@@ -47,7 +47,7 @@ export default function LoginPage() {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[color:var(--color-well)] px-[16px] text-[color:var(--color-text)]">
+      <div className="min-h-screen flex items-center justify-center px-[16px] text-[color:var(--color-text)]">
         <div className="flex flex-col items-center gap-[16px]">
           <Image
             src="/logo.png"
@@ -64,7 +64,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-[16px] bg-[color:var(--color-base)] relative">
+    <div className="min-h-screen flex flex-col items-center justify-center px-[16px] relative">
       <div className="w-full max-w-[340px] z-10">
 
         {/* Header */}

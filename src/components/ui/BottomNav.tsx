@@ -72,7 +72,7 @@ export default function BottomNav() {
     <>
       <nav
         aria-label="Primary navigation"
-        className="safe-bottom fixed inset-x-[0px] bottom-[0px] z-40 border-t border-[color:var(--color-hairline)] bg-[color:var(--color-base)] backdrop-blur-xl md:hidden"
+        className="safe-bottom fixed inset-x-[0px] bottom-[0px] z-40 border-t border-[color:var(--color-hairline)] bg-[color:var(--header-bg)] backdrop-blur-xl md:hidden"
       >
         <div className="mx-auto grid max-w-3xl grid-cols-5">
           {PRIMARY_TILES.map((tab) => renderPrimary(tab, false))}
@@ -82,7 +82,7 @@ export default function BottomNav() {
 
       <nav
         aria-label="Primary navigation"
-        className="fixed bottom-[0px] left-[0px] top-[68px] z-40 hidden w-[72px] flex-col items-center gap-[8px] border-r border-[color:var(--color-hairline)] bg-[color:var(--color-base)] py-[16px] backdrop-blur-xl md:flex"
+        className="fixed bottom-[0px] left-[0px] top-[68px] z-40 hidden w-[72px] flex-col items-center gap-[8px] border-r border-[color:var(--color-hairline)] bg-[color:var(--header-bg)] py-[16px] backdrop-blur-xl md:flex"
       >
         {PRIMARY_TILES.map((tab) => renderPrimary(tab, true))}
         {renderMore(true)}
