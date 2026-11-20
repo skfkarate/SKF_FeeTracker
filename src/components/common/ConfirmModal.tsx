@@ -2,7 +2,8 @@
 
 import { AlertTriangle } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+
+import Sheet from "@/components/ui/Sheet";
 
 interface ConfirmModalProps {
   open: boolean;
@@ -30,53 +31,23 @@ export function ConfirmModal({
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (open) {
-      const timer = setTimeout(() => confirmRef.current?.focus(), 50);
-      return () => clearTimeout(timer);
-    }
-  }, [open]);
-
-  useEffect(() => {
     if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCancel();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [open, onCancel]);
-
-  if (!open || typeof document === "undefined") return null;
+    const timer = setTimeout(() => confirmRef.current?.focus(), 50);
+    return () => clearTimeout(timer);
+  }, [open]);
 
   const confirmStyles =
     variant === "danger"
       ? "bg-red-600 hover:bg-red-500 text-white"
       : "bg-white hover:opacity-90 text-black";
 
-  return createPortal(
-    <div
-      className="glass-modal-overlay"
-      onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-title"
-    >
-      <div className="glass-modal p-6">
-        <div className="flex items-start gap-4">
-          {variant === "danger" && (
-            <div className="shrink-0 rounded-full bg-red-500/10 p-2">
-              <AlertTriangle className="h-5 w-5 text-red-400" />
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <h2 id="confirm-title" className="text-lg font-semibold text-white mb-2">
-              {title}
-            </h2>
-            <p className="text-sm text-zinc-400 leading-relaxed whitespace-pre-wrap">
-              {message}
-            </p>
-          </div>
-        </div>
-        <div className="mt-6 flex items-center justify-end gap-3">
+  return (
+    <Sheet
+      open={open}
+      title={title}
+      onClose={onCancel}
+      footer={
+        <div className="flex items-center justify-end gap-3">
           <button
             onClick={onCancel}
             disabled={loading}
@@ -93,8 +64,18 @@ export function ConfirmModal({
             {loading ? "Processing..." : confirmLabel}
           </button>
         </div>
+      }
+    >
+      <div className="flex items-start gap-3 pt-1">
+        {variant === "danger" ? (
+          <span className="shrink-0 rounded-full bg-red-500/10 p-2">
+            <AlertTriangle className="h-5 w-5 text-red-400" aria-hidden="true" />
+          </span>
+        ) : null}
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-400">
+          {message}
+        </p>
       </div>
-    </div>,
-    document.body,
+    </Sheet>
   );
 }
