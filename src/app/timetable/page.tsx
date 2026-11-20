@@ -10,11 +10,14 @@ import {
   Loader2,
   RefreshCw,
   Upload,
-  X,
 } from "lucide-react";
 
 import NavMenu from "@/components/common/NavMenu";
+import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
+import Sheet from "@/components/ui/Sheet";
+import StatTile from "@/components/ui/StatTile";
+import StatusPill from "@/components/ui/StatusPill";
 import { getBranchTimetables, uploadBranchTimetable, type BranchTimetable } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { normalizeKarateMediaUrl } from "@/lib/media-url";
@@ -179,11 +182,9 @@ export default function TimetablePage() {
           <div>
             <div className="mb-3 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Portal Operations</p>
+              <p className="font-pixel-label text-zinc-500">Portal Operations</p>
             </div>
-            <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Branch Timetable
-            </h1>
+            <h1 className="mt-1 text-[15px] font-semibold text-white">Branch Timetable</h1>
           </div>
           <button
             type="button"
@@ -210,45 +211,33 @@ export default function TimetablePage() {
         ) : null}
 
         <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
-          <aside className="card-panel h-fit p-3">
-            <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
-              {BRANCHES.map((item) => {
+          <aside className="hud-panel h-fit overflow-hidden">
+            <div className="divide-y divide-[color:var(--color-hairline)]">
+              {BRANCHES.map((item, index) => {
                 const branchTimetable = timetables.find((entry) => entry.branchSlug === item.slug && entry.isActive)
                   || timetables.find((entry) => entry.branchSlug === item.slug);
                 return (
-                  <button
+                  <LedgerRow
                     key={item.value}
-                    type="button"
+                    index={index}
+                    status={branchTimetable ? "paid" : "due"}
+                    title={item.label}
+                    subtitle={item.detail}
+                    idLabel={branchTimetable?.monthLabel || "NO ACTIVE IMAGE"}
+                    trailing={<StatusPill status={branchTimetable ? "paid" : "due"} label={branchTimetable ? "Live" : "Empty"} />}
+                    className={branch === item.value ? "bg-[#141414]" : undefined}
                     onClick={() => {
                       setBranch(item.value);
                       setSaved(null);
                     }}
-                    className={`rounded-lg border p-3 text-left transition-colors sm:p-4 ${
-                      branch === item.value
-                        ? "border-white/20 bg-white text-black"
-                        : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700 hover:text-white"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold">{item.label}</p>
-                        <p className={`mt-1 truncate text-xs ${branch === item.value ? "text-black/55" : "text-zinc-600"}`}>
-                          {item.detail}
-                        </p>
-                      </div>
-                      <span className={`mt-0.5 h-2 w-2 rounded-full ${branchTimetable ? "bg-emerald-400" : "bg-zinc-700"}`} />
-                    </div>
-                    <p className={`mt-3 truncate text-[10px] uppercase tracking-wider ${branch === item.value ? "text-black/45" : "text-zinc-600"}`}>
-                      {branchTimetable?.monthLabel || "No active image"}
-                    </p>
-                  </button>
+                  />
                 );
               })}
             </div>
           </aside>
 
           <section className="space-y-5">
-            <div className="card-panel p-4 sm:p-5">
+            <div className="hud-panel p-4 sm:p-5">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-400">
@@ -280,28 +269,19 @@ export default function TimetablePage() {
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Branch</p>
-                  <p className="mt-2 text-sm font-semibold text-white">{selectedBranch.label}</p>
-                </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Active Month</p>
-                  <p className="mt-2 truncate text-sm font-semibold text-white">
-                    {currentTimetable?.monthLabel || monthLabel}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Status</p>
-                  <p className={`mt-2 text-sm font-semibold ${currentTimetable ? "text-emerald-300" : "text-zinc-400"}`}>
-                    {loadingTimetables ? "Loading" : currentTimetable ? "Live in portal" : "Not configured"}
-                  </p>
-                </div>
+              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <StatTile label="Branch" value={selectedBranch.label} />
+                <StatTile label="Active Month" value={currentTimetable?.monthLabel || monthLabel || "—"} />
+                <StatTile
+                  label="Status"
+                  value={loadingTimetables ? "Loading" : currentTimetable ? "LIVE" : "NONE"}
+                  tone={currentTimetable ? "settled" : "action"}
+                />
               </div>
             </div>
 
-            <div className="card-panel overflow-hidden">
-              <div className="flex flex-col gap-3 border-b border-zinc-800 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+            <div className="hud-panel overflow-hidden">
+              <div className="flex flex-col gap-3 border-b border-[color:var(--color-hairline)] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-zinc-500">Current Timetable Image</p>
                   <h3 className="mt-1 text-lg font-semibold text-white">
@@ -360,51 +340,49 @@ export default function TimetablePage() {
           </section>
         </div>
 
-        {editorOpen ? (
-          <div
-            className="glass-modal-overlay"
-            onClick={(event) => {
-              if (event.target === event.currentTarget) closeEditor();
-            }}
-          >
-          <form onSubmit={handleSubmit} className="glass-modal !max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-5">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-400">
-                  <CalendarDays className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Monthly Replacement</p>
-                  <h2 className="truncate text-lg font-semibold text-white">{selectedBranch.detail}</h2>
-                </div>
-              </div>
+        <Sheet
+          open={editorOpen}
+          title={`Replace ${selectedBranch.label} timetable`}
+          onClose={closeEditor}
+          footer={
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={closeEditor}
                 disabled={saving}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Close timetable upload"
+                className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200 disabled:opacity-50"
               >
-                <X className="h-4 w-4" />
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="timetable-form"
+                disabled={saving || !file}
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                Replace
               </button>
             </div>
-
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+          }
+        >
+          <form id="timetable-form" onSubmit={handleSubmit} className="grid gap-4 pt-1">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
               <div className="space-y-4">
                 <label className="block">
-                  <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">New Timetable Image</span>
+                  <span className="mb-2 block font-pixel-label text-zinc-500">New timetable image</span>
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
                     onChange={(event) => handleFile(event.currentTarget.files?.[0] || null)}
-                    className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-3 text-sm text-zinc-300 file:mr-3 file:rounded-md file:border-0 file:bg-zinc-800 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-zinc-200"
+                    className="w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 py-3 text-sm text-zinc-300 file:mr-3 file:rounded-md file:border-0 file:bg-zinc-800 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-zinc-200"
                     required
                   />
                 </label>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="block">
-                    <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Month</span>
+                    <span className="mb-2 block font-pixel-label text-zinc-500">Month</span>
                     <input
                       value={monthLabel}
                       onChange={(event) => setMonthLabel(event.target.value)}
@@ -412,7 +390,7 @@ export default function TimetablePage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500">Notes</span>
+                    <span className="mb-2 block font-pixel-label text-zinc-500">Notes</span>
                     <input
                       value={notes}
                       onChange={(event) => setNotes(event.target.value)}
@@ -421,32 +399,13 @@ export default function TimetablePage() {
                     />
                   </label>
                 </div>
-
-                <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
-                  <button
-                    type="button"
-                    onClick={closeEditor}
-                    disabled={saving}
-                    className="btn-ghost inline-flex min-h-11 items-center justify-center"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={saving || !file}
-                    className="btn-primary inline-flex min-h-11 items-center justify-center gap-2"
-                  >
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    Replace Timetable
-                  </button>
-                </div>
               </div>
 
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
                 <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-md bg-black">
                   {preview ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={preview} alt="" className="h-full w-full object-contain" />
+                    <img src={preview} alt={`${selectedBranch.label} timetable preview`} className="h-full w-full object-contain" />
                   ) : (
                     <div className="flex flex-col items-center gap-3 text-zinc-600">
                       <ImagePlus className="h-8 w-8" />
@@ -460,8 +419,7 @@ export default function TimetablePage() {
               </div>
             </div>
           </form>
-          </div>
-        ) : null}
+        </Sheet>
       </div>
     </PageShell>
   );
