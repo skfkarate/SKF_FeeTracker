@@ -570,26 +570,6 @@ export async function resumeStudent(
   invalidateCache('branchCounts');
 }
 
-export async function allocateExamFee(
-  id: string,
-  branch: string,
-  month: number,
-  amount: number,
-  year = getCurrentFeeYear(),
-): Promise<void> {
-  if (isMockData()) return;
-  await apiAction("allocate_exam_fee", {
-    id,
-    branch,
-    month,
-    year,
-    amount,
-  });
-
-  invalidateCache(`students:${branch}:${year}:${month}`);
-  invalidateFinancialCaches(branch, year);
-}
-
 export async function createManualStudentFee(input: {
   studentId: string;
   branch: string;
@@ -732,69 +712,6 @@ export async function getDashboardStats(
       .filter((s) => !s.paid)
       .reduce((sum, s) => sum + s.fee, 0),
   };
-}
-
-export async function addStudent(
-  branch: string,
-  id: string,
-  name: string,
-  fee: number,
-  phone: string,
-  joinMonth: number,
-  // New optional fields
-  admissionFee?: number,
-  admissionPaid?: boolean,
-  dressFee?: number,
-  dressCost?: number,
-  dressPaid?: boolean,
-  year = getCurrentFeeYear(),
-): Promise<{ id: string; name: string }> {
-  if (isMockData()) {
-    // Mock implementation omitted for brevity
-    return { id, name };
-  }
-
-  const data = await apiAction<{ data: { id: string; name: string } }>("add_student", {
-    branch,
-    id,
-    name,
-    fee,
-    phone,
-    joinMonth,
-    admissionFee,
-    admissionPaid,
-    dressFee,
-    dressCost,
-    dressPaid,
-    year,
-  });
-
-  // Invalidate ALL student caches for this branch - new student appears in all months from joinMonth onwards
-  invalidateCache(`students:${branch}`);
-  invalidateFinancialCaches(branch, year);
-  invalidateCache('branchCounts');
-
-  return data.data;
-}
-
-export async function getBranchCounts(): Promise<{
-  herohalli: number;
-  mp: number;
-}> {
-  if (isMockData()) {
-    await new Promise((r) => setTimeout(r, 200));
-    return {
-      herohalli: MOCK_STUDENTS["Herohalli"].length,
-      mp: MOCK_STUDENTS["MPSC"].length,
-    };
-  }
-
-  const cacheKey = 'branchCounts';
-
-  return cachedFetch(cacheKey, async () => {
-    const data = await apiAction<{ data: { herohalli: number; mp: number } }>("get_branch_counts");
-    return data.data;
-  });
 }
 
 // ============================================
@@ -1373,15 +1290,6 @@ export interface HomePracticeAnalytics {
 export async function getHomePracticeAnalytics(rangeDays = 90): Promise<HomePracticeAnalytics> {
   const data = await apiAction<{ data: HomePracticeAnalytics }>("get_home_practice_analytics", { rangeDays });
   return data.data;
-}
-
-export async function getPortalVideos(forceRefresh = false): Promise<PortalVideo[]> {
-  const cacheKey = "portalVideos";
-  if (forceRefresh) invalidateCache(cacheKey);
-  return cachedFetch(cacheKey, async () => {
-    const data = await apiAction<{ data: { videos: PortalVideo[] } }>("get_portal_videos");
-    return data.data.videos || [];
-  });
 }
 
 export async function getPracticeLibraryAdmin(forceRefresh = false): Promise<{ videos: PortalVideo[]; folders: PracticeFolder[]; photos: PracticePhoto[] }> {
@@ -2099,59 +2007,6 @@ export async function markPaidWithCredit(
   };
 }
 
-// ============================================
-// FINANCIAL SUMMARY
-// ============================================
-
-export interface YearlyBreakdownItem {
-  month: string;
-  revenue: number; // Cash revenue
-  devFund: number; // Allocated
-  expenses: number; // Spent
-  net: number; // Net Operational
-  cumulativeRevenue: number;
-  cumulativeBank: number;
-}
-
-export interface FinancialSummary {
-  month: number;
-  branch: string;
-  activeStudents: number;
-  paidStudents: number;
-  pendingStudents: number;
-  expected: number;
-  collected: number;
-  pending: number;
-  creditsApplied: number;
-  creditDetails: {
-    studentName: string;
-    amount: number;
-    reason: string;
-    description: string;
-    date: string;
-  }[];
-  actualReceived: number;
-  actualBankBalance?: number;
-  devFundAllocation: number;
-  devFundSpent: number;
-  devFundBalance: number;
-  totalContributions: number;
-  availableBalance: number;
-
-  // Analysis
-  yearlyBreakdown: YearlyBreakdownItem[];
-
-  // New Fields
-  admissionCollected?: number;
-  dressProfit?: number;
-  grossIncome?: number;
-  eventIncome?: number;
-  eventExpenses?: number;
-  eventSurplus?: number;
-  eventDeposits?: number;
-  reserveUsed?: number;
-}
-
 export interface FinanceBreakdownItem {
   key: string;
   label: string;
@@ -2337,54 +2192,6 @@ export async function getCustomOperations(
   });
 }
 
-export async function getFinancialSummary(
-  branch: string,
-  month: number,
-  forceRefresh = false,
-  year = getCurrentFeeYear(),
-): Promise<FinancialSummary> {
-  if (isMockData()) {
-    await new Promise((r) => setTimeout(r, 300));
-    return {
-      month,
-      branch,
-      activeStudents: 42,
-      paidStudents: 35,
-      pendingStudents: 7,
-      expected: 21000,
-      collected: 17500,
-      pending: 3500,
-      creditsApplied: 1000,
-      actualReceived: 16500,
-      devFundAllocation: 5250,
-      devFundSpent: 1000,
-      devFundBalance: 4250,
-      totalContributions: 5250,
-      availableBalance: 4250,
-      creditDetails: [],
-      yearlyBreakdown: [],
-      admissionCollected: 5000,
-      dressProfit: 2000,
-      reserveUsed: 0,
-    };
-  }
-
-  const cacheKey = `financial:${branch}:${year}:${month}`;
-
-  if (forceRefresh) {
-    invalidateCache(cacheKey);
-  }
-
-  return cachedFetch(cacheKey, async () => {
-    const data = await apiAction<{ data: FinancialSummary }>("get_financial_summary", {
-      branch,
-      month,
-      year,
-    });
-    return data.data;
-  });
-}
-
 export async function getFinanceCommandCenter(
   branch: string,
   month: number,
@@ -2426,23 +2233,6 @@ export async function addExtraIncome(
     amount,
     description,
     scope: branch,
-  });
-  invalidateCache(`financeCommand:${branch}:${year}:${month}`);
-  invalidateCache(`financial:${branch}:${year}:${month}`);
-  return data.data;
-}
-
-export async function deleteExtraIncome(
-  branch: string,
-  month: number,
-  incomeId: string,
-  year = getCurrentFeeYear(),
-) {
-  const data = await apiAction<{ data: Record<string, unknown> }>("delete_extra_income", {
-    branch,
-    month,
-    year,
-    incomeId,
   });
   invalidateCache(`financeCommand:${branch}:${year}:${month}`);
   invalidateCache(`financial:${branch}:${year}:${month}`);
@@ -2968,26 +2758,6 @@ export async function addEventDeposit(input: {
   invalidateCache("eventCollections:");
   invalidateCache("financeCommand:");
   return data.data;
-}
-
-export interface ExamMonth {
-  year: number;
-  month: string;
-  created_at: string;
-}
-
-export async function getExamMonths(forceRefresh = false): Promise<ExamMonth[]> {
-  const cacheKey = "examMonths";
-  if (forceRefresh) invalidateCache(cacheKey);
-  return cachedFetch(cacheKey, async () => {
-    const data = await apiAction<{ data: ExamMonth[] }>("get_exam_months");
-    return data.data || [];
-  });
-}
-
-export async function setExamMonth(year: number, month: string): Promise<void> {
-  await apiAction("set_exam_month", { year, month });
-  invalidateCache("examMonths");
 }
 
 export type BlackBeltCandidateRecord = {
