@@ -59,6 +59,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Transitional 307s keep old bookmarks working while the legacy pages are
+  // retired one release after their destinations were rebuilt.
+  async redirects() {
+    return [
+      { source: "/verifications", destination: "/pending-fees", permanent: false },
+      { source: "/profile-photos", destination: "/admissions", permanent: false },
+      { source: "/analytics", destination: "/finances", permanent: false },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {
