@@ -64,7 +64,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-[16px] bg-[color:var(--color-well)] relative">
+    <div className="min-h-screen flex flex-col items-center justify-center px-[16px] bg-[color:var(--color-base)] relative">
       <div className="w-full max-w-[340px] z-10">
 
         {/* Header */}

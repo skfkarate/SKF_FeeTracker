@@ -8,7 +8,7 @@ This is a **theme-only** migration. Status calculation, money rules, labels, rou
 
 ## Vibe
 
-A quiet night sky above a glass ledger. Deep night-blue base, frosted glass cards, solid dark wells, large crisp numbers and one soft aurora glow. Calm, premium and fast — never playful, neon, game-like or decorative.
+A quiet night sky above a glass ledger. Near-black base with a faint blue undertone, frosted glass cards, solid dark wells, large crisp numbers and one soft aurora glow. Calm, premium and fast — never playful, neon, game-like or decorative.
 
 The reference screenshot and preview are theme references only. FeeTrack keeps its own information architecture, labels, workflows and alignment system.
 
@@ -31,8 +31,8 @@ Night is default. Day mode is `:root[data-theme="day"]`.
 
 | Token | Night | Day | Use |
 |---|---|---|---|
-| `--bg` | `#070a12` | `#f3f5fa` | Page background |
-| `--surface-solid` | `#0f1420` | `#ffffff` | Solid fallback and wells |
+| `--bg` | `#030407` | `#f3f5fa` | Page background |
+| `--surface-solid` | `#0b0e16` | `#ffffff` | Solid fallback and wells |
 | `--glass` | `rgba(255,255,255,.045)` | `rgba(255,255,255,.72)` | Card fill |
 | `--glass-hover` | `rgba(255,255,255,.06)` | `rgba(255,255,255,.90)` | Clickable card hover |
 | `--glass-strong` | `rgba(255,255,255,.08)` | `rgba(255,255,255,.92)` | Menus, sheets, toasts |

@@ -18,7 +18,7 @@ export default function StudentProfilePage({
   params: Promise<{ branch: string; id: string[] }>;
 }) {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[color:var(--color-well)] flex items-center justify-center"><div className="w-[32px] h-[32px] border-2 border-[color:var(--color-hairline)] border-t-zinc-400 rounded-full animate-spin" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[color:var(--color-base)] flex items-center justify-center"><div className="w-[32px] h-[32px] border-2 border-[color:var(--color-hairline)] border-t-zinc-400 rounded-full animate-spin" /></div>}>
       <StudentProfileContent params={params} />
     </Suspense>
   );

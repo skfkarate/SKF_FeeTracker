@@ -10,7 +10,7 @@
 
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
-- The final design direction is **Aurora Glass v1.0**, defined by `Aurora Glass complete theme and implementation plan.md` sections 1–7. It uses a `#070A12` night base, a `#F3F5FA` day mode, frosted glass cards, solid rows, large Space Grotesk numbers, Inter body text, and a fixed teal/violet aurora glow. Sumi Ledger and Dojo Ledger HUD are retired.
+- The final design direction is **Aurora Glass v1.0**, defined by `Aurora Glass complete theme and implementation plan.md` sections 1–7. It uses a near-black `#030407` night base with a faint blue undertone, a `#F3F5FA` day mode, frosted glass cards, solid rows, large Space Grotesk numbers, Inter body text, and a fixed teal/violet aurora glow. Sumi Ledger and Dojo Ledger HUD are retired.
 - The supplied plan is **theme-only**: status calculation, totals, money rules, labels, routes, access and workflows are unchanged. Plan sections 7.2–7.3 are explicitly not implemented; existing logic remains authoritative.
 - Implementation commits are on `main` and pushed directly to `origin/main`. They cover the shared shell, ten destinations, sheets, redirects, navigation cleanup, both Aurora Glass passes, the simplified dashboard, and the full website signal funnel.
 - No PR was opened and no deploy was triggered. No database, backend logic, Black Belt cleanup, or proration work has been changed.
@@ -268,8 +268,8 @@ Night is default; day mode swaps token values only.
 
 | Token | Night | Day |
 |---|---|---|
-| `--bg` | `#070a12` | `#f3f5fa` |
-| `--surface-solid` | `#0f1420` | `#ffffff` |
+| `--bg` | `#030407` | `#f3f5fa` |
+| `--surface-solid` | `#0b0e16` | `#ffffff` |
 | `--glass` / `--glass-strong` | `rgba(255,255,255,.045)` / `rgba(255,255,255,.08)` | `rgba(255,255,255,.72)` / `rgba(255,255,255,.92)` |
 | `--text` / `--text-2` / `--text-3` | `#f1f4fa` / `#aeb6c8` / `#9ca5ba` | `#0b1220` / `#4a5468` / `#5e6779` |
 | `--accent` / `--accent-2` / `--accent-text` | `#4fe3b6` / `#22d3ee` / `#7cf0cf` | `#0e9f78` / `#0891b2` / `#0a7a5c` |

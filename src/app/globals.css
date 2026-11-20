@@ -9,8 +9,8 @@
 :root {
   color-scheme: dark;
 
-  --bg: #070a12;
-  --surface-solid: #0f1420;
+  --bg: #030407;
+  --surface-solid: #0b0e16;
   --glass: rgba(255, 255, 255, 0.045);
   --glass-hover: rgba(255, 255, 255, 0.06);
   --glass-strong: rgba(255, 255, 255, 0.08);
@@ -441,7 +441,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(7, 10, 18, 0.78);
+  background: rgba(3, 4, 7, 0.82);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   padding: 1rem;
