@@ -136,13 +136,17 @@ Method: map each action literal → every `@/lib/api` wrapper that sends it → 
 
 ### 2.6 Owner decisions still open
 
-These are DB- or owner-dependent and remain `UNKNOWN` until answered:
+These are DB- or owner-dependent and remain `UNKNOWN` until answered. These are the **exact five owner questions** from the audit report:
 
-1. Training weekdays for **MPSC** and **Herohalli**, and whether batches differ.
-2. Which balance matches the **real bank today** (Money waits for this; no new formula variants).
-3. Are **walk-ins** acceptable through the admission form?
-4. **Black Belt SQL results** before any BB code deletion.
-5. BB SQL must be run read-only by the owner; no DB changes were made.
+1. For the five BB candidates, should unsettled Jun–Oct 2026 ₹2000 rows be **cancelled**, **restored** to their pre-override monthly fee, or **left as-is** with the program archived?
+2. Should `039` balance rows (`fee_type='other'`) be **cancelled** or **kept** as collectible dues after the program ends?
+3. Which finance number is authoritative for "money in the bank": `/finances` command center, `/development` dev fund, or `/custom` actual balance?
+4. Is attendance ever going to be recorded, or should proration use only the billing start date and a manually maintained branch schedule?
+5. Should student creation remain **admissions-only** (recommended, since `add_student` is deliberately blocked), or is a staff-side create flow required in this release?
+
+Additionally needed for scheduling: **training weekdays for MPSC and Herohalli**, and whether batches differ.
+
+BB SQL must be run read-only by the owner; no DB changes were made. The exact SQL is in Appendix A.6 below.
 
 ---
 
@@ -413,3 +417,159 @@ HEAD:   e35b12a refactor(feetrack): use LedgerRow for custom activity rows
 Read this file first, then `DESIGN.md` for the visual contract.  
 Current working directory: `/home/krish/SKF Karate/website/SKF-FeeTrack`.  
 Use `git log --oneline -6` to confirm the six foundation commits are present before continuing.
+
+---
+---
+
+# Appendix A — Full audit detail
+
+This appendix exists so this document stands alone. The original machine-readable report is still at `/home/krish/.opencode/plan/SKF-plan-verification.md`.
+
+## A.1 Part 1 — all 15 plan claims checked
+
+| # | Claim | Status | Evidence |
+|---|---|---|---|
+| 1 | Exactly 22 page routes | **PASS** | `find src/app -name page.tsx` returns 22; `src/app/page.tsx` is login. |
+| 2 | Exactly 16 API route handlers | **PASS** | `find src/app/api -name route.ts` returns 16; only `feetrack/data` is generic. |
+| 3 | Analysis file line counts accurate | **PASS** | 9 files spot-checked exactly: `api.ts` 3028, `events/page.tsx` 2537, `NotificationBell.tsx` 1895, `StudentList.tsx` 1608, `CustomPageClient.tsx` 1226, integration `route.ts` 3369, `fee-operations.service.ts` 4751. |
+| 4 | Shell files are small | **PASS** | `layout.tsx` 57, `error.tsx` 32, `global-error.tsx` 36, `not-found.tsx` 18. |
+| 5 | Every page renders own Navbar + auth | **PASS** | 20 files render `<Navbar>` and 20 call `useFeeTrackAuth`; exceptions `/` and `/custom/page.tsx`. |
+| 6 | All modals centered `fixed inset-0` | **DIFFERS** | Three shared components already portal: `CustomPageClient.tsx:876`, `NavMenu.tsx:311`, `ConfirmModal.tsx:55`. |
+| 7 | Bell polls every 5s | **DIFFERS** | Bell refresh is 2 min (`NotificationBell.tsx:48`, `:874-877`); 5s is dashboard error retry (`dashboard/page.tsx:69`, `:132`). |
+| 8 | `/custom?tab=dues` opens dues tab | **DIFFERS** | Dashboard links there (`dashboard/page.tsx:62`) but no `useSearchParams` in `CustomPageClient`; link is a no-op. |
+| 9 | `/verifications` is live to retire | **DIFFERS** | Already a redirect at `verifications/page.tsx:1-5` → `/pending-fees`. |
+| 10 | `?v=` segments exist today | **DIFFERS** | No `?v=` anywhere; only `students/[branch]` reads `?month`/`?year`. |
+| 11 | `add_student` needs only a UI sheet | **DIFFERS** | Backend throws at `route.ts:3144-3147`; wrapper has zero callers. |
+| 12 | BB override is display-only | **DIFFERS** | Writes stored money: `fee-records.ts:229-243`, migrations `038`, `039`. |
+| 13 | Three finance screens should agree | **DIFFERS** | `/finances` command center; `/development` + `/analytics` dev fund; `/custom` custom operations. |
+| 14 | Proration can key off existing branch/batch data | **DIFFERS** | No schedule/exception/attendance tables; `batch` is free text; branches only `M P Sports Club` / `Herohalli`. |
+| 15 | PWA work is "bump cache + shortcuts" | **DIFFERS** | `public/manifest.json` has no `shortcuts`; `public/feetrack-sw.js` has no `fetch`/cache handler. |
+
+## A.2 Part 2 — all 11 feasibility checks
+
+1. **Ten destinations absorb 22 routes — PASS.** One trap: navigation is duplicated at `navigation.ts:163` (`OPERATION_GROUPS`) and `:194` (`DRAWER_GROUPS`), plus hardcoded dashboard tiles — three edits per destination change.
+2. **Bottom tabs are greenfield — PASS.** No existing tab bar; requires moving 20 Navbar/auth call sites into one shell.
+3. **Bell popover becomes badge-only — DIFFERS.** Badge already exists (`:1180-1231`); panel is 1,895 lines with nine sources at `:619-628`: payment proofs, admissions, shop orders, website leads, birthdays, poster reminders, event reminders, event updates, queue alerts. No push/queue backend beyond `push_subscriptions`.
+4. **Remove per-page Navbars — DIFFERS (scope).** 20 files; real edit count is 18 pages plus 2 subcomponents. Removing before a shared layout exists drops the login guard.
+5. **Old URLs redirect for one release — DIFFERS.** `next.config.*` has no `redirects()`. `/analytics` and `/blackbelt` still linked at `navigation.ts:79`, `:102`.
+6. **Proration calendar has a data source — DIFFERS.** No schedule/exception/attendance. `student_billing_profiles.billing_start_date` exists (`admission.validator.ts:116`). `class_branches.class_days` is website copy, not enrolment.
+7. **Proration write path is safe — PASS.** `fee_records.metadata JSONB NOT NULL DEFAULT '{}'` and `UNIQUE (skf_id, fee_type, month, year, source_key)` at `database/schema.sql:608-635`; `logAudit` at `fee-operations.service.ts:613`. Keep `amount` as charged figure.
+8. **Receipts stay correct — DIFFERS.** Karate snapshots `row.amount` (`fee-receipts.service.ts:214-236`); FeeTrack recomputes `baseFee = originalFee || fee` and `amountReceived = baseFee - creditApplied` (`src/lib/receipts/monthly.ts:140-142`).
+9. **BB removal safe — UNKNOWN (DB state), code verified.** Tables in `018`, six candidate IDs in `034`, ₹2000 in `038` for five candidates Jun–Oct 2026 (Roshan excluded), balance rows in `039`. Protected assets verified. Only SQL can reveal unpaid rows / labels / outstanding balances.
+10. **Proxy can enforce roles — DIFFERS.** `src/app/api/feetrack/data/route.ts:11-27` forwards anything. Roles exist (`fee-operations.service.ts:46`), checks limited to event writes at `route.ts:390, 2837, 2972, 2978`.
+11. **Design alignment is a token pass — DIFFERS.** Partial color tokens only; no radius/spacing/control tokens. Vertical rhythm drifts (`pt-24`, `pt-24 sm:pt-28`, `pt-24 sm:pt-32`); `finances`/`development` have no static `<h1>`; 5 currency helpers; a 28px control at `NavMenu.tsx:305`.
+
+## A.3 Part 3 — inventories
+
+**A. Routes (22):** `/` (login), `/dashboard`, `/pending-fees`, `/students/[branch]`, `/students/[branch]/[...id]`, `/finances`, `/development`, `/analytics`, `/custom`, `/events`, `/admissions`, `/messages`, `/notification-timeline`, `/shop`, `/gallery`, `/timetable`, `/portal-videos`, `/referrals`, `/profile-photos`, `/website-analytics`, `/blackbelt`, `/verifications` (redirect).
+
+**B. API surface:** 16 route handlers; 86 backend actions; 87 exported client functions, 9 with zero callers: `invalidateCache`, `allocateExamFee`, `addStudent`, `getBranchCounts`, `getPortalVideos`, `getFinancialSummary`, `deleteExtraIncome`, `getExamMonths`, `setExamMonth`. 7 backend actions never named in FeeTrack (listed in §2.5).
+
+**C. Dead/duplicated code:** `getFinancialSummary` unimported; `getDashboardStats` makes no API call, aggregates `getStudents` client-side (`api.ts:713-735`); `addStudent` dead wrapper; `getPortalLedger`/`getAdminLedger` exist but no `skfId` filter or `get_student_ledger` action; `navigation.ts` duplicates seven groups twice (`:163`, `:194`).
+
+**D. Design measurements:** most containers `max-w-6xl`, `website-analytics` `max-w-7xl` (`:586`); inconsistent titles; page dialogs `fixed inset-0` + `glass-modal`; 5 currency helpers, 3 date helpers, no shared formatter; colors only, no radius/spacing/motion tokens, 272 radius utility occurrences.
+
+**E. BB surface:** DELETE FeeTrack `src/app/blackbelt/page.tsx`, `temporary-black-belt-override.ts`, nav tile `:102`, Karate `app/portal/blackbelt/*` (4 files), `blackbelt-live.ts`, docs/scripts/tests. EDIT `StudentList.tsx:48,185-187,323-324,608,671,968,1193`, `events/page.tsx` BB mentions, `fee-records.ts:229-243`, `fee-operations.service.ts`, `fee-ledger.service.ts:441-453`, `event-fees.service.ts:537-598`. KEEP history in schema `018`/`034`/`038`/`039`; rename tables later.
+
+**F. Protected assets:** `/grading`, `/honours`, belt constants, `requires_belt` gating (`app/shop/[productId]/page.tsx:75-79`, `:150`, `:284-286`), `black_belt_exam` certificate type, `currentBelt` reads, Events BB exclusion.
+
+## A.4 Part 5 — ten plan-changing findings
+
+1. Student creation is a backend gap, not a sheet — `add_student` hard-rejected.
+2. `/verifications` is already retired — only stale links/tests need cleanup.
+3. `/custom?tab=dues` is a no-op — fix link or implement tab params.
+4. BB removal touches money — stored ₹2000 rows and `039` balance rows; decide restore vs cancel per row.
+5. Finance screens cannot reconcile today — three formulas, three balances; name canonical number before redesign.
+6. Proration has no calendar — two new tables plus admin UI are prerequisites.
+7. `?v=` is greenfield — no segment support, no redirect layer.
+8. Proxy is the only enforcement point — allowlist required before exposing new mutations.
+9. Bell is already badged — panel is 1,895 lines / nine sources; relocating is a feature move.
+10. Two receipt renderers — FeeTrack recomputes, Karate snapshots; choose one.
+
+## A.5 The 12 required plan amendments
+
+1. Add backend work for student creation (action + billing profile + initial fee rows + audit), or delete "add student in Fees" from scope.
+2. Remove `/verifications` from retirement list; add "delete stale `/verifications` references" only.
+3. Implement or remove `?tab=` handling before keeping the dashboard link; otherwise change the CTA.
+4. Add BB data remediation before code deletion: classify each `fee_records` row (paid installment, unpaid installment, restored partial, balance row), then restore/cancel/keep. Rename `bb_*` only after this.
+5. Pick one canonical finance definition (recommend `get_finance_command_center` bank position); make `/development`, `/analytics`, `/custom` reuse it or label scope. No formula edits without owner sign-off.
+6. Add `branch_training_schedules` + `branch_class_exceptions` + admin UI to proration; keep `batch` display-only; "no schedule = current behaviour".
+7. Add redirects phase (`next.config.ts` `redirects()` or route handlers) before removing `/analytics`, `/blackbelt`, `/verifications`; keep one release.
+8. Add proxy action allowlist + role matrix; include `branchScope` checks for student/fee reads; remove the seven dead actions at the same time.
+9. Re-scope the bell: keep badge, move nine source renderers to one Notifications destination, delete 2-minute poll only after push/queue behaviour is defined.
+10. Choose one receipt source of truth — recommended: Karate snapshot for official receipts; FeeTrack displays the same snapshot plus `metadata.proration`; never recompute in FeeTrack.
+11. Replace the seven-group navigation duplication with one config; update dashboard hardcoded tiles in the same change.
+12. Add design tokens for radius/spacing/control height and one formatter module; include sub-44px controls in acceptance criteria.
+
+**Status of amendments:** 12 is largely done in the design foundation (tokens + 44px targets; formatter module not yet). The rest are carried into the plan but not implemented.
+
+## A.6 Human SQL — read-only, run in Supabase SQL editor
+
+```sql
+-- 1. BB rows that are still unsettled (must be decided before removal)
+select skf_id, fee_type, month, year, amount, status, source_key, source_label,
+       metadata->>'temporaryOverride' as override,
+       metadata->>'baseAmountBeforeOverride' as base_amount
+from fee_records
+where skf_id in ('SKF20HE001','SKF20HE002','SKF20HE003','SKF21HE001','SKF21HE003')
+  and year = 2026
+  and month in ('June','July','August','September','October')
+order by skf_id, case month when 'June' then 6 when 'July' then 7 when 'August' then 8
+          when 'September' then 9 when 'October' then 10 end;
+
+-- 2. Balance rows created by migration 039
+select skf_id, fee_type, month, year, amount, status, source_key, source_label, metadata
+from fee_records
+where source_key like 'black_belt_balance:%'
+order by skf_id, year, month;
+
+-- 3. Receipts/proofs attached to BB months (do not delete)
+select r.receipt_id, r.skf_id, r.month, r.year, r.amount, r.voided_at,
+       p.id as proof_id, p.status as proof_status, p.amount as proof_amount
+from fee_receipts r
+left join fee_payment_proofs p on p.fee_record_id = r.fee_record_id
+where r.skf_id in ('SKF20HE001','SKF20HE002','SKF20HE003','SKF21HE001','SKF21HE003')
+  and r.year = 2026
+  and r.month in ('June','July','August','September','October')
+order by r.skf_id, r.month;
+
+-- 4. Duplicate-key sanity before adding proration upserts
+select skf_id, fee_type, month, year, source_key, count(*)
+from fee_records
+group by 1,2,3,4,5
+having count(*) > 1;
+
+-- 5. Canonical finance cross-check (compare with the three screens)
+select date_trunc('month', paid_date) as month,
+       sum(amount) filter (where status = 'paid') as collected
+from fee_records
+where year = 2026
+group by 1 order by 1;
+```
+
+Run as a read-only role and export results. Do not paste service-role keys into chat.
+
+## A.7 Coverage checklist
+
+| Item | In this document |
+|---|---|
+| Original request + constraints | §1 |
+| Audit report location + scores | §2.1–2.2 |
+| Baselines | §2.3 |
+| 86-action screen map + full lists | §2.4 |
+| Key discoveries | §2.5 |
+| All 5 owner questions + scheduling question | §2.6 |
+| 22 → 10 destinations | §3.1 |
+| Keep / Remove / Add / Change | §3.2–3.4 |
+| Backend workstreams + decisions | §3.5–3.6 |
+| Build order | §3.7 |
+| Design journey + final theme + tokens | §4 |
+| Font corrections | §4.5 |
+| Commits, files, verification | §5 |
+| Not done + next steps + gotchas | §6–8 |
+| Full 15 claims | A.1 |
+| Full 11 feasibility checks | A.2 |
+| Full inventories A–F | A.3 |
+| Ten findings + 12 amendments | A.4–A.5 |
+| Exact human SQL | A.6 |
+
