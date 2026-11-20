@@ -16,7 +16,6 @@ import {
   Star,
   Trash2,
   Upload,
-  X,
 } from "lucide-react";
 
 import { ConfirmModal } from "@/components/common/ConfirmModal";
@@ -24,6 +23,7 @@ import NavMenu from "@/components/common/NavMenu";
 import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs from "@/components/ui/SegmentedTabs";
+import Sheet from "@/components/ui/Sheet";
 import StatTile from "@/components/ui/StatTile";
 import StatusPill from "@/components/ui/StatusPill";
 import {
@@ -421,140 +421,127 @@ export default function GalleryManagerPage() {
         )}
       </div>
 
-      {modalOpen ? (
-        <div className="glass-modal-overlay" onClick={(event) => event.target === event.currentTarget && closeModal()}>
-          <div className="glass-modal !max-w-2xl max-h-[88vh] overflow-y-auto p-4 sm:p-5">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">{editingPhoto ? "Edit Photo" : "Upload Photos"}</p>
-                <h2 className="text-lg font-semibold text-white">{editingPhoto ? editingPhoto.title : "Gallery Upload"}</h2>
-              </div>
-              <button
-                type="button"
-                onClick={closeModal}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="grid gap-4">
-              <label className="grid gap-2">
-                <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">
-                  {editingPhoto ? "Title" : "Title / Batch Label"}
-                </span>
-                <input
-                  value={form.title}
-                  onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-                  className="input-minimal min-h-11"
-                  placeholder={editingPhoto ? "Photo title" : "Leave blank to use file names"}
-                />
-              </label>
-
-              <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
-                <label className="grid gap-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Category</span>
-                  <select
-                    value={form.category}
-                    onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
-                    className="input-minimal min-h-11"
-                  >
-                    {GALLERY_CATEGORIES.map((item) => (
-                      <option key={item} value={item}>{item}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="grid gap-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Sort</span>
-                  <input
-                    type="number"
-                    value={form.sortOrder}
-                    onChange={(event) => setForm((current) => ({ ...current, sortOrder: Number(event.target.value || 0) }))}
-                    className="input-minimal min-h-11"
-                  />
-                </label>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-300">
-                  <span className="inline-flex items-center gap-2">
-                    <Star className="h-4 w-4 text-amber-300" />
-                    Featured
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={form.pinned}
-                    onChange={(event) => setForm((current) => ({ ...current, pinned: event.target.checked }))}
-                    className="h-4 w-4 accent-white"
-                  />
-                </label>
-                <label className="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-300">
-                  <span className="inline-flex items-center gap-2">
-                    {form.isPublished ? <Eye className="h-4 w-4 text-emerald-300" /> : <EyeOff className="h-4 w-4 text-zinc-500" />}
-                    Published
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={form.isPublished}
-                    onChange={(event) => setForm((current) => ({ ...current, isPublished: event.target.checked }))}
-                    className="h-4 w-4 accent-white"
-                  />
-                </label>
-              </div>
-
-              <label className="grid cursor-pointer gap-3 rounded-xl border border-dashed border-zinc-700 bg-zinc-950 p-5 text-center transition-colors hover:border-zinc-500">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  multiple={!editingPhoto}
-                  className="sr-only"
-                  onChange={(event) => handleFiles(event.currentTarget.files)}
-                />
-                <ImagePlus className="mx-auto h-8 w-8 text-zinc-500" />
-                <span className="text-sm font-semibold text-white">
-                  {editingPhoto ? "Replace image (optional)" : "Choose one or multiple photos"}
-                </span>
-                <span className="text-xs text-zinc-600">JPG, PNG or WebP. Max 8 MB per image.</span>
-              </label>
-
-              {files.length ? (
-                <div className="rounded-lg border border-zinc-800 bg-black p-3">
-                  <p className="mb-2 text-xs uppercase tracking-widest text-zinc-600">Selected</p>
-                  <div className="grid gap-2">
-                    {files.map((file) => (
-                      <div key={`${file.name}-${file.size}`} className="flex items-center justify-between gap-3 rounded-lg bg-zinc-950 px-3 py-2 text-sm">
-                        <span className="min-w-0 truncate text-zinc-300">{file.name}</span>
-                        <span className="flex-shrink-0 text-xs text-zinc-600">{Math.round(file.size / 1024)} KB</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={closeModal}
-                disabled={saving}
-                className="btn-ghost inline-flex min-h-11 items-center justify-center"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={saving}
-                className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 disabled:opacity-60"
-              >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                Save
-              </button>
-            </div>
+      <Sheet
+        open={modalOpen}
+        title={editingPhoto ? "Edit Photo" : "Upload Photos"}
+        onClose={closeModal}
+        footer={
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={closeModal}
+              disabled={saving}
+              className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleSave()}
+              disabled={saving}
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              Save
+            </button>
           </div>
+        }
+      >
+        <div className="grid gap-4 pt-1">
+          <label className="grid gap-2">
+            <span className="font-pixel-label text-zinc-500">
+              {editingPhoto ? "Title" : "Title / Batch Label"}
+            </span>
+            <input
+              value={form.title}
+              onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
+              className="input-minimal"
+              placeholder={editingPhoto ? "Photo title" : "Leave blank to use file names"}
+            />
+          </label>
+
+          <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
+            <label className="grid gap-2">
+              <span className="font-pixel-label text-zinc-500">Category</span>
+              <select
+                value={form.category}
+                onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
+                className="input-minimal"
+              >
+                {GALLERY_CATEGORIES.map((item) => (
+                  <option key={item} value={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-pixel-label text-zinc-500">Sort</span>
+              <input
+                type="number"
+                value={form.sortOrder}
+                onChange={(event) => setForm((current) => ({ ...current, sortOrder: Number(event.target.value || 0) }))}
+                className="input-minimal"
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="tap-target flex cursor-pointer items-center justify-between gap-3 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-4 text-sm text-zinc-200">
+              <span className="inline-flex items-center gap-2">
+                <Star className="h-4 w-4 text-amber-300" />
+                Featured
+              </span>
+              <input
+                type="checkbox"
+                checked={form.pinned}
+                onChange={(event) => setForm((current) => ({ ...current, pinned: event.target.checked }))}
+                className="h-4 w-4 accent-[color:var(--color-brand)]"
+              />
+            </label>
+            <label className="tap-target flex cursor-pointer items-center justify-between gap-3 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-4 text-sm text-zinc-200">
+              <span className="inline-flex items-center gap-2">
+                {form.isPublished ? <Eye className="h-4 w-4 text-emerald-300" /> : <EyeOff className="h-4 w-4 text-zinc-500" />}
+                Published
+              </span>
+              <input
+                type="checkbox"
+                checked={form.isPublished}
+                onChange={(event) => setForm((current) => ({ ...current, isPublished: event.target.checked }))}
+                className="h-4 w-4 accent-[color:var(--color-brand)]"
+              />
+            </label>
+          </div>
+
+          <label className="grid cursor-pointer gap-3 rounded-[var(--radius-row)] border border-dashed border-[color:var(--color-hairline)] bg-[#0a0a0a] p-5 text-center transition-colors hover:border-zinc-500">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple={!editingPhoto}
+              className="sr-only"
+              onChange={(event) => handleFiles(event.currentTarget.files)}
+            />
+            <ImagePlus className="mx-auto h-8 w-8 text-zinc-500" />
+            <span className="text-sm text-white">
+              {editingPhoto ? "Replace image (optional)" : "Choose one or multiple photos"}
+            </span>
+            <span className="text-xs text-zinc-600">JPG, PNG or WebP. Max 8 MB per image.</span>
+          </label>
+
+          {files.length ? (
+            <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-black p-3">
+              <p className="mb-2 font-pixel-label text-zinc-600">Selected</p>
+              <div className="grid gap-2">
+                {files.map((file) => (
+                  <div key={`${file.name}-${file.size}`} className="flex items-center justify-between gap-3 rounded-[var(--radius-row)] bg-[#0a0a0a] px-3 py-2 text-sm">
+                    <span className="min-w-0 truncate text-zinc-300">{file.name}</span>
+                    <span className="flex-shrink-0 text-xs text-zinc-600">{Math.round(file.size / 1024)} KB</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
-      ) : null}
+      </Sheet>
 
       {confirmState ? (
         <ConfirmModal
