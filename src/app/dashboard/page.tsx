@@ -22,7 +22,7 @@ import StatTile from "@/components/ui/StatTile";
 import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import { getDashboardStats, type DashboardStats } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
-import { DASHBOARD_PRIORITY_TILES, DASHBOARD_SECONDARY_TILES } from "@/lib/navigation";
+import { getDisplayName } from "@/lib/display-name";
 
 type BranchSummary = DashboardStats & {
   branch: "MPSC" | "Herohalli";
@@ -40,6 +40,13 @@ function branchStatus(rate: number): LedgerStatus {
   if (rate >= 80) return "paid";
   if (rate >= 50) return "partial";
   return "overdue";
+}
+
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
 
 export default function DashboardPage() {
@@ -121,12 +128,14 @@ export default function DashboardPage() {
   }
 
   const monthLabel = new Date().toLocaleString("en-IN", { month: "short", year: "numeric" });
-  const branches = stats.branches.length
+  const branches = (stats.branches.length
     ? stats.branches
     : ([
         { branch: "MPSC", label: "MP", href: "/students/MPSC", totalCollected: 0, pendingAmount: 0, paidCount: 0, pendingCount: 0 },
         { branch: "Herohalli", label: "Herohalli", href: "/students/Herohalli", totalCollected: 0, pendingAmount: 0, paidCount: 0, pendingCount: 0 },
-      ] as BranchSummary[]);
+      ] as BranchSummary[]))
+    .slice()
+    .sort((a, b) => b.pendingAmount - a.pendingAmount);
 
   return (
     <PageTransition>
@@ -139,31 +148,37 @@ export default function DashboardPage() {
           account: <NavMenu />,
         }}
       >
-        <p className="mb-6 text-[13px] text-zinc-500">
-          Welcome back, <span className="capitalize text-zinc-300">{user}</span>. Here is what needs attention.
-        </p>
+        <header className="mb-4">
+          <p className="font-pixel-label text-[color:var(--color-text-faint)]">{monthLabel}</p>
+          <h2 className="font-display mt-2 text-[clamp(1.45rem,1.2rem+1vw,2rem)] leading-tight text-[color:var(--color-text)]">
+            {greeting()}, {getDisplayName(user)}.
+          </h2>
+          <p className="mt-1 text-sm text-[color:var(--color-text-dim)]">
+            Here is what needs attention across both dojos.
+          </p>
+        </header>
 
         {dashboardError ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <div>
+          <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-overdue)]/30 bg-[color:var(--color-overdue)]/10 p-4 text-sm text-[color:var(--color-text)]">
+            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[color:var(--color-overdue)]" />
+            <div className="min-w-0">
               <p className="font-semibold">Dashboard stats are waiting for the SKF-Karate backend.</p>
-              <p className="mt-1 text-amber-100/75">{dashboardError}</p>
-              <p className="mt-1 text-xs text-amber-100/60">Retrying automatically every few seconds.</p>
+              <p className="mt-1 break-words text-[color:var(--color-text-dim)]">{dashboardError}</p>
+              <p className="mt-1 text-xs text-[color:var(--color-text-faint)]">Retrying automatically every few seconds.</p>
             </div>
           </div>
         ) : null}
 
         <section className="hud-panel p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="font-pixel-label text-zinc-400">Needs action</p>
-              <p className="font-pixel mt-2 text-[40px] leading-none text-white">
-                {stats.loaded ? num(stats.pendingStudents) : "—"}
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="font-pixel-label text-[color:var(--color-text-faint)]">Needs attention</p>
+              <p className="font-pixel mt-3 break-words text-[clamp(2rem,1.5rem+2.2vw,3rem)] leading-none text-[color:var(--color-text)]">
+                ₹{stats.loaded ? num(stats.pendingAmount) : "—"}
               </p>
-              <p className="mt-2 text-xs text-zinc-500">
+              <p className="mt-3 text-xs leading-relaxed text-[color:var(--color-text-dim)] sm:text-sm">
                 {stats.loaded
-                  ? `Pending across MPSC and Herohalli · ${monthLabel}`
+                  ? `${num(stats.pendingStudents)} students pending across MPSC and Herohalli`
                   : "Calculating current month collections..."}
               </p>
             </div>
@@ -175,96 +190,48 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatTile label="Collected" value={stats.loaded ? num(stats.totalCollected) : "—"} tone="settled" icon={<Wallet className="h-4 w-4" />} />
-          <StatTile label="Pending" value={stats.loaded ? num(stats.pendingAmount) : "—"} tone="overdue" icon={<AlertCircle className="h-4 w-4" />} />
+        <div className="mt-3 grid grid-cols-2 lg:grid-cols-4">
+          <StatTile label="Collected" value={stats.loaded ? `₹${num(stats.totalCollected)}` : "—"} tone="settled" icon={<Wallet className="h-4 w-4" />} />
+          <StatTile label="Pending" value={stats.loaded ? `₹${num(stats.pendingAmount)}` : "—"} tone="overdue" icon={<AlertCircle className="h-4 w-4" />} />
           <StatTile label="Students" value={stats.loaded ? num(stats.activeStudents) : "—"} icon={<LayoutGrid className="h-4 w-4" />} />
           <StatTile label="Rate" value={stats.loaded ? `${stats.rate}%` : "—"} tone="action" icon={<Activity className="h-4 w-4" />} />
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
-          <section>
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-[15px] font-semibold text-white">Run list</h2>
-              <span className="font-pixel-label text-zinc-500">Urgency first</span>
-            </div>
+        <section className="mt-6">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-display text-[clamp(1.05rem,1rem+0.35vw,1.3rem)] text-[color:var(--color-text)]">
+              Branch run list
+            </h2>
+            <span className="font-pixel-label text-[color:var(--color-text-faint)]">Highest dues first</span>
+          </div>
 
-            <div className="space-y-2">
-              {branches.map((branch, index) => {
-                const expected = branch.totalCollected + branch.pendingAmount;
-                const rate = expected > 0 ? Math.round((branch.totalCollected / expected) * 100) : 0;
-                const status = branchStatus(rate);
-                return (
-                  <LedgerRow
-                    key={branch.branch}
-                    index={index}
-                    status={status}
-                    title={branch.label}
-                    subtitle={`${branch.paidCount} paid · ${branch.pendingCount} pending`}
-                    idLabel={`BRANCH · ${monthLabel.toUpperCase()}`}
-                    amount={stats.loaded ? num(branch.pendingAmount) : "—"}
-                    amountLabel="pending"
-                    trailing={
-                      <div className="flex items-center gap-2">
-                        <ArrowUpRight className="h-4 w-4 text-zinc-500" aria-hidden="true" />
-                        <StatusPill status={status} label={stats.loaded ? `${rate}%` : "..."} />
-                      </div>
-                    }
-                    onClick={() => router.push(branch.href)}
-                  />
-                );
-              })}
-            </div>
-          </section>
-
-          <section>
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-[15px] font-semibold text-white">Shortcuts</h2>
-              <span className="font-pixel-label text-zinc-500">Open</span>
-            </div>
-            <div className="space-y-2">
-              {DASHBOARD_PRIORITY_TILES.map((item, index) => {
-                const Icon = item.icon;
-                return (
-                  <LedgerRow
-                    key={item.href}
-                    index={index}
-                    status="due"
-                    title={item.title}
-                    subtitle={item.description}
-                    trailing={
-                      <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4 text-zinc-500" aria-hidden="true" />
-                        <StatusPill status="due" label="Open" />
-                      </div>
-                    }
-                    onClick={() => router.push(item.href)}
-                  />
-                );
-              })}
-            </div>
-            {DASHBOARD_SECONDARY_TILES.length ? (
-              <div className="mt-6">
-                <p className="mb-2 font-pixel-label text-zinc-500">More</p>
-                <div className="space-y-2">
-                  {DASHBOARD_SECONDARY_TILES.map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                      <LedgerRow
-                        key={item.href}
-                        index={index}
-                        title={item.title}
-                        subtitle={item.description}
-                        trailing={<Icon className="h-4 w-4 text-zinc-500" aria-hidden="true" />}
-                        onClick={() => router.push(item.href)}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            ) : null}
-          </section>
-        </div>
+          <div className="space-y-2">
+            {branches.map((branch, index) => {
+              const expected = branch.totalCollected + branch.pendingAmount;
+              const rate = expected > 0 ? Math.round((branch.totalCollected / expected) * 100) : 0;
+              const status = branchStatus(rate);
+              return (
+                <LedgerRow
+                  key={branch.branch}
+                  index={index}
+                  status={status}
+                  title={branch.label}
+                  subtitle={`${branch.paidCount} paid · ${branch.pendingCount} pending`}
+                  idLabel={`BRANCH · ${monthLabel.toUpperCase()}`}
+                  amount={stats.loaded ? `₹${num(branch.pendingAmount)}` : "—"}
+                  amountLabel="pending"
+                  trailing={
+                    <div className="flex items-center gap-2">
+                      <ArrowUpRight className="h-4 w-4 text-[color:var(--color-text-faint)]" aria-hidden="true" />
+                      <StatusPill status={status} label={stats.loaded ? `${rate}%` : "..."} />
+                    </div>
+                  }
+                  onClick={() => router.push(branch.href)}
+                />
+              );
+            })}
+          </div>
+        </section>
       </PageShell>
     </PageTransition>
   );
