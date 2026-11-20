@@ -34,13 +34,13 @@ import {
   UserPlus,
   Users,
   Wallet,
-  X,
 } from "lucide-react";
 
 import NavMenu from "@/components/common/NavMenu";
 import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs from "@/components/ui/SegmentedTabs";
+import Sheet from "@/components/ui/Sheet";
 import StatTile from "@/components/ui/StatTile";
 import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import {
@@ -1293,24 +1293,39 @@ export default function EventCollectionsPage() {
           </div>
         )}
 
-        {eventEditorOpen ? (
-          <div
-            className="glass-modal-overlay"
-            onClick={(event) => {
-              if (event.target === event.currentTarget) closeEventEditor();
-            }}
-          >
+        <Sheet
+          open={eventEditorOpen}
+          title={editingEventId ? "Edit Event" : "Create Event"}
+          onClose={closeEventEditor}
+          footer={
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={closeEventEditor}
+                disabled={creatingEvent}
+                className="tap-target inline-flex items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] text-sm text-zinc-200 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="event-form"
+                disabled={creatingEvent}
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
+              >
+                {creatingEvent ? <Loader2 className="h-4 w-4 animate-spin" /> : editingEventId ? <PencilLine className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                {editingEventId ? "Save" : "Create"}
+              </button>
+            </div>
+          }
+        >
+          <form id="event-form" onSubmit={handleCreateEvent} className="pt-1">
             <DetailsStep
               eventForm={eventForm}
-              editingEventId={editingEventId}
-              creatingEvent={creatingEvent}
-              onSubmit={handleCreateEvent}
-              onCancel={closeEventEditor}
               setEventForm={setEventForm}
-              isModal
             />
-          </div>
-        ) : null}
+          </form>
+        </Sheet>
 
         <ConfirmModal
           open={confirmState?.open ?? false}
@@ -1343,15 +1358,15 @@ function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "ne
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="space-y-1">
-      <span className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</span>
+    <label className="space-y-2">
+      <span className="font-pixel-label text-zinc-500">{label}</span>
       {children}
     </label>
   );
 }
 
 function baseInputClass() {
-  return "w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white outline-none focus:border-zinc-600";
+  return "w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 py-2 font-mono text-sm text-white outline-none focus:border-zinc-500";
 }
 
 function EventDetailsSummary({
@@ -1447,51 +1462,15 @@ function EventDetailsSummary({
 
 function DetailsStep({
   eventForm,
-  editingEventId,
-  creatingEvent,
-  onSubmit,
-  onCancel,
   setEventForm,
-  isModal = false,
 }: {
   eventForm: ReturnType<typeof freshEventForm>;
-  editingEventId: string;
-  creatingEvent: boolean;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onCancel: () => void;
   setEventForm: Dispatch<SetStateAction<ReturnType<typeof freshEventForm>>>;
-  isModal?: boolean;
 }) {
   const isTournamentEvent = eventForm.type === "tournament";
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className={`${isModal ? "glass-modal !max-w-4xl max-h-[90vh] overflow-y-auto" : "card-panel"} p-5 space-y-5`}
-    >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-400">
-            {editingEventId ? <PencilLine className="h-4 w-4" /> : <FilePlus2 className="h-4 w-4" />}
-          </div>
-          <div>
-            <p className="mb-1 text-[10px] uppercase tracking-[0.22em] text-zinc-500">Step 1</p>
-            <h2 className="text-lg font-medium text-white">{editingEventId ? "Edit Event" : "Create Event"}</h2>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          {(editingEventId || isModal) && (
-            <button type="button" onClick={onCancel} className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-400 hover:text-white" title="Cancel edit">
-              <X className="h-4 w-4" />
-            </button>
-          )}
-          <button type="submit" disabled={creatingEvent} className="btn-primary min-h-10 rounded-lg px-4 text-sm flex items-center gap-2">
-            {creatingEvent ? <Loader2 className="h-4 w-4 animate-spin" /> : editingEventId ? <PencilLine className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-            {editingEventId ? "Save" : "Create"}
-          </button>
-        </div>
-      </div>
-
+    <div className="grid gap-4">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <Field label="Event name">
           <input value={eventForm.name} onChange={(e) => setEventForm({ ...eventForm, name: e.target.value })} className={baseInputClass()} required />
@@ -1546,22 +1525,22 @@ function DetailsStep({
           <input value={eventForm.affiliatedBody} onChange={(e) => setEventForm({ ...eventForm, affiliatedBody: e.target.value })} className={baseInputClass()} />
         </Field>
         <label className="space-y-1 md:col-span-2">
-          <span className="text-[10px] uppercase tracking-wider text-zinc-500">Description</span>
+          <span className="font-pixel-label text-zinc-500">Description</span>
           <textarea value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} rows={3} className={`${baseInputClass()} resize-none`} required={isTournamentEvent} />
         </label>
       </div>
 
       <div className="flex flex-wrap gap-4">
         <label className="inline-flex items-center gap-2 text-xs text-zinc-400">
-          <input type="checkbox" checked={eventForm.isPublished} onChange={(e) => setEventForm({ ...eventForm, isPublished: e.target.checked })} className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 accent-amber-500" />
+          <input type="checkbox" checked={eventForm.isPublished} onChange={(e) => setEventForm({ ...eventForm, isPublished: e.target.checked })} className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 accent-[color:var(--color-brand)]" />
           Show on website
         </label>
         <label className="inline-flex items-center gap-2 text-xs text-zinc-400">
-          <input type="checkbox" checked={eventForm.showInJourney} onChange={(e) => setEventForm({ ...eventForm, showInJourney: e.target.checked })} className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 accent-amber-500" />
+          <input type="checkbox" checked={eventForm.showInJourney} onChange={(e) => setEventForm({ ...eventForm, showInJourney: e.target.checked })} className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 accent-[color:var(--color-brand)]" />
           Use for athlete journey
         </label>
       </div>
-    </form>
+    </div>
   );
 }
 
