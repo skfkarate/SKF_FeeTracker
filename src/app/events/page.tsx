@@ -36,7 +36,7 @@ import {
   Wallet,
 } from "lucide-react";
 
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs from "@/components/ui/SegmentedTabs";
@@ -1060,7 +1060,7 @@ export default function EventCollectionsPage() {
       hud={{
         title: "Events",
         backHref: "/dashboard",
-        actions: <NavMenu />,
+        actions: <AccountMenu />,
       }}
     >
       <div className="mb-6 flex flex-col gap-5">

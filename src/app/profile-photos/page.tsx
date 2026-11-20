@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 import Navbar from "@/components/common/Navbar";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { getStudents, Student, uploadStudentProfilePhoto } from "@/lib/api";
 import { initials, hasDisplayPhoto, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
@@ -232,7 +232,7 @@ export default function ProfilePhotosPage() {
 
   return (
     <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Profile Photos" rightContent={<NavMenu />} />
+      <Navbar showBack title="Profile Photos" rightContent={<AccountMenu />} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-24">
         <header className="mb-8 animate-fade-in">

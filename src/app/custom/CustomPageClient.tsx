@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 import GlobalSearch from "@/components/common/GlobalSearch";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import NotificationBell from "@/components/common/NotificationBell";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { PageTransition } from "@/components/common/PageTransition";
@@ -548,7 +548,7 @@ export default function CustomPageClient() {
             </>
           ),
           bell: <NotificationBell />,
-          account: <NavMenu />,
+          account: <AccountMenu />,
         }}
       >
         <p className="mb-6 max-w-xl text-[13px] leading-relaxed text-zinc-500">

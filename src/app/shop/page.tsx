@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs from "@/components/ui/SegmentedTabs";
@@ -444,7 +444,7 @@ export default function ShopPage() {
       hud={{
         title: "Shop",
         backHref: "/dashboard",
-        actions: <NavMenu />,
+        actions: <AccountMenu />,
       }}
     >
       <div>

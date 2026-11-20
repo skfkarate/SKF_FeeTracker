@@ -12,7 +12,7 @@ import {
   Upload,
 } from "lucide-react";
 
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
 import Sheet from "@/components/ui/Sheet";
@@ -174,7 +174,7 @@ export default function TimetablePage() {
       hud={{
         title: "Settings",
         backHref: "/dashboard",
-        actions: <NavMenu />,
+        actions: <AccountMenu />,
       }}
     >
       <div>

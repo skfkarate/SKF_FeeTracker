@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import Navbar from "@/components/common/Navbar";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import {
   getEventCollections,
   getStudents,
@@ -333,7 +333,7 @@ export default function NotificationTimelinePage() {
 
   return (
     <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Notification Timeline" rightContent={<NavMenu />} />
+      <Navbar showBack title="Notification Timeline" rightContent={<AccountMenu />} />
 
       <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 sm:px-6 sm:pt-28">
         <header className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">

@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 
 import Navbar from "@/components/common/Navbar";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import { getStudents, type Student } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { getCurrentFeeYear } from "@/lib/fee-year";
@@ -315,7 +315,7 @@ export default function MessagesPage() {
             >
               <HelpCircle className="h-4 w-4" />
             </button>
-            <NavMenu />
+            <AccountMenu />
           </div>
         }
       />

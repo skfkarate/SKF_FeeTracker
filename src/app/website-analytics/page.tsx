@@ -22,7 +22,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import LedgerRow from "@/components/ui/LedgerRow";
 import MeterRing from "@/components/ui/MeterRing";
 import PageShell from "@/components/ui/PageShell";
@@ -666,7 +666,7 @@ export default function WebsiteAnalyticsPage() {
       hud={{
         title: "Insights",
         backHref: "/dashboard",
-        actions: <NavMenu />,
+        actions: <AccountMenu />,
       }}
       className="[&>main]:max-w-[1400px]"
     >

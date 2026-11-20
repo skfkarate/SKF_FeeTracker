@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { use, Suspense } from "react";
 import { Phone, MessageCircle, Trophy, AlertCircle, History, IndianRupee } from "lucide-react";
 import Navbar from "@/components/common/Navbar";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import { getStudents, Student } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
@@ -51,7 +51,7 @@ function StudentProfileContent({
 
   return (
     <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Student Profile" rightContent={<NavMenu />} />
+      <Navbar showBack title="Student Profile" rightContent={<AccountMenu />} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-32 pb-24">
         {loading ? (

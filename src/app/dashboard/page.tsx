@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import GlobalSearch from "@/components/common/GlobalSearch";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import NotificationBell from "@/components/common/NotificationBell";
 import { PageTransition } from "@/components/common/PageTransition";
 import { SkeletonDashboard } from "@/components/common/Skeleton";
@@ -145,7 +145,7 @@ export default function DashboardPage() {
           monthLabel,
           actions: <GlobalSearch />,
           bell: <NotificationBell />,
-          account: <NavMenu />,
+          account: <AccountMenu />,
         }}
       >
         <header className="mb-4">

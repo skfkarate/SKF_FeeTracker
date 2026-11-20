@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import GlobalSearch from "@/components/common/GlobalSearch";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import NotificationBell from "@/components/common/NotificationBell";
 import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
@@ -300,7 +300,7 @@ export default function PendingFeesPage() {
         backHref: "/dashboard",
         actions: <GlobalSearch />,
         bell: <NotificationBell />,
-        account: <NavMenu />,
+        account: <AccountMenu />,
       }}
     >
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

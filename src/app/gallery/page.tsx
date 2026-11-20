@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { ConfirmModal } from "@/components/common/ConfirmModal";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs from "@/components/ui/SegmentedTabs";
@@ -279,7 +279,7 @@ export default function GalleryManagerPage() {
       hud={{
         title: "Media",
         backHref: "/dashboard",
-        actions: <NavMenu />,
+        actions: <AccountMenu />,
       }}
     >
       <div>

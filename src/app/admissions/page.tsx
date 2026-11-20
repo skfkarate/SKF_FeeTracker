@@ -11,7 +11,7 @@ import {
   XCircle,
 } from "lucide-react";
 import GlobalSearch from "@/components/common/GlobalSearch";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import NotificationBell from "@/components/common/NotificationBell";
 import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
@@ -262,7 +262,7 @@ export default function AdmissionsPage() {
         backHref: "/dashboard",
         actions: <GlobalSearch />,
         bell: <NotificationBell />,
-        account: <NavMenu />,
+        account: <AccountMenu />,
       }}
     >
       <p className="mb-5 max-w-2xl text-[13px] leading-relaxed text-zinc-500">

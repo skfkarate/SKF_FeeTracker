@@ -29,7 +29,7 @@ import { getCurrentFeeYear } from "@/lib/fee-year";
 
 import GlobalSearch from "@/components/common/GlobalSearch";
 import MonthSelector from "@/components/common/MonthSelector";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import NotificationBell from "@/components/common/NotificationBell";
 import LedgerRow from "@/components/ui/LedgerRow";
 import MeterRing from "@/components/ui/MeterRing";
@@ -258,7 +258,7 @@ export default function FinancesPage() {
             </>
           ),
           bell: <NotificationBell />,
-          account: <NavMenu />,
+          account: <AccountMenu />,
         }}
       >
         <SegmentedTabs

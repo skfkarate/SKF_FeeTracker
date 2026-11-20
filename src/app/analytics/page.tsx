@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { Activity, AlertCircle, BarChart3, Calendar, IndianRupee, RefreshCw, TrendingUp } from "lucide-react";
 import Navbar from "@/components/common/Navbar";
-import NavMenu from "@/components/common/NavMenu";
+import AccountMenu from "@/components/common/AccountMenu";
 import { getDevelopmentFundData, MonthlyDevFund } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { getCurrentFeeYear } from "@/lib/fee-year";
@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Analytics" rightContent={<NavMenu />} />
+      <Navbar showBack title="Analytics" rightContent={<AccountMenu />} />
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-32 pb-24">
         
