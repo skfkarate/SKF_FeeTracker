@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { fetchFeeTrackSession, storeFeeTrackSession } from "@/lib/client-auth";
 
@@ -49,14 +48,14 @@ export default function LoginPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-[16px] text-[color:var(--color-text)]">
         <div className="flex flex-col items-center gap-[16px]">
-          <Image
-            src="/logo.png"
-            alt="SKF Logo"
-            width={44}
-            height={44}
-            priority
-            className="rounded-full opacity-90"
-          />
+          <div className="select-none text-center">
+            <div className="font-display bg-gradient-to-r from-[var(--accent-text)] to-[var(--accent-2)] bg-clip-text text-[22px] leading-[24px] font-bold tracking-[-0.04em] text-transparent">
+              SKF
+            </div>
+            <div className="mt-[2px] text-[12px] font-semibold uppercase tracking-[0.32em] text-[color:var(--text-2)]">
+              Karate
+            </div>
+          </div>
           <Loader2 className="h-[20px] w-[20px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
@@ -68,19 +67,20 @@ export default function LoginPage() {
       <div className="w-full max-w-[340px] z-10">
 
         {/* Header */}
-        <div className="flex flex-col items-center mb-[40px] animate-fade-in">
-          <Image
-            src="/logo.png"
-            alt="SKF Logo"
-            width={48}
-            height={48}
-            priority
-            className="rounded-full mb-[24px] opacity-90"
-          />
-          <h1 className="font-sans text-2xl font-medium tracking-tight text-[color:var(--color-text)] mb-[4px]">
-            SKF Treasury
+        <div className="mb-[40px] flex flex-col items-center text-center animate-fade-in">
+          <div className="select-none">
+            <div className="font-display bg-gradient-to-r from-[var(--accent-text)] to-[var(--accent-2)] bg-clip-text text-[44px] leading-[44px] font-bold tracking-[-0.045em] text-transparent">
+              SKF
+            </div>
+            <div className="mt-[6px] text-[12px] font-semibold uppercase tracking-[0.32em] text-[color:var(--text-2)]">
+              Karate
+            </div>
+            <div className="mx-auto mt-[16px] h-px w-[64px] bg-gradient-to-r from-transparent via-[var(--accent-text)] to-transparent" />
+          </div>
+          <h1 className="font-display mt-[20px] text-[20px] leading-[26px] font-semibold text-[color:var(--color-text)]">
+            FeeTrack Treasury
           </h1>
-          <p className="text-[color:var(--color-text-dim)] text-sm">Sign in to manage operations</p>
+          <p className="mt-[4px] text-sm text-[color:var(--color-text-dim)]">Sign in to manage operations</p>
         </div>
 
         {/* Login Form */}
@@ -96,6 +96,7 @@ export default function LoginPage() {
               onChange={(e) => { setUsername(e.target.value); setError(""); }}
               placeholder=""
               className="input-minimal text-center font-sans text-lg"
+              style={{ fontSize: 16 }}
               autoCapitalize="none"
               autoComplete="username"
               autoFocus
@@ -112,6 +113,7 @@ export default function LoginPage() {
               onChange={(e) => { setPassword(e.target.value); setError(""); }}
               placeholder=""
               className="input-minimal text-center font-sans text-lg"
+              style={{ fontSize: 16 }}
               autoComplete="current-password"
             />
           </div>
@@ -134,7 +136,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-[48px] text-center animate-fade-in delay-300">
-          <p className="text-[color:var(--color-text-faint)] text-[10px] uppercase tracking-widest">
+          <p className="text-[12px] uppercase tracking-widest text-[color:var(--color-text-faint)]">
             Internal Secure System
           </p>
         </div>
