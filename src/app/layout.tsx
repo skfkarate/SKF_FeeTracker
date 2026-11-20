@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Manrope } from "next/font/google";
+import { Space_Grotesk, Manrope, JetBrains_Mono, Silkscreen } from "next/font/google";
 import PwaServiceWorker from "@/components/common/PwaServiceWorker";
 import { ToastProvider } from "@/lib/use-toast";
 import { ToastContainer } from "@/components/common/ToastContainer";
@@ -13,6 +13,17 @@ const manrope = Manrope({
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
+
+const silkscreen = Silkscreen({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-pixel-label",
 });
 
 export const metadata: Metadata = {
@@ -44,7 +55,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${manrope.variable} ${spaceGrotesk.variable} antialiased`}>
+      <body
+        className={`${manrope.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${silkscreen.variable} antialiased`}
+      >
         <a href="#main-content" className="skip-to-content">Skip to main content</a>
         <PwaServiceWorker />
         <ToastProvider>

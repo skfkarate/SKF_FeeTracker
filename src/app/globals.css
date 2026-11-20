@@ -22,6 +22,25 @@
   --accent-red: #ff3333;
   --accent-red-dim: rgba(255, 51, 51, 0.1);
 
+  /* Dojo Ledger HUD design tokens */
+  --color-action: #f5b841;
+  --color-action-dim: rgba(245, 184, 65, 0.12);
+  --color-settled: #2dd4bf;
+  --color-settled-dim: rgba(45, 212, 191, 0.12);
+  --color-overdue: #ef4444;
+  --color-overdue-dim: rgba(239, 68, 68, 0.12);
+  --color-hairline: #1f1f22;
+  --color-raised: #121214;
+
+  --radius-row: 10px;
+  --radius-card: 14px;
+  --radius-pill: 999px;
+
+  --motion-fast: 180ms;
+  --motion-mid: 240ms;
+  --motion-count: 320ms;
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
   --ease-out-circ: cubic-bezier(0.075, 0.82, 0.165, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
@@ -357,4 +376,59 @@ a, button, [role="button"], input, select, textarea {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Dojo Ledger HUD type utilities */
+.font-pixel-label {
+  font-family: var(--font-pixel-label), var(--font-mono), monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+.font-pixel {
+  font-family: var(--font-pixel-label), var(--font-mono), monospace;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.font-mono {
+  font-family: var(--font-mono), monospace;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-row {
+  border-radius: var(--radius-row);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-panel);
+}
+
+.hud-panel {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-raised);
+}
+
+.hud-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
 }
