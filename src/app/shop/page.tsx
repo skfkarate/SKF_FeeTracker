@@ -4,11 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import {
   AlertCircle,
   CheckCircle2,
-  ClipboardList,
   ImageIcon,
-  IndianRupee,
   Loader2,
-  Package,
   PackagePlus,
   RefreshCw,
   Save,
@@ -18,7 +15,11 @@ import {
 } from "lucide-react";
 
 import NavMenu from "@/components/common/NavMenu";
+import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
+import SegmentedTabs from "@/components/ui/SegmentedTabs";
+import StatTile from "@/components/ui/StatTile";
+import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import {
   getShopOrders,
   getShopProducts,
@@ -139,11 +140,11 @@ function upsertProductList(products: ShopProduct[], saved: ShopProduct) {
   return products.map((product) => (product.id === saved.id ? saved : product));
 }
 
-function statusTone(status: ShopOrderStatus) {
-  if (status === "delivered" || status === "approved") return "border-emerald-500/20 bg-emerald-500/10 text-emerald-300";
-  if (status === "pending-approval" || status === "payment-pending") return "border-amber-500/20 bg-amber-500/10 text-amber-300";
-  if (status === "cancelled") return "border-zinc-700 bg-zinc-800 text-zinc-400";
-  return "border-cyan-500/20 bg-cyan-500/10 text-cyan-300";
+function orderLedgerStatus(status: ShopOrderStatus): LedgerStatus {
+  if (status === "delivered" || status === "approved") return "paid";
+  if (status === "pending-approval" || status === "payment-pending") return "verifying";
+  if (status === "cancelled") return "discontinued";
+  return "due";
 }
 
 function ImagePreview({ src, alt, className = "" }: { src?: string; alt: string; className?: string }) {
@@ -450,55 +451,31 @@ export default function ShopPage() {
           <div>
             <div className="mb-3 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Store Operations</p>
+              <p className="font-pixel-label text-zinc-500">Store Operations</p>
             </div>
-            <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Shop Manager
-            </h1>
+            <h1 className="mt-1 text-[15px] font-semibold text-white">Shop Manager</h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500">
               Manage products, images, variants, stock and order progress from one simple control screen.
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 rounded-xl border border-zinc-800 bg-zinc-950 p-2 text-center text-xs">
-            <div className="px-3 py-2">
-              <p className="font-semibold text-white">{productSummary.count}</p>
-              <p className="mt-1 text-zinc-600">Products</p>
-            </div>
-            <div className="border-x border-zinc-800 px-3 py-2">
-              <p className="font-semibold text-white">{productSummary.stock}</p>
-              <p className="mt-1 text-zinc-600">Stock</p>
-            </div>
-            <div className="px-3 py-2">
-              <p className="font-semibold text-white">{orderSummary.pending}</p>
-              <p className="mt-1 text-zinc-600">Pending</p>
-            </div>
+          <div className="grid grid-cols-3 gap-3">
+            <StatTile label="Products" value={String(productSummary.count)} />
+            <StatTile label="Stock" value={String(productSummary.stock)} />
+            <StatTile label="Pending" value={String(orderSummary.pending)} tone="action" />
           </div>
         </header>
 
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="inline-flex rounded-lg border border-zinc-800 bg-zinc-950 p-1">
-            <button
-              type="button"
-              onClick={() => setActiveTab("products")}
-              className={`inline-flex min-h-10 items-center gap-2 rounded-md px-4 text-sm font-semibold transition-colors ${
-                activeTab === "products" ? "bg-white text-black" : "text-zinc-500 hover:text-white"
-              }`}
-            >
-              <Package className="h-4 w-4" />
-              Products
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("orders")}
-              className={`inline-flex min-h-10 items-center gap-2 rounded-md px-4 text-sm font-semibold transition-colors ${
-                activeTab === "orders" ? "bg-white text-black" : "text-zinc-500 hover:text-white"
-              }`}
-            >
-              <ClipboardList className="h-4 w-4" />
-              Orders
-            </button>
-          </div>
+          <SegmentedTabs
+            ariaLabel="Shop section"
+            value={activeTab}
+            onChange={setActiveTab}
+            options={[
+              { value: "products", label: "Products" },
+              { value: "orders", label: "Orders" },
+            ]}
+          />
 
           <button
             type="button"
@@ -527,7 +504,7 @@ export default function ShopPage() {
 
         {activeTab === "products" ? (
           <section className="space-y-5">
-            <div className="card-panel p-4">
+            <div className="hud-panel p-4">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-zinc-500">Catalog</p>
@@ -584,45 +561,35 @@ export default function ShopPage() {
                   </button>
                 </div>
               ) : (
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  {filteredProducts.map((product) => {
-                    const firstImage = product.images[0] || "";
-                    return (
-                      <button
+                <div className="hud-panel overflow-hidden">
+                  <div className="divide-y divide-[color:var(--color-hairline)]">
+                    {filteredProducts.map((product, index) => (
+                      <LedgerRow
                         key={product.id}
-                        type="button"
+                        index={index}
+                        status={product.is_public ? "paid" : "due"}
+                        title={product.name}
+                        subtitle={product.description}
+                        idLabel={`${product.id} · ${totalStock(product)} STOCK`}
+                        amount={currency(product.price)}
+                        amountLabel="price"
+                        trailing={
+                          <div className="flex items-center gap-2">
+                            <ImagePreview
+                              src={product.images[0] || ""}
+                              alt={product.name}
+                              className="h-10 w-10 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)]"
+                            />
+                            <StatusPill
+                              status={product.is_public ? "paid" : "due"}
+                              label={product.is_public ? "Public" : "Athlete"}
+                            />
+                          </div>
+                        }
                         onClick={() => openProduct(product)}
-                        className="card-panel group overflow-hidden text-left transition-colors hover:border-zinc-700"
-                      >
-                        <ImagePreview
-                          src={firstImage}
-                          alt={product.name}
-                          className="aspect-[4/3] w-full border-b border-zinc-800"
-                        />
-                        <div className="p-4">
-                          <div className="mb-3 flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-white">{product.name}</p>
-                              <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-zinc-600">{product.id}</p>
-                            </div>
-                            <span className="whitespace-nowrap text-sm font-semibold text-white">{currency(product.price)}</span>
-                          </div>
-                          <p className="line-clamp-2 min-h-10 text-xs leading-relaxed text-zinc-500">{product.description}</p>
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                              {product.category}
-                            </span>
-                            <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                              {totalStock(product)} stock
-                            </span>
-                            <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                              {product.is_public ? "Public" : "Athlete-only"}
-                            </span>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             {editorOpen ? (
@@ -935,19 +902,10 @@ export default function ShopPage() {
           </section>
         ) : (
           <section className="space-y-5">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="card-panel p-4">
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Orders</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{orderSummary.count}</p>
-              </div>
-              <div className="card-panel p-4">
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Revenue</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{currency(orderSummary.revenue)}</p>
-              </div>
-              <div className="card-panel p-4">
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Pending Work</p>
-                <p className="mt-2 text-2xl font-semibold text-white">{orderSummary.pending}</p>
-              </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <StatTile label="Orders" value={String(orderSummary.count)} />
+              <StatTile label="Revenue" value={currency(orderSummary.revenue)} tone="settled" />
+              <StatTile label="Pending Work" value={String(orderSummary.pending)} tone="action" />
             </div>
 
             <div className="card-panel p-4">
@@ -986,75 +944,42 @@ export default function ShopPage() {
                 <p className="text-sm text-zinc-500">No shop orders found.</p>
               </div>
             ) : (
-              <div className="grid gap-3">
-                {filteredOrders.map((order) => (
-                  <article key={order.orderId} className="card-panel p-4">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-mono text-sm font-semibold text-white">{order.orderId}</h3>
-                          <span className={`rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${statusTone(order.status)}`}>
-                            {order.statusLabel}
-                          </span>
-                          {order.skfId ? (
-                            <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                              {order.skfId}
-                            </span>
-                          ) : null}
-                        </div>
-                        <p className="mt-2 text-sm text-zinc-300">{order.customerName}</p>
-                        <p className="mt-1 text-xs text-zinc-600">
-                          {order.customerPhone || "No phone"} / {order.fulfillmentMethod === "dojo-pickup" ? "Dojo pickup" : "Shipping"}
-                        </p>
-                      </div>
-
-                      <div className="grid gap-2 sm:grid-cols-[160px_220px] lg:flex-shrink-0">
-                        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                          <p className="flex items-center gap-1.5 text-xs text-zinc-600">
-                            <IndianRupee className="h-3.5 w-3.5" />
-                            Total
-                          </p>
-                          <p className="mt-1 text-lg font-semibold text-white">{currency(order.total)}</p>
-                        </div>
-                        <select
-                          value={order.status}
-                          onChange={(event) => void handleOrderStatus(order, event.target.value as ShopOrderStatus)}
-                          disabled={updatingOrderId === order.orderId}
-                          className="input-minimal min-h-14"
-                        >
-                          {ORDER_STATUS_OPTIONS.map((status) => (
-                            <option key={status.value} value={status.value}>
-                              {status.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 grid gap-2">
-                      {order.items.map((item) => (
-                        <div key={`${order.orderId}-${item.variantId}`} className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-2">
-                          <ImagePreview
-                            src={item.image}
-                            alt={item.name}
-                            className="h-12 w-12 flex-shrink-0 rounded-md"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium text-zinc-200">{item.name}</p>
-                            <p className="mt-0.5 text-xs text-zinc-600">
-                              {item.size} / Qty {item.quantity} / {currency(item.lineTotal)}
-                            </p>
+              <div className="hud-panel overflow-hidden">
+                <div className="divide-y divide-[color:var(--color-hairline)]">
+                  {filteredOrders.map((order, index) => {
+                    const status = orderLedgerStatus(order.status);
+                    return (
+                      <LedgerRow
+                        key={order.orderId}
+                        index={index}
+                        status={status}
+                        title={order.customerName}
+                        subtitle={`${order.customerPhone || "No phone"} · ${order.fulfillmentMethod === "dojo-pickup" ? "Dojo pickup" : "Shipping"}`}
+                        idLabel={`${order.orderId}${order.skfId ? ` · ${order.skfId}` : ""} · ${order.items.length} ITEM${order.items.length === 1 ? "" : "S"}`}
+                        amount={currency(order.total)}
+                        amountLabel="total"
+                        trailing={
+                          <div className="flex flex-col items-end gap-2">
+                            <StatusPill status={status} label={order.statusLabel} />
+                            <select
+                              value={order.status}
+                              onChange={(event) => void handleOrderStatus(order, event.target.value as ShopOrderStatus)}
+                              disabled={updatingOrderId === order.orderId}
+                              aria-label={`Update status for ${order.orderId}`}
+                              className="input-minimal min-h-10 px-2 text-xs"
+                            >
+                              {ORDER_STATUS_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
                           </div>
-                          {item.requiresApproval ? (
-                            <span className="hidden rounded-md border border-amber-500/20 bg-amber-500/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300 sm:inline-flex">
-                              Approval
-                            </span>
-                          ) : null}
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                ))}
+                        }
+                      />
+                    );
+                  })}
+                </div>
               </div>
             )}
           </section>
