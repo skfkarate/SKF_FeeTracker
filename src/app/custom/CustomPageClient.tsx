@@ -25,6 +25,7 @@ import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { PageTransition } from "@/components/common/PageTransition";
 import Sheet from "@/components/ui/Sheet";
 import SegmentedTabs, { type SegmentOption } from "@/components/ui/SegmentedTabs";
+import StatTile from "@/components/ui/StatTile";
 import {
   addRemoval,
   createManualStudentFee,
@@ -587,53 +588,44 @@ export default function CustomPageClient() {
           ) : data ? (
             <>
               <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <div className="card-panel col-span-2 overflow-hidden p-5 lg:col-span-1">
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-                    <Wallet className="h-4 w-4 text-zinc-400" />
-                    Available balance
-                  </div>
-                  <p className={`mt-3 font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight ${balanceClass(availableBalance)}`}>
-                    {availableBalance === null ? "—" : formatCurrency(availableBalance)}
-                  </p>
-                  <p className="mt-2 text-xs leading-relaxed text-zinc-500">
-                    {data.balance.restricted
+                <StatTile
+                  className="col-span-2 lg:col-span-1"
+                  size="lg"
+                  label="Available balance"
+                  tone={availableBalance !== null && availableBalance < 0 ? "overdue" : "settled"}
+                  icon={<Wallet className="h-4 w-4" />}
+                  value={availableBalance === null ? "—" : formatCurrency(availableBalance)}
+                  hint={
+                    data.balance.restricted
                       ? data.balance.restrictedReason || "Balance is restricted for this account."
-                      : `Opening reserve ${formatCurrency(data.balance.reserveAmount)} included. Custom removals are cash-basis.`}
-                  </p>
-                </div>
+                      : `Opening reserve ${formatCurrency(data.balance.reserveAmount)} included.`
+                  }
+                />
 
-                <div className="card-panel p-5">
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-                    <ArrowDownRight className="h-4 w-4 text-red-400" />
-                    Money out
-                  </div>
-                  <p className="mt-3 font-[family-name:var(--font-space)] text-2xl font-semibold tracking-tight text-red-300">
-                    {formatCurrency(data.totals.moneyOut)}
-                  </p>
-                  <p className="mt-2 text-xs text-zinc-500">{data.totals.removalCount} removal{data.totals.removalCount === 1 ? "" : "s"} in {year}</p>
-                </div>
+                <StatTile
+                  label="Money out"
+                  tone="overdue"
+                  icon={<ArrowDownRight className="h-4 w-4" />}
+                  value={formatCurrency(data.totals.moneyOut)}
+                  hint={`${data.totals.removalCount} removal${data.totals.removalCount === 1 ? "" : "s"} in ${year}`}
+                />
 
-                <div className="card-panel p-5">
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-                    <Clock className="h-4 w-4 text-amber-300" />
-                    Pending dues
-                  </div>
-                  <p className="mt-3 font-[family-name:var(--font-space)] text-2xl font-semibold tracking-tight text-amber-200">
-                    {formatCurrency(data.totals.pendingDues)}
-                  </p>
-                  <p className="mt-2 text-xs text-zinc-500">{data.totals.pendingDueCount} awaiting payment</p>
-                </div>
+                <StatTile
+                  label="Pending dues"
+                  tone="action"
+                  icon={<Clock className="h-4 w-4" />}
+                  value={formatCurrency(data.totals.pendingDues)}
+                  hint={`${data.totals.pendingDueCount} awaiting payment`}
+                />
 
-                <div className="card-panel col-span-2 p-5 lg:col-span-1">
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-                    <BadgeCheck className="h-4 w-4 text-emerald-300" />
-                    Paid dues
-                  </div>
-                  <p className="mt-3 font-[family-name:var(--font-space)] text-2xl font-semibold tracking-tight text-emerald-300">
-                    {formatCurrency(data.totals.paidDues)}
-                  </p>
-                  <p className="mt-2 text-xs text-zinc-500">{data.totals.paidDueCount} collected</p>
-                </div>
+                <StatTile
+                  className="col-span-2 lg:col-span-1"
+                  label="Paid dues"
+                  tone="settled"
+                  icon={<BadgeCheck className="h-4 w-4" />}
+                  value={formatCurrency(data.totals.paidDues)}
+                  hint={`${data.totals.paidDueCount} collected`}
+                />
               </section>
 
               {data.permissions.canWrite ? (
