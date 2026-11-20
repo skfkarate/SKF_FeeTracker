@@ -37,8 +37,8 @@ import {
   X,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
+import PageShell from "@/components/ui/PageShell";
 import {
   addEventDeposit,
   addEventExpense,
@@ -1052,11 +1052,14 @@ export default function EventCollectionsPage() {
   if (checking || !user) return null;
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Event Center" rightContent={<NavMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 pb-16">
-        <div className="mb-6 flex flex-col gap-5">
+    <PageShell
+      hud={{
+        title: "Events",
+        backHref: "/dashboard",
+        actions: <NavMenu />,
+      }}
+    >
+      <div className="mb-6 flex flex-col gap-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="mb-2 text-[10px] uppercase tracking-[0.25em] text-zinc-500">SKF Karate Operations</p>
@@ -1335,8 +1338,7 @@ export default function EventCollectionsPage() {
           }}
           onCancel={() => setConfirmState(null)}
         />
-      </main>
-    </div>
+    </PageShell>
   );
 }
 

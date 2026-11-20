@@ -13,8 +13,8 @@ import {
   X,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
+import PageShell from "@/components/ui/PageShell";
 import { getBranchTimetables, uploadBranchTimetable, type BranchTimetable } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { normalizeKarateMediaUrl } from "@/lib/media-url";
@@ -167,10 +167,14 @@ export default function TimetablePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Portal Timetable" rightContent={<NavMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-24">
+    <PageShell
+      hud={{
+        title: "Settings",
+        backHref: "/dashboard",
+        actions: <NavMenu />,
+      }}
+    >
+      <div>
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
@@ -458,7 +462,7 @@ export default function TimetablePage() {
           </form>
           </div>
         ) : null}
-      </main>
-    </div>
+      </div>
+    </PageShell>
   );
 }

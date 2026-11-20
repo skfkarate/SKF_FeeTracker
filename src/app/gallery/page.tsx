@@ -20,8 +20,8 @@ import {
 } from "lucide-react";
 
 import { ConfirmModal } from "@/components/common/ConfirmModal";
-import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
+import PageShell from "@/components/ui/PageShell";
 import {
   deleteGalleryPhoto,
   GALLERY_CATEGORIES,
@@ -271,10 +271,14 @@ export default function GalleryManagerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Gallery" rightContent={<NavMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-24">
+    <PageShell
+      hud={{
+        title: "Media",
+        backHref: "/dashboard",
+        actions: <NavMenu />,
+      }}
+    >
+      <div>
         <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
@@ -440,7 +444,7 @@ export default function GalleryManagerPage() {
             ))}
           </div>
         )}
-      </main>
+      </div>
 
       {modalOpen ? (
         <div className="glass-modal-overlay" onClick={(event) => event.target === event.currentTarget && closeModal()}>
@@ -588,6 +592,6 @@ export default function GalleryManagerPage() {
           onCancel={() => setConfirmState(null)}
         />
       ) : null}
-    </div>
+    </PageShell>
   );
 }

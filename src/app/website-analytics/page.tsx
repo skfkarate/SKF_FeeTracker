@@ -24,8 +24,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
+import PageShell from "@/components/ui/PageShell";
 import {
   getWebsiteAnalytics,
   getHomePracticeAnalytics,
@@ -580,10 +580,15 @@ export default function WebsiteAnalyticsPage() {
   if (checking || !user) return <div className="min-h-screen bg-black text-zinc-300"><div className="flex min-h-screen items-center justify-center"><RefreshCw className="h-6 w-6 animate-spin text-zinc-500" /></div></div>;
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Website Analytics" rightContent={<NavMenu />} />
-
-      <main className="mx-auto w-full max-w-7xl px-4 pb-24 pt-24 sm:px-6 sm:pt-32">
+    <PageShell
+      hud={{
+        title: "Insights",
+        backHref: "/dashboard",
+        actions: <NavMenu />,
+      }}
+      className="[&>main]:max-w-7xl"
+    >
+      <div>
         <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-3">
@@ -897,7 +902,7 @@ export default function WebsiteAnalyticsPage() {
         ) : (
           <EmptyBlock>Website analytics is not configured yet.</EmptyBlock>
         )}
-      </main>
-    </div>
+      </div>
+    </PageShell>
   );
 }

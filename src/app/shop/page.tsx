@@ -17,8 +17,8 @@ import {
   X,
 } from "lucide-react";
 
-import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
+import PageShell from "@/components/ui/PageShell";
 import {
   getShopOrders,
   getShopProducts,
@@ -438,10 +438,14 @@ export default function ShopPage() {
   const isEditingExisting = selectedProductId !== NEW_PRODUCT_ID && Boolean(selectedProductId);
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300">
-      <Navbar showBack title="Shop" rightContent={<NavMenu />} />
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-24 sm:pt-28 pb-24">
+    <PageShell
+      hud={{
+        title: "Shop",
+        backHref: "/dashboard",
+        actions: <NavMenu />,
+      }}
+    >
+      <div>
         <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="mb-3 flex items-center gap-3">
@@ -1055,7 +1059,7 @@ export default function ShopPage() {
             )}
           </section>
         )}
-      </main>
-    </div>
+      </div>
+    </PageShell>
   );
 }
