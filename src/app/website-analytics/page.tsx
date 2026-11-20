@@ -20,12 +20,14 @@ import {
   UserRound,
   Users,
   UserCheck,
-  ShieldQuestion,
   type LucideIcon,
 } from "lucide-react";
 
 import NavMenu from "@/components/common/NavMenu";
+import LedgerRow from "@/components/ui/LedgerRow";
 import PageShell from "@/components/ui/PageShell";
+import SegmentedTabs from "@/components/ui/SegmentedTabs";
+import StatTile, { type StatTone } from "@/components/ui/StatTile";
 import {
   getWebsiteAnalytics,
   getHomePracticeAnalytics,
@@ -136,25 +138,22 @@ function MetricCard({
   detail: string;
   tone?: "default" | "green" | "amber" | "cyan" | "red";
 }) {
-  const toneClass = {
-    default: "text-zinc-300",
-    green: "text-emerald-300",
-    amber: "text-amber-300",
-    cyan: "text-cyan-300",
-    red: "text-red-300",
-  }[tone];
+  const tileTone: Record<"default" | "green" | "amber" | "cyan" | "red", StatTone> = {
+    default: "neutral",
+    green: "settled",
+    amber: "action",
+    cyan: "settled",
+    red: "overdue",
+  };
 
   return (
-    <div className="card-panel min-h-32 p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">{label}</p>
-        <Icon className={`h-4 w-4 ${toneClass}`} />
-      </div>
-      <p className="font-[family-name:var(--font-space)] text-2xl font-semibold text-white sm:text-3xl">
-        {value}
-      </p>
-      <p className="mt-2 text-xs leading-relaxed text-zinc-500">{detail}</p>
-    </div>
+    <StatTile
+      label={label}
+      value={value}
+      hint={detail}
+      tone={tileTone[tone]}
+      icon={<Icon className="h-4 w-4" />}
+    />
   );
 }
 
@@ -293,39 +292,23 @@ function HourlyTraffic({ rows }: { rows: WebsiteAnalyticsData["content"]["hourly
 
 function PageTable({ title, rows }: { title: string; rows: WebsitePageAnalytics[] }) {
   return (
-    <section className="card-panel overflow-hidden">
-      <div className="border-b border-zinc-800 p-5">
-        <h2 className="text-sm font-semibold text-white">{title}</h2>
+    <section className="hud-panel overflow-hidden">
+      <div className="border-b border-[color:var(--color-hairline)] p-5">
+        <h2 className="font-pixel-label text-zinc-300">{title}</h2>
       </div>
       {rows.length ? (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px] text-left text-sm">
-            <thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500">
-              <tr>
-                <th className="px-5 py-3 font-semibold">Page</th>
-                <th className="px-5 py-3 font-semibold">Group</th>
-                <th className="px-5 py-3 text-right font-semibold">Views</th>
-                <th className="px-5 py-3 text-right font-semibold">Visitors</th>
-                <th className="px-5 py-3 text-right font-semibold">Entrances</th>
-                <th className="px-5 py-3 text-right font-semibold">Exits</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-900">
-              {rows.map((row) => (
-                <tr key={`${title}-${row.path}`} className="hover:bg-white/[0.02]">
-                  <td className="max-w-[280px] px-5 py-4">
-                    <p className="truncate font-medium text-white">{row.path}</p>
-                    <p className="mt-1 truncate text-xs text-zinc-600">{row.title}</p>
-                  </td>
-                  <td className="px-5 py-4 text-zinc-400">{row.group}</td>
-                  <td className="px-5 py-4 text-right tabular-nums text-white">{number(row.views)}</td>
-                  <td className="px-5 py-4 text-right tabular-nums text-zinc-400">{number(row.visitors)}</td>
-                  <td className="px-5 py-4 text-right tabular-nums text-zinc-400">{number(row.entrances)}</td>
-                  <td className="px-5 py-4 text-right tabular-nums text-zinc-400">{number(row.exits)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="divide-y divide-[color:var(--color-hairline)]">
+          {rows.map((row, index) => (
+            <LedgerRow
+              key={`${title}-${row.path}`}
+              index={index}
+              title={row.path}
+              subtitle={row.title}
+              idLabel={`${row.group} · ${number(row.visitors)} visitors · ${number(row.entrances)} in · ${number(row.exits)} out`}
+              amount={number(row.views)}
+              amountLabel="views"
+            />
+          ))}
         </div>
       ) : (
         <div className="p-5">
@@ -338,41 +321,24 @@ function PageTable({ title, rows }: { title: string; rows: WebsitePageAnalytics[
 
 function VisitorList({ visitors }: { visitors: WebsiteVisitorAnalytics[] }) {
   return (
-    <section className="card-panel p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-          <UserRound className="h-4 w-4 text-zinc-500" />
-          Recent Visitor Journeys
-        </h2>
+    <section className="hud-panel overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-[color:var(--color-hairline)] p-5">
+        <UserRound className="h-4 w-4 text-zinc-500" />
+        <h2 className="font-pixel-label text-zinc-300">Recent Visitor Journeys</h2>
       </div>
       {visitors.length ? (
-        <div className="space-y-3">
-          {visitors.map((visitor) => (
-            <div key={`${visitor.visitorId}-${visitor.lastSeen}`} className="rounded-xl border border-zinc-800 bg-black/25 p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <p className="truncate font-mono text-xs text-zinc-300">{visitor.visitorId}</p>
-                  <p className="mt-1 truncate text-sm font-semibold text-white">{visitor.landingPage} to {visitor.lastPage}</p>
-                  <p className="mt-1 text-xs text-zinc-500">{visitor.source} - {visitor.device} - {visitor.browser} - {visitor.os}</p>
-                  {visitor.skfId ? <p className="mt-1 text-xs text-cyan-400">Student: {visitor.skfId}</p> : null}
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-center sm:min-w-[220px]">
-                  <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
-                    <span className="block text-sm font-semibold text-white">{visitor.sessions}</span>
-                    <span className="text-[10px] uppercase tracking-widest text-zinc-600">Visits</span>
-                  </span>
-                  <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
-                    <span className="block text-sm font-semibold text-white">{visitor.pageViews}</span>
-                    <span className="text-[10px] uppercase tracking-widest text-zinc-600">Views</span>
-                  </span>
-                  <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
-                    <span className="block truncate text-sm font-semibold text-white">{visitor.ipLabel || "-"}</span>
-                    <span className="text-[10px] uppercase tracking-widest text-zinc-600">IP</span>
-                  </span>
-                </div>
-              </div>
-              <p className="mt-3 text-[11px] text-zinc-600">Last seen {formatDateTime(visitor.lastSeen)}</p>
-            </div>
+        <div className="divide-y divide-[color:var(--color-hairline)]">
+          {visitors.map((visitor, index) => (
+            <LedgerRow
+              key={`${visitor.visitorId}-${visitor.lastSeen}`}
+              index={index}
+              title={visitor.landingPage || visitor.lastPage || visitor.visitorId}
+              subtitle={`${visitor.source} · ${visitor.device} · ${visitor.browser} · ${visitor.os}`}
+              idLabel={`${visitor.visitorId}${visitor.skfId ? ` · ${visitor.skfId}` : ""} · ${visitor.ipLabel || "NO IP"}`}
+              amount={`${visitor.sessions}/${visitor.pageViews}`}
+              amountLabel="visits / views"
+              trailing={<span className="font-mono text-[11px] text-zinc-500">{formatDateTime(visitor.lastSeen)}</span>}
+            />
           ))}
         </div>
       ) : (
@@ -384,45 +350,25 @@ function VisitorList({ visitors }: { visitors: WebsiteVisitorAnalytics[] }) {
 
 function RecentPageViews({ rows, showStudent = false }: { rows: WebsiteRecentPageView[]; showStudent?: boolean }) {
   return (
-    <section className="card-panel overflow-hidden">
-      <div className="border-b border-zinc-800 p-5">
-        <h2 className="text-sm font-semibold text-white">Recent Page Views</h2>
+    <section className="hud-panel overflow-hidden">
+      <div className="border-b border-[color:var(--color-hairline)] p-5">
+        <h2 className="font-pixel-label text-zinc-300">Recent Page Views</h2>
       </div>
       {rows.length ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm min-w-[500px]">
-            <thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Page</th>
-                <th className="px-4 py-3 font-semibold">{showStudent ? "Student" : "Source"}</th>
-                <th className="px-4 py-3 font-semibold">Device</th>
-                <th className="px-4 py-3 text-right font-semibold">Time</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-900">
-              {rows.map((row) => (
-                <tr key={row.id} className="hover:bg-white/[0.02]">
-                  <td className="max-w-[220px] px-4 py-3">
-                    <p className="truncate text-xs font-medium text-white">{row.path}</p>
-                  </td>
-                  <td className="px-4 py-3 text-xs">
-                    {showStudent ? (
-                      <span className="font-mono text-[10px] text-cyan-400">{row.skfId || <span className="text-zinc-600">-</span>}</span>
-                    ) : (
-                      <span className="text-zinc-500">{row.device} - {row.browser}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-zinc-500">{showStudent ? `${row.device} - ${row.browser}` : row.source}</td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap text-xs text-zinc-500">{formatDateTime(row.createdAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="divide-y divide-[color:var(--color-hairline)]">
+          {rows.map((row, index) => (
+            <LedgerRow
+              key={row.id}
+              index={index}
+              title={row.path}
+              subtitle={showStudent ? `${row.device} · ${row.browser}` : `${row.source} · ${row.device} · ${row.browser}`}
+              idLabel={showStudent ? (row.skfId || "NO SKF ID") : row.source}
+              trailing={<span className="font-mono text-[11px] text-zinc-500">{formatDateTime(row.createdAt)}</span>}
+            />
+          ))}
         </div>
       ) : (
-        <div className="p-5">
-          <EmptyBlock>No recent page views available.</EmptyBlock>
-        </div>
+        <EmptyBlock>No recent page views available.</EmptyBlock>
       )}
     </section>
   );
@@ -593,11 +539,9 @@ export default function WebsiteAnalyticsPage() {
           <div>
             <div className="mb-2 flex items-center gap-3">
               <Globe2 className="h-5 w-5 text-cyan-300" />
-              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Website Intelligence</p>
+              <p className="font-pixel-label text-zinc-500">Website Intelligence</p>
             </div>
-            <h1 className="font-[family-name:var(--font-space)] text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Website Analytics
-            </h1>
+            <h1 className="mt-1 text-[15px] font-semibold text-white">Website Analytics</h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400">
               {activeView === "Anonymous Visitors"
                 ? "Anonymous visitor traffic, page performance, sources and engagement from the public website."
@@ -606,22 +550,12 @@ export default function WebsiteAnalyticsPage() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="inline-flex rounded-xl border border-zinc-800 bg-zinc-950 p-1">
-              {RANGE_OPTIONS.map((days) => (
-                <button
-                  key={days}
-                  type="button"
-                  onClick={() => setRangeDays(days)}
-                  className={`min-h-9 rounded-lg px-3 text-xs font-semibold transition-colors ${
-                    rangeDays === days
-                      ? "bg-white text-black"
-                      : "text-zinc-500 hover:bg-white/[0.05] hover:text-white"
-                  }`}
-                >
-                  {days}d
-                </button>
-              ))}
-            </div>
+            <SegmentedTabs
+              ariaLabel="Analytics range"
+              value={String(rangeDays)}
+              onChange={(value) => setRangeDays(Number(value))}
+              options={RANGE_OPTIONS.map((days) => ({ value: String(days), label: `${days}d` }))}
+            />
             <button
               type="button"
               onClick={loadAnalytics}
@@ -655,29 +589,16 @@ export default function WebsiteAnalyticsPage() {
         {practiceAnalytics ? <div className="mb-6"><HomePracticePerformance analytics={practiceAnalytics} /></div> : null}
 
         {/* Primary view toggle - Anonymous Visitors vs Portal Activity */}
-        <div className="mb-6 overflow-x-auto">
-          <div className="flex min-w-0 gap-1 rounded-xl border border-zinc-800 bg-zinc-950 p-1">
-            {VIEWS.map((view) => (
-              <button
-                key={view}
-                type="button"
-                onClick={() => setActiveView(view)}
-                className={`flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-xs font-semibold transition-colors ${
-                  activeView === view
-                    ? "bg-white text-black"
-                    : "text-zinc-500 hover:bg-white/[0.05] hover:text-white"
-                }`}
-              >
-                {view === "Anonymous Visitors" ? (
-                  <ShieldQuestion className="h-4 w-4" />
-                ) : (
-                  <UserCheck className="h-4 w-4" />
-                )}
-                {view}
-              </button>
-            ))}
-          </div>
-        </div>
+        <SegmentedTabs
+          ariaLabel="Analytics view"
+          className="mb-6"
+          value={activeView}
+          onChange={setActiveView}
+          options={VIEWS.map((view) => ({
+            value: view,
+            label: view === "Anonymous Visitors" ? "Visitors" : "Portal",
+          }))}
+        />
 
         {loading && !analytics ? (
           <div className="flex h-72 items-center justify-center">
