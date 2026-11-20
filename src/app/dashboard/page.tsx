@@ -1,19 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Activity,
   AlertCircle,
   ArrowUpRight,
   CalendarDays,
-  CheckCircle2,
   Clock3,
-  FileText,
   Globe2,
   HandCoins,
   LayoutGrid,
-  Sparkles,
   Wallet,
 } from "lucide-react";
 
@@ -22,7 +19,11 @@ import NavMenu from "@/components/common/NavMenu";
 import NotificationBell from "@/components/common/NotificationBell";
 import { PageTransition } from "@/components/common/PageTransition";
 import { SkeletonDashboard } from "@/components/common/Skeleton";
+import LedgerRow from "@/components/ui/LedgerRow";
+import MeterRing from "@/components/ui/MeterRing";
 import PageShell from "@/components/ui/PageShell";
+import StatTile from "@/components/ui/StatTile";
+import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import { getDashboardStats, type DashboardStats } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 
@@ -70,7 +71,18 @@ const secondaryLinks = [
 
 const DASHBOARD_RETRY_DELAY_MS = 5000;
 
+function num(amount: number) {
+  return Math.round(Number(amount) || 0).toLocaleString("en-IN");
+}
+
+function branchStatus(rate: number): LedgerStatus {
+  if (rate >= 80) return "paid";
+  if (rate >= 50) return "partial";
+  return "overdue";
+}
+
 export default function DashboardPage() {
+  const router = useRouter();
   const { user, checking } = useFeeTrackAuth();
   const [dashboardError, setDashboardError] = useState("");
   const [stats, setStats] = useState<{
@@ -147,12 +159,20 @@ export default function DashboardPage() {
     return <SkeletonDashboard />;
   }
 
+  const monthLabel = new Date().toLocaleString("en-IN", { month: "short", year: "numeric" });
+  const branches = stats.branches.length
+    ? stats.branches
+    : ([
+        { branch: "MPSC", label: "MP", href: "/students/MPSC", totalCollected: 0, pendingAmount: 0, paidCount: 0, pendingCount: 0 },
+        { branch: "Herohalli", label: "Herohalli", href: "/students/Herohalli", totalCollected: 0, pendingAmount: 0, paidCount: 0, pendingCount: 0 },
+      ] as BranchSummary[]);
+
   return (
     <PageTransition>
       <PageShell
         hud={{
           title: "Today",
-          monthLabel: "Current month",
+          monthLabel,
           actions: <GlobalSearch />,
           bell: <NotificationBell />,
           account: <NavMenu />,
@@ -173,169 +193,110 @@ export default function DashboardPage() {
           </div>
         ) : null}
 
-        <section className="card-panel mb-6 overflow-hidden p-0">
-          <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="border-b border-zinc-800 p-5 sm:p-6 lg:border-b-0 lg:border-r">
-              <div className="flex items-start gap-4">
-                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h2 className="mb-1.5 text-sm font-semibold text-white">Monthly Status</h2>
-                  <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
-                    {!stats.loaded
-                      ? "Calculating current month collections..."
-                      : stats.rate === 100
-                        ? "100% collection rate for active students this month."
-                        : `Collection is at ${stats.rate}%. Pending amount is ₹${stats.pendingAmount.toLocaleString("en-IN")} across ${stats.pendingStudents} students.`}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${
-                        !stats.loaded
-                          ? "border-zinc-700 bg-zinc-800 text-zinc-500"
-                          : stats.rate >= 80
-                            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                            : stats.rate >= 50
-                              ? "border-amber-500/20 bg-amber-500/10 text-amber-400"
-                              : "border-red-500/20 bg-red-500/10 text-red-400"
-                      }`}
-                    >
-                      {stats.loaded && stats.rate >= 80 ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
-                      {!stats.loaded ? "Calculating" : stats.rate >= 80 ? "Healthy" : "Needs Follow-up"}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-300">
-                      <FileText className="h-3 w-3" />
-                      Month End: {new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()}
-                    </span>
-                  </div>
-                </div>
-              </div>
+        <section className="hud-panel p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-pixel-label text-zinc-400">Needs action</p>
+              <p className="font-pixel mt-2 text-[40px] leading-none text-white">
+                {stats.loaded ? num(stats.pendingStudents) : "—"}
+              </p>
+              <p className="mt-2 text-xs text-zinc-500">
+                {stats.loaded
+                  ? `Pending across MPSC and Herohalli · ${monthLabel}`
+                  : "Calculating current month collections..."}
+              </p>
             </div>
-
-            <div className="grid grid-cols-2 divide-x divide-y divide-zinc-800 sm:divide-y-0 lg:divide-y">
-              {[
-                { label: "Collected", value: `₹${stats.totalCollected.toLocaleString("en-IN")}`, icon: Wallet },
-                { label: "Pending", value: `₹${stats.pendingAmount.toLocaleString("en-IN")}`, icon: AlertCircle },
-                { label: "Students", value: stats.activeStudents.toLocaleString("en-IN"), icon: LayoutGrid },
-                { label: "Rate", value: `${stats.rate}%`, icon: Activity },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.label} className="min-h-28 p-4 sm:p-5">
-                    <Icon className="mb-3 h-4 w-4 text-zinc-500" />
-                    <p className="text-xs uppercase tracking-widest text-zinc-600">{item.label}</p>
-                    <p className="mt-2 text-xl font-semibold text-white">{stats.loaded ? item.value : "..."}</p>
-                  </div>
-                );
-              })}
-            </div>
+            <MeterRing
+              value={stats.rate}
+              caption="collection rate"
+              tone={stats.rate >= 80 ? "settled" : stats.rate >= 50 ? "action" : "overdue"}
+            />
           </div>
         </section>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <section className="card-panel p-5 sm:p-6">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500">Branches</p>
-                <h2 className="mt-1 text-lg font-semibold text-white">Collection Snapshot</h2>
-              </div>
-              <span className="font-mono text-[10px] text-zinc-600">Current Month</span>
+        <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatTile label="Collected" value={stats.loaded ? num(stats.totalCollected) : "—"} tone="settled" icon={<Wallet className="h-4 w-4" />} />
+          <StatTile label="Pending" value={stats.loaded ? num(stats.pendingAmount) : "—"} tone="overdue" icon={<AlertCircle className="h-4 w-4" />} />
+          <StatTile label="Students" value={stats.loaded ? num(stats.activeStudents) : "—"} icon={<LayoutGrid className="h-4 w-4" />} />
+          <StatTile label="Rate" value={stats.loaded ? `${stats.rate}%` : "—"} tone="action" icon={<Activity className="h-4 w-4" />} />
+        </div>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+          <section>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-[15px] font-semibold text-white">Run list</h2>
+              <span className="font-pixel-label text-zinc-500">Urgency first</span>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {(stats.branches.length ? stats.branches : [
-                { branch: "MPSC", label: "MP", href: "/students/MPSC", totalCollected: 0, pendingAmount: 0, paidCount: 0, pendingCount: 0 },
-                { branch: "Herohalli", label: "Herohalli", href: "/students/Herohalli", totalCollected: 0, pendingAmount: 0, paidCount: 0, pendingCount: 0 },
-              ] as BranchSummary[]).map((branch) => {
+            <div className="space-y-2">
+              {branches.map((branch, index) => {
                 const expected = branch.totalCollected + branch.pendingAmount;
                 const rate = expected > 0 ? Math.round((branch.totalCollected / expected) * 100) : 0;
+                const status = branchStatus(rate);
                 return (
-                  <Link
+                  <LedgerRow
                     key={branch.branch}
-                    href={branch.href}
-                    className="group rounded-xl border border-zinc-800 bg-black p-4 transition-all hover:border-zinc-600 hover:bg-zinc-950 hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    <div className="mb-5 flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs uppercase tracking-widest text-zinc-600">Branch</p>
-                        <h3 className="mt-1 text-xl font-semibold text-white">{branch.label}</h3>
+                    index={index}
+                    status={status}
+                    title={branch.label}
+                    subtitle={`${branch.paidCount} paid · ${branch.pendingCount} pending`}
+                    idLabel={`BRANCH · ${monthLabel.toUpperCase()}`}
+                    amount={stats.loaded ? num(branch.pendingAmount) : "—"}
+                    amountLabel="pending"
+                    trailing={
+                      <div className="flex items-center gap-2">
+                        <ArrowUpRight className="h-4 w-4 text-zinc-500" aria-hidden="true" />
+                        <StatusPill status={status} label={stats.loaded ? `${rate}%` : "..."} />
                       </div>
-                      <ArrowUpRight className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-white" />
-                    </div>
-                    <div className="mb-3 h-2 overflow-hidden rounded-full bg-zinc-900">
-                      <div
-                        className={`h-full rounded-full ${rate >= 80 ? "bg-emerald-400" : rate >= 50 ? "bg-amber-400" : "bg-red-400"}`}
-                        style={{ width: `${Math.min(100, Math.max(0, rate))}%` }}
-                      />
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div>
-                        <p className="text-zinc-600">Rate</p>
-                        <p className="mt-1 font-semibold text-white">{stats.loaded ? `${rate}%` : "..."}</p>
-                      </div>
-                      <div>
-                        <p className="text-zinc-600">Paid</p>
-                        <p className="mt-1 font-semibold text-white">{stats.loaded ? branch.paidCount : "..."}</p>
-                      </div>
-                      <div>
-                        <p className="text-zinc-600">Pending</p>
-                        <p className="mt-1 font-semibold text-white">{stats.loaded ? branch.pendingCount : "..."}</p>
-                      </div>
-                    </div>
-                  </Link>
+                    }
+                    onClick={() => router.push(branch.href)}
+                  />
                 );
               })}
             </div>
           </section>
 
-          <section className="card-panel p-5 sm:p-6">
-            <div className="mb-4">
-              <p className="text-xs uppercase tracking-widest text-zinc-500">Priority</p>
-              <h2 className="mt-1 text-lg font-semibold text-white">Today</h2>
+          <section>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-[15px] font-semibold text-white">Shortcuts</h2>
+              <span className="font-pixel-label text-zinc-500">Open</span>
             </div>
-            <div className="grid gap-2">
-              {priorityLinks.map((item) => {
+            <div className="space-y-2">
+              {priorityLinks.map((item, index) => {
                 const Icon = item.icon;
                 return (
-                  <Link
+                  <LedgerRow
                     key={item.href}
-                    href={item.href}
-                    className="group flex min-h-16 items-center gap-3 rounded-xl border border-zinc-800 bg-black px-3 py-2 transition-all hover:border-zinc-600 hover:bg-zinc-950 hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-500 transition-colors group-hover:text-white">
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-zinc-100">{item.title}</p>
-                      <p className="mt-0.5 truncate text-xs text-zinc-600">{item.description}</p>
-                    </div>
-                    <ArrowUpRight className="h-4 w-4 flex-shrink-0 text-zinc-700 transition-colors group-hover:text-white" />
-                  </Link>
+                    index={index}
+                    status="due"
+                    title={item.title}
+                    subtitle={item.description}
+                    trailing={
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4 text-zinc-500" aria-hidden="true" />
+                        <StatusPill status="due" label="Open" />
+                      </div>
+                    }
+                    onClick={() => router.push(item.href)}
+                  />
                 );
               })}
             </div>
             {secondaryLinks.length ? (
-              <div className="mt-4">
-                <p className="mb-2 text-[10px] uppercase tracking-widest text-zinc-600">More</p>
-                <div className="grid gap-2">
-                  {secondaryLinks.map((item) => {
+              <div className="mt-6">
+                <p className="mb-2 font-pixel-label text-zinc-500">More</p>
+                <div className="space-y-2">
+                  {secondaryLinks.map((item, index) => {
                     const Icon = item.icon;
                     return (
-                      <Link
+                      <LedgerRow
                         key={item.href}
-                        href={item.href}
-                        className="group flex min-h-14 items-center gap-3 rounded-xl border border-zinc-800/60 bg-zinc-950/50 px-3 py-2 transition-all hover:border-zinc-600 hover:bg-zinc-950 hover:-translate-y-0.5 active:translate-y-0"
-                      >
-                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-600 transition-colors group-hover:text-zinc-300">
-                          <Icon className="h-3.5 w-3.5" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold text-zinc-400 group-hover:text-zinc-200">{item.title}</p>
-                          <p className="mt-0.5 truncate text-xs text-zinc-600">{item.description}</p>
-                        </div>
-                        <ArrowUpRight className="h-3.5 w-3.5 flex-shrink-0 text-zinc-700 transition-colors group-hover:text-white" />
-                      </Link>
+                        index={index}
+                        title={item.title}
+                        subtitle={item.description}
+                        trailing={<Icon className="h-4 w-4 text-zinc-500" aria-hidden="true" />}
+                        onClick={() => router.push(item.href)}
+                      />
                     );
                   })}
                 </div>
