@@ -11,7 +11,7 @@
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
 - The final design direction is **Dojo Ledger HUD** — a dark ledger with game-HUD chrome and pixel type used only for money and status words.
-- **27 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on all ten destinations, rebuild all ten destinations with HUD primitives, move secondary create/edit dialogs into the shared `Sheet`, and add three transitional redirects. Documentation commits for this status file are separate and are not implementation work.
+- **29 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on all ten destinations, rebuild all ten destinations with HUD primitives, move secondary create/edit dialogs into the shared `Sheet`, add three transitional redirects, unify navigation in one destination config, and remove unused API wrappers. Documentation commits for this status file are separate and are not implementation work.
 - Nothing is pushed. No database, backend logic, Black Belt cleanup, or proration work has been changed yet.
 - Working tree is **clean**.
 
@@ -187,7 +187,7 @@ Desktop:             left rail instead of bottom bar
 - Per-page Navbar and duplicate dashboard tiles
 - Centered modals → bottom sheets (now done)
 - 5-second retry and bell popover
-- 8 dead client functions in `api.ts` — **backend actions stay**
+- 8 dead client functions in `api.ts` — done; backend actions stay
 
 ### 3.4 ADD
 
@@ -339,8 +339,10 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 | `104c49c` | `refactor(feetrack): move product editor into shared sheet` | Shop create/edit moves into the HUD `Sheet` with reset/cancel/save actions |
 | `37ba51c` | `refactor(feetrack): move event editor into shared sheet` | Event create/edit moves into the HUD `Sheet`; tournament fields retained |
 | `4ab1c20` | `feat(feetrack): add transitional redirects for retired routes` | Temporary 307s map `/verifications`, `/profile-photos`, and `/analytics` to their rebuilt destinations |
+| `1343836` | `refactor(feetrack): unify navigation in one destination list` | Bottom tabs, More sheet, account drawer, and dashboard shortcuts derive from one `DESTINATION_TILES` config |
+| `f5d88a7` | `refactor(feetrack): remove unused api wrappers` | Eight unreferenced client wrappers and their private types removed; backend actions untouched |
 
-**Nothing has been pushed.** The 27 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
+**Nothing has been pushed.** The 29 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
 
 ### 5.2 Files created
 
@@ -406,12 +408,12 @@ status: clean
 - `/custom` remains a partially adopted proof page with its old description, balance-math card, month grouping, and empty state.
 - Legacy pages outside the ten destinations still use their old navigation and modal styles; they remain live until their features are absorbed.
 - Transitional 307 redirects exist for `/verifications`, `/profile-photos`, and `/analytics`. Those pages stay for one release before removal.
-- Navigation tiles are still duplicated in `src/lib/navigation.ts`, and the dashboard has hardcoded destination tiles.
+- Navigation tiles and dashboard shortcuts now share one `DESTINATION_TILES` config in `src/lib/navigation.ts`.
+- Eight unreferenced client wrappers in `src/lib/api.ts` are removed; their backend actions remain available.
 - No BB cleanup in either app.
 - No proration work, no new tables, no schedule actions.
 - No receipt recomputation removal.
 - No finance definition choice applied.
-- No `api.ts` dead-wrapper cleanup.
 - No push to remote.
 - No DB reads or writes by this agent.
 
@@ -419,10 +421,10 @@ status: clean
 
 ## 7. Next steps (ordered)
 
-1. Replace the duplicated navigation tiles with one canonical destination config and update the dashboard tiles in the same change.
-2. After one release of redirects, remove `/verifications`, `/profile-photos`, and `/analytics`; extend redirects as more legacy pages are absorbed.
+1. Decide which remaining legacy routes are absorbed into the ten destinations and extend redirects before removing their pages.
+2. After one release of redirects, remove `/verifications`, `/profile-photos`, and `/analytics`.
 3. Only after owner answers: BB cleanup, proration, receipts fix, finance definition, and remaining route absorption.
-4. Final cleanup: dead wrappers and audit parity.
+4. Recheck audit parity after route retirement.
 5. Push / ship when you approve.
 
 ---
