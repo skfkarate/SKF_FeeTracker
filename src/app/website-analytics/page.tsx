@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import {
   Activity,
   AlertCircle,
-  BarChart3,
   BookOpenCheck,
   Clock3,
   Compass,
@@ -17,34 +16,65 @@ import {
   Search,
   Smartphone,
   TrendingUp,
+  UserCheck,
   UserRound,
   Users,
-  UserCheck,
   type LucideIcon,
 } from "lucide-react";
 
 import NavMenu from "@/components/common/NavMenu";
 import LedgerRow from "@/components/ui/LedgerRow";
+import MeterRing from "@/components/ui/MeterRing";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs from "@/components/ui/SegmentedTabs";
 import StatTile, { type StatTone } from "@/components/ui/StatTile";
+import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import {
-  getWebsiteAnalytics,
   getHomePracticeAnalytics,
+  getWebsiteAnalytics,
   type AnalyticsBreakdown,
   type DailyWebsiteTraffic,
-  type WebsiteAnalyticsData,
-  type WebsiteOperationalEvent,
-  type WebsitePageAnalytics,
-  type WebsiteRecentPageView,
-  type WebsiteVisitorAnalytics,
   type HomePracticeAnalytics,
+  type WebsiteAnalyticsData,
 } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 
 const RANGE_OPTIONS = [7, 30, 90, 180, 365];
-const VIEWS = ["Anonymous Visitors", "Portal Activity"] as const;
-type ViewMode = (typeof VIEWS)[number];
+const SIGNAL_FILTERS = ["all", "page", "login", "lead", "payment", "failure"] as const;
+type SignalFilter = (typeof SIGNAL_FILTERS)[number];
+
+const EVENT_LABELS: Record<string, string> = {
+  page_view: "Page view",
+  lead_submit_success: "Lead submitted",
+  lead_submit_failed: "Lead failed",
+  portal_login_success: "Login succeeded",
+  portal_login_failed: "Login failed",
+  portal_fee_payment_submitted: "Fee payment submitted",
+};
+
+const EVENT_DESCRIPTIONS: Record<string, string> = {
+  page_view: "A public or portal page was opened",
+  lead_submit_success: "Website enquiry reached SKF",
+  lead_submit_failed: "Website enquiry did not reach SKF",
+  portal_login_success: "Athlete entered the portal",
+  portal_login_failed: "Athlete could not enter the portal",
+  portal_fee_payment_submitted: "Athlete submitted a fee proof",
+};
+
+const KNOWN_EVENT_TYPES = Object.keys(EVENT_LABELS);
+
+type Signal = {
+  id: string;
+  eventType: string;
+  path: string;
+  createdAt: string;
+  skfId: string | null;
+  visitorId: string | null;
+  source?: string;
+  device?: string;
+  browser?: string;
+  metadata?: Record<string, unknown>;
+};
 
 function number(value: number) {
   return Number(value || 0).toLocaleString("en-IN");
@@ -59,8 +89,11 @@ function formatDateTime(value?: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Not recorded";
   return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
   }).format(date);
 }
 
@@ -71,12 +104,34 @@ function formatDateLabel(value: string) {
 }
 
 function eventLabel(value: string) {
-  return value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return EVENT_LABELS[value] || value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function metadataSummary(metadata: Record<string, unknown>) {
-  const entries = Object.entries(metadata || {}).slice(0, 4);
-  if (!entries.length) return "No metadata";
+function eventDescription(value: string) {
+  return EVENT_DESCRIPTIONS[value] || "Operational website event";
+}
+
+function eventStatus(value: string): LedgerStatus {
+  if (value.includes("failed")) return "overdue";
+  if (value.includes("success") || value.includes("payment")) return "paid";
+  return "due";
+}
+
+function countFor(data: WebsiteAnalyticsData, eventType: string) {
+  if (eventType === "page_view") return data.overview.pageViews;
+  return data.operations.eventBreakdown.find((row) => row.label === eventType)?.value || 0;
+}
+
+function matchesFilter(eventType: string, filter: SignalFilter) {
+  if (filter === "all") return true;
+  if (filter === "failure") return eventType.includes("failed");
+  if (filter === "page") return eventType === "page_view";
+  return eventType.includes(filter);
+}
+
+function metadataSummary(metadata: Record<string, unknown> = {}) {
+  const entries = Object.entries(metadata).slice(0, 3);
+  if (!entries.length) return "No extra detail";
   return entries
     .map(([key, value]) => `${key}: ${typeof value === "object" ? JSON.stringify(value) : String(value)}`)
     .join(" | ");
@@ -84,44 +139,9 @@ function metadataSummary(metadata: Record<string, unknown>) {
 
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-32 items-center justify-center rounded-lg border border-dashed border-zinc-800 bg-black/20 px-4 text-center text-sm text-zinc-500">
+    <div className="flex min-h-28 items-center justify-center rounded-xl border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 px-4 text-center text-sm text-[color:var(--color-text-faint)]">
       {children}
     </div>
-  );
-}
-
-function HomePracticePerformance({ analytics }: { analytics: HomePracticeAnalytics }) {
-  return (
-    <section className="card-panel overflow-hidden">
-      <div className="flex flex-col gap-3 border-b border-zinc-800 p-5 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500">Athlete Portal</p>
-          <h2 className="mt-1 flex items-center gap-2 text-lg font-semibold text-white"><BookOpenCheck className="h-5 w-5 text-amber-300" /> Home Practice Performance</h2>
-          <p className="mt-1 text-sm text-zinc-500">Who watched each lesson in the last {analytics.rangeDays} days.</p>
-        </div>
-        <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-200">Instructor only</span>
-      </div>
-      <div className="grid gap-px bg-zinc-800 sm:grid-cols-2 xl:grid-cols-5">
-        {[
-          ["Lesson watches", number(analytics.overview.watchedLessons)],
-          ["Active athletes", number(analytics.overview.uniqueAthletes)],
-          ["Completions", number(analytics.overview.completions)],
-          ["Completion rate", percent(analytics.overview.completionRate)],
-          ["Average progress", percent(analytics.overview.averageProgress)],
-        ].map(([label, value]) => <div key={label} className="bg-zinc-950 p-4"><p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">{label}</p><p className="mt-2 text-2xl font-semibold text-white">{value}</p></div>)}
-      </div>
-      <div className="grid gap-5 p-5 xl:grid-cols-2">
-        <div className="min-w-0">
-          <h3 className="mb-3 text-sm font-semibold text-white">Lesson performance</h3>
-          {analytics.videos.length ? <div className="overflow-x-auto"><table className="min-w-[560px] w-full text-left text-sm"><thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500"><tr><th className="pb-2 font-semibold">Video</th><th className="pb-2 text-right font-semibold">Athletes</th><th className="pb-2 text-right font-semibold">Complete</th><th className="pb-2 text-right font-semibold">Avg.</th></tr></thead><tbody className="divide-y divide-zinc-900">{analytics.videos.slice(0, 10).map((video) => <tr key={video.videoId}><td className="py-3"><p className="font-medium text-zinc-200">{video.title}</p><p className="mt-0.5 text-xs text-zinc-600">{video.watches} watches · {formatDateTime(video.lastWatchedAt)}</p></td><td className="py-3 text-right text-zinc-400">{video.uniqueAthletes}</td><td className="py-3 text-right text-zinc-400">{video.completions}</td><td className="py-3 text-right font-semibold text-emerald-300">{video.averageProgress}%</td></tr>)}</tbody></table></div> : <EmptyBlock>No lesson watch activity in this period.</EmptyBlock>}
-        </div>
-        <div className="min-w-0">
-          <h3 className="mb-3 text-sm font-semibold text-white">Recent athlete viewing</h3>
-          {analytics.recent.length ? <div className="overflow-x-auto"><table className="min-w-[600px] w-full text-left text-sm"><thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500"><tr><th className="pb-2 font-semibold">Athlete</th><th className="pb-2 font-semibold">Lesson</th><th className="pb-2 text-right font-semibold">Progress</th></tr></thead><tbody className="divide-y divide-zinc-900">{analytics.recent.slice(0, 12).map((watch, index) => <tr key={`${watch.skfId}-${watch.videoTitle}-${watch.watchedAt}-${index}`}><td className="py-3"><p className="font-medium text-zinc-200">{watch.athleteName}</p><p className="mt-0.5 font-mono text-xs text-cyan-300">{watch.skfId} · {watch.belt}</p></td><td className="py-3"><p className="text-zinc-300">{watch.videoTitle}</p><p className="mt-0.5 text-xs text-zinc-600">{formatDateTime(watch.watchedAt)}</p></td><td className={`py-3 text-right font-semibold ${watch.completed ? "text-emerald-300" : "text-amber-300"}`}>{watch.progressPercent}%</td></tr>)}</tbody></table></div> : <EmptyBlock>No athlete viewing has been recorded yet.</EmptyBlock>}
-        </div>
-      </div>
-      {analytics.belts.length ? <div className="border-t border-zinc-800 p-5"><h3 className="mb-3 text-sm font-semibold text-white">Belt engagement</h3><div className="flex flex-wrap gap-2">{analytics.belts.map((belt) => <div key={belt.belt} className="rounded-lg border border-zinc-800 bg-black/30 px-3 py-2"><p className="text-xs font-semibold text-zinc-200">{belt.belt}</p><p className="mt-1 text-xs text-zinc-500">{belt.uniqueAthletes} athletes · {belt.averageProgress}% average</p></div>)}</div></div> : null}
-    </section>
   );
 }
 
@@ -130,28 +150,20 @@ function MetricCard({
   label,
   value,
   detail,
-  tone = "default",
+  tone = "neutral",
 }: {
   icon: LucideIcon;
   label: string;
   value: string;
   detail: string;
-  tone?: "default" | "green" | "amber" | "cyan" | "red";
+  tone?: StatTone;
 }) {
-  const tileTone: Record<"default" | "green" | "amber" | "cyan" | "red", StatTone> = {
-    default: "neutral",
-    green: "settled",
-    amber: "action",
-    cyan: "settled",
-    red: "overdue",
-  };
-
   return (
     <StatTile
       label={label}
       value={value}
       hint={detail}
-      tone={tileTone[tone]}
+      tone={tone}
       icon={<Icon className="h-4 w-4" />}
     />
   );
@@ -171,26 +183,24 @@ function BreakdownList({
   const max = Math.max(...rows.map((row) => row.value), 1);
 
   return (
-    <section className="card-panel p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Icon className="h-4 w-4 text-zinc-500" />
-          {title}
-        </h2>
-      </div>
+    <section className="hud-panel p-4 sm:p-5">
+      <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[color:var(--color-text)]">
+        <Icon className="h-4 w-4 text-[color:var(--color-text-faint)]" />
+        {title}
+      </h3>
       {rows.length ? (
         <div className="space-y-3">
           {rows.map((row) => (
-            <div key={row.label}>
+            <div key={row.label} className="min-w-0">
               <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
-                <span className="truncate font-medium text-zinc-300">{row.label}</span>
-                <span className="flex-shrink-0 text-zinc-500">
-                  {number(row.value)} - {percent(row.percentage)}
+                <span className="truncate text-[color:var(--color-text-dim)]">{row.label}</span>
+                <span className="font-mono tnum shrink-0 text-[color:var(--color-text-faint)]">
+                  {number(row.value)} · {percent(row.percentage)}
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-black">
+              <div className="h-1.5 overflow-hidden rounded-[var(--radius-pill)] bg-[color:var(--color-raised)]">
                 <div
-                  className="h-full rounded-full bg-zinc-300"
+                  className="h-full rounded-[var(--radius-pill)] bg-[color:var(--color-text-dim)]"
                   style={{ width: `${Math.max((row.value / max) * 100, 3)}%` }}
                 />
               </div>
@@ -204,57 +214,44 @@ function BreakdownList({
   );
 }
 
-function DailyTrafficChart({ rows }: { rows: DailyWebsiteTraffic[] }) {
-  const max = Math.max(...rows.map((row) => row.views), 1);
+function DailyTrafficGrid({ rows }: { rows: DailyWebsiteTraffic[] }) {
+  const visible = rows.slice(-30);
+  const max = Math.max(...visible.map((row) => row.views), 1);
 
   return (
-    <section className="card-panel p-5 sm:p-6">
-      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <section className="hud-panel p-4 sm:p-5">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500">Traffic</p>
-          <h2 className="mt-1 text-lg font-semibold text-white">Daily Website Activity</h2>
+          <p className="font-pixel-label text-[color:var(--color-text-faint)]">Traffic rhythm</p>
+          <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Daily activity</h3>
         </div>
-        <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-widest text-zinc-500">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 px-2 py-1">
-            <span className="h-2 w-2 rounded-full bg-white" />
-            Views
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 px-2 py-1">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            Leads
-          </span>
-        </div>
+        <p className="text-xs text-[color:var(--color-text-faint)]">Latest {visible.length} days</p>
       </div>
-
-      {rows.some((row) => row.views > 0) ? (
-        <div className="overflow-x-auto pb-2">
-          <div className="flex h-72 min-w-[720px] items-stretch gap-2 border-t border-zinc-800/70 pt-4">
-            {rows.map((row) => {
-              const height = row.views > 0 ? Math.max((row.views / max) * 100, 4) : 0;
-              return (
-                <div key={row.date} className="group flex min-w-8 flex-1 flex-col items-center gap-2">
-                  <span className="h-5 text-[10px] font-semibold tabular-nums text-zinc-500">
-                    {row.views ? number(row.views) : ""}
-                  </span>
-                  <div className="relative flex min-h-0 w-full flex-1 items-end justify-center rounded-t bg-black/30">
-                    <div
-                      className="w-full max-w-8 rounded-t bg-white/80 transition-colors group-hover:bg-cyan-300"
-                      style={{ height: `${height}%` }}
-                    />
-                    {row.leads > 0 ? (
-                      <span className="absolute bottom-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.7)]" />
-                    ) : null}
-                  </div>
-                  <span className="text-[10px] uppercase tracking-wider text-zinc-600">
-                    {formatDateLabel(row.date)}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+      {visible.some((row) => row.views > 0) ? (
+        <div className="grid grid-cols-6 gap-1.5 sm:grid-cols-[repeat(10,minmax(0,1fr))] xl:grid-cols-[repeat(15,minmax(0,1fr))]">
+          {visible.map((row) => (
+            <div
+              key={row.date}
+              className="min-w-0 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-1.5"
+              title={`${formatDateLabel(row.date)}: ${number(row.views)} views`}
+            >
+              <div className="flex h-12 items-end rounded bg-[color:var(--color-raised)]/70">
+                <div
+                  className="w-full rounded bg-[color:var(--color-settled)]/70"
+                  style={{ height: `${row.views > 0 ? Math.max((row.views / max) * 100, 6) : 0}%` }}
+                />
+              </div>
+              <p className="font-mono tnum mt-1 truncate text-center text-[10px] text-[color:var(--color-text-faint)]">
+                {row.views || ""}
+              </p>
+              <p className="truncate text-center text-[9px] text-[color:var(--color-text-faint)]">
+                {formatDateLabel(row.date)}
+              </p>
+            </div>
+          ))}
         </div>
       ) : (
-        <EmptyBlock>No website visits are recorded in this selected period.</EmptyBlock>
+        <EmptyBlock>No website visits are recorded in this period.</EmptyBlock>
       )}
     </section>
   );
@@ -264,25 +261,27 @@ function HourlyTraffic({ rows }: { rows: WebsiteAnalyticsData["content"]["hourly
   const max = Math.max(...rows.map((row) => row.views), 1);
 
   return (
-    <section className="card-panel p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Clock3 className="h-4 w-4 text-zinc-500" />
-          Hourly Pattern
-        </h2>
+    <section className="hud-panel p-4 sm:p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <Clock3 className="h-4 w-4 text-[color:var(--color-text-faint)]" />
+        <h3 className="text-sm font-semibold text-[color:var(--color-text)]">Hourly pattern</h3>
       </div>
-      <div className="grid grid-cols-6 gap-2 sm:grid-cols-8 md:grid-cols-12">
+      <div className="grid grid-cols-6 gap-1.5 md:grid-cols-12">
         {rows.map((row) => (
-          <div key={row.hour} className="rounded-lg border border-zinc-800 bg-black/30 p-2">
-            <div className="mb-2 flex h-16 items-end overflow-hidden rounded bg-zinc-950">
+          <div
+            key={row.hour}
+            className="min-w-0 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-1.5"
+            title={`${String(row.hour).padStart(2, "0")}:00 — ${number(row.views)} views`}
+          >
+            <div className="flex h-10 items-end rounded bg-[color:var(--color-raised)]/70">
               <div
-                className="w-full origin-bottom rounded bg-zinc-500/80"
-                style={{
-                  height: `${row.views > 0 ? Math.max((row.views / max) * 100, 3) : 0}%`,
-                }}
+                className="w-full rounded bg-[color:var(--color-brand)]/70"
+                style={{ height: `${row.views > 0 ? Math.max((row.views / max) * 100, 6) : 0}%` }}
               />
             </div>
-            <p className="text-center text-[10px] text-zinc-500">{String(row.hour).padStart(2, "0")}</p>
+            <p className="font-mono tnum mt-1 truncate text-center text-[10px] text-[color:var(--color-text-faint)]">
+              {String(row.hour).padStart(2, "0")}
+            </p>
           </div>
         ))}
       </div>
@@ -290,15 +289,15 @@ function HourlyTraffic({ rows }: { rows: WebsiteAnalyticsData["content"]["hourly
   );
 }
 
-function PageTable({ title, rows }: { title: string; rows: WebsitePageAnalytics[] }) {
+function PageList({ title, rows }: { title: string; rows: WebsiteAnalyticsData["content"]["topPages"] }) {
   return (
     <section className="hud-panel overflow-hidden">
-      <div className="border-b border-[color:var(--color-hairline)] p-5">
-        <h2 className="font-pixel-label text-zinc-300">{title}</h2>
+      <div className="border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
+        <h3 className="font-pixel-label text-[color:var(--color-text-faint)]">{title}</h3>
       </div>
       {rows.length ? (
         <div className="divide-y divide-[color:var(--color-hairline)]">
-          {rows.map((row, index) => (
+          {rows.slice(0, 12).map((row, index) => (
             <LedgerRow
               key={`${title}-${row.path}`}
               index={index}
@@ -311,7 +310,7 @@ function PageTable({ title, rows }: { title: string; rows: WebsitePageAnalytics[
           ))}
         </div>
       ) : (
-        <div className="p-5">
+        <div className="p-4 sm:p-5">
           <EmptyBlock>No page data available.</EmptyBlock>
         </div>
       )}
@@ -319,16 +318,16 @@ function PageTable({ title, rows }: { title: string; rows: WebsitePageAnalytics[
   );
 }
 
-function VisitorList({ visitors }: { visitors: WebsiteVisitorAnalytics[] }) {
+function VisitorList({ visitors }: { visitors: WebsiteAnalyticsData["audience"]["recentVisitors"] }) {
   return (
     <section className="hud-panel overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-[color:var(--color-hairline)] p-5">
-        <UserRound className="h-4 w-4 text-zinc-500" />
-        <h2 className="font-pixel-label text-zinc-300">Recent Visitor Journeys</h2>
+      <div className="flex items-center gap-2 border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
+        <UserRound className="h-4 w-4 text-[color:var(--color-text-faint)]" />
+        <h3 className="font-pixel-label text-[color:var(--color-text-faint)]">Recent visitor journeys</h3>
       </div>
       {visitors.length ? (
         <div className="divide-y divide-[color:var(--color-hairline)]">
-          {visitors.map((visitor, index) => (
+          {visitors.slice(0, 12).map((visitor, index) => (
             <LedgerRow
               key={`${visitor.visitorId}-${visitor.lastSeen}`}
               index={index}
@@ -337,80 +336,255 @@ function VisitorList({ visitors }: { visitors: WebsiteVisitorAnalytics[] }) {
               idLabel={`${visitor.visitorId}${visitor.skfId ? ` · ${visitor.skfId}` : ""} · ${visitor.ipLabel || "NO IP"}`}
               amount={`${visitor.sessions}/${visitor.pageViews}`}
               amountLabel="visits / views"
-              trailing={<span className="font-mono text-[11px] text-zinc-500">{formatDateTime(visitor.lastSeen)}</span>}
+              trailing={<span className="font-mono text-[11px] text-[color:var(--color-text-faint)]">{formatDateTime(visitor.lastSeen)}</span>}
             />
           ))}
         </div>
       ) : (
-        <EmptyBlock>No recent visitor journeys available.</EmptyBlock>
+        <div className="p-4 sm:p-5">
+          <EmptyBlock>No recent visitor journeys available.</EmptyBlock>
+        </div>
       )}
     </section>
   );
 }
 
-function RecentPageViews({ rows, showStudent = false }: { rows: WebsiteRecentPageView[]; showStudent?: boolean }) {
+function SignalRegister({ data }: { data: WebsiteAnalyticsData }) {
+  const rows = KNOWN_EVENT_TYPES.map((eventType) => ({
+    eventType,
+    count: countFor(data, eventType),
+  })).sort((a, b) => b.count - a.count);
+
   return (
     <section className="hud-panel overflow-hidden">
-      <div className="border-b border-[color:var(--color-hairline)] p-5">
-        <h2 className="font-pixel-label text-zinc-300">Recent Page Views</h2>
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
+        <div>
+          <p className="font-pixel-label text-[color:var(--color-text-faint)]">Complete signal register</p>
+          <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Every event SKF tracks</h3>
+        </div>
+        <p className="font-mono tnum text-xs text-[color:var(--color-text-faint)]">
+          {number(data.history.totalEvents)} lifetime events
+        </p>
       </div>
-      {rows.length ? (
+      <div className="divide-y divide-[color:var(--color-hairline)]">
+        {rows.map((row, index) => (
+          <LedgerRow
+            key={row.eventType}
+            index={index}
+            status={eventStatus(row.eventType)}
+            title={eventLabel(row.eventType)}
+            subtitle={eventDescription(row.eventType)}
+            idLabel={row.eventType}
+            amount={number(row.count)}
+            amountLabel="events"
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SignalFeed({ signals }: { signals: Signal[] }) {
+  const [filter, setFilter] = useState<SignalFilter>("all");
+  const filtered = useMemo(
+    () => signals.filter((signal) => matchesFilter(signal.eventType, filter)).slice(0, 60),
+    [filter, signals],
+  );
+
+  return (
+    <section className="hud-panel overflow-hidden">
+      <div className="border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="font-pixel-label text-[color:var(--color-text-faint)]">Minute-by-minute</p>
+            <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Signal feed</h3>
+          </div>
+          <p className="text-xs text-[color:var(--color-text-faint)]">Newest first · latest {filtered.length}</p>
+        </div>
+        <SegmentedTabs
+          ariaLabel="Filter website signals"
+          value={filter}
+          onChange={setFilter}
+          options={SIGNAL_FILTERS.map((value) => ({
+            value,
+            label: value === "all" ? "All" : value.charAt(0).toUpperCase() + value.slice(1),
+          }))}
+        />
+      </div>
+      {filtered.length ? (
         <div className="divide-y divide-[color:var(--color-hairline)]">
-          {rows.map((row, index) => (
+          {filtered.map((signal, index) => (
             <LedgerRow
-              key={row.id}
+              key={signal.id}
               index={index}
-              title={row.path}
-              subtitle={showStudent ? `${row.device} · ${row.browser}` : `${row.source} · ${row.device} · ${row.browser}`}
-              idLabel={showStudent ? (row.skfId || "NO SKF ID") : row.source}
-              trailing={<span className="font-mono text-[11px] text-zinc-500">{formatDateTime(row.createdAt)}</span>}
+              status={eventStatus(signal.eventType)}
+              title={eventLabel(signal.eventType)}
+              subtitle={[signal.path, signal.source, signal.device].filter(Boolean).join(" · ") || "Website event"}
+              idLabel={[signal.skfId, signal.visitorId, signal.metadata ? metadataSummary(signal.metadata) : null]
+                .filter(Boolean)
+                .join(" · ") || "No identity recorded"}
+              trailing={<StatusPill status={eventStatus(signal.eventType)} label={eventLabel(signal.eventType)} />}
+              onClick={undefined}
             />
           ))}
         </div>
       ) : (
-        <EmptyBlock>No recent page views available.</EmptyBlock>
+        <div className="p-4 sm:p-5">
+          <EmptyBlock>No signals match this filter in the loaded window.</EmptyBlock>
+        </div>
       )}
     </section>
   );
 }
 
-function OperationalEvents({ events }: { events: WebsiteOperationalEvent[] }) {
+function LoginHealth({ data }: { data: WebsiteAnalyticsData }) {
+  const attempts = data.overview.portalLogins + data.overview.portalLoginFailures;
+  const successRate = attempts > 0 ? Math.round((data.overview.portalLogins / attempts) * 100) : 0;
+  const uniquePortalPeople = new Set(
+    data.audience.recentVisitors.map((visitor) => visitor.skfId).filter(Boolean),
+  ).size;
+
   return (
-    <section className="card-panel p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-          <LogIn className="h-4 w-4 text-zinc-500" />
-          Lead & Portal Events
-        </h2>
-      </div>
-      {events.length ? (
-        <div className="space-y-3">
-          {events.map((event) => (
-            <div key={event.id} className="rounded-xl border border-zinc-800 bg-black/25 p-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white">{eventLabel(event.eventType)}</p>
-                  <p className="mt-1 truncate text-xs text-zinc-500">
-                    {event.path}
-                    {event.skfId ? ` - ${event.skfId}` : ""}
-                  </p>
-                </div>
-                <p className="text-xs text-zinc-500">{formatDateTime(event.createdAt)}</p>
-              </div>
-              <p className="mt-3 line-clamp-2 text-xs text-zinc-600">{metadataSummary(event.metadata)}</p>
-            </div>
-          ))}
+    <section className="hud-panel p-4 sm:p-5">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="font-pixel-label text-[color:var(--color-text-faint)]">Access control</p>
+          <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Login health</h3>
         </div>
-      ) : (
-        <EmptyBlock>No lead or portal events are recorded in this period.</EmptyBlock>
-      )}
+        <MeterRing
+          value={successRate}
+          caption="success rate"
+          tone={successRate >= 90 ? "settled" : successRate >= 70 ? "action" : "overdue"}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {[
+          ["Attempts", number(attempts)],
+          ["Logged in", number(data.overview.portalLogins)],
+          ["Failed", number(data.overview.portalLoginFailures)],
+          ["Identified", number(uniquePortalPeople)],
+        ].map(([label, value]) => (
+          <div key={label} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-3">
+            <p className="truncate text-[11px] text-[color:var(--color-text-faint)]">{label}</p>
+            <p className="font-pixel mt-2 break-words text-lg text-[color:var(--color-text)]">{value}</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-xs leading-relaxed text-[color:var(--color-text-faint)]">
+        Attempts include every successful and failed portal login event in the loaded window.
+      </p>
+    </section>
+  );
+}
+
+function LeadHealth({ data }: { data: WebsiteAnalyticsData }) {
+  const feeSubmissions = countFor(data, "portal_fee_payment_submitted");
+  const failureRate =
+    data.overview.leadSubmissions + data.overview.leadFailures > 0
+      ? Math.round((data.overview.leadFailures / (data.overview.leadSubmissions + data.overview.leadFailures)) * 100)
+      : 0;
+
+  return (
+    <section className="hud-panel p-4 sm:p-5">
+      <div className="mb-4">
+        <p className="font-pixel-label text-[color:var(--color-text-faint)]">Inbound work</p>
+        <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Leads and submissions</h3>
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {[
+          ["Leads", number(data.overview.leadSubmissions), "settled"],
+          ["Failed leads", number(data.overview.leadFailures), "overdue"],
+          ["Fee proofs", number(feeSubmissions), "action"],
+          ["Lead failure rate", `${failureRate}%`, failureRate > 10 ? "overdue" : "neutral"],
+        ].map(([label, value, tone]) => (
+          <div key={label} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-3">
+            <p className="truncate text-[11px] text-[color:var(--color-text-faint)]">{label}</p>
+            <p className={`font-pixel mt-2 break-words text-lg ${tone === "overdue" ? "text-[color:var(--color-overdue)]" : tone === "settled" ? "text-[color:var(--color-settled)]" : tone === "action" ? "text-[color:var(--color-action)]" : "text-[color:var(--color-text)]"}`}>
+              {value}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function HomePracticePerformance({ analytics }: { analytics: HomePracticeAnalytics }) {
+  return (
+    <section className="hud-panel overflow-hidden">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
+        <div>
+          <p className="font-pixel-label text-[color:var(--color-text-faint)]">Athlete portal</p>
+          <h3 className="font-display mt-1 flex items-center gap-2 text-lg text-[color:var(--color-text)]">
+            <BookOpenCheck className="h-5 w-5 text-[color:var(--color-settled)]" />
+            Home practice
+          </h3>
+          <p className="mt-1 text-xs text-[color:var(--color-text-dim)]">
+            Watch and completion signals from the last {analytics.rangeDays} days.
+          </p>
+        </div>
+        <span className="rounded-full border border-[color:var(--color-hairline)] px-3 py-1 text-[11px] text-[color:var(--color-text-faint)]">
+          Instructor only
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 p-4 sm:p-5 lg:grid-cols-5">
+        <StatTile label="Watches" value={number(analytics.overview.watchedLessons)} tone="settled" />
+        <StatTile label="Athletes" value={number(analytics.overview.uniqueAthletes)} />
+        <StatTile label="Completions" value={number(analytics.overview.completions)} tone="settled" />
+        <StatTile label="Completion rate" value={percent(analytics.overview.completionRate)} tone="action" />
+        <StatTile label="Average progress" value={percent(analytics.overview.averageProgress)} tone="action" />
+      </div>
+
+      <div className="grid gap-4 border-t border-[color:var(--color-hairline)] p-4 sm:p-5 xl:grid-cols-2">
+        <div className="min-w-0">
+          <h4 className="mb-3 text-sm font-semibold text-[color:var(--color-text)]">Lesson performance</h4>
+          {analytics.videos.length ? (
+            <div className="space-y-2">
+              {analytics.videos.slice(0, 8).map((video, index) => (
+                <LedgerRow
+                  key={video.videoId}
+                  index={index}
+                  title={video.title}
+                  subtitle={`${video.watches} watches · ${formatDateTime(video.lastWatchedAt)}`}
+                  idLabel={`${video.uniqueAthletes} athletes · ${video.completions} complete`}
+                  amount={`${video.averageProgress}%`}
+                  amountLabel="average"
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyBlock>No lesson watch activity in this period.</EmptyBlock>
+          )}
+        </div>
+        <div className="min-w-0">
+          <h4 className="mb-3 text-sm font-semibold text-[color:var(--color-text)]">Recent athlete viewing</h4>
+          {analytics.recent.length ? (
+            <div className="space-y-2">
+              {analytics.recent.slice(0, 8).map((watch, index) => (
+                <LedgerRow
+                  key={`${watch.skfId}-${watch.videoTitle}-${watch.watchedAt}-${index}`}
+                  index={index}
+                  status={watch.completed ? "paid" : "due"}
+                  title={watch.athleteName}
+                  subtitle={watch.videoTitle}
+                  idLabel={`${watch.skfId} · ${watch.belt} · ${formatDateTime(watch.watchedAt)}`}
+                  amount={`${watch.progressPercent}%`}
+                  amountLabel="progress"
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyBlock>No athlete viewing has been recorded yet.</EmptyBlock>
+          )}
+        </div>
+      </div>
     </section>
   );
 }
 
 export default function WebsiteAnalyticsPage() {
   const { user, checking } = useFeeTrackAuth();
-  const [activeView, setActiveView] = useState<ViewMode>("Anonymous Visitors");
   const [rangeDays, setRangeDays] = useState(90);
   const [analytics, setAnalytics] = useState<WebsiteAnalyticsData | null>(null);
   const [practiceAnalytics, setPracticeAnalytics] = useState<HomePracticeAnalytics | null>(null);
@@ -424,7 +598,10 @@ export default function WebsiteAnalyticsPage() {
     setLoading(true);
     setError("");
     try {
-      const [website, practice] = await Promise.allSettled([getWebsiteAnalytics(rangeDays), getHomePracticeAnalytics(rangeDays)]);
+      const [website, practice] = await Promise.allSettled([
+        getWebsiteAnalytics(rangeDays),
+        getHomePracticeAnalytics(rangeDays),
+      ]);
       if (website.status === "rejected") throw website.reason;
       setAnalytics(website.value.data);
       setWarning(website.value.warning || website.value.data?.warning || "");
@@ -449,81 +626,40 @@ export default function WebsiteAnalyticsPage() {
     return () => window.clearTimeout(timeoutId);
   }, [loadAnalytics]);
 
-  // === Filtered data for each view ===
-  const filteredData = useMemo(() => {
-    if (!analytics) return null;
-
-    const allPageViews = analytics.recent.pageViews;
-    const allVisitors = analytics.audience.recentVisitors;
-    const allEvents = analytics.operations.events;
-
-    if (activeView === "Portal Activity") {
-      const studentPageViews = allPageViews.filter((pv) => pv.skfId);
-      const studentVisitors = allVisitors.filter((v) => v.skfId);
-      const loginEvents = allEvents.filter(
-        (e) => e.eventType === "portal_login_success" || e.eventType === "portal_login_failed",
-      );
-      const uniqueStudents = new Set(studentVisitors.map((v) => v.skfId).filter(Boolean));
-
-      return {
-        pageViews: studentPageViews,
-        visitors: studentVisitors,
-        events: loginEvents,
-        metrics: {
-          uniqueStudents: uniqueStudents.size,
-          studentPageViews: studentPageViews.length,
-          successfulLogins: loginEvents.filter((e) => e.eventType === "portal_login_success").length,
-          failedLogins: loginEvents.filter((e) => e.eventType === "portal_login_failed").length,
-        },
-      };
-    }
-
-    // Anonymous Visitors
-    const anonPageViews = allPageViews.filter((pv) => !pv.skfId);
-    const anonVisitors = allVisitors.filter((v) => !v.skfId);
-
-    return {
-      pageViews: anonPageViews,
-      visitors: anonVisitors,
-      events: allEvents,
-      metrics: null,
-    };
-  }, [analytics, activeView]);
-
-  const kpis = useMemo(() => {
+  const signals = useMemo<Signal[]>(() => {
     if (!analytics) return [];
-    return [
-      {
-        icon: Users,
-        label: "Visits",
-        value: number(analytics.overview.visits),
-        detail: `${number(analytics.overview.visitsToday)} visits today`,
-        tone: "cyan" as const,
-      },
-      {
-        icon: UserRound,
-        label: "Unique Visitors",
-        value: number(analytics.overview.uniqueVisitors),
-        detail: `${number(analytics.overview.returningVisitors)} returning visitors`,
-        tone: "green" as const,
-      },
-      {
-        icon: Eye,
-        label: "Page Views",
-        value: number(analytics.overview.pageViews),
-        detail: `${analytics.overview.avgPagesPerVisit} pages per visit`,
-      },
-      {
-        icon: MousePointerClick,
-        label: "Lead Rate",
-        value: percent(analytics.overview.leadConversionRate),
-        detail: `${number(analytics.overview.leadSubmissions)} leads, ${number(analytics.overview.leadFailures)} failures`,
-        tone: analytics.overview.leadFailures > 0 ? ("amber" as const) : ("green" as const),
-      },
-    ];
+    const pageViews: Signal[] = analytics.recent.pageViews.map((row) => ({
+      id: `page-${row.id}`,
+      eventType: "page_view",
+      path: row.path,
+      createdAt: row.createdAt,
+      skfId: row.skfId,
+      visitorId: row.visitorId,
+      source: row.source,
+      device: row.device,
+      browser: row.browser,
+    }));
+    const events: Signal[] = analytics.operations.events.map((row) => ({
+      id: `event-${row.id}`,
+      eventType: row.eventType,
+      path: row.path,
+      createdAt: row.createdAt,
+      skfId: row.skfId,
+      visitorId: null,
+      metadata: row.metadata,
+    }));
+    return [...pageViews, ...events].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
   }, [analytics]);
 
-  if (checking || !user) return <div className="min-h-screen bg-black text-zinc-300"><div className="flex min-h-screen items-center justify-center"><RefreshCw className="h-6 w-6 animate-spin text-zinc-500" /></div></div>;
+  if (checking || !user) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-[color:var(--color-base)] text-[color:var(--color-text-faint)]">
+        <RefreshCw className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <PageShell
@@ -532,298 +668,155 @@ export default function WebsiteAnalyticsPage() {
         backHref: "/dashboard",
         actions: <NavMenu />,
       }}
-      className="[&>main]:max-w-7xl"
+      className="[&>main]:max-w-[1400px]"
     >
-      <div>
-        <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-2 flex items-center gap-3">
-              <Globe2 className="h-5 w-5 text-cyan-300" />
-              <p className="font-pixel-label text-zinc-500">Website Intelligence</p>
+      <header className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <div className="mb-2 flex items-center gap-2">
+            <Globe2 className="h-4 w-4 text-[color:var(--color-brand)]" />
+            <p className="font-pixel-label text-[color:var(--color-text-faint)]">Website intelligence</p>
+          </div>
+          <h2 className="font-display text-[clamp(1.2rem,1.05rem+0.7vw,1.6rem)] text-[color:var(--color-text)]">
+            The whole funnel, not just traffic
+          </h2>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[color:var(--color-text-dim)]">
+            Visitors, logins, failures, leads and every tracked website signal in one quiet ledger.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <SegmentedTabs
+            ariaLabel="Analytics range"
+            value={String(rangeDays)}
+            onChange={(value) => setRangeDays(Number(value))}
+            options={RANGE_OPTIONS.map((days) => ({ value: String(days), label: `${days}d` }))}
+          />
+          <button
+            type="button"
+            onClick={() => void loadAnalytics()}
+            disabled={loading}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] px-4 text-sm font-semibold text-[color:var(--color-text-dim)] transition-colors hover:text-[color:var(--color-text)] disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
+        </div>
+      </header>
+
+      {error ? (
+        <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-overdue)]/30 bg-[color:var(--color-overdue)]/10 p-4 text-sm text-[color:var(--color-text)]">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--color-overdue)]" />
+          <div className="min-w-0">
+            <p className="font-semibold">Website analytics could not be loaded.</p>
+            <p className="mt-1 break-words text-[color:var(--color-text-dim)]">{error}</p>
+          </div>
+        </div>
+      ) : null}
+
+      {warning ? (
+        <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color:var(--color-action)]/30 bg-[color:var(--color-action)]/10 p-4 text-sm text-[color:var(--color-text)]">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--color-action)]" />
+          <p className="leading-relaxed text-[color:var(--color-text-dim)]">{warning}</p>
+        </div>
+      ) : null}
+
+      {practiceError ? (
+        <div className="mb-4 rounded-xl border border-[color:var(--color-action)]/30 bg-[color:var(--color-action)]/10 p-4 text-sm text-[color:var(--color-text-dim)]">
+          {practiceError}
+        </div>
+      ) : null}
+
+      {loading && !analytics ? (
+        <div className="flex h-64 items-center justify-center">
+          <RefreshCw className="h-7 w-7 animate-spin text-[color:var(--color-text-faint)]" />
+        </div>
+      ) : analytics ? (
+        <div className="space-y-4">
+          <section className="hud-panel flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 text-xs sm:px-5">
+            {[
+              ["Window", analytics.period.label],
+              ["Loaded", `${number(analytics.period.eventsLoaded)} / ${number(analytics.period.eventLimit)}`],
+              ["First signal", formatDateTime(analytics.history.firstRecordedAt)],
+              ["Last signal", formatDateTime(analytics.history.lastRecordedAt)],
+            ].map(([label, value]) => (
+              <div key={label} className="min-w-0">
+                <span className="font-pixel-label mr-2 text-[color:var(--color-text-faint)]">{label}</span>
+                <span className="font-mono tnum text-[color:var(--color-text-dim)]">{value}</span>
+              </div>
+            ))}
+          </section>
+
+          <section>
+            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+              <h3 className="font-display text-lg text-[color:var(--color-text)]">Visitor funnel</h3>
+              <p className="font-pixel-label text-[color:var(--color-text-faint)]">People first, then events</p>
             </div>
-            <h1 className="mt-1 text-[15px] font-semibold text-white">Website Analytics</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400">
-              {activeView === "Anonymous Visitors"
-                ? "Anonymous visitor traffic, page performance, sources and engagement from the public website."
-                : "Authenticated portal user activity — which student visited which page and when."}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <SegmentedTabs
-              ariaLabel="Analytics range"
-              value={String(rangeDays)}
-              onChange={(value) => setRangeDays(Number(value))}
-              options={RANGE_OPTIONS.map((days) => ({ value: String(days), label: `${days}d` }))}
-            />
-            <button
-              type="button"
-              onClick={loadAnalytics}
-              disabled={loading}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950 px-4 text-sm font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:text-white disabled:opacity-50"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-              Refresh
-            </button>
-          </div>
-        </header>
-
-        {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <div>
-              <p className="font-semibold">Website analytics could not be loaded.</p>
-              <p className="mt-1 text-red-100/75">{error}</p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+              <MetricCard icon={Users} label="People visited" value={number(analytics.overview.uniqueVisitors)} detail={`${number(analytics.overview.returningVisitors)} returning`} tone="settled" />
+              <MetricCard icon={Eye} label="Visits" value={number(analytics.overview.visits)} detail={`${number(analytics.overview.visitsToday)} today`} />
+              <MetricCard icon={MousePointerClick} label="Page views" value={number(analytics.overview.pageViews)} detail={`${analytics.overview.avgPagesPerVisit} pages per visit`} />
+              <MetricCard icon={LogIn} label="Login attempts" value={number(analytics.overview.portalLogins + analytics.overview.portalLoginFailures)} detail="Success and failure together" tone="action" />
+              <MetricCard icon={UserCheck} label="Logged in" value={number(analytics.overview.portalLogins)} detail="Successful portal logins" tone="settled" />
+              <MetricCard icon={AlertCircle} label="Failed logins" value={number(analytics.overview.portalLoginFailures)} detail="Access was denied" tone="overdue" />
             </div>
-          </div>
-        ) : null}
+          </section>
 
-        {warning ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <p className="leading-relaxed">{warning}</p>
-          </div>
-        ) : null}
+          <section className="grid gap-4 xl:grid-cols-2">
+            <LoginHealth data={analytics} />
+            <LeadHealth data={analytics} />
+          </section>
 
-        {practiceError ? <div className="mb-6 rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">{practiceError}</div> : null}
-        {practiceAnalytics ? <div className="mb-6"><HomePracticePerformance analytics={practiceAnalytics} /></div> : null}
+          <SignalRegister data={analytics} />
 
-        {/* Primary view toggle - Anonymous Visitors vs Portal Activity */}
-        <SegmentedTabs
-          ariaLabel="Analytics view"
-          className="mb-6"
-          value={activeView}
-          onChange={setActiveView}
-          options={VIEWS.map((view) => ({
-            value: view,
-            label: view === "Anonymous Visitors" ? "Visitors" : "Portal",
-          }))}
-        />
+          <SignalFeed signals={signals} />
 
-        {loading && !analytics ? (
-          <div className="flex h-72 items-center justify-center">
-            <RefreshCw className="h-7 w-7 animate-spin text-zinc-500" />
-          </div>
-        ) : analytics ? (
-          <div className="space-y-6 animate-slide-up">
-            {/* ============ ANONYMOUS VISITORS VIEW ============ */}
-            {activeView === "Anonymous Visitors" && (
-              <>
-                <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                  {kpis.map((kpi) => (
-                    <MetricCard key={kpi.label} {...kpi} />
-                  ))}
-                </section>
+          <section className="grid gap-4 xl:grid-cols-[1.4fr_0.6fr]">
+            <DailyTrafficGrid rows={analytics.content.dailyTraffic} />
+            <HourlyTraffic rows={analytics.content.hourlyTraffic} />
+          </section>
 
-                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <MetricCard
-                    icon={Activity}
-                    label="Bounce Rate"
-                    value={percent(analytics.overview.bounceRate)}
-                    detail={`${number(analytics.overview.publicPageViews)} public views`}
-                    tone={analytics.overview.bounceRate >= 70 ? "amber" : "default"}
-                  />
-                  <MetricCard
-                    icon={LogIn}
-                    label="Portal Logins"
-                    value={number(analytics.overview.portalLogins)}
-                    detail={`${number(analytics.overview.portalLoginFailures)} failed attempts`}
-                    tone={analytics.overview.portalLoginFailures > analytics.overview.portalLogins ? "red" : "default"}
-                  />
-                  <MetricCard
-                    icon={BarChart3}
-                    label="Loaded Window"
-                    value={number(analytics.period.eventsLoaded)}
-                    detail={`${analytics.period.label}, ${analytics.period.limited ? "limited sample" : "complete window"}`}
-                    tone={analytics.period.limited ? "amber" : "default"}
-                  />
-                  <MetricCard
-                    icon={TrendingUp}
-                    label="Data Span"
-                    value={analytics.history.firstRecordedAt ? formatDateTime(analytics.history.firstRecordedAt).split(",")[0] : "N/A"}
-                    detail={`${number(analytics.history.totalEvents)} total events recorded`}
-                  />
-                </section>
+          <section className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+            <BreakdownList title="Traffic sources" icon={Search} rows={analytics.acquisition.referrers} empty="No source data available." />
+            <BreakdownList title="Page sections" icon={Compass} rows={analytics.content.pageGroups} empty="No page group data available." />
+            <BreakdownList title="Devices" icon={Smartphone} rows={analytics.audience.devices} empty="No device data available." />
+            <BreakdownList title="Browsers" icon={Laptop} rows={analytics.audience.browsers} empty="No browser data available." />
+          </section>
 
-                <DailyTrafficChart rows={analytics.content.dailyTraffic} />
+          <section className="grid gap-4 xl:grid-cols-2">
+            <PageList title="Top pages" rows={analytics.content.topPages} />
+            <PageList title="Landing pages" rows={analytics.acquisition.landingPages} />
+          </section>
 
-                <section className="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
-                  <PageTable title="Top Pages" rows={analytics.content.topPages} />
-                  <div className="space-y-6">
-                    <BreakdownList title="Traffic Sources" icon={Search} rows={analytics.acquisition.referrers} empty="No source data available." />
-                    <BreakdownList title="Page Sections" icon={Compass} rows={analytics.content.pageGroups} empty="No page group data available." />
-                  </div>
-                </section>
+          <VisitorList visitors={analytics.audience.recentVisitors} />
 
-                <section className="grid gap-6 lg:grid-cols-3">
-                  <BreakdownList title="Devices" icon={Smartphone} rows={analytics.audience.devices} empty="No device data available." />
-                  <BreakdownList title="Browsers" icon={Laptop} rows={analytics.audience.browsers} empty="No browser data available." />
-                  <BreakdownList title="Operating Systems" icon={Activity} rows={analytics.audience.operatingSystems} empty="No operating system data available." />
-                </section>
+          {practiceAnalytics ? <HomePracticePerformance analytics={practiceAnalytics} /> : null}
 
-                <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-                  <HourlyTraffic rows={analytics.content.hourlyTraffic} />
-                  <section className="card-panel p-5">
-                    <div className="mb-4 flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-zinc-500" />
-                      <h2 className="text-sm font-semibold text-white">Current Insights</h2>
-                    </div>
-                    <div className="grid gap-3">
-                      {analytics.insights.map((insight) => (
-                        <div key={insight} className="rounded-xl border border-zinc-800 bg-black/25 p-4 text-sm leading-relaxed text-zinc-300">
-                          {insight}
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                </section>
-
-                <VisitorList visitors={filteredData?.visitors || analytics.audience.recentVisitors} />
-                <RecentPageViews rows={filteredData?.pageViews || analytics.recent.pageViews} />
-
-                <section className="grid gap-4 md:grid-cols-2">
-                  <MetricCard
-                    icon={LogIn}
-                    label="Portal Logins"
-                    value={number(analytics.overview.portalLogins)}
-                    detail={`${number(analytics.overview.portalLoginFailures)} failed attempts`}
-                    tone={analytics.overview.portalLoginFailures > analytics.overview.portalLogins ? "red" : "default"}
-                  />
-                  <MetricCard
-                    icon={MousePointerClick}
-                    label="Lead Conversion"
-                    value={percent(analytics.overview.leadConversionRate)}
-                    detail={`${number(analytics.overview.leadSubmissions)} leads`}
-                    tone={analytics.overview.leadFailures > analytics.overview.leadSubmissions ? "amber" : "green"}
-                  />
-                </section>
-                <OperationalEvents events={analytics.operations.events} />
-              </>
+          <section className="hud-panel p-4 sm:p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-[color:var(--color-brand)]" />
+              <h3 className="text-sm font-semibold text-[color:var(--color-text)]">Current reading</h3>
+            </div>
+            {analytics.insights.length ? (
+              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {analytics.insights.map((insight) => (
+                  <p key={insight} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-3 text-sm leading-relaxed text-[color:var(--color-text-dim)]">
+                    {insight}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <EmptyBlock>No automatic reading is available for this window.</EmptyBlock>
             )}
+          </section>
 
-            {/* ============ PORTAL ACTIVITY VIEW ============ */}
-            {activeView === "Portal Activity" && (
-              <>
-                <section className="grid gap-4 sm:grid-cols-3">
-                  <MetricCard
-                    icon={UserCheck}
-                    label="Authenticated Students"
-                    value={number(filteredData?.metrics?.uniqueStudents || 0)}
-                    detail="Unique students identified via portal login"
-                    tone="cyan"
-                  />
-                  <MetricCard
-                    icon={LogIn}
-                    label="Portal Logins"
-                    value={number(filteredData?.metrics?.successfulLogins || 0)}
-                    detail={`${number(filteredData?.metrics?.failedLogins || 0)} failed attempts`}
-                    tone="green"
-                  />
-                  <MetricCard
-                    icon={Eye}
-                    label="Student Page Views"
-                    value={number(filteredData?.metrics?.studentPageViews || 0)}
-                    detail="Pages visited by logged-in students"
-                    tone="cyan"
-                  />
-                </section>
-
-                {/* Login events table */}
-                {filteredData && filteredData.events.length > 0 && (
-                  <section className="card-panel p-5">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-                        <LogIn className="h-4 w-4 text-zinc-500" />
-                        Recent Student Logins
-                      </h2>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm min-w-[500px]">
-                        <thead className="border-b border-zinc-800 text-[10px] uppercase tracking-widest text-zinc-500">
-                          <tr>
-                            <th className="px-4 py-3 font-semibold">Student</th>
-                            <th className="px-4 py-3 font-semibold">Event</th>
-                            <th className="px-4 py-3 font-semibold">Device</th>
-                            <th className="px-4 py-3 text-right font-semibold">Time</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-900">
-                          {filteredData.events.slice(0, 20).map((event) => (
-                            <tr key={event.id} className="hover:bg-white/[0.02]">
-                              <td className="px-4 py-3 font-mono text-xs text-cyan-300">{event.skfId || "-"}</td>
-                              <td className="px-4 py-3">
-                                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                                  event.eventType === "portal_login_success"
-                                    ? "bg-emerald-500/20 text-emerald-300"
-                                    : "bg-red-500/20 text-red-300"
-                                }`}>
-                                  {eventLabel(event.eventType)}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-xs text-zinc-500">{metadataSummary(event.metadata).slice(0, 40)}</td>
-                              <td className="px-4 py-3 text-right text-xs text-zinc-500">{formatDateTime(event.createdAt)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </section>
-                )}
-
-                {/* Student page views */}
-                {filteredData && filteredData.pageViews.length > 0 && (
-                  <RecentPageViews rows={filteredData.pageViews} showStudent />
-                )}
-
-                {filteredData && filteredData.visitors.length > 0 && (
-                  <section className="card-panel p-5">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-                        <UserCheck className="h-4 w-4 text-zinc-500" />
-                        Student Visitor Profiles
-                      </h2>
-                    </div>
-                    <div className="space-y-3">
-                      {filteredData.visitors.map((visitor) => (
-                        <div key={`${visitor.visitorId}-${visitor.lastSeen}`} className="rounded-xl border border-zinc-800 bg-black/25 p-4">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div className="min-w-0">
-                              <p className="font-mono text-sm font-semibold text-cyan-300">{visitor.skfId}</p>
-                              <p className="mt-1 text-xs text-zinc-400">{visitor.landingPage} to {visitor.lastPage}</p>
-                              <p className="mt-1 text-xs text-zinc-500">{visitor.source} - {visitor.device} - {visitor.browser}</p>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 text-center sm:min-w-[200px]">
-                              <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
-                                <span className="block text-sm font-semibold text-white">{visitor.sessions}</span>
-                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">Visits</span>
-                              </span>
-                              <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
-                                <span className="block text-sm font-semibold text-white">{visitor.pageViews}</span>
-                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">Views</span>
-                              </span>
-                              <span className="rounded-lg border border-zinc-800 bg-zinc-950 px-2 py-2">
-                                <span className="block truncate text-sm font-semibold text-white">{visitor.ipLabel || "-"}</span>
-                                <span className="text-[10px] uppercase tracking-widest text-zinc-600">IP</span>
-                              </span>
-                            </div>
-                          </div>
-                          <p className="mt-3 text-[11px] text-zinc-600">Last seen {formatDateTime(visitor.lastSeen)}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                )}
-
-                {(!filteredData || (!filteredData.events.length && !filteredData.pageViews.length)) && (
-                  <EmptyBlock>No portal activity recorded yet. Student page visits will appear here once students log into the portal.</EmptyBlock>
-                )}
-              </>
-            )}
-          </div>
-        ) : (
-          <EmptyBlock>Website analytics is not configured yet.</EmptyBlock>
-        )}
-      </div>
+          <p className="flex items-center gap-2 text-xs text-[color:var(--color-text-faint)]">
+            <Activity className="h-3.5 w-3.5" />
+            Counts cover the loaded analytics window. Lifetime totals are shown in the signal register.
+          </p>
+        </div>
+      ) : (
+        <EmptyBlock>Website analytics is not configured yet.</EmptyBlock>
+      )}
     </PageShell>
   );
 }
