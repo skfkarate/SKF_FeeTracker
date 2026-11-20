@@ -11,7 +11,7 @@
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
 - The final design direction is **Dojo Ledger HUD** — a dark ledger with game-HUD chrome and pixel type used only for money and status words.
-- **13 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on the four primary destinations, and partially adopt the system on `/custom`. Documentation commits for this status file are separate and are not implementation work.
+- **17 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on the four primary destinations, rebuild Today/Fees/People/Money with HUD primitives, and partially adopt the system on `/custom`. Documentation commits for this status file are separate and are not implementation work.
 - Nothing is pushed. No database, backend logic, navigation, Black Belt cleanup, or proration work has been changed yet.
 - Working tree is **clean**.
 
@@ -325,8 +325,12 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 | `c1fa9fd` | `refactor(feetrack): adopt PageShell on pending fees` | Fees destination gets the shared HUD, branch/month context, search, bell, and account menu |
 | `7899349` | `refactor(feetrack): adopt PageShell on admissions` | People destination gets the shared HUD, segmented tabs, stat tiles, and navigation |
 | `948bf19` | `refactor(feetrack): adopt PageShell on finance command center` | Money destination gets the shared HUD, month/branch context, refresh, and navigation |
+| `355233e` | `refactor(feetrack): rebuild today with HUD ledger rows` | Today run list uses `MeterRing`, `StatTile`, `LedgerRow`, and `StatusPill`; preserves retry and destinations |
+| `0038ffd` | `refactor(feetrack): rebuild fees ledger with HUD primitives` | Fees gets stat tiles, Month/Overdue/No phone scopes, ledger rows, and a shared reminder Sheet |
+| `9b3d46c` | `refactor(feetrack): rebuild admissions approvals as HUD ledger` | People review queue uses ledger rows; full review form moves into a shared Sheet |
+| `ac5d5ff` | `refactor(feetrack): rebuild money view as HUD ledger` | Money splits into Overview/Ledger/Fund sections with stat tiles, collection meter, and ledger rows |
 
-**Nothing has been pushed.** The 13 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
+**Nothing has been pushed.** The 17 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
 
 ### 5.2 Files created
 
@@ -398,7 +402,7 @@ status: clean
 - No receipt recomputation removal.
 - No finance definition choice applied.
 - No `api.ts` dead-wrapper cleanup.
-- Hero mockups exist as preview routes and screenshots, but no real page has been rebuilt from them yet.
+- Today, Fees, People, and Money are rebuilt from the approved mockups; Events, Media, Shop, Insights, and Settings still need the full rebuild.
 - No push to remote.
 - No DB reads or writes by this agent.
 
@@ -406,13 +410,12 @@ status: clean
 
 ## 7. Next steps (ordered)
 
-1. Rebuild Today, Fees, People, Money in that order from the approved mockups.
-2. Roll `PageShell` + `BottomNav` out to Events, Media, Shop, Insights, and Settings.
-3. Rebuild Events, Media, Shop, Settings, Insights.
-4. Add redirects in `next.config.ts`, then remove old URLs one release later.
-5. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
-6. Final cleanup: dead wrappers, navigation tiles, audit parity.
-7. Push / ship when you approve.
+1. Roll `PageShell` + `BottomNav` out to Events, Media, Shop, Insights, and Settings.
+2. Rebuild Events, Media, Shop, Settings, Insights.
+3. Add redirects in `next.config.ts`, then remove old URLs one release later.
+4. Only after owner answers: BB cleanup, proration, receipts fix, finance definition.
+5. Final cleanup: dead wrappers, navigation tiles, audit parity.
+6. Push / ship when you approve.
 
 ---
 
