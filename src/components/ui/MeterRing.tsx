@@ -66,14 +66,14 @@ export default function MeterRing({
           y="50%"
           dominantBaseline="central"
           textAnchor="middle"
-          fill="#ffffff"
-          className="font-pixel"
+          fill="var(--color-text)"
+          className="font-mono"
           style={{ fontSize: size / 4 }}
         >
           {clamped}
         </text>
       </svg>
-      {caption ? <p className="font-pixel-label text-zinc-400">{caption}</p> : null}
+      {caption ? <p className="text-xs text-[color:var(--color-text-faint)]">{caption}</p> : null}
     </div>
   );
 }
@@ -101,7 +101,7 @@ export function MeterBar({
 
   return (
     <div
-      className={cx("h-2 w-full overflow-hidden rounded-[var(--radius-pill)] bg-[#141414]", className)}
+      className={cx("h-2 w-full overflow-hidden rounded-[var(--radius-pill)] bg-[color:var(--color-raised)]", className)}
       role="progressbar"
       aria-valuenow={clamped}
       aria-valuemin={0}

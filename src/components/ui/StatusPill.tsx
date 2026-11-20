@@ -19,8 +19,8 @@ const STATUS_COLOR: Record<LedgerStatus, string> = {
   paid: "var(--color-settled)",
   partial: "var(--color-action)",
   overdue: "var(--color-overdue)",
-  break: "#a1a1aa",
-  discontinued: "#71717a",
+  break: "var(--color-text-dim)",
+  discontinued: "var(--color-text-faint)",
   credit: "var(--color-settled)",
   installment: "var(--color-action)",
   rejected: "var(--color-overdue)",
@@ -61,11 +61,17 @@ export default function StatusPill({
   const style: CSSProperties = {
     color: tint,
     borderColor: "var(--color-hairline)",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    backgroundColor: "rgba(244, 239, 227, 0.035)",
   };
 
   return (
-    <span className={cx("inline-flex h-6 items-center rounded-[var(--radius-pill)] border px-2 font-pixel-label whitespace-nowrap", className)} style={style}>
+    <span
+      className={cx(
+        "inline-flex h-6 items-center rounded-[var(--radius-pill)] border px-2.5 text-[10px] font-semibold uppercase tracking-[0.06em] whitespace-nowrap",
+        className,
+      )}
+      style={style}
+    >
       {label ?? STATUS_LABEL[status]}
     </span>
   );

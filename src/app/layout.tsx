@@ -1,34 +1,32 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Manrope, JetBrains_Mono, Silkscreen } from "next/font/google";
+import { DM_Sans, IBM_Plex_Mono, Newsreader } from "next/font/google";
 import PwaServiceWorker from "@/components/common/PwaServiceWorker";
 import { ToastProvider } from "@/lib/use-toast";
 import { ToastContainer } from "@/components/common/ToastContainer";
 import "./globals.css";
 
-const manrope = Manrope({
+const body = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-manrope",
+  variable: "--font-body",
+  display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const display = Newsreader({
   subsets: ["latin"],
-  variable: "--font-space",
+  variable: "--font-display",
+  display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const mono = IBM_Plex_Mono({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-mono",
-});
-
-const silkscreen = Silkscreen({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-pixel-label",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "SKF KARATE",
-  description: "Fee Management System",
+  title: "SKF Karate FeeTrack",
+  description: "Dojo fee, admission and operations ledger",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -43,7 +41,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: "#0c100e",
   width: "device-width",
   initialScale: 1,
 };
@@ -55,9 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${manrope.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${silkscreen.variable} antialiased`}
-      >
+      <body className={`${body.variable} ${display.variable} ${mono.variable} antialiased`}>
         <a href="#main-content" className="skip-to-content">Skip to main content</a>
         <PwaServiceWorker />
         <ToastProvider>

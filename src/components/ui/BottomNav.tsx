@@ -30,13 +30,17 @@ export default function BottomNav() {
         aria-current={active ? "page" : undefined}
         className={cx(
           "relative flex flex-col items-center justify-center gap-1 transition-colors",
-          compact ? "min-h-16 px-1" : "min-h-14 flex-1 px-1",
-          active ? "text-white" : "text-zinc-500 hover:text-white",
+          compact ? "min-h-16 px-0.5" : "min-h-16 flex-1 px-0.5",
+          active
+            ? "text-[color:var(--color-text)]"
+            : "text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text)]",
         )}
       >
-        {active ? <span aria-hidden="true" className="absolute top-0 h-0.5 w-8 rounded-full bg-[color:var(--color-brand)]" /> : null}
-        <Icon className="h-5 w-5" aria-hidden="true" />
-        <span className="font-pixel-label text-[9px]">{tab.label}</span>
+        {active ? (
+          <span aria-hidden="true" className="absolute top-0 h-[2px] w-7 rounded-full bg-[color:var(--color-brand)]" />
+        ) : null}
+        <Icon className="h-[19px] w-[19px]" aria-hidden="true" />
+        <span className="text-[10px] font-semibold leading-none tracking-[0.02em]">{tab.label}</span>
       </Link>
     );
   };
@@ -50,13 +54,17 @@ export default function BottomNav() {
       aria-expanded={moreOpen}
       className={cx(
         "relative flex flex-col items-center justify-center gap-1 transition-colors",
-        compact ? "min-h-16 px-1" : "min-h-14 flex-1 px-1",
-        moreActive || moreOpen ? "text-white" : "text-zinc-500 hover:text-white",
+        compact ? "min-h-16 px-0.5" : "min-h-16 flex-1 px-0.5",
+        moreActive || moreOpen
+          ? "text-[color:var(--color-text)]"
+          : "text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text)]",
       )}
     >
-      {moreActive || moreOpen ? <span aria-hidden="true" className="absolute top-0 h-0.5 w-8 rounded-full bg-[color:var(--color-brand)]" /> : null}
-      <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
-      <span className="font-pixel-label text-[9px]">More</span>
+      {moreActive || moreOpen ? (
+        <span aria-hidden="true" className="absolute top-0 h-[2px] w-7 rounded-full bg-[color:var(--color-brand)]" />
+      ) : null}
+      <MoreHorizontal className="h-[19px] w-[19px]" aria-hidden="true" />
+      <span className="text-[10px] font-semibold leading-none tracking-[0.02em]">More</span>
     </button>
   );
 
@@ -64,9 +72,9 @@ export default function BottomNav() {
     <>
       <nav
         aria-label="Primary navigation"
-        className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-[color:var(--color-hairline)] bg-black/95 backdrop-blur md:hidden"
+        className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/96 backdrop-blur-xl md:hidden"
       >
-        <div className="mx-auto grid max-w-6xl grid-cols-5">
+        <div className="mx-auto grid max-w-3xl grid-cols-5">
           {PRIMARY_TILES.map((tab) => renderPrimary(tab, false))}
           {renderMore(false)}
         </div>
@@ -74,13 +82,13 @@ export default function BottomNav() {
 
       <nav
         aria-label="Primary navigation"
-        className="fixed bottom-0 left-0 top-16 z-40 hidden w-16 flex-col items-center gap-1 border-r border-[color:var(--color-hairline)] bg-black/95 py-4 backdrop-blur md:flex"
+        className="fixed bottom-0 left-0 top-16 z-40 hidden w-[72px] flex-col items-center gap-1 border-r border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/96 py-4 backdrop-blur-xl md:flex"
       >
         {PRIMARY_TILES.map((tab) => renderPrimary(tab, true))}
         {renderMore(true)}
       </nav>
 
-      <Sheet open={moreOpen} title="More" onClose={() => setMoreOpen(false)}>
+      <Sheet open={moreOpen} title="More destinations" onClose={() => setMoreOpen(false)}>
         <div className="grid gap-2">
           {MORE_TILES.map((item) => {
             const Icon = item.icon;
@@ -91,14 +99,17 @@ export default function BottomNav() {
                 href={item.href}
                 onClick={() => setMoreOpen(false)}
                 className={cx(
-                  "hud-row flex min-h-14 items-center gap-3 px-3 text-left transition-colors hover:bg-[#141414]",
-                  active ? "border-white/25" : "",
+                  "hud-row flex min-h-14 items-center gap-3 px-3 text-left transition-colors hover:bg-[color:var(--color-raised)]",
+                  active && "border-[color:var(--color-action)]/50",
                 )}
               >
-                <Icon className={cx("h-5 w-5 shrink-0", active ? "text-white" : "text-zinc-500")} aria-hidden="true" />
+                <Icon
+                  className={cx("h-5 w-5 shrink-0", active ? "text-[color:var(--color-action)]" : "text-[color:var(--color-text-faint)]")}
+                  aria-hidden="true"
+                />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-white">{item.label}</span>
-                  <span className="block truncate text-xs text-zinc-500">{item.description}</span>
+                  <span className="block truncate text-sm font-semibold text-[color:var(--color-text)]">{item.label}</span>
+                  <span className="block truncate text-xs text-[color:var(--color-text-faint)]">{item.description}</span>
                 </span>
               </Link>
             );

@@ -36,27 +36,41 @@ export default function LedgerRow({
   ) : null;
 
   const body = (
-    <>
-      {spine}
-      <div className="min-w-0 flex-1 pl-3">
-        <p className="truncate text-[15px] font-semibold text-white">{title}</p>
-        {subtitle ? <p className="truncate text-[13px] text-zinc-400">{subtitle}</p> : null}
-        {idLabel ? <p className="font-mono tnum truncate text-[11px] text-zinc-500">{idLabel}</p> : null}
-      </div>
-      <div className="flex shrink-0 items-center gap-3">
-        {amount ? (
-          <div className="text-right">
-            <p className="font-pixel text-[20px] leading-none text-white">{amount}</p>
-            {amountLabel ? <p className="mt-1 font-pixel-label text-zinc-500">{amountLabel}</p> : null}
-          </div>
+    <div className="flex w-full min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
+      <div className="min-w-0 flex-1 basis-[min(100%,190px)] pl-3">
+        <p className="truncate text-[clamp(0.9rem,0.86rem+0.15vw,1rem)] font-semibold leading-snug text-[color:var(--color-text)]">
+          {title}
+        </p>
+        {subtitle ? (
+          <p className="truncate text-[13px] leading-snug text-[color:var(--color-text-dim)]">{subtitle}</p>
         ) : null}
-        {trailing}
+        {idLabel ? (
+          <p className="font-mono tnum truncate text-[11px] leading-snug text-[color:var(--color-text-faint)]">
+            {idLabel}
+          </p>
+        ) : null}
       </div>
-    </>
+
+      {amount || trailing ? (
+        <div className="ml-auto flex max-w-full flex-wrap items-center justify-end gap-2 sm:gap-3">
+          {amount ? (
+            <div className="text-right">
+              <p className="font-pixel text-[clamp(1.05rem,0.95rem+0.4vw,1.35rem)] text-[color:var(--color-text)]">
+                {amount}
+              </p>
+              {amountLabel ? (
+                <p className="mt-1 font-pixel-label text-[color:var(--color-text-faint)]">{amountLabel}</p>
+              ) : null}
+            </div>
+          ) : null}
+          {trailing}
+        </div>
+      ) : null}
+    </div>
   );
 
   const sharedClassName = cx(
-    "hud-row relative flex w-full items-center gap-3 py-3 pr-3 text-left",
+    "hud-row relative w-full py-3 pr-3 text-left",
     className,
   );
   const style: CSSProperties = { animationDelay: `${index * 20}ms` };
@@ -66,9 +80,10 @@ export default function LedgerRow({
       <button
         type="button"
         onClick={onClick}
-        className={cx(sharedClassName, "tap-target transition-colors hover:bg-[#141414] active:scale-[0.995]")}
+        className={cx(sharedClassName, "tap-target transition-colors hover:bg-[color:var(--color-raised)] active:scale-[0.995]")}
         style={style}
       >
+        {spine}
         {body}
       </button>
     );
@@ -76,6 +91,7 @@ export default function LedgerRow({
 
   return (
     <div className={sharedClassName} style={style}>
+      {spine}
       {body}
     </div>
   );

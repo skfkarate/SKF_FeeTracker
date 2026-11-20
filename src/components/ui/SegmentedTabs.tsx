@@ -22,7 +22,10 @@ export default function SegmentedTabs<T extends string>({
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={cx("flex items-center gap-1 rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-1", className)}
+      className={cx(
+        "flex items-center gap-1 overflow-x-auto rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-1",
+        className,
+      )}
     >
       {options.map((option) => {
         const active = option.value === value;
@@ -34,8 +37,10 @@ export default function SegmentedTabs<T extends string>({
             aria-selected={active}
             onClick={() => onChange(option.value)}
             className={cx(
-              "tap-target flex-1 rounded-[var(--radius-pill)] px-3 font-pixel-label transition-colors",
-              active ? "bg-white text-black" : "text-zinc-400 hover:text-white",
+              "tap-target min-w-max flex-1 rounded-[var(--radius-pill)] px-3 text-xs font-semibold transition-colors",
+              active
+                ? "bg-[color:var(--color-paper)] text-[color:var(--color-ink)]"
+                : "text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text)]",
             )}
           >
             {option.label}

@@ -18,11 +18,18 @@ export default function PageShell({
   className?: string;
 }) {
   return (
-    <div className={cx("min-h-screen bg-black text-zinc-300", showBottomNav && "md:pl-16", className)}>
-      <HudBar {...hud} />
-      <main className={cx("mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6", mainClassName)}>
-        {children}
-      </main>
+    <div className={cx("min-h-dvh bg-[color:var(--color-base)] text-[color:var(--color-text-dim)]", className)}>
+      <div className={cx(showBottomNav && "md:pl-[72px]")}>
+        <HudBar {...hud} />
+        <main
+          className={cx(
+            "content-shell pb-28 pt-4 sm:pt-6 md:pb-12",
+            mainClassName,
+          )}
+        >
+          {children}
+        </main>
+      </div>
       {showBottomNav ? <BottomNav /> : null}
     </div>
   );

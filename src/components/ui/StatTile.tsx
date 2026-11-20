@@ -5,7 +5,7 @@ import { cx } from "@/lib/cx";
 export type StatTone = "neutral" | "action" | "settled" | "overdue" | "brand";
 
 const TONE_COLOR: Record<StatTone, string> = {
-  neutral: "#a1a1aa",
+  neutral: "var(--color-text-dim)",
   action: "var(--color-action)",
   settled: "var(--color-settled)",
   overdue: "var(--color-overdue)",
@@ -33,20 +33,26 @@ export default function StatTile({
   const iconStyle: CSSProperties = { color: tint };
 
   return (
-    <div className={cx("hud-panel p-4", className)}>
-      <div className="flex items-center gap-2 font-pixel-label text-zinc-400">
-        {icon ? <span style={iconStyle} className="flex items-center">{icon}</span> : null}
-        {label}
+    <div className={cx("hud-panel p-3.5 sm:p-4", className)}>
+      <div className="flex items-center gap-2 font-pixel-label text-[color:var(--color-text-faint)]">
+        {icon ? (
+          <span style={iconStyle} className="flex items-center">
+            {icon}
+          </span>
+        ) : null}
+        <span className="truncate">{label}</span>
       </div>
       <p
         className={cx(
-          "font-pixel mt-3 leading-none text-white",
-          size === "lg" ? "text-[32px]" : "text-[20px]",
+          "font-pixel mt-3 break-words text-[color:var(--color-text)]",
+          size === "lg"
+            ? "text-[clamp(1.6rem,1.35rem+1vw,2.15rem)]"
+            : "text-[clamp(1.15rem,1.05rem+0.45vw,1.5rem)]",
         )}
       >
         {value}
       </p>
-      {hint ? <p className="mt-2 text-xs leading-relaxed text-zinc-500">{hint}</p> : null}
+      {hint ? <p className="mt-2 text-xs leading-relaxed text-[color:var(--color-text-faint)]">{hint}</p> : null}
     </div>
   );
 }
