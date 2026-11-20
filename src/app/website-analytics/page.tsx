@@ -27,7 +27,7 @@ import LedgerRow from "@/components/ui/LedgerRow";
 import MeterRing from "@/components/ui/MeterRing";
 import PageShell from "@/components/ui/PageShell";
 import SegmentedTabs from "@/components/ui/SegmentedTabs";
-import StatTile, { type StatTone } from "@/components/ui/StatTile";
+import StatTile from "@/components/ui/StatTile";
 import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import {
   getHomePracticeAnalytics,
@@ -128,14 +128,6 @@ function matchesFilter(eventType: string, filter: SignalFilter) {
   return eventType.includes(filter);
 }
 
-function metadataSummary(metadata: Record<string, unknown> = {}) {
-  const entries = Object.entries(metadata).slice(0, 3);
-  if (!entries.length) return "No extra detail";
-  return entries
-    .map(([key, value]) => `${key}: ${typeof value === "object" ? JSON.stringify(value) : String(value)}`)
-    .join(" | ");
-}
-
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-[112px] items-center justify-center rounded-xl border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] px-[16px] text-center text-sm text-[color:var(--color-text-faint)]">
@@ -144,27 +136,128 @@ function EmptyBlock({ children }: { children: ReactNode }) {
   );
 }
 
-function MetricCard({
-  icon: Icon,
-  label,
-  value,
-  detail,
-  tone = "neutral",
+function ReadThisFirst({
+  data,
+  practice,
 }: {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  detail: string;
-  tone?: StatTone;
+  data: WebsiteAnalyticsData;
+  practice: HomePracticeAnalytics | null;
 }) {
+  const loginAttempts = data.overview.portalLogins + data.overview.portalLoginFailures;
+  const loginFailureRate = loginAttempts > 0 ? Math.round((data.overview.portalLoginFailures / loginAttempts) * 100) : 0;
+  const leadAttempts = data.overview.leadSubmissions + data.overview.leadFailures;
+  const leadFailureRate = leadAttempts > 0 ? Math.round((data.overview.leadFailures / leadAttempts) * 100) : 0;
+
+  const alerts: string[] = [];
+  if (data.period.limited) alerts.push("Event window is limited — older signals are not loaded");
+  if (loginFailureRate > 10) alerts.push(`Login failures are ${loginFailureRate}% of attempts`);
+  if (leadFailureRate > 10) alerts.push(`Lead failures are ${leadFailureRate}% of enquiries`);
+  if (practice && practice.overview.watchedLessons > 0 && practice.overview.completionRate < 40) {
+    alerts.push(`Home practice completion is only ${percent(practice.overview.completionRate)}`);
+  }
+  if (data.overview.visits === 0) alerts.push("No visits were recorded in this window");
+
   return (
-    <StatTile
-      label={label}
-      value={value}
-      hint={detail}
-      tone={tone}
-      icon={<Icon className="h-[16px] w-[16px]" />}
-    />
+    <section className="hud-panel p-[16px] sm:p-[20px]">
+      <div className="mb-[16px] flex flex-wrap items-end justify-between gap-[12px]">
+        <div className="min-w-[0px]">
+          <p className="eyebrow text-[color:var(--color-text-faint)]">Start here</p>
+          <h3 className="font-display mt-[4px] flex items-center gap-[8px] text-lg text-[color:var(--color-text)]">
+            <TrendingUp className="h-[18px] w-[18px] text-[color:var(--color-brand)]" />
+            Read this first
+          </h3>
+        </div>
+        <p className="font-mono tnum text-xs text-[color:var(--color-text-faint)]">
+          {data.period.label} · {number(data.period.eventsLoaded)} events
+        </p>
+      </div>
+
+      {alerts.length ? (
+        <div className="mb-[12px] flex flex-wrap gap-[8px]">
+          {alerts.map((alert) => (
+            <span
+              key={alert}
+              className="inline-flex min-h-[28px] items-center gap-[6px] rounded-[var(--radius-pill)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-panel)] px-[12px] text-xs font-medium text-[color:var(--color-text-dim)]"
+            >
+              <AlertCircle className="h-[12px] w-[12px] shrink-0 text-[color:var(--color-action)]" />
+              {alert}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {data.insights.length ? (
+        <div className="grid gap-[12px] sm:grid-cols-2 xl:grid-cols-3">
+          {data.insights.map((insight) => (
+            <p
+              key={insight}
+              className="min-w-[0px] rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-[12px] text-sm leading-relaxed text-[color:var(--color-text-dim)]"
+            >
+              {insight}
+            </p>
+          ))}
+        </div>
+      ) : (
+        <EmptyBlock>No automatic reading is available for this window.</EmptyBlock>
+      )}
+    </section>
+  );
+}
+
+function Funnel({
+  data,
+  practice,
+}: {
+  data: WebsiteAnalyticsData;
+  practice: HomePracticeAnalytics | null;
+}) {
+  const steps = [
+    { label: "Visitors", value: data.overview.uniqueVisitors, icon: Users },
+    { label: "Visits", value: data.overview.visits, icon: Eye },
+    { label: "Logins", value: data.overview.portalLogins + data.overview.portalLoginFailures, icon: LogIn },
+    { label: "Logged in", value: data.overview.portalLogins, icon: UserCheck },
+    { label: "Leads", value: data.overview.leadSubmissions, icon: MousePointerClick },
+    { label: "Fee proofs", value: countFor(data, "portal_fee_payment_submitted"), icon: Activity },
+    { label: "Practice done", value: practice?.overview.completions ?? 0, icon: BookOpenCheck },
+  ];
+
+  return (
+    <section className="hud-panel overflow-hidden">
+      <div className="flex flex-wrap items-end justify-between gap-[12px] border-b border-[color:var(--color-hairline)] p-[16px] sm:p-[20px]">
+        <div className="min-w-[0px]">
+          <p className="eyebrow text-[color:var(--color-text-faint)]">Visitor funnel</p>
+          <h3 className="font-display mt-[4px] text-lg text-[color:var(--color-text)]">People first, then events</h3>
+        </div>
+        <p className="text-xs text-[color:var(--color-text-faint)]">Count · conversion from previous step</p>
+      </div>
+      <div className="divide-y divide-[color:var(--color-hairline)]">
+        {steps.map((step, index) => {
+          const previous = index > 0 ? steps[index - 1].value : 0;
+          const ratio = previous > 0 ? step.value / previous : 0;
+          const detail =
+            index === 0
+              ? "Entry point"
+              : ratio > 1
+                ? `${ratio.toFixed(1)}× the previous step`
+                : `${percent(Math.round(ratio * 100))} carried forward · ${number(previous - step.value)} dropped`;
+          const Icon = step.icon;
+          return (
+            <div key={step.label} className="flex items-center gap-[12px] px-[16px] py-[12px] sm:px-[20px]">
+              <span className="flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)]">
+                <Icon className="h-[14px] w-[14px] text-[color:var(--color-accent)]" />
+              </span>
+              <div className="min-w-[0px] flex-1">
+                <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{step.label}</p>
+                <p className="mt-[2px] truncate text-xs text-[color:var(--color-text-faint)]">
+                  {detail}
+                </p>
+              </div>
+              <p className="numeric shrink-0 text-lg text-[color:var(--color-text)]">{number(step.value)}</p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -183,10 +276,13 @@ function BreakdownList({
 
   return (
     <section className="hud-panel p-[16px] sm:p-[20px]">
-      <h3 className="mb-[16px] flex items-center gap-[8px] text-sm font-semibold text-[color:var(--color-text)]">
-        <Icon className="h-[16px] w-[16px] text-[color:var(--color-text-faint)]" />
-        {title}
-      </h3>
+      <div className="mb-[16px]">
+        <p className="eyebrow text-[color:var(--color-text-faint)]">Share of window</p>
+        <h3 className="mt-[4px] flex items-center gap-[8px] text-sm font-semibold text-[color:var(--color-text)]">
+          <Icon className="h-[16px] w-[16px] text-[color:var(--color-accent)]" />
+          {title}
+        </h3>
+      </div>
       {rows.length ? (
         <div className="space-y-[12px]">
           {rows.map((row) => (
@@ -199,7 +295,7 @@ function BreakdownList({
               </div>
               <div className="h-[6px] overflow-hidden rounded-[var(--radius-pill)] bg-[color:var(--color-raised)]">
                 <div
-                  className="h-full rounded-[var(--radius-pill)] bg-[color:var(--color-text-dim)]"
+                  className="h-full rounded-[var(--radius-pill)] bg-[color:var(--chart-current)]"
                   style={{ width: `${Math.max((row.value / max) * 100, 3)}%` }}
                 />
               </div>
@@ -227,23 +323,23 @@ function DailyTrafficGrid({ rows }: { rows: DailyWebsiteTraffic[] }) {
         <p className="text-xs text-[color:var(--color-text-faint)]">Latest {visible.length} days</p>
       </div>
       {visible.some((row) => row.views > 0) ? (
-        <div className="grid grid-cols-6 gap-[6px] sm:grid-cols-[repeat(10,minmax(0,1fr))] xl:grid-cols-[repeat(15,minmax(0,1fr))]">
+        <div className="grid grid-cols-5 gap-[8px] sm:grid-cols-[repeat(10,minmax(0,1fr))] xl:grid-cols-[repeat(15,minmax(0,1fr))]">
           {visible.map((row) => (
             <div
               key={row.date}
-              className="min-w-[0px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-[6px]"
+              className="min-w-[0px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-[8px]"
               title={`${formatDateLabel(row.date)}: ${number(row.views)} views`}
             >
               <div className="flex h-[48px] items-end rounded bg-[color:var(--color-panel-strong)]">
                 <div
-                  className="w-full rounded bg-[color:var(--color-accent-dim)]"
+                  className="w-full rounded bg-[color:var(--chart-current)]"
                   style={{ height: `${row.views > 0 ? Math.max((row.views / max) * 100, 6) : 0}%` }}
                 />
               </div>
-              <p className="font-mono tnum mt-[4px] truncate text-center text-[10px] text-[color:var(--color-text-faint)]">
+              <p className="font-mono tnum mt-[6px] truncate text-center text-xs text-[color:var(--color-text-dim)]">
                 {row.views || ""}
               </p>
-              <p className="truncate text-center text-[9px] text-[color:var(--color-text-faint)]">
+              <p className="mt-[2px] truncate text-center text-xs text-[color:var(--color-text-faint)]">
                 {formatDateLabel(row.date)}
               </p>
             </div>
@@ -265,20 +361,20 @@ function HourlyTraffic({ rows }: { rows: WebsiteAnalyticsData["content"]["hourly
         <Clock3 className="h-[16px] w-[16px] text-[color:var(--color-text-faint)]" />
         <h3 className="text-sm font-semibold text-[color:var(--color-text)]">Hourly pattern</h3>
       </div>
-      <div className="grid grid-cols-6 gap-[6px] md:grid-cols-12">
+      <div className="grid grid-cols-4 gap-[8px] md:grid-cols-12">
         {rows.map((row) => (
           <div
             key={row.hour}
-            className="min-w-[0px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-[6px]"
+            className="min-w-[0px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-[8px]"
             title={`${String(row.hour).padStart(2, "0")}:00 — ${number(row.views)} views`}
           >
             <div className="flex h-[40px] items-end rounded bg-[color:var(--color-panel-strong)]">
               <div
-                className="w-full rounded bg-[color:var(--color-accent-dim)]"
+                className="w-full rounded bg-[color:var(--chart-current)]"
                 style={{ height: `${row.views > 0 ? Math.max((row.views / max) * 100, 6) : 0}%` }}
               />
             </div>
-            <p className="font-mono tnum mt-[4px] truncate text-center text-[10px] text-[color:var(--color-text-faint)]">
+            <p className="font-mono tnum mt-[6px] truncate text-center text-xs text-[color:var(--color-text-faint)]">
               {String(row.hour).padStart(2, "0")}
             </p>
           </div>
@@ -296,7 +392,7 @@ function PageList({ title, rows }: { title: string; rows: WebsiteAnalyticsData["
       </div>
       {rows.length ? (
         <div className="divide-y divide-[color:var(--color-hairline)]">
-          {rows.slice(0, 12).map((row, index) => (
+          {rows.slice(0, 6).map((row, index) => (
             <LedgerRow
               key={`${title}-${row.path}`}
               index={index}
@@ -326,16 +422,16 @@ function VisitorList({ visitors }: { visitors: WebsiteAnalyticsData["audience"][
       </div>
       {visitors.length ? (
         <div className="divide-y divide-[color:var(--color-hairline)]">
-          {visitors.slice(0, 12).map((visitor, index) => (
+          {visitors.slice(0, 6).map((visitor, index) => (
             <LedgerRow
               key={`${visitor.visitorId}-${visitor.lastSeen}`}
               index={index}
               title={visitor.landingPage || visitor.lastPage || visitor.visitorId}
               subtitle={`${visitor.source} · ${visitor.device} · ${visitor.browser} · ${visitor.os}`}
-              idLabel={`${visitor.visitorId}${visitor.skfId ? ` · ${visitor.skfId}` : ""} · ${visitor.ipLabel || "NO IP"}`}
+              idLabel={`${visitor.skfId ? `SKF ${visitor.skfId} · ` : ""}${visitor.ipLabel || "No IP"} · ${visitor.visitorId}`}
               amount={`${visitor.sessions}/${visitor.pageViews}`}
               amountLabel="visits / views"
-              trailing={<span className="font-mono text-[11px] text-[color:var(--color-text-faint)]">{formatDateTime(visitor.lastSeen)}</span>}
+              trailing={<span className="font-mono text-xs text-[color:var(--color-text-faint)]">{formatDateTime(visitor.lastSeen)}</span>}
             />
           ))}
         </div>
@@ -349,21 +445,29 @@ function VisitorList({ visitors }: { visitors: WebsiteAnalyticsData["audience"][
 }
 
 function SignalRegister({ data }: { data: WebsiteAnalyticsData }) {
-  const rows = KNOWN_EVENT_TYPES.map((eventType) => ({
+  const [expanded, setExpanded] = useState(false);
+  const allRows = KNOWN_EVENT_TYPES.map((eventType) => ({
     eventType,
     count: countFor(data, eventType),
   })).sort((a, b) => b.count - a.count);
+  const rows = expanded ? allRows : allRows.slice(0, 3);
 
   return (
     <section className="hud-panel overflow-hidden">
       <div className="flex flex-wrap items-end justify-between gap-[8px] border-b border-[color:var(--color-hairline)] p-[16px] sm:p-[20px]">
         <div>
-          <p className="eyebrow text-[color:var(--color-text-faint)]">Complete signal register</p>
+          <p className="eyebrow text-[color:var(--color-text-faint)]">
+            Complete signal register · {number(data.history.totalEvents)} lifetime events
+          </p>
           <h3 className="font-display mt-[4px] text-lg text-[color:var(--color-text)]">Every event SKF tracks</h3>
         </div>
-        <p className="font-mono tnum text-xs text-[color:var(--color-text-faint)]">
-          {number(data.history.totalEvents)} lifetime events
-        </p>
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          className="inline-flex min-h-[44px] items-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] px-[16px] text-xs font-semibold text-[color:var(--color-text-dim)] transition-colors hover:text-[color:var(--color-text)]"
+        >
+          {expanded ? "Show fewer event types" : `Show all ${allRows.length} event types`}
+        </button>
       </div>
       <div className="divide-y divide-[color:var(--color-hairline)]">
         {rows.map((row, index) => (
@@ -386,7 +490,7 @@ function SignalRegister({ data }: { data: WebsiteAnalyticsData }) {
 function SignalFeed({ signals }: { signals: Signal[] }) {
   const [filter, setFilter] = useState<SignalFilter>("all");
   const filtered = useMemo(
-    () => signals.filter((signal) => matchesFilter(signal.eventType, filter)).slice(0, 60),
+    () => signals.filter((signal) => matchesFilter(signal.eventType, filter)).slice(0, 20),
     [filter, signals],
   );
 
@@ -419,9 +523,7 @@ function SignalFeed({ signals }: { signals: Signal[] }) {
               status={eventStatus(signal.eventType)}
               title={eventLabel(signal.eventType)}
               subtitle={[signal.path, signal.source, signal.device].filter(Boolean).join(" · ") || "Website event"}
-              idLabel={[signal.skfId, signal.visitorId, signal.metadata ? metadataSummary(signal.metadata) : null]
-                .filter(Boolean)
-                .join(" · ") || "No identity recorded"}
+              idLabel={[signal.skfId, signal.visitorId].filter(Boolean).join(" · ") || "No identity recorded"}
               trailing={<StatusPill status={eventStatus(signal.eventType)} label={eventLabel(signal.eventType)} />}
               onClick={undefined}
             />
@@ -464,7 +566,7 @@ function LoginHealth({ data }: { data: WebsiteAnalyticsData }) {
           ["Identified", number(uniquePortalPeople)],
         ].map(([label, value]) => (
           <div key={label} className="min-w-[0px] rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-[12px]">
-            <p className="truncate text-[11px] text-[color:var(--color-text-faint)]">{label}</p>
+            <p className="truncate text-xs text-[color:var(--color-text-faint)]">{label}</p>
             <p className="numeric mt-[8px] break-words text-lg text-[color:var(--color-text)]">{value}</p>
           </div>
         ))}
@@ -497,7 +599,7 @@ function LeadHealth({ data }: { data: WebsiteAnalyticsData }) {
           ["Lead failure rate", `${failureRate}%`, failureRate > 10 ? "overdue" : "neutral"],
         ].map(([label, value, tone]) => (
           <div key={label} className="min-w-[0px] rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-[12px]">
-            <p className="truncate text-[11px] text-[color:var(--color-text-faint)]">{label}</p>
+            <p className="truncate text-xs text-[color:var(--color-text-faint)]">{label}</p>
             <p className={`numeric mt-[8px] break-words text-lg ${tone === "overdue" ? "text-[color:var(--color-text-dim)]" : tone === "settled" ? "text-[color:var(--color-accent)]" : tone === "action" ? "text-[color:var(--color-action)]" : "text-[color:var(--color-text)]"}`}>
               {value}
             </p>
@@ -522,7 +624,7 @@ function HomePracticePerformance({ analytics }: { analytics: HomePracticeAnalyti
             Watch and completion signals from the last {analytics.rangeDays} days.
           </p>
         </div>
-        <span className="rounded-full border border-[color:var(--color-hairline)] px-[12px] py-[4px] text-[11px] text-[color:var(--color-text-faint)]">
+        <span className="rounded-full border border-[color:var(--color-hairline)] px-[12px] py-[4px] text-xs text-[color:var(--color-text-faint)]">
           Instructor only
         </span>
       </div>
@@ -675,10 +777,10 @@ export default function WebsiteAnalyticsPage() {
             <p className="eyebrow text-[color:var(--color-text-faint)]">Website intelligence</p>
           </div>
           <h2 className="font-display text-[clamp(1.2rem,1.05rem+0.7vw,1.6rem)] text-[color:var(--color-text)]">
-            The whole funnel, not just traffic
+            What is happening on the website
           </h2>
           <p className="mt-[4px] max-w-2xl text-sm leading-relaxed text-[color:var(--color-text-dim)]">
-            Visitors, logins, failures, leads and every tracked website signal in one quiet ledger.
+            Attention first, then the funnel, traffic and signals behind it.
           </p>
         </div>
 
@@ -744,29 +846,14 @@ export default function WebsiteAnalyticsPage() {
             ))}
           </section>
 
-          <section>
-            <div className="mb-[12px] flex flex-wrap items-baseline justify-between gap-[8px]">
-              <h3 className="font-display text-lg text-[color:var(--color-text)]">Visitor funnel</h3>
-              <p className="eyebrow text-[color:var(--color-text-faint)]">People first, then events</p>
-            </div>
-            <div className="grid grid-cols-2 gap-[12px] sm:grid-cols-3 xl:grid-cols-6">
-              <MetricCard icon={Users} label="People visited" value={number(analytics.overview.uniqueVisitors)} detail={`${number(analytics.overview.returningVisitors)} returning`} tone="action" />
-              <MetricCard icon={Eye} label="Visits" value={number(analytics.overview.visits)} detail={`${number(analytics.overview.visitsToday)} today`} />
-              <MetricCard icon={MousePointerClick} label="Page views" value={number(analytics.overview.pageViews)} detail={`${analytics.overview.avgPagesPerVisit} pages per visit`} />
-              <MetricCard icon={LogIn} label="Login attempts" value={number(analytics.overview.portalLogins + analytics.overview.portalLoginFailures)} detail="Success and failure together" tone="action" />
-              <MetricCard icon={UserCheck} label="Logged in" value={number(analytics.overview.portalLogins)} detail="Successful portal logins" tone="action" />
-              <MetricCard icon={AlertCircle} label="Failed logins" value={number(analytics.overview.portalLoginFailures)} detail="Access was denied" tone="neutral" />
-            </div>
-          </section>
+          <ReadThisFirst data={analytics} practice={practiceAnalytics} />
+
+          <Funnel data={analytics} practice={practiceAnalytics} />
 
           <section className="grid gap-[16px] xl:grid-cols-2">
             <LoginHealth data={analytics} />
             <LeadHealth data={analytics} />
           </section>
-
-          <SignalRegister data={analytics} />
-
-          <SignalFeed signals={signals} />
 
           <section className="grid gap-[16px] xl:grid-cols-[1.4fr_0.6fr]">
             <DailyTrafficGrid rows={analytics.content.dailyTraffic} />
@@ -789,23 +876,9 @@ export default function WebsiteAnalyticsPage() {
 
           {practiceAnalytics ? <HomePracticePerformance analytics={practiceAnalytics} /> : null}
 
-          <section className="hud-panel p-[16px] sm:p-[20px]">
-            <div className="mb-[12px] flex items-center gap-[8px]">
-              <TrendingUp className="h-[16px] w-[16px] text-[color:var(--color-brand)]" />
-              <h3 className="text-sm font-semibold text-[color:var(--color-text)]">Current reading</h3>
-            </div>
-            {analytics.insights.length ? (
-              <div className="grid gap-[8px] sm:grid-cols-2 xl:grid-cols-3">
-                {analytics.insights.map((insight) => (
-                  <p key={insight} className="min-w-[0px] rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] p-[12px] text-sm leading-relaxed text-[color:var(--color-text-dim)]">
-                    {insight}
-                  </p>
-                ))}
-              </div>
-            ) : (
-              <EmptyBlock>No automatic reading is available for this window.</EmptyBlock>
-            )}
-          </section>
+          <SignalFeed signals={signals} />
+
+          <SignalRegister data={analytics} />
 
           <p className="flex items-center gap-[8px] text-xs text-[color:var(--color-text-faint)]">
             <Activity className="h-[14px] w-[14px]" />
