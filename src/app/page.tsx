@@ -49,10 +49,10 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center px-[16px] text-[color:var(--color-text)]">
         <div className="flex flex-col items-center gap-[16px]">
           <div className="select-none text-center">
-            <div className="font-display bg-gradient-to-r from-[var(--accent-text)] to-[var(--accent-2)] bg-clip-text text-[22px] leading-[24px] font-bold tracking-[-0.04em] text-transparent">
+            <div className="font-display bg-gradient-to-r from-[var(--accent-text)] to-[var(--accent-2)] bg-clip-text text-[32px] leading-[34px] font-bold tracking-[-0.04em] text-transparent">
               SKF
             </div>
-            <div className="mt-[2px] text-[12px] font-semibold uppercase tracking-[0.32em] text-[color:var(--text-2)]">
+            <div className="mt-[2px] text-[14px] font-semibold uppercase tracking-[0.32em] text-[color:var(--text-2)]">
               Karate
             </div>
           </div>
@@ -69,13 +69,13 @@ export default function LoginPage() {
         {/* Header */}
         <div className="mb-[40px] flex flex-col items-center text-center animate-fade-in">
           <div className="select-none">
-            <div className="font-display bg-gradient-to-r from-[var(--accent-text)] to-[var(--accent-2)] bg-clip-text text-[44px] leading-[44px] font-bold tracking-[-0.045em] text-transparent">
+            <div className="font-display bg-gradient-to-r from-[var(--accent-text)] to-[var(--accent-2)] bg-clip-text text-[64px] leading-[62px] font-bold tracking-[-0.05em] text-transparent">
               SKF
             </div>
-            <div className="mt-[6px] text-[12px] font-semibold uppercase tracking-[0.32em] text-[color:var(--text-2)]">
+            <div className="mt-[8px] text-[16px] font-semibold uppercase tracking-[0.34em] text-[color:var(--text-2)]">
               Karate
             </div>
-            <div className="mx-auto mt-[16px] h-px w-[64px] bg-gradient-to-r from-transparent via-[var(--accent-text)] to-transparent" />
+            <div className="mx-auto mt-[20px] h-px w-[88px] bg-gradient-to-r from-transparent via-[var(--accent-text)] to-transparent" />
           </div>
           <h1 className="font-display mt-[20px] text-[20px] leading-[26px] font-semibold text-[color:var(--color-text)]">
             FeeTrack Treasury
