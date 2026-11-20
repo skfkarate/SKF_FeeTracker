@@ -9,7 +9,7 @@ import PageShell from "@/components/ui/PageShell";
 import AccountMenu from "@/components/common/AccountMenu";
 import { getStudents, Student } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
-import { initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
+import { avatarTintStyle, initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
 
 // Wrap in Suspense to avoid sync rendering issues
 export default function StudentProfilePage({
@@ -83,7 +83,7 @@ function StudentProfileContent({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={studentPhotoUrl} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <span className="text-lg font-bold text-[color:var(--color-text-dim)]">{initials(student.name)}</span>
+                    <span className="text-lg font-bold" style={avatarTintStyle(student.name)}>{initials(student.name)}</span>
                   )}
                 </div>
                 <div>

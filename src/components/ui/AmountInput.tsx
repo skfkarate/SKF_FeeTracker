@@ -32,7 +32,7 @@ export default function AmountInput({
             : "focus-within:border-[color:var(--color-accent-border)]",
         )}
       >
-        <span aria-hidden="true" className="numeric text-sm text-[color:var(--color-text-faint)]">
+        <span aria-hidden="true" className="display-number text-sm text-[color:var(--color-text-faint)]">
           ₹
         </span>
         <input
@@ -44,7 +44,7 @@ export default function AmountInput({
           placeholder={placeholder}
           aria-invalid={invalid || undefined}
           onChange={(event) => onChange(event.target.value)}
-          className="numeric min-h-[44px] w-full min-w-[0px] bg-transparent py-[12px] text-right text-[clamp(1.35rem,1.2rem+0.6vw,1.75rem)] text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)] disabled:opacity-60"
+          className="display-number min-h-[44px] w-full min-w-[0px] bg-transparent py-[12px] text-right text-[clamp(1.35rem,1.2rem+0.6vw,1.75rem)] text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)] disabled:opacity-60"
         />
       </span>
       {hint ? <span className="mt-[8px] block text-[13px] leading-relaxed text-[color:var(--color-text-faint)]">{hint}</span> : null}

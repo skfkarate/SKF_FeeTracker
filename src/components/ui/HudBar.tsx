@@ -46,12 +46,12 @@ export default function HudBar({
         ) : null}
 
         <div className="min-w-[0px] flex-1">
-          <h1 className="font-display truncate text-[clamp(1.1rem,1rem+0.35vw,1.4rem)] leading-tight text-[color:var(--color-text)]">
+          <h1 className="font-display truncate text-[24px] leading-[30px] text-[color:var(--color-text)] sm:text-[28px] sm:leading-[34px]">
             {title}
           </h1>
           <div className="mt-[4px] flex min-w-[0px] items-center gap-[8px]">
             {monthLabel ? (
-              <span className="font-mono truncate text-[11px] uppercase tracking-[0.1em] text-[color:var(--color-text-faint)]">
+              <span className="truncate text-[12px] leading-[16px] text-[color:var(--color-text-faint)]">
                 {monthLabel}
               </span>
             ) : null}
@@ -60,13 +60,13 @@ export default function HudBar({
                 <button
                   type="button"
                   onClick={onBranchClick}
-                  className="tap-target inline-flex shrink-0 items-center gap-[6px] rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] font-mono text-[11px] text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-accent-border)]"
+                  className="tap-target inline-flex shrink-0 items-center gap-[6px] rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-[12px] leading-[16px] text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-accent-border)]"
                 >
                   {branchLabel}
                   <ChevronDown className="h-[12px] w-[12px]" aria-hidden="true" />
                 </button>
               ) : (
-                <span className="inline-flex shrink-0 items-center rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] py-[6px] font-mono text-[11px] text-[color:var(--color-text-dim)]">
+                <span className="inline-flex shrink-0 items-center rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] py-[6px] text-[12px] leading-[16px] text-[color:var(--color-text-dim)]">
                   {branchLabel}
                 </span>
               )

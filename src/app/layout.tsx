@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
-import { DM_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import PwaServiceWorker from "@/components/common/PwaServiceWorker";
 import { ToastProvider } from "@/lib/use-toast";
 import { ToastContainer } from "@/components/common/ToastContainer";
 import "./globals.css";
 
-const body = DM_Sans({
+const body = Inter({
   subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
 });
 
-const mono = IBM_Plex_Mono({
+const display = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-mono",
+  weight: ["600", "700"],
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -35,10 +35,21 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#1a1c23",
+  themeColor: "#070a12",
   width: "device-width",
   initialScale: 1,
 };
+
+const themeBootstrap = `
+(function(){
+  try {
+    var theme = localStorage.getItem('aurora-theme');
+    if (theme === 'day') document.documentElement.dataset.theme = 'day';
+    var fx = localStorage.getItem('aurora-fx');
+    if (fx === 'lite' || fx === 'drift') document.documentElement.dataset.fx = fx;
+  } catch (error) {}
+})();
+`;
 
 export default function RootLayout({
   children,
@@ -46,8 +57,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${body.variable} ${mono.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+      </head>
+      <body className={`${body.variable} ${display.variable} antialiased`}>
         <a href="#main-content" className="skip-to-content">Skip to main content</a>
         <PwaServiceWorker />
         <ToastProvider>

@@ -2,10 +2,8 @@ import type { CSSProperties, ReactNode } from "react";
 
 import { cx } from "@/lib/cx";
 import type { LedgerStatus } from "./StatusPill";
-import { statusColor } from "./StatusPill";
 
 export default function LedgerRow({
-  status,
   title,
   subtitle,
   idLabel,
@@ -27,14 +25,6 @@ export default function LedgerRow({
   index?: number;
   className?: string;
 }) {
-  const spine = status ? (
-    <span
-      className="hud-spine"
-      style={{ backgroundColor: statusColor(status) }}
-      aria-hidden="true"
-    />
-  ) : null;
-
   const body = (
     <div className="grid w-full min-w-[0px] grid-cols-[minmax(0,1fr)_auto] items-start gap-x-[16px] gap-y-[6px]">
       <div className="min-w-[0px]">
@@ -45,14 +35,14 @@ export default function LedgerRow({
           <p className="mt-[2px] truncate text-[13px] leading-snug text-[color:var(--color-text-dim)]">{subtitle}</p>
         ) : null}
         {idLabel ? (
-          <p className="font-mono tnum mt-[2px] truncate text-[11px] leading-snug text-[color:var(--color-text-faint)]">
+          <p className="font-mono tnum mt-[2px] truncate text-[12px] leading-snug text-[color:var(--color-text-faint)]">
             {idLabel}
           </p>
         ) : null}
       </div>
 
       {amount || trailing ? (
-        <div className="flex max-w-full items-start justify-end gap-[10px] sm:gap-[12px]">
+        <div className="flex max-w-full flex-col items-end gap-[8px] sm:flex-row sm:items-start sm:gap-[12px]">
           {amount ? (
             <div className="text-right">
               <p className="numeric text-[clamp(1.12rem,1rem+0.45vw,1.4rem)] text-[color:var(--color-text)]">
@@ -83,7 +73,6 @@ export default function LedgerRow({
         className={cx(sharedClassName, "tap-target transition-colors hover:bg-[color:var(--color-panel-strong)] active:scale-[0.995]")}
         style={style}
       >
-        {spine}
         {body}
       </button>
     );
@@ -91,7 +80,6 @@ export default function LedgerRow({
 
   return (
     <div className={sharedClassName} style={style}>
-      {spine}
       {body}
     </div>
   );

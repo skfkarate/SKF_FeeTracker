@@ -32,12 +32,12 @@ export default function BottomNav() {
           "group relative flex flex-col items-center justify-center gap-[6px] transition-colors",
           compact ? "min-h-[64px] w-[56px] px-[2px]" : "min-h-[72px] flex-1 px-[2px]",
           active
-            ? "text-[color:var(--color-text)]"
+            ? "text-[color:var(--accent-text)]"
             : "text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text-dim)]",
         )}
       >
         {active ? (
-          <span aria-hidden="true" className="absolute top-[8px] h-[3px] w-[28px] rounded-full bg-[color:var(--color-accent)] shadow-[0_0_14px_rgba(74,224,189,0.45)]" />
+          <span aria-hidden="true" className="absolute top-[8px] h-[3px] w-[28px] rounded-full bg-[color:var(--accent-text)] shadow-[0_0_14px_rgba(79,227,182,0.35)]" />
         ) : null}
         <Icon className="h-[19px] w-[19px]" aria-hidden="true" />
         <span className="text-[11px] font-semibold leading-none tracking-[0.01em]">{tab.label}</span>
@@ -56,12 +56,12 @@ export default function BottomNav() {
         "group relative flex flex-col items-center justify-center gap-[6px] transition-colors",
         compact ? "min-h-[64px] w-[56px] px-[2px]" : "min-h-[72px] flex-1 px-[2px]",
         moreActive || moreOpen
-          ? "text-[color:var(--color-text)]"
+          ? "text-[color:var(--accent-text)]"
           : "text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text-dim)]",
       )}
     >
       {moreActive || moreOpen ? (
-        <span aria-hidden="true" className="absolute top-[8px] h-[3px] w-[28px] rounded-full bg-[color:var(--color-accent)] shadow-[0_0_14px_rgba(74,224,189,0.45)]" />
+        <span aria-hidden="true" className="absolute top-[8px] h-[3px] w-[28px] rounded-full bg-[color:var(--accent-text)] shadow-[0_0_14px_rgba(79,227,182,0.35)]" />
       ) : null}
       <MoreHorizontal className="h-[19px] w-[19px]" aria-hidden="true" />
       <span className="text-[11px] font-semibold leading-none tracking-[0.01em]">More</span>

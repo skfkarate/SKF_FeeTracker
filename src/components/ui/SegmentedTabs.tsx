@@ -39,8 +39,8 @@ export default function SegmentedTabs<T extends string>({
             className={cx(
               "tap-target min-w-max flex-1 rounded-[var(--radius-pill)] px-[14px] text-xs font-semibold transition-colors",
               active
-                ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] shadow-[0_6px_18px_rgba(74,224,189,0.18)]"
-                : "text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text)]",
+                ? "border border-[color:var(--color-accent-border)] bg-[color:var(--glass-strong)] text-[color:var(--accent-text)]"
+                : "border border-transparent text-[color:var(--color-text-faint)] hover:text-[color:var(--color-text)]",
             )}
           >
             {option.label}

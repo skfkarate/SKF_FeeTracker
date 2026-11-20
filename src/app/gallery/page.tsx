@@ -322,8 +322,8 @@ export default function GalleryManagerPage() {
           <StatTile label="Featured" value={String(counts.featured)} tone="action" />
         </section>
 
-        <section className="mb-[24px] grid gap-[12px] lg:grid-cols-[1fr_auto]">
-          <div className="relative">
+        <section className="mb-[24px] grid gap-[12px] lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
+          <div className="relative min-w-[0px]">
             <Search className="pointer-events-none absolute left-[16px] top-[50%] h-[16px] w-[16px] -translate-y-1/2 text-[color:var(--color-text-faint)]" />
             <input
               value={query}

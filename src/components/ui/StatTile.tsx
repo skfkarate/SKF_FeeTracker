@@ -2,15 +2,18 @@ import type { CSSProperties, ReactNode } from "react";
 
 import { cx } from "@/lib/cx";
 
-export type StatTone = "neutral" | "action" | "settled" | "overdue" | "brand";
+export type StatTone = "neutral" | "action" | "settled" | "overdue" | "partial" | "brand";
 
 const TONE_COLOR: Record<StatTone, string> = {
-  neutral: "var(--color-text-dim)",
-  action: "var(--color-accent)",
-  settled: "var(--color-paid)",
-  overdue: "var(--color-overdue)",
-  brand: "var(--color-accent)",
+  neutral: "var(--text-2)",
+  action: "var(--text)",
+  settled: "var(--status-paid-text)",
+  overdue: "var(--status-overdue-text)",
+  partial: "var(--status-partial-text)",
+  brand: "var(--accent-text)",
 };
+
+const GRADIENT_TONES = new Set<StatTone>(["settled", "brand"]);
 
 export default function StatTile({
   label,
@@ -31,6 +34,7 @@ export default function StatTile({
 }) {
   const tint = TONE_COLOR[tone];
   const iconStyle: CSSProperties = { color: tint };
+  const valueStyle: CSSProperties = GRADIENT_TONES.has(tone) ? {} : { color: tint };
 
   return (
     <div className={cx("hud-panel flex min-w-[0px] flex-col p-[20px]", className)}>
@@ -43,11 +47,13 @@ export default function StatTile({
         <span className="truncate">{label}</span>
       </div>
       <p
+        style={valueStyle}
         className={cx(
-          "numeric mt-auto break-words pt-[12px] text-[color:var(--color-text)]",
+          "display-number mt-auto break-words pt-[12px]",
+          GRADIENT_TONES.has(tone) ? "amount-gradient" : "",
           size === "lg"
-            ? "text-[clamp(1.7rem,1.4rem+1vw,2.2rem)]"
-            : "text-[clamp(1.2rem,1.08rem+0.5vw,1.55rem)]",
+            ? "text-[36px] leading-[40px]"
+            : "text-[24px] leading-[30px]",
         )}
       >
         {value}

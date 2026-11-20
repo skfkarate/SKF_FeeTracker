@@ -21,7 +21,7 @@ import PageShell from "@/components/ui/PageShell";
 import AccountMenu from "@/components/common/AccountMenu";
 import { useFeeTrackAuth } from "@/lib/client-auth";
 import { getStudents, Student, uploadStudentProfilePhoto } from "@/lib/api";
-import { initials, hasDisplayPhoto, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
+import { avatarTintStyle, initials, hasDisplayPhoto, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
 
 type Branch = "MPSC" | "Herohalli";
 type PhotoStudent = Student & { branch: Branch };
@@ -373,7 +373,7 @@ export default function ProfilePhotosPage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={realPhotoUrl(student)} alt="" className="h-full w-full object-cover" />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center text-sm font-bold text-[color:var(--color-text-dim)]">
+                          <div className="flex h-full w-full items-center justify-center text-sm font-bold" style={avatarTintStyle(student.name)}>
                             {initials(student.name)}
                           </div>
                         )}

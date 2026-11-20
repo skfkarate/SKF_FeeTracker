@@ -1,113 +1,146 @@
-# DESIGN.md: Aurora Glass
+# DESIGN.md: Aurora Glass v1.0
 
-This file is the only design contract for SKF FeeTrack. Every screen, sheet, modal, navigation surface and state follows it.
+This file is the only visual contract for SKF FeeTrack. Every screen, sheet, modal, navigation surface and state follows it.
+
+Source: `Aurora Glass complete theme and implementation plan.md` (v1.0, 20 Nov 2026), sections 1–7. Sections 8–18 and the referenced `aurora-theme.css` were not supplied; where the plan was silent, existing FeeTrack information architecture and workflows were preserved.
+
+This is a **theme-only** migration. Status calculation, money rules, labels, routes, access and workflows are unchanged. Section 7.2–7.3 of the plan (status decision function and totals invariant) is **not implemented**; existing logic remains authoritative.
 
 ## Vibe
 
-A quiet night sky above a glass ledger. Deep night-blue base, frosted blue-grey panels, near-black contrast wells, big clean numbers and one soft teal glow. It is minimal, precise and calm — never playful, neon, game-like or decorative.
+A quiet night sky above a glass ledger. Deep night-blue base, frosted glass cards, solid dark wells, large crisp numbers and one soft aurora glow. Calm, premium and fast — never playful, neon, game-like or decorative.
 
-The reference screenshot is a **theme reference only**. FeeTrack keeps its own information architecture, labels, workflows and alignment system.
+The reference screenshot and preview are theme references only. FeeTrack keeps its own information architecture, labels, workflows and alignment system.
 
 ## Non-negotiables
 
-1. One primary action per screen.
-2. Lists are dense ledger rows, not card grids. Cards are for real objects.
-3. Money and dates use IBM Plex Mono with tabular numerals. Numbers are the largest text in a section.
-4. Every create, edit and confirm action is a bottom sheet.
-5. Navigation appears once: bottom bar on phone, slim rail on desktop, full destinations in the **More** sheet. There is no hamburger menu or full navigation drawer.
-6. Account and logout live in a compact top-right account control.
-7. Mobile first at 320px. 200% text zoom must not clip or scroll sideways.
-8. Green, amber and red are **payment-status colors only**. Never use them for navigation, active states, generic errors, warnings, success toasts or charts.
-9. Teal is the single accent for focus, active navigation, primary actions and the one soft ambient glow.
-10. Near-black wells are used for inputs, insets and dense data areas to create “black contrast” without crushing the page.
+1. One bold moment per screen. On the dashboard it is the collected-money ring.
+2. Numbers are the heroes: amounts and totals are the largest, clearest text.
+3. Green, amber, red and blue are **payment-status colors only**. Mint and cyan appear only in the ring, highlighted chart bar, links, focus and selected tab text.
+4. Every status has a word. Color is never the only signal.
+5. Overdue is clear but calm: no flashing, no walls of red, no shaming words.
+6. Glass is for large surfaces only — cards, menus, sheets, toasts. Never glass inside glass, rows, buttons or pills.
+7. Mobile first at 320px. 200% text zoom must not clip or scroll sideways. Every target is at least 44 × 44px.
+8. Teal is not a generic accent. Primary buttons use `--btn-primary-bg` / `--btn-primary-fg`.
+9. Day mode swaps tokens only; it changes no layout or logic.
+10. Reduce-effects falls back to solid cards and removes blur without changing content.
 
 ## Color tokens
 
-| Token | Hex / value | Use |
+Night is default. Day mode is `:root[data-theme="day"]`.
+
+| Token | Night | Day | Use |
+|---|---|---|---|
+| `--bg` | `#070a12` | `#f3f5fa` | Page background |
+| `--surface-solid` | `#0f1420` | `#ffffff` | Solid fallback and wells |
+| `--glass` | `rgba(255,255,255,.045)` | `rgba(255,255,255,.72)` | Card fill |
+| `--glass-hover` | `rgba(255,255,255,.06)` | `rgba(255,255,255,.90)` | Clickable card hover |
+| `--glass-strong` | `rgba(255,255,255,.08)` | `rgba(255,255,255,.92)` | Menus, sheets, toasts |
+| `--row-hover` | `rgba(255,255,255,.04)` | `rgba(15,23,42,.035)` | Row hover |
+| `--divider` | `rgba(255,255,255,.06)` | `rgba(15,23,42,.06)` | Row dividers |
+| `--border` | `rgba(255,255,255,.09)` | `rgba(15,23,42,.08)` | Card outlines |
+| `--border-strong` | `rgba(255,255,255,.16)` | `rgba(15,23,42,.14)` | Hover / secondary borders |
+| `--border-control` | `rgba(255,255,255,.38)` | `#78829a` | Input outlines |
+| `--text` | `#f1f4fa` | `#0b1220` | Primary text |
+| `--text-2` | `#aeb6c8` | `#4a5468` | Labels and sub-lines |
+| `--text-3` | `#9ca5ba` | `#5e6779` | Captions and hints |
+| `--accent` | `#4fe3b6` | `#0e9f78` | Ring and highlighted bar |
+| `--accent-2` | `#22d3ee` | `#0891b2` | Second ring/bar gradient stop |
+| `--accent-text` | `#7cf0cf` | `#0a7a5c` | Links, focus, selected tab text |
+| `--btn-primary-bg` | `#f1f4fa` | `#0b1220` | Main button background |
+| `--btn-primary-fg` | `#0a0d16` | `#f8fafc` | Main button text |
+| `--glow-teal` | `rgba(45,212,191,.20)` | `rgba(45,212,191,.18)` | Top-right glow |
+| `--glow-violet` | `rgba(109,91,255,.18)` | `rgba(109,91,255,.12)` | Top-left glow |
+
+### Status colors
+
+Status text, fill, outline and solid tokens are defined per theme. Only these status meanings may use them:
+
+| Status | Word | Night text | Day text |
+|---|---|---|---|
+| Paid | Paid | `#6eebc4` | `#046c4e` |
+| Pending | Due / Pending | `#fcd34d` | `#8a4b00` |
+| Partial | Partial | `#a5cbff` | `#1d4ed8` |
+| Overdue | Overdue | `#ff9c9c` | `#b42318` |
+| Neutral | Waived / Upcoming / non-payment | `#aeb6c8` | `#4a5468` |
+
+`StatusPill` renders a word with a dot on desktop and the matching Lucide icon on phones. Existing FeeTrack labels are preserved; non-payment statuses use neutral tones. On phones the pill sits under the amount. Rows are solid and never status-tinted.
+
+Pending and overdue totals use their status text color. Collected totals use a white-to-mint gradient. Row amounts and IDs keep tabular figures; display amounts and stat values use Space Grotesk.
+
+### Avatar tints
+
+Avatars use four non-status tints selected by a stable hash of the name: violet, sky, rose and slate. They never use green, amber, red or blue status colors.
+
+### Charts
+
+Current period uses a diagonal `--accent` → `--accent-2` gradient. Past periods use `--chart-past`; empty tracks use `--chart-track`. Status segments use the status solid token.
+
+## Typography
+
+Two fonts only, self-hosted through `next/font`:
+
+| Job | Font | Size / line height | Weight |
+|---|---|---|---|
+| Display and big numbers | Space Grotesk | 52/56px, 40/44px on phone | 600, 700 |
+| Everything else | Inter | 15/24px body; 12/16px captions | 400, 500, 600 |
+
+- Nothing is smaller than 12px.
+- Sentence case everywhere. No all-caps labels.
+- Amounts use tabular numerals so columns align.
+- Emphasis uses weight, not italics.
+- `font-display` maps to Space Grotesk; body, `numeric` and `font-mono` map to Inter with tabular figures.
+
+## Layout, spacing and shape
+
+- Spacing scale: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64.
+- Card gap: 20px. Card padding: 24–28px. Section gap: 20–28px.
+- Content width: `min(100%, 1216px)`.
+- Side padding: 16px ≤480px, 24px from 481px, 32px from 1101px.
+- Cards: 20px radius. Sheets: 24px. Menus: 16px. Inputs: 12px. Buttons and pills: fully round. Chips: 8px. Checkboxes: 6px.
+- Borders are 1px hairlines; focus is the only 2px outline.
+- Rows are 64px by default; compact density may be 48px.
+- Keep one alignment axis: header → section title → card/row content → amount.
+
+## Glass, glow and depth
+
+The fixed glow is painted by `body::before`: a 680px teal circle 200px in from the right and 100px down, plus a 600px violet circle 80px from the left and 100px down. It does not scroll or capture clicks. Optional drift exists but is off by default.
+
+Depth levels:
+
+| Level | Surface | Treatment |
 |---|---|---|
-| `--color-base` | `#1a1c23` | page background |
-| `--color-base-deep` | `#101219` | fixed deep backdrop under glass |
-| `--color-panel` | `rgba(38, 49, 55, 0.54)` | frosted cards and rows |
-| `--color-panel-strong` | `rgba(38, 49, 55, 0.78)` | dense rows, hovered panels |
-| `--color-raised` | `rgba(29, 34, 44, 0.94)` | sheets, dialogs, menus |
-| `--color-well` | `#0f1118` | inputs, insets, black contrast wells |
-| `--color-text` | `#f1f4fa` | primary text and big numbers |
-| `--color-text-dim` | `#b7c2d1` | secondary text |
-| `--color-text-faint` | `#8794a6` | tertiary text and labels |
-| `--color-hairline` | `rgba(189, 211, 222, 0.12)` | quiet borders |
-| `--color-hairline-strong` | `rgba(189, 211, 222, 0.24)` | strong borders |
-| `--color-accent` | `#4ae0bd` | primary, focus, active navigation, soft glow |
-| `--color-accent-strong` | `#7af0d5` | accent hover |
-| `--color-accent-ink` | `#061815` | text on accent |
-| `--color-accent-dim` | `rgba(74, 224, 189, 0.10)` | accent wash |
-| `--color-paid` | `#6fdca4` | **payment status only**: paid, credit |
-| `--color-due` | `#fcd24e` | **payment status only**: due, partial, installment, verifying |
-| `--color-overdue` | `#ff9b9b` | **payment status only**: overdue, rejected |
+| 0 | Page | `--bg` with fixed glow |
+| 1 | Cards | `--glass`, 16px blur, `--shadow-1` |
+| 2 | Menus / popovers | `--glass-strong`, 28px blur, `--shadow-2` |
+| 3 | Sheets / dialogs | `--glass-strong`, 28px blur, `--shadow-3` |
+| 4 | Toasts | `--glass-strong`, 28px blur, `--shadow-2` |
 
-Focus ring: 2px `--color-accent`, offset 3px.
-
-## Type
-
-| Job | Font | Class |
-|---|---|---|
-| UI, titles and labels | DM Sans | default body, `.font-display` |
-| Money, dates, IDs and dense numbers | IBM Plex Mono | `.numeric`, `.font-mono`, `.tnum` |
-
-Two fonts only. No serif display face, no pixel fonts, no decorative caps. Use `text-wrap: balance` on headings. Body text stays at least 15px; labels stay at least 11px.
-
-## Alignment system
-
-- Content width: `min(100%, 1280px)`.
-- Page padding: `clamp(14px, 4px + 1.4vw, 28px)`; compact controls use fixed-px minimums so 200% text zoom cannot shrink tap targets.
-- Vertical rhythm: 4, 8, 12, 16, 20, 24, 32.
-- Section gap: 20px on phone, 24px from tablet.
-- Header: 68px; active rail mark and bottom tab mark use the same 28px teal pill.
-- Rows: 12px radius, 14–16px vertical padding, title and amount share one baseline grid.
-- Cards: 18px radius, 20px padding, 1px hairline border.
-- Numeric columns are right aligned and use tabular figures.
-- Sheets: 24px top radius, 20px horizontal padding, 16px internal gaps, safe-area footer.
-- Keep one clear alignment axis: brand/header → section title → card/row content → amount.
+Fallbacks: solid `--surface-solid` when blur is unsupported, when `prefers-reduced-transparency` is set, or when `data-fx="lite"` is chosen in the account menu. `prefers-reduced-motion` shortens all motion.
 
 ## Motion
 
-- Sheets: 180ms.
-- Fades: 220ms.
+- Sheets and fades: 220ms.
 - Row stagger: 18ms.
-- No count-up animation on money.
-- Respect `prefers-reduced-motion`.
+- No money count-up.
+- Never animate blur. Only movement and fading may animate.
 
 ## Accessibility
 
-- 44px minimum target.
-- 4.5:1 contrast for text and icons.
-- Visible focus on every control.
-- Screen reader labels for icon-only buttons and status pills.
-- 320px viewport and 200% text zoom are release blockers if they clip.
-- No information by color alone; pair status with a word.
-
-## Component contract
-
-Lives in `src/components/ui/`.
-
-| Component | Job |
-|---|---|
-| `PageShell` | single fluid content shell plus nav chrome |
-| `HudBar` | top bar: title, month, branch, search, bell, account |
-| `LedgerRow` | dense ledger row with status spine and right-aligned amount |
-| `StatusPill` | due, paid, partial, overdue, break, credit |
-| `MeterBar`, `MeterRing` | quiet progress, never a game gauge |
-| `Sheet` | bottom sheet used by all create/edit/confirm |
-| `AmountInput` | large tabular money input in a black well |
-| `StatTile` | compact metric with mono value |
-| `SegmentedTabs` | section or range switch |
+- 44px minimum targets with 8px between neighbors.
+- Visible 2px `--accent-text` focus ring, offset 3px.
+- 4.5:1 text contrast; 3:1 control outlines.
+- Screen reader labels on icon-only buttons and status pills.
+- 320px and 200% text zoom are release blockers if they clip.
+- Status always includes a word.
 
 ## Navigation contract
 
 - Phone: five fixed destinations plus **More**; desktop: the same items in a 72px rail.
 - More sheet is the only place for Events, Media, Shop, Insights, Settings and Custom Ops.
-- Legacy unique workflows remain reachable from their parent destinations.
+- Legacy/public routes stay live where unique write workflows still live, but use `PageShell`.
 - No role-based tab hiding and no duplicate dashboard shortcuts.
-- The More sheet and account control are independent.
+- The More sheet and account control are independent. The account menu also holds Night/Day and Full/Lite appearance controls.
 
 ## Empty and error states
 

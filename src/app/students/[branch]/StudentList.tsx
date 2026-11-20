@@ -57,7 +57,7 @@ import GlobalSearch from "@/components/common/GlobalSearch";
 import MonthSelector from "@/components/common/MonthSelector";
 import NotificationBell from "@/components/common/NotificationBell";
 import PageShell from "@/components/ui/PageShell";
-import { initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
+import { avatarTintStyle, initials, normalizeProfilePhotoUrl } from "@/lib/profile-photo";
 
 const MONTHS = [
   "Jan",
@@ -581,7 +581,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={photoUrl} alt="" className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-bold text-[color:var(--color-text-dim)]">
+                <div className="flex h-full w-full items-center justify-center text-xs font-bold" style={avatarTintStyle(student.name)}>
                   {initials(student.name)}
                 </div>
               )}
@@ -1126,7 +1126,7 @@ export default function StudentList({ branch }: { branch: string }) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={normalizeProfilePhotoUrl(detailStudent.photoUrl)} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs font-bold text-[color:var(--color-text-dim)]">
+                    <div className="flex h-full w-full items-center justify-center text-xs font-bold" style={avatarTintStyle(detailStudent.name)}>
                       {initials(detailStudent.name)}
                     </div>
                   )}

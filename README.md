@@ -4,10 +4,11 @@ FeeTrack is the staff-facing fee, admission and operations ledger for SKF Karate
 
 ## Design contract
 
-- [`DESIGN.md`](./DESIGN.md) is the only visual contract: **Aurora Glass**.
+- [`DESIGN.md`](./DESIGN.md) is the only visual contract: **Aurora Glass v1.0**, from sections 1–7 of the supplied theme plan.
 - [`SKF-FeeTrack-STATUS.md`](./SKF-FeeTrack-STATUS.md) records scope, decisions, verification and current git state.
 - Navigation is a bottom bar on phones, a slim rail on desktop, the More sheet for the full destination list, and a compact top-right account control. There is no hamburger or full drawer.
-- Teal is the only accent. Green/amber/red are reserved for genuine payment statuses.
+- Mint and cyan are for the ring, highlighted bars, links, focus and selected tabs. Green, amber, red and blue are reserved for payment statuses, including blue for Partial.
+- The account control includes Night/Day and Full/Lite appearance choices; both persist locally and change visuals only.
 - The UI is mobile-first at 320px and verified at 200% text zoom without horizontal overflow or sub-44px controls.
 
 ## Development

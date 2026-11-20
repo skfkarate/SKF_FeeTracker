@@ -21,10 +21,10 @@ export function ToastContainer() {
         return (
           <div
             key={toast.id}
-            className="pointer-events-auto flex items-start gap-[12px] rounded-[var(--radius-card)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-raised)] px-[16px] py-[12px] text-[color:var(--color-text)] shadow-[0_18px_50px_rgba(0,0,0,0.42)] backdrop-blur-xl"
+            className="glass-strong menu-strong pointer-events-auto flex items-start gap-[12px] px-[16px] py-[12px] text-[color:var(--color-text)]"
             style={{ animation: "aurora-toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards" }}
           >
-            <Icon className="mt-[2px] h-[20px] w-[20px] shrink-0 text-[color:var(--color-accent)]" aria-hidden="true" />
+            <Icon className="mt-[2px] h-[20px] w-[20px] shrink-0 text-[color:var(--accent-text)]" aria-hidden="true" />
             <p className="min-w-[0px] flex-1 text-sm font-medium leading-snug">{toast.message}</p>
             <button
               type="button"

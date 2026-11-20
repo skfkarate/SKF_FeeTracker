@@ -167,7 +167,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center justify-between gap-[16px]">
             <div className="min-w-[0px]">
               <p className="eyebrow text-[color:var(--color-text-faint)]">Needs attention</p>
-              <p className="numeric mt-[12px] break-words text-[clamp(2rem,1.5rem+2.2vw,3rem)] leading-none text-[color:var(--color-text)]">
+              <p className="display-number mt-[12px] break-words text-[40px] leading-[44px] text-[color:var(--status-pending-text)] sm:text-[52px] sm:leading-[56px]">
                 ₹{stats.loaded ? num(stats.pendingAmount) : "—"}
               </p>
               <p className="mt-[12px] text-xs leading-relaxed text-[color:var(--color-text-dim)] sm:text-sm">

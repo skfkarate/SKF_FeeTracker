@@ -10,8 +10,9 @@
 
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
-- The final design direction is **Aurora Glass** — deep night-blue base, frosted blue-grey glass, near-black contrast wells, large clean numbers, and one soft teal glow. Sumi Ledger and Dojo Ledger HUD are retired.
-- Implementation commits are on `main` and pushed directly to `origin/main`. They cover the shared shell, ten destinations, sheets, redirects, navigation cleanup, the Aurora Glass theme, the simplified dashboard, and the full website signal funnel.
+- The final design direction is **Aurora Glass v1.0**, defined by `Aurora Glass complete theme and implementation plan.md` sections 1–7. It uses a `#070A12` night base, a `#F3F5FA` day mode, frosted glass cards, solid rows, large Space Grotesk numbers, Inter body text, and a fixed teal/violet aurora glow. Sumi Ledger and Dojo Ledger HUD are retired.
+- The supplied plan is **theme-only**: status calculation, totals, money rules, labels, routes, access and workflows are unchanged. Plan sections 7.2–7.3 are explicitly not implemented; existing logic remains authoritative.
+- Implementation commits are on `main` and pushed directly to `origin/main`. They cover the shared shell, ten destinations, sheets, redirects, navigation cleanup, both Aurora Glass passes, the simplified dashboard, and the full website signal funnel.
 - No PR was opened and no deploy was triggered. No database, backend logic, Black Belt cleanup, or proration work has been changed.
 - Working tree is **clean** after each verified step. Browser QA covered 320/375/414/768/1280px at 100% zoom plus 320/1280px at 67%/200% text zoom; all 208 cases report zero horizontal overflow and no sub-44px controls.
 
@@ -245,7 +246,7 @@ The structure plan scored **5/10** as a design plan: strong IA (8/10), but weak 
 | Ledger Flow | Good base, but not creative enough for your ask. |
 | Dojo Ledger HUD | Retired — game chrome and pixel type rejected. |
 | Sumi Ledger | Superseded — quiet ink ledger with one vermillion seal; replaced by the supplied Aurora Glass reference. |
-| **Aurora Glass** | **Chosen.** Deep night blue, frosted glass, near-black wells, large clean numbers, and one soft teal glow. |
+| **Aurora Glass v1.0** | **Chosen and authoritative.** Supplied plan sections 1–7: night/day tokens, glass cards, solid rows, Space Grotesk + Inter, blue Partial, hashed avatar tints and fixed aurora glow. |
 
 ### 4.3 Retired themes (historical record)
 
@@ -261,49 +262,57 @@ The structure plan scored **5/10** as a design plan: strong IA (8/10), but weak 
 4. One accent: SKF red `#ff3333`, used only for primary action, brand mark, active tab.
 5. Sheets, not dialogs. Game chrome never hides or delays a money action.
 
-### 4.4 Locked tokens (current)
+### 4.4 Locked tokens (current — Aurora Glass v1.0)
 
-| Token | Value |
-|---|---|
-| Base | `#1a1c23` |
-| Deep / well | `#101219` / `#0f1118` |
-| Panel | `rgba(38, 49, 55, 0.54)` / `rgba(38, 49, 55, 0.78)` |
-| Raised | `rgba(29, 34, 44, 0.94)` |
-| Hairline | `rgba(189, 211, 222, 0.12)` / `rgba(189, 211, 222, 0.24)` |
-| Text | `#f1f4fa` / `#b7c2d1` / `#8794a6` |
-| Accent | `#4ae0bd` (single accent: focus, active nav, primary, soft glow) |
-| Payment statuses | paid `#6fdca4`, due `#fcd24e`, overdue `#ff9b9b` — payment rows only |
-| Focus | 2px accent, offset 3px |
-| Spacing | 4, 8, 12, 16, 20, 24, 32 |
-| Radius | rows 12, cards 18, pills 999 |
-| Motion | sheets 180ms, fades 220ms, row stagger 18ms; no money count-up |
-| Touch | fixed-px 44px minimum, stable at 67%/200% text zoom |
-| Contrast | 4.5:1, visible focus, screen reader labels, 200% zoom without horizontal overflow |
+Night is default; day mode swaps token values only.
 
-### 4.5 Typography decision (current)
-
-| Job | Font | Class |
+| Token | Night | Day |
 |---|---|---|
-| UI, titles and labels | DM Sans | default body, `.font-display` |
-| Money, dates, IDs and dense numbers | IBM Plex Mono | `.numeric`, `.font-mono`, `.tnum` |
+| `--bg` | `#070a12` | `#f3f5fa` |
+| `--surface-solid` | `#0f1420` | `#ffffff` |
+| `--glass` / `--glass-strong` | `rgba(255,255,255,.045)` / `rgba(255,255,255,.08)` | `rgba(255,255,255,.72)` / `rgba(255,255,255,.92)` |
+| `--text` / `--text-2` / `--text-3` | `#f1f4fa` / `#aeb6c8` / `#9ca5ba` | `#0b1220` / `#4a5468` / `#5e6779` |
+| `--accent` / `--accent-2` / `--accent-text` | `#4fe3b6` / `#22d3ee` / `#7cf0cf` | `#0e9f78` / `#0891b2` / `#0a7a5c` |
+| `--btn-primary-bg` / `--btn-primary-fg` | `#f1f4fa` / `#0a0d16` | `#0b1220` / `#f8fafc` |
+| Payment status solids | paid `#4fe3b6`, pending `#fbbf24`, partial `#60a5fa`, overdue `#ff6b6b` | paid `#059669`, pending `#d97706`, partial `#2563eb`, overdue `#d92d20` |
+| Focus | 2px `--accent-text`, offset 3px | same |
+| Spacing | 4, 8, 12, 16, 20, 24, 32, 40, 48, 64 | same |
+| Radius | rows/inputs 12, cards 20, sheets 24, menus 16, pills 999, chips 8, checkboxes 6 | same |
+| Motion | fades and sheets 220ms, row stagger 18ms, no money count-up, no blur animation | same |
+| Touch | fixed-px 44px minimum, stable at 67%/200% text zoom | same |
+| Contrast | 4.5:1 text, 3:1 controls, screen reader labels, 200% zoom without horizontal overflow | same |
 
-- Two fonts only. Newsreader and pixel fonts are retired; neither suited the Aurora Glass contract.
-- Fluid sizes replace the old fixed 11/13/15/17/20/24/40 scale.
-- Body text stays at least 15px; labels stay at least 11px.
+### 4.5 Typography decision (current — Aurora Glass v1.0)
+
+| Job | Font | Size / line height | Weight | Class / use |
+|---|---|---|---|---|
+| Display and big numbers | Space Grotesk | 52/56px, 40/44px on phone | 600, 700 | `.font-display`, `.display-number` |
+| Stat values | Space Grotesk | 36/40px | 700 | `StatTile` |
+| Page titles | Space Grotesk | 28/34px | 700 | `HudBar` (24/30px on phone) |
+| Body and labels | Inter | 15/24px, 14/20px, 13/20px, 12/16px | 400, 500, 600 | body, `.eyebrow`, list sub-lines, pills |
+| Money in lists, dates and IDs | Inter with tabular figures | inherited | 600 | `.numeric`, `.font-mono`, `.tnum` |
+
+- Two fonts only. DM Sans, IBM Plex Mono, Newsreader and pixel fonts are retired.
+- Nothing is smaller than 12px. Sentence case; emphasis uses weight, not italics.
+- Collected totals use a white-to-mint gradient; pending and overdue totals use their status text color.
 
 ### 4.6 Screen feel
 
 | Screen | Feel |
 |---|---|
-| Today | Run list with left urgency spine: proofs, admissions, orders, callbacks |
-| Fees | Ledger rows: name, mono amount, status; month groups split by hairlines |
-| People | Directory cards only where people are real objects |
-| Money | Huge tabular amount, small balance change underneath, one named reserve rule |
-| More | Quiet, dense settings lists, not marketing cards |
+| Today | Calm run list: proofs, admissions, orders, callbacks; one status pill per row, no status tint |
+| Fees | Solid ledger rows: name, tabular amount, status pill under the amount on phones |
+| People | Directory cards only where people are real objects; hashed non-status avatar tints |
+| Money | Large Space Grotesk amount, small balance change underneath, one named reserve rule |
+| More | Quiet, dense settings lists, not marketing cards; account control holds appearance settings |
 
 ### 4.7 Do not build
 
 Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scores, pixel font for long text, multi-step game animation, sounds that cannot be turned off.
+
+### 4.8 Supplied plan scope
+
+`Aurora Glass complete theme and implementation plan.md` sections 1–7 are the current visual contract. It refers to sections 8–18 and a separate `aurora-theme.css` that were not supplied; where the plan was silent, existing FeeTrack information architecture and workflows were preserved. Only the visuals from 7.1 and 7.4 were applied. The status decision function in 7.2 and the totals/ring invariant in 7.3 were reviewed but **not implemented** because they belong to logic that must not change in this pass.
 
 ---
 

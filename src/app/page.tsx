@@ -65,9 +65,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-[16px] bg-[color:var(--color-well)] relative">
-      {/* Extremely subtle ambient light */}
-      <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[color:var(--color-accent-dim)] rounded-full blur-[100px] pointer-events-none" />
-
       <div className="w-full max-w-[340px] z-10">
 
         {/* Header */}

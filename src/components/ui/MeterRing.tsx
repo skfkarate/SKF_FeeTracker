@@ -1,12 +1,15 @@
+import { useId } from "react";
+
 import { cx } from "@/lib/cx";
 
-type MeterTone = "action" | "settled" | "overdue" | "brand";
+type MeterTone = "action" | "settled" | "overdue" | "partial" | "brand";
 
 const TONE_COLOR: Record<MeterTone, string> = {
-  action: "var(--color-accent)",
-  settled: "var(--color-paid)",
-  overdue: "var(--color-overdue)",
-  brand: "var(--color-accent)",
+  action: "var(--accent)",
+  settled: "var(--status-paid-solid)",
+  overdue: "var(--status-overdue-solid)",
+  partial: "var(--status-partial-solid)",
+  brand: "var(--accent)",
 };
 
 export default function MeterRing({
@@ -30,7 +33,9 @@ export default function MeterRing({
   const radius = (size - thickness) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (clamped / 100) * circumference;
-  const color = TONE_COLOR[tone];
+  const gradientId = `aurora-ring-${useId().replace(/:/g, "")}`;
+  const useGradient = tone === "action" || tone === "brand";
+  const stroke = useGradient ? `url(#${gradientId})` : TONE_COLOR[tone];
 
   return (
     <div className={cx("flex min-w-[0px] flex-wrap items-center gap-[14px]", className)}>
@@ -42,12 +47,18 @@ export default function MeterRing({
         aria-label={`${label}: ${clamped}%`}
         className="shrink-0"
       >
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="var(--accent)" />
+            <stop offset="100%" stopColor="var(--accent-2)" />
+          </linearGradient>
+        </defs>
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          fill="var(--color-well)"
-          stroke="var(--color-hairline)"
+          fill="var(--chart-track)"
+          stroke="var(--chart-track)"
           strokeWidth={thickness}
         />
         <circle
@@ -55,7 +66,7 @@ export default function MeterRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={color}
+          stroke={stroke}
           strokeWidth={thickness}
           strokeLinecap="round"
           strokeDasharray={circumference}
@@ -67,14 +78,14 @@ export default function MeterRing({
           y="50%"
           dominantBaseline="central"
           textAnchor="middle"
-          fill="var(--color-text)"
-          className="font-mono"
+          fill="var(--text)"
+          className="font-display"
           style={{ fontSize: size / 4 }}
         >
           {clamped}
         </text>
       </svg>
-      {caption ? <p className="min-w-[0px] flex-1 basis-[110px] break-words text-xs leading-snug text-[color:var(--color-text-faint)]">{caption}</p> : null}
+      {caption ? <p className="min-w-[0px] flex-1 basis-[110px] break-words text-[13px] leading-[20px] text-[color:var(--text-3)]">{caption}</p> : null}
     </div>
   );
 }
@@ -91,11 +102,12 @@ export function MeterBar({
   className?: string;
 }) {
   const clamped = Math.max(0, Math.min(100, Math.round(value)));
-  const color = TONE_COLOR[tone];
+  const useGradient = tone === "action" || tone === "brand";
+  const fill = useGradient ? "var(--chart-current)" : TONE_COLOR[tone];
 
   return (
     <div
-      className={cx("h-[8px] w-full overflow-hidden rounded-[var(--radius-pill)] bg-[color:var(--color-well)]", className)}
+      className={cx("h-[8px] w-full overflow-hidden rounded-[var(--radius-pill)] bg-[color:var(--chart-track)]", className)}
       role="progressbar"
       aria-valuenow={clamped}
       aria-valuemin={0}
@@ -104,11 +116,7 @@ export function MeterBar({
     >
       <div
         className="h-full rounded-[var(--radius-pill)]"
-        style={{
-          width: `${clamped}%`,
-          backgroundColor: color,
-          transition: "width 220ms cubic-bezier(0.075, 0.82, 0.165, 1)",
-        }}
+        style={{ width: `${clamped}%`, background: fill, transition: "width 220ms cubic-bezier(0.075, 0.82, 0.165, 1)" }}
       />
     </div>
   );

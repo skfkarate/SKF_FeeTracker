@@ -308,24 +308,24 @@ export default function DevelopmentFundPage() {
     >
         {/* View Toggle & Month Selection */}
         <div className="mb-[24px] space-y-[16px]">
-          <div className="flex p-[4px] bg-[color:var(--color-well)] rounded-xl w-full max-w-md mx-auto border border-[color:var(--color-hairline)]">
+          <div className="flex w-full max-w-md mx-auto gap-[8px] rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[4px]">
             <button
               onClick={() => setFilter("all")}
-              className={`flex-1 min-h-[44px] rounded-lg text-sm font-sans tracking-wider transition-all duration-300 ${filter === "all"
+              className={`min-w-0 flex-1 min-h-[44px] break-words rounded-[var(--radius-pill)] px-[8px] text-xs leading-tight text-center font-sans transition-all duration-300 ${filter === "all"
                 ? "bg-[var(--surface)] text-[color:var(--color-text)] shadow-lg border border-[color:var(--color-hairline)]"
                 : "text-[var(--text-muted)] hover:text-[color:var(--color-text)]"
                 }`}
             >
-              OVERVIEW (ALL)
+              Overview (all)
             </button>
             <button
               onClick={() => setFilter(new Date().getMonth())}
-              className={`flex-1 min-h-[44px] rounded-lg text-sm font-sans tracking-wider transition-all duration-300 ${filter !== "all"
+              className={`min-w-0 flex-1 min-h-[44px] break-words rounded-[var(--radius-pill)] px-[8px] text-xs leading-tight text-center font-sans transition-all duration-300 ${filter !== "all"
                 ? "bg-[var(--surface)] text-[color:var(--color-text)] shadow-lg border border-[color:var(--color-hairline)]"
                 : "text-[var(--text-muted)] hover:text-[color:var(--color-text)]"
                 }`}
             >
-              MONTHLY VIEW
+              Monthly view
             </button>
           </div>
 

@@ -18,7 +18,7 @@ export default function PageShell({
   className?: string;
 }) {
   return (
-    <div className={cx("min-h-dvh bg-[color:var(--color-base)] text-[color:var(--color-text-dim)]", className)}>
+    <div className={cx("min-h-dvh bg-[color:var(--color-base)] text-[color:var(--color-text)]", className)}>
       <div className={cx(showBottomNav && "md:pl-[72px]")}>
         <HudBar {...hud} />
         <main

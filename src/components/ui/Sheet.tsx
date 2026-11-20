@@ -50,7 +50,7 @@ export default function Sheet({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative flex max-h-[min(90dvh,780px)] w-full max-w-2xl flex-col rounded-t-[24px] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-raised)] shadow-[0_-24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+        className="glass-strong relative flex max-h-[min(90dvh,780px)] w-full max-w-2xl flex-col rounded-t-[var(--radius-sheet)]"
       >
         <div className="mx-auto mt-[10px] h-[4px] w-[40px] rounded-full bg-[color:var(--color-hairline-strong)]" aria-hidden="true" />
         <header className="flex min-h-[64px] items-center justify-between gap-[12px] px-[20px] pb-[8px] pt-[12px]">

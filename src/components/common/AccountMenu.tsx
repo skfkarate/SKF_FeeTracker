@@ -9,6 +9,7 @@ import {
   getStoredFeeTrackUser,
 } from "@/lib/client-auth";
 import { getDisplayName } from "@/lib/display-name";
+import AppearanceControls from "./AppearanceControls";
 
 export default function AccountMenu() {
   const router = useRouter();
@@ -67,11 +68,12 @@ export default function AccountMenu() {
       {open ? (
         <div
           role="menu"
-          className="absolute right-[0px] top-[calc(100%+10px)] z-[80] w-[min(224px,calc(100vw-1.5rem))] rounded-[var(--radius-card)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-raised)] p-[12px] shadow-[0_24px_70px_rgba(0,0,0,0.48)] backdrop-blur-xl animate-slide-up"
+          className="glass-strong menu-strong absolute right-[0px] top-[calc(100%+10px)] z-[80] w-[min(248px,calc(100vw-1.5rem))] p-[12px] animate-slide-up"
         >
           <p className="eyebrow text-[color:var(--color-text-faint)]">Signed in as</p>
           <p className="mt-[4px] truncate text-sm font-semibold text-[color:var(--color-text)]">{displayName}</p>
           <div className="my-[12px] h-px bg-[color:var(--color-hairline)]" aria-hidden="true" />
+          <AppearanceControls />
           <button
             type="button"
             role="menuitem"
