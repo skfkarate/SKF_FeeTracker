@@ -33,8 +33,8 @@ export default function StatTile({
   const iconStyle: CSSProperties = { color: tint };
 
   return (
-    <div className={cx("hud-panel flex min-w-0 flex-col p-5", className)}>
-      <div className="flex min-w-0 items-center gap-2 eyebrow text-[color:var(--color-text-faint)]">
+    <div className={cx("hud-panel flex min-w-[0px] flex-col p-[20px]", className)}>
+      <div className="flex min-w-[0px] items-center gap-[8px] eyebrow text-[color:var(--color-text-faint)]">
         {icon ? (
           <span style={iconStyle} className="flex shrink-0 items-center">
             {icon}
@@ -44,7 +44,7 @@ export default function StatTile({
       </div>
       <p
         className={cx(
-          "numeric mt-auto break-words pt-3 text-[color:var(--color-text)]",
+          "numeric mt-auto break-words pt-[12px] text-[color:var(--color-text)]",
           size === "lg"
             ? "text-[clamp(1.7rem,1.4rem+1vw,2.2rem)]"
             : "text-[clamp(1.2rem,1.08rem+0.5vw,1.55rem)]",
@@ -52,7 +52,7 @@ export default function StatTile({
       >
         {value}
       </p>
-      {hint ? <p className="mt-2 text-xs leading-relaxed text-[color:var(--color-text-faint)]">{hint}</p> : null}
+      {hint ? <p className="mt-[8px] text-xs leading-relaxed text-[color:var(--color-text-faint)]">{hint}</p> : null}
     </div>
   );
 }

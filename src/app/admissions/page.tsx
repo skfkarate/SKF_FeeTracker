@@ -264,12 +264,12 @@ export default function AdmissionsPage() {
         account: <AccountMenu />,
       }}
     >
-      <p className="mb-5 max-w-2xl text-[13px] leading-relaxed text-[color:var(--color-text-dim)]">
+      <p className="mb-[20px] max-w-2xl text-[13px] leading-relaxed text-[color:var(--color-text-dim)]">
         Review branch admission forms, approve students into the SKF portal, and manage branch promo codes.
       </p>
 
       {!loading && !error ? (
-        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mb-[20px] grid grid-cols-2 gap-[12px] sm:grid-cols-4">
           <StatTile label="Pending" value={String(summary.pending)} tone="action" />
           <StatTile label="Photos" value={String(summary.photos)} />
           <StatTile label="Promos" value={String(summary.promos)} tone="neutral" />
@@ -282,25 +282,25 @@ export default function AdmissionsPage() {
         value={tab}
         onChange={setTab}
         ariaLabel="Admissions sections"
-        className="mb-5"
+        className="mb-[20px]"
       />
 
         {notice ? (
-          <div className="mb-5 rounded-xl border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-4 py-3 text-sm text-[color:var(--color-text)] animate-fade-in">
+          <div className="mb-[20px] rounded-xl border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-[16px] py-[12px] text-sm text-[color:var(--color-text)] animate-fade-in">
             {notice}
           </div>
         ) : null}
         {error ? (
-          <div className="text-center py-16 animate-fade-in">
-            <AlertCircle className="w-8 h-8 text-[color:var(--color-text-dim)] mx-auto mb-3" />
-            <p className="text-[color:var(--color-text-dim)] mb-4 text-sm">{error}</p>
+          <div className="text-center py-[64px] animate-fade-in">
+            <AlertCircle className="w-[32px] h-[32px] text-[color:var(--color-text-dim)] mx-auto mb-[12px]" />
+            <p className="text-[color:var(--color-text-dim)] mb-[16px] text-sm">{error}</p>
             <button type="button" onClick={() => load()} className="btn-primary text-sm">
               Retry
             </button>
           </div>
         ) : loading ? (
-          <div className="text-center py-16">
-            <div className="spinner mx-auto mb-4" />
+          <div className="text-center py-[64px]">
+            <div className="spinner mx-auto mb-[16px]" />
             <p className="text-[color:var(--color-text-dim)] text-sm">Loading admissions...</p>
           </div>
         ) : tab === "pending" ? (
@@ -352,10 +352,10 @@ function ApprovalsTab({
 
   if (applications.length === 0) {
     return (
-      <div className="hud-panel p-10 text-center">
-        <CheckCircle2 className="mx-auto mb-4 h-10 w-10 text-[color:var(--color-text-dim)]" />
+      <div className="hud-panel p-[40px] text-center">
+        <CheckCircle2 className="mx-auto mb-[16px] h-[44px] w-[44px] text-[color:var(--color-text-dim)]" />
         <h2 className="text-xl text-[color:var(--color-text)]">No pending admissions</h2>
-        <p className="mt-2 text-sm text-[color:var(--color-text-dim)]">New branch submissions will appear here.</p>
+        <p className="mt-[8px] text-sm text-[color:var(--color-text-dim)]">New branch submissions will appear here.</p>
       </div>
     );
   }
@@ -377,8 +377,8 @@ function ApprovalsTab({
                 amount={application.feeTrackingEnabled ? num(application.quotedJoiningTotal) : undefined}
                 amountLabel="joining quote"
                 trailing={
-                  <div className="flex items-center gap-2">
-                    <FileImage className="h-4 w-4 text-[color:var(--color-text-dim)]" aria-hidden="true" />
+                  <div className="flex items-center gap-[8px]">
+                    <FileImage className="h-[16px] w-[16px] text-[color:var(--color-text-dim)]" aria-hidden="true" />
                     <StatusPill
                       status={status}
                       label={status === "overdue" ? "Check" : status === "verifying" ? "Proof" : "Review"}
@@ -398,13 +398,13 @@ function ApprovalsTab({
         onClose={() => setActive(null)}
       >
         {active ? (
-          <div className="space-y-5 pt-1">
-            <div className="flex items-start justify-between gap-4">
+          <div className="space-y-[20px] pt-[4px]">
+            <div className="flex items-start justify-between gap-[16px]">
               <div>
                 <p className="numeric text-[26px] leading-none text-[color:var(--color-text)]">
                   {active.feeTrackingEnabled ? num(active.quotedJoiningTotal) : "Branch"}
                 </p>
-                <p className="mt-2 font-mono text-[11px] text-[color:var(--color-text-dim)]">
+                <p className="mt-[8px] font-mono text-[11px] text-[color:var(--color-text-dim)]">
                   {active.branchName} · {active.studentDob}
                   {admissionAge(active.studentDob) ? ` · ${admissionAge(active.studentDob)}` : ""} · {active.studentGender}
                 </p>
@@ -415,29 +415,29 @@ function ApprovalsTab({
               />
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <span className="eyebrow rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-[color:var(--color-text)]">
+            <div className="flex flex-wrap gap-[8px]">
+              <span className="eyebrow rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-[color:var(--color-text)]">
                 {active.branchName}
               </span>
               {!active.feeTrackingEnabled ? (
-                <span className="eyebrow rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-[color:var(--color-text-dim)]">
+                <span className="eyebrow rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-[color:var(--color-text-dim)]">
                   Branch-managed fees
                 </span>
               ) : null}
               {active.promoCode ? (
-                <span className="eyebrow rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-[color:var(--color-text)]">
+                <span className="eyebrow rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-[color:var(--color-text)]">
                   {active.promoCode}
                 </span>
               ) : null}
             </div>
 
             {active.duplicateWarnings.length > 0 ? (
-              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-3 text-xs text-[color:var(--color-text)]">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[12px] text-xs text-[color:var(--color-text)]">
                 {active.duplicateWarnings.join(" · ")}
               </div>
             ) : null}
 
-            <dl className="grid grid-cols-1 gap-x-4 gap-y-3 text-sm sm:grid-cols-2">
+            <dl className="grid grid-cols-1 gap-x-[16px] gap-y-[12px] text-sm sm:grid-cols-2">
               <Info label="School" value={active.schoolClass} />
               <Info label="Guardian" value={`${active.guardianName} (${active.guardianRelationship})`} />
               <Info label="Phone" value={active.guardianPhone} />
@@ -452,21 +452,21 @@ function ApprovalsTab({
               <Info label="Referral" value={active.referrerName || active.referralSource || "Not provided"} />
             </dl>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-[8px]">
               {active.admissionPhotoUrl ? (
                 <a
                   href={active.admissionPhotoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)]"
+                  className="inline-flex items-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] py-[8px] text-xs text-[color:var(--color-text)]"
                 >
-                  <FileImage className="h-3.5 w-3.5" />
+                  <FileImage className="h-[14px] w-[14px]" />
                   Student photo
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="h-[12px] w-[12px]" />
                 </a>
               ) : (
-                <span className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)]">
-                  <AlertCircle className="h-3.5 w-3.5" />
+                <span className="inline-flex items-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-[12px] py-[8px] text-xs text-[color:var(--color-text)]">
+                  <AlertCircle className="h-[14px] w-[14px]" />
                   Student photo missing
                 </span>
               )}
@@ -475,15 +475,15 @@ function ApprovalsTab({
                   href={active.paymentProofUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)]"
+                  className="inline-flex items-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] py-[8px] text-xs text-[color:var(--color-text)]"
                 >
-                  <FileImage className="h-3.5 w-3.5" />
+                  <FileImage className="h-[14px] w-[14px]" />
                   Payment screenshot
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="h-[12px] w-[12px]" />
                 </a>
               ) : active.feeTrackingEnabled ? (
-                <span className="inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-3 py-2 text-xs text-[color:var(--color-text)]">
-                  <AlertCircle className="h-3.5 w-3.5" />
+                <span className="inline-flex items-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] px-[12px] py-[8px] text-xs text-[color:var(--color-text)]">
+                  <AlertCircle className="h-[14px] w-[14px]" />
                   Payment screenshot missing
                 </span>
               ) : null}
@@ -494,15 +494,15 @@ function ApprovalsTab({
                 onApprove(event, active);
                 setActive(null);
               }}
-              className="hud-panel space-y-3 p-4"
+              className="hud-panel space-y-[12px] p-[16px]"
             >
-              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-3 py-2 text-[11px] leading-relaxed text-[color:var(--color-text)]">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-[12px] py-[8px] text-[11px] leading-relaxed text-[color:var(--color-text)]">
                 {active.feeTrackingEnabled
                   ? "Human review pending: verify the payment screenshot, check the student photo, then either use the submitted photo or upload a corrected portal photo."
                   : "Human review pending: check the student information and photo. Fees are collected directly by the Kunigal branch and are not recorded here."}
               </div>
               {active.feeTrackingEnabled ? (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-[12px]">
                   <Field label="Monthly">
                     <input name="monthlyFee" type="number" min="0" defaultValue={active.quotedMonthlyFee} />
                   </Field>
@@ -529,7 +529,7 @@ function ApprovalsTab({
               <Field label={active.feeTrackingEnabled ? "Billing Start" : "Enrollment Date"}>
                 <input name="billingStartDate" type="date" defaultValue={active.expectedJoinDate || today()} required />
               </Field>
-              <div className={`grid ${active.feeTrackingEnabled ? "grid-cols-2" : "grid-cols-1"} gap-3`}>
+              <div className={`grid ${active.feeTrackingEnabled ? "grid-cols-2" : "grid-cols-1"} gap-[12px]`}>
                 {active.feeTrackingEnabled ? (
                   <Field label="Batch">
                     <input name="batch" defaultValue={active.preferredBatch} />
@@ -544,25 +544,25 @@ function ApprovalsTab({
                 </Field>
               </div>
               <Field label="Portal photo">
-                <div className="space-y-2 text-xs text-[color:var(--color-text-dim)]">
-                  <label className={`flex items-start gap-2 rounded-[var(--radius-row)] border px-3 py-2 ${active.admissionPhotoUrl ? "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-faint)]"}`}>
+                <div className="space-y-[8px] text-xs text-[color:var(--color-text-dim)]">
+                  <label className={`flex items-start gap-[8px] rounded-[var(--radius-row)] border px-[12px] py-[8px] ${active.admissionPhotoUrl ? "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-faint)]"}`}>
                     <input
                       name="photoAction"
                       type="radio"
                       value="use_submitted"
                       defaultChecked={Boolean(active.admissionPhotoUrl)}
                       disabled={!active.admissionPhotoUrl}
-                      className="mt-0.5 accent-[color:var(--color-accent)]"
+                      className="mt-[2px] accent-[color:var(--color-accent)]"
                     />
                     <span>Use submitted student photo</span>
                   </label>
-                  <label className="flex items-start gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-[color:var(--color-text)]">
+                  <label className="flex items-start gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] py-[8px] text-[color:var(--color-text)]">
                     <input
                       name="photoAction"
                       type="radio"
                       value="upload_new"
                       defaultChecked={!active.admissionPhotoUrl}
-                      className="mt-0.5 accent-[color:var(--color-accent)]"
+                      className="mt-[2px] accent-[color:var(--color-accent)]"
                     />
                     <span>Upload corrected photo</span>
                   </label>
@@ -573,16 +573,16 @@ function ApprovalsTab({
                 <textarea name="reviewNote" rows={2} />
               </Field>
               {active.feeTrackingEnabled ? (
-                <label className="flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
+                <label className="flex items-center gap-[8px] text-xs text-[color:var(--color-text-dim)]">
                   <input name="paymentVerified" type="checkbox" required className="accent-[color:var(--color-accent)]" />
                   Payment screenshot checked and amount verified
                 </label>
               ) : null}
-              <label className="flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
+              <label className="flex items-center gap-[8px] text-xs text-[color:var(--color-text-dim)]">
                 <input name="isPublic" type="checkbox" defaultChecked className="accent-[color:var(--color-accent)]" />
                 Public profile enabled
               </label>
-              <div className="grid gap-2 sm:grid-cols-[1fr_1.4fr]">
+              <div className="grid gap-[8px] sm:grid-cols-[1fr_1.4fr]">
                 <button
                   type="button"
                   onClick={() => {
@@ -590,17 +590,17 @@ function ApprovalsTab({
                     setActive(null);
                   }}
                   disabled={actioning === active.id}
-                  className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-xs font-semibold text-[color:var(--color-text)] disabled:opacity-50"
+                  className="tap-target inline-flex items-center justify-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-xs font-semibold text-[color:var(--color-text)] disabled:opacity-50"
                 >
-                  <XCircle className="h-3.5 w-3.5" />
+                  <XCircle className="h-[14px] w-[14px]" />
                   Reject
                 </button>
                 <button
                   type="submit"
                   disabled={actioning === active.id}
-                  className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
+                  className="tap-target inline-flex items-center justify-center gap-[8px] rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
                 >
-                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <CheckCircle2 className="h-[14px] w-[14px]" />
                   Approve
                 </button>
               </div>
@@ -615,41 +615,41 @@ function ApprovalsTab({
 function ProfilePhotosTab({ applications }: { applications: AdmissionApplication[] }) {
   if (applications.length === 0) {
     return (
-      <div className="card-panel p-10 text-center animate-fade-in">
-        <FileImage className="w-10 h-10 text-[color:var(--color-text-dim)] mx-auto mb-4" />
+      <div className="card-panel p-[40px] text-center animate-fade-in">
+        <FileImage className="w-[40px] h-[40px] text-[color:var(--color-text-dim)] mx-auto mb-[16px]" />
         <h2 className="text-xl text-[color:var(--color-text)] font-medium">No approved profile photos</h2>
-        <p className="text-sm text-[color:var(--color-text-dim)] mt-2">Approved admission profile photos will appear here.</p>
+        <p className="text-sm text-[color:var(--color-text-dim)] mt-[8px]">Approved admission profile photos will appear here.</p>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-3 animate-slide-up">
+    <div className="grid gap-[12px] animate-slide-up">
       {applications.map((application) => (
-        <article key={application.id} className="card-panel p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                <span className="text-[10px] uppercase tracking-widest text-[color:var(--color-text)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] rounded-md px-2 py-1">
+        <article key={application.id} className="card-panel p-[16px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-[16px]">
+            <div className="min-w-[0px]">
+              <div className="flex flex-wrap items-center gap-[8px] mb-[8px]">
+                <span className="text-[10px] uppercase tracking-widest text-[color:var(--color-text)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] rounded-md px-[8px] py-[4px]">
                   {application.approvedSkfId || "Approved"}
                 </span>
-                <span className="text-[10px] uppercase tracking-widest text-[color:var(--color-text-dim)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] rounded-md px-2 py-1">
+                <span className="text-[10px] uppercase tracking-widest text-[color:var(--color-text-dim)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] rounded-md px-[8px] py-[4px]">
                   {application.branchName}
                 </span>
               </div>
               <h2 className="font-sans text-xl text-[color:var(--color-text)] font-medium tracking-tight truncate">
                 {application.studentName}
               </h2>
-              <p className="text-xs text-[color:var(--color-text-dim)] mt-1">
+              <p className="text-xs text-[color:var(--color-text-dim)] mt-[4px]">
                 Approved {application.reviewedAt ? new Date(application.reviewedAt).toLocaleDateString("en-IN") : ""}
               </p>
             </div>
             <a
               href={profilePhotoDownloadHref(application.id)}
               download
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-4 py-2.5 text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)] transition"
+              className="inline-flex items-center justify-center gap-[8px] rounded-lg bg-[color:var(--color-accent)] px-[16px] py-[10px] text-xs font-semibold text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)] transition"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-[14px] h-[14px]" />
               Download photo
             </a>
           </div>
@@ -677,10 +677,10 @@ function PromosTab({
   onEdit: (promo: AdmissionPromoCode) => void;
 }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4 animate-slide-up">
-      <form onSubmit={onSavePromo} className="card-panel p-5">
-        <div className="flex items-center gap-3 mb-5">
-          <Percent className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+    <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-[16px] animate-slide-up">
+      <form onSubmit={onSavePromo} className="card-panel p-[20px]">
+        <div className="flex items-center gap-[12px] mb-[20px]">
+          <Percent className="w-[20px] h-[20px] text-[color:var(--color-text-dim)]" />
           <h2 className="text-[color:var(--color-text)] font-semibold">Promo Code</h2>
         </div>
         <Field label="Code">
@@ -697,7 +697,7 @@ function PromosTab({
             ))}
           </select>
         </Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-[12px]">
           <Field label="Type">
             <select value={promoDraft.discountType} onChange={(e) => setPromoDraft({ ...promoDraft, discountType: e.target.value as AdmissionPromoCode["discountType"] })}>
               <option value="percent">Percent</option>
@@ -718,7 +718,7 @@ function PromosTab({
             <option value="joining_total">Joining Total Estimate</option>
           </select>
         </Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-[12px]">
           <Field label="Valid From">
             <input type="date" value={promoDraft.validFrom || ""} onChange={(e) => setPromoDraft({ ...promoDraft, validFrom: e.target.value })} />
           </Field>
@@ -726,7 +726,7 @@ function PromosTab({
             <input type="date" value={promoDraft.validUntil || ""} onChange={(e) => setPromoDraft({ ...promoDraft, validUntil: e.target.value })} />
           </Field>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-[12px]">
           <Field label="Max Uses">
             <input type="number" min="1" value={promoDraft.maxUses || ""} onChange={(e) => setPromoDraft({ ...promoDraft, maxUses: e.target.value ? Number(e.target.value) : null })} />
           </Field>
@@ -740,22 +740,22 @@ function PromosTab({
             <option value="inactive">Inactive</option>
           </select>
         </Field>
-        <button disabled={actioning === "promo"} className="btn-primary w-full mt-2 text-xs disabled:opacity-50">
+        <button disabled={actioning === "promo"} className="btn-primary w-full mt-[8px] text-xs disabled:opacity-50">
           Save Promo Code
         </button>
       </form>
 
-      <div className="grid gap-3 content-start">
+      <div className="grid gap-[12px] content-start">
         {promoCodes.map((promo) => (
-          <button key={promo.id || promo.code} type="button" onClick={() => onEdit(promo)} className="card-panel p-4 text-left hover:border-[color:var(--color-hairline)] transition">
-            <div className="flex items-center justify-between gap-4">
+          <button key={promo.id || promo.code} type="button" onClick={() => onEdit(promo)} className="card-panel p-[16px] text-left hover:border-[color:var(--color-hairline)] transition">
+            <div className="flex items-center justify-between gap-[16px]">
               <div>
                 <h3 className="text-[color:var(--color-text)] font-semibold">{promo.code}</h3>
-                <p className="text-xs text-[color:var(--color-text-dim)] mt-1">
+                <p className="text-xs text-[color:var(--color-text-dim)] mt-[4px]">
                   {promo.branchSlug || "All branches"} • {promo.discountType} • {promo.appliesTo}
                 </p>
               </div>
-              <span className={`text-[10px] uppercase tracking-widest px-2 py-1 rounded-md border ${
+              <span className={`text-[10px] uppercase tracking-widest px-[8px] py-[4px] rounded-md border ${
                 promo.status === "active"
                   ? "text-[color:var(--color-text-dim)] border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]"
                   : "text-[color:var(--color-text-dim)] border-[color:var(--color-hairline)] bg-[color:var(--color-well)]"
@@ -784,7 +784,7 @@ function SettingsTab({
   );
 
   return (
-    <div className="grid grid-cols-1 gap-4 animate-slide-up">
+    <div className="grid grid-cols-1 gap-[16px] animate-slide-up">
       {branchSettings.map((settings) => {
         const draft = drafts[settings.branchSlug] || settings;
         return (
@@ -794,13 +794,13 @@ function SettingsTab({
               event.preventDefault();
               onSave(draft);
             }}
-            className="card-panel p-5"
+            className="card-panel p-[20px]"
           >
-            <h2 className="font-sans text-xl text-[color:var(--color-text)] font-medium tracking-tight mb-4">
+            <h2 className="font-sans text-xl text-[color:var(--color-text)] font-medium tracking-tight mb-[16px]">
               {settings.branchName}
             </h2>
             {draft.feeTrackingEnabled ? <>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-[12px]">
                 <Field label="Monthly">
                   <input type="number" min="0" value={draft.defaultMonthlyFee} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, defaultMonthlyFee: Number(e.target.value) } })} />
                 </Field>
@@ -808,10 +808,10 @@ function SettingsTab({
                   <input type="number" min="0" value={draft.defaultAdmissionFee} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, defaultAdmissionFee: Number(e.target.value) } })} />
                 </Field>
               </div>
-              <p className="mb-3 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs leading-relaxed text-[color:var(--color-text-dim)]">
+              <p className="mb-[12px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] py-[8px] text-xs leading-relaxed text-[color:var(--color-text-dim)]">
                 Dress is not billed as a separate admission due. Herohalli includes it inside admission; MP dress is ordered through Shop.
               </p>
-            </> : <p className="mb-3 rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-3 py-2 text-xs leading-relaxed text-[color:var(--color-text)]">
+            </> : <p className="mb-[12px] rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-[12px] py-[8px] text-xs leading-relaxed text-[color:var(--color-text)]">
               Kunigal collects fees directly. This form only captures student and guardian information; no payment, batch, or FeeTrack billing fields are used.
             </p>}
             <Field label="Admission note">
@@ -840,12 +840,12 @@ function SettingsTab({
                 })}
               />
             </Field> : null}
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <label className="flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
+            <div className="grid grid-cols-2 gap-[12px] mb-[16px]">
+              <label className="flex items-center gap-[8px] text-xs text-[color:var(--color-text-dim)]">
                 <input type="checkbox" checked={draft.isEnabled} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, isEnabled: e.target.checked } })} className="accent-[color:var(--color-accent)]" />
                 Form enabled
               </label>
-              <label className="flex items-center gap-2 text-xs text-[color:var(--color-text-dim)]">
+              <label className="flex items-center gap-[8px] text-xs text-[color:var(--color-text-dim)]">
                 <input type="checkbox" checked={draft.showPublicCta} onChange={(e) => setDrafts({ ...drafts, [draft.branchSlug]: { ...draft, showPublicCta: e.target.checked } })} className="accent-[color:var(--color-accent)]" />
                 Show on branch page
               </label>
@@ -862,18 +862,18 @@ function SettingsTab({
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l border-[color:var(--color-hairline)] pl-3 py-1">
+    <div className="border-l border-[color:var(--color-hairline)] pl-[12px] py-[4px]">
       <dt className="text-[10px] uppercase tracking-widest text-[color:var(--color-text-faint)]">{label}</dt>
-      <dd className="text-[color:var(--color-text)] mt-1 break-words">{value || "Not provided"}</dd>
+      <dd className="text-[color:var(--color-text)] mt-[4px] break-words">{value || "Not provided"}</dd>
     </div>
   );
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="block mb-3">
-      <span className="block text-[10px] uppercase tracking-widest text-[color:var(--color-text-faint)] mb-1.5">{label}</span>
-      <div className="[&_input]:w-full [&_select]:w-full [&_textarea]:w-full [&_input]:rounded-lg [&_select]:rounded-lg [&_textarea]:rounded-lg [&_input]:border [&_select]:border [&_textarea]:border [&_input]:border-[color:var(--color-hairline)] [&_select]:border-[color:var(--color-hairline)] [&_textarea]:border-[color:var(--color-hairline)] [&_input]:bg-[color:var(--color-well)] [&_select]:bg-[color:var(--color-well)] [&_textarea]:bg-[color:var(--color-well)] [&_input]:px-3 [&_select]:px-3 [&_textarea]:px-3 [&_input]:py-2.5 [&_select]:py-2.5 [&_textarea]:py-2.5 [&_input]:text-sm [&_select]:text-sm [&_textarea]:text-sm [&_input]:text-[color:var(--color-text)] [&_select]:text-[color:var(--color-text)] [&_textarea]:text-[color:var(--color-text)] [&_input]:outline-none [&_select]:outline-none [&_textarea]:outline-none focus-within:[&_input]:border-[color:var(--color-hairline)] focus-within:[&_select]:border-[color:var(--color-hairline)] focus-within:[&_textarea]:border-[color:var(--color-hairline)]">
+    <label className="block mb-[12px]">
+      <span className="block text-[10px] uppercase tracking-widest text-[color:var(--color-text-faint)] mb-[6px]">{label}</span>
+      <div className="[&_input]:w-full [&_select]:w-full [&_textarea]:w-full [&_input]:rounded-lg [&_select]:rounded-lg [&_textarea]:rounded-lg [&_input]:border [&_select]:border [&_textarea]:border [&_input]:border-[color:var(--color-hairline)] [&_select]:border-[color:var(--color-hairline)] [&_textarea]:border-[color:var(--color-hairline)] [&_input]:bg-[color:var(--color-well)] [&_select]:bg-[color:var(--color-well)] [&_textarea]:bg-[color:var(--color-well)] [&_input]:px-[12px] [&_select]:px-[12px] [&_textarea]:px-[12px] [&_input]:py-[10px] [&_select]:py-[10px] [&_textarea]:py-[10px] [&_input]:text-sm [&_select]:text-sm [&_textarea]:text-sm [&_input]:text-[color:var(--color-text)] [&_select]:text-[color:var(--color-text)] [&_textarea]:text-[color:var(--color-text)] [&_input]:outline-none [&_select]:outline-none [&_textarea]:outline-none focus-within:[&_input]:border-[color:var(--color-hairline)] focus-within:[&_select]:border-[color:var(--color-hairline)] focus-within:[&_textarea]:border-[color:var(--color-hairline)]">
         {children}
       </div>
     </label>

@@ -650,12 +650,12 @@ export default function MonthlyFeeReceipt({
         </div>
 
         {downloadError && (
-          <p className="mt-3 text-center text-xs text-[color:var(--color-text)]">
+          <p className="mt-[12px] text-center text-xs text-[color:var(--color-text)]">
             {downloadError}
           </p>
         )}
 
-        <div className="flex gap-3 mt-6">
+        <div className="flex gap-[12px] mt-[24px]">
           <button
             onClick={onClose}
             className="btn-ghost flex-1 font-sans tracking-wider"
@@ -675,12 +675,12 @@ export default function MonthlyFeeReceipt({
           <button
             onClick={handleDownloadClick}
             disabled={isDownloading}
-            className="btn-primary flex-1 font-sans tracking-wider flex items-center justify-center gap-2 bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-strong)] disabled:opacity-60 disabled:cursor-not-allowed border-none text-[color:var(--color-accent-ink)]"
+            className="btn-primary flex-1 font-sans tracking-wider flex items-center justify-center gap-[8px] bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-strong)] disabled:opacity-60 disabled:cursor-not-allowed border-none text-[color:var(--color-accent-ink)]"
           >
             {isDownloading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-[16px] h-[16px] animate-spin" />
             ) : (
-              <Download className="w-4 h-4" />
+              <Download className="w-[16px] h-[16px]" />
             )}
             DOWNLOAD
           </button>
@@ -689,59 +689,59 @@ export default function MonthlyFeeReceipt({
 
       {showDatePicker && (
         <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-[color:var(--color-well)] backdrop-blur-md p-4"
+          className="fixed inset-[0px] z-[200] flex items-center justify-center bg-[color:var(--color-well)] backdrop-blur-md p-[16px]"
           onClick={() => setShowDatePicker(false)}
         >
           <div
-            className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-2xl w-full max-w-sm p-6 shadow-[0_0_40px_var(--color-accent-dim)]"
+            className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-2xl w-full max-w-sm p-[24px] shadow-[0_0_40px_var(--color-accent-dim)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-center mb-6">
+            <div className="text-center mb-[24px]">
               <h3 className="font-sans text-lg font-bold text-[color:var(--color-text)] tracking-wider">
                 RECEIPT DATE & TIME
               </h3>
-              <p className="text-[color:var(--color-text)] text-xs mt-1">
+              <p className="text-[color:var(--color-text)] text-xs mt-[4px]">
                 Set the payment date & time for this receipt
               </p>
             </div>
 
-            <div className="mb-4">
-              <label className="text-[color:var(--color-text)] text-[10px] uppercase tracking-wider font-bold block mb-2">
+            <div className="mb-[16px]">
+              <label className="text-[color:var(--color-text)] text-[10px] uppercase tracking-wider font-bold block mb-[8px]">
                 Payment Date
               </label>
               <input
                 type="date"
                 value={pickerDate}
                 onChange={(e) => setPickerDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-accent-border)] focus:ring-1 focus:ring-[color:var(--color-accent)] transition-all"
+                className="w-full px-[16px] py-[12px] rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-accent-border)] focus:ring-1 focus:ring-[color:var(--color-accent)] transition-all"
                 style={{ colorScheme: "dark" }}
               />
             </div>
 
-            <div className="mb-6">
-              <label className="text-[color:var(--color-text)] text-[10px] uppercase tracking-wider font-bold block mb-2">
+            <div className="mb-[24px]">
+              <label className="text-[color:var(--color-text)] text-[10px] uppercase tracking-wider font-bold block mb-[8px]">
                 Payment Time
               </label>
               <input
                 type="time"
                 value={pickerTime}
                 onChange={(e) => setPickerTime(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-accent-border)] focus:ring-1 focus:ring-[color:var(--color-accent)] transition-all"
+                className="w-full px-[16px] py-[12px] rounded-xl bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] text-sm font-medium focus:outline-none focus:border-[color:var(--color-accent-border)] focus:ring-1 focus:ring-[color:var(--color-accent)] transition-all"
                 style={{ colorScheme: "dark" }}
               />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-[12px]">
               <button
                 onClick={() => setShowDatePicker(false)}
-                className="flex-1 py-3 rounded-xl bg-[color:var(--color-well)] hover:bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:text-[color:var(--color-text)] text-sm font-sans tracking-wider transition-all border border-[color:var(--color-hairline)] hover:border-[color:var(--color-hairline)]"
+                className="flex-1 py-[12px] rounded-xl bg-[color:var(--color-well)] hover:bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:text-[color:var(--color-text)] text-sm font-sans tracking-wider transition-all border border-[color:var(--color-hairline)] hover:border-[color:var(--color-hairline)]"
               >
                 CANCEL
               </button>
               <button
                 onClick={confirmDateAndDownload}
                 disabled={isDownloading}
-                className="flex-1 py-3 rounded-xl bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-strong)] disabled:opacity-60 disabled:cursor-not-allowed text-[color:var(--color-accent-ink)] text-sm font-sans tracking-wider transition-all font-bold shadow-lg shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+                className="flex-1 py-[12px] rounded-xl bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-strong)] disabled:opacity-60 disabled:cursor-not-allowed text-[color:var(--color-accent-ink)] text-sm font-sans tracking-wider transition-all font-bold shadow-lg shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
               >
                 CONFIRM & DOWNLOAD
               </button>

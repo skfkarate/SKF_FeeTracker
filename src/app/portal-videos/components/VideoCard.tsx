@@ -33,7 +33,7 @@ export function VideoCard({
   if (variant === "list") {
     return (
       <div
-        className={`flex items-center gap-3 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2.5 transition-colors hover:border-[color:var(--color-hairline)] ${dragging ? "opacity-40" : ""}`}
+        className={`flex items-center gap-[12px] rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[10px] transition-colors hover:border-[color:var(--color-hairline)] ${dragging ? "opacity-40" : ""}`}
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
@@ -41,37 +41,37 @@ export function VideoCard({
         onContextMenu={(event) => { event.preventDefault(); onContext(event.clientX, event.clientY); }}
         {...longPress}
       >
-        <div className="relative h-14 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-[color:var(--color-well)]">
+        <div className="relative h-[56px] w-[96px] flex-shrink-0 overflow-hidden rounded-lg bg-[color:var(--color-well)]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={thumbnailUrl(video.youtubeId)} alt="" loading="lazy" className="h-full w-full object-cover" />
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-[0px] flex-1">
           <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{video.title}</p>
-          <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-[color:var(--color-text-dim)]">
+          <p className="mt-[2px] flex items-center gap-[6px] truncate text-xs text-[color:var(--color-text-dim)]">
             <StatusDot published={video.isPublished} />
             {pathLabel ? <span className="truncate text-[color:var(--color-text)]">{pathLabel} · </span> : null}
             {video.category}{video.durationLabel ? ` · ${video.durationLabel}` : ""}
           </p>
         </div>
         {onMoveUp || onMoveDown ? (
-          <div className="flex flex-shrink-0 flex-col rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-0.5">
+          <div className="flex flex-shrink-0 flex-col rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[2px]">
             <button
               type="button"
               aria-label="Move up within the shelf"
               disabled={!onMoveUp}
               onClick={(event) => { event.stopPropagation(); onMoveUp?.(); }}
-              className="flex h-6 w-6 items-center justify-center rounded-md text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[color:var(--color-text-dim)]"
+              className="flex h-[24px] w-[24px] items-center justify-center rounded-md text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[color:var(--color-text-dim)]"
             >
-              <ChevronUp className="h-3.5 w-3.5" />
+              <ChevronUp className="h-[14px] w-[14px]" />
             </button>
             <button
               type="button"
               aria-label="Move down within the shelf"
               disabled={!onMoveDown}
               onClick={(event) => { event.stopPropagation(); onMoveDown?.(); }}
-              className="flex h-6 w-6 items-center justify-center rounded-md text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[color:var(--color-text-dim)]"
+              className="flex h-[24px] w-[24px] items-center justify-center rounded-md text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[color:var(--color-text-dim)]"
             >
-              <ChevronDown className="h-3.5 w-3.5" />
+              <ChevronDown className="h-[14px] w-[14px]" />
             </button>
           </div>
         ) : null}
@@ -83,18 +83,18 @@ export function VideoCard({
             const rect = (event.target as HTMLElement).getBoundingClientRect();
             onContext(rect.left, rect.bottom);
           }}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-[color:var(--color-text-faint)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)]"
+          className="flex h-[32px] w-[32px] items-center justify-center rounded-lg text-[color:var(--color-text-faint)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)]"
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <MoreHorizontal className="h-[16px] w-[16px]" />
         </button>
-        <ChevronRight className="h-4 w-4 flex-shrink-0 text-[color:var(--color-text-faint)]" />
+        <ChevronRight className="h-[16px] w-[16px] flex-shrink-0 text-[color:var(--color-text-faint)]" />
       </div>
     );
   }
 
   return (
     <div
-      className={`group cursor-pointer select-none rounded-2xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2 transition-all hover:border-[color:var(--color-hairline)] active:scale-[0.98] ${dragging ? "opacity-40" : ""}`}
+      className={`group cursor-pointer select-none rounded-2xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[8px] transition-all hover:border-[color:var(--color-hairline)] active:scale-[0.98] ${dragging ? "opacity-40" : ""}`}
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
@@ -105,11 +105,11 @@ export function VideoCard({
       <div className={`relative overflow-hidden rounded-xl bg-[color:var(--color-well)] ${video.contentFormat === "short" ? "aspect-[3/4]" : "aspect-video"}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={thumbnailUrl(video.youtubeId)} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-        <span className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md bg-[color:var(--color-well)] text-[color:var(--color-text)]">
-          {video.contentFormat === "short" ? <Smartphone className="h-3 w-3" /> : <MonitorPlay className="h-3 w-3" />}
+        <span className="absolute right-[6px] top-[6px] flex h-[24px] w-[24px] items-center justify-center rounded-md bg-[color:var(--color-well)] text-[color:var(--color-text)]">
+          {video.contentFormat === "short" ? <Smartphone className="h-[12px] w-[12px]" /> : <MonitorPlay className="h-[12px] w-[12px]" />}
         </span>
         {video.durationLabel ? (
-          <span className="absolute bottom-1.5 right-1.5 rounded bg-[color:var(--color-well)] px-1.5 py-0.5 font-mono text-[10px] text-[color:var(--color-text)]">{video.durationLabel}</span>
+          <span className="absolute bottom-[6px] right-[6px] rounded bg-[color:var(--color-well)] px-[6px] py-[2px] font-mono text-[10px] text-[color:var(--color-text)]">{video.durationLabel}</span>
         ) : null}
         <span
           role="button"
@@ -118,14 +118,14 @@ export function VideoCard({
             event.stopPropagation();
             onContext(event.clientX, event.clientY);
           }}
-          className="absolute left-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-[color:var(--color-well)] text-[color:var(--color-text)] opacity-0 transition-opacity hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] group-hover:opacity-100"
+          className="absolute left-[6px] top-[6px] flex h-[28px] w-[28px] items-center justify-center rounded-lg bg-[color:var(--color-well)] text-[color:var(--color-text)] opacity-0 transition-opacity hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)] group-hover:opacity-100"
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <MoreHorizontal className="h-[16px] w-[16px]" />
         </span>
       </div>
-      <div className="px-1 pb-1 pt-2">
-        <p className="line-clamp-2 min-h-9 text-[13px] font-semibold leading-tight text-[color:var(--color-text)]">{video.title}</p>
-        <p className="mt-1 flex items-center gap-1.5 truncate text-[11px] text-[color:var(--color-text-dim)]">
+      <div className="px-[4px] pb-[4px] pt-[8px]">
+        <p className="line-clamp-2 min-h-[36px] text-[13px] font-semibold leading-tight text-[color:var(--color-text)]">{video.title}</p>
+        <p className="mt-[4px] flex items-center gap-[6px] truncate text-[11px] text-[color:var(--color-text-dim)]">
           <StatusDot published={video.isPublished} />
           {video.category}
         </p>
@@ -138,7 +138,7 @@ export function StatusDot({ published }: { published: boolean }) {
   return (
     <span
       title={published ? "Live" : "Draft"}
-      className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${published ? "bg-[color:var(--color-accent)]" : "bg-[color:var(--color-text-faint)]"}`}
+      className={`h-[6px] w-[6px] flex-shrink-0 rounded-full ${published ? "bg-[color:var(--color-accent)]" : "bg-[color:var(--color-text-faint)]"}`}
     />
   );
 }

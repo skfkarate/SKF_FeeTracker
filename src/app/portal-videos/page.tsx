@@ -68,7 +68,7 @@ export default function PortalVideosPage() {
       fallback={
         <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
           <div className="flex min-h-screen items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+            <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
           </div>
         </div>
       }
@@ -637,7 +637,7 @@ function PortalVideosLibrary() {
     return (
       <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+          <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -653,10 +653,10 @@ function PortalVideosLibrary() {
         account: <AccountMenu />,
       }}
     >
-        <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="min-w-0">
-            <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
+        <header className="mb-[20px] flex flex-col gap-[16px] md:flex-row md:items-end md:justify-between">
+          <div className="min-w-[0px]">
+            <div className="mb-[12px] flex items-center gap-[12px]">
+              <span className="h-[8px] w-[8px] rounded-full bg-[color:var(--color-accent)]" />
               <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--color-text-dim)]">Portal Operations</p>
             </div>
             <h1 className={`font-sans font-semibold tracking-tight text-[color:var(--color-text)] ${currentFolder && browsing && !collection ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"}`}>
@@ -669,29 +669,29 @@ function PortalVideosLibrary() {
               )}
             </h1>
             {!query.trim() && !collection && currentFolder?.description ? (
-              <p className="mt-1 line-clamp-1 text-sm text-[color:var(--color-text-dim)]">{currentFolder.description}</p>
+              <p className="mt-[4px] line-clamp-1 text-sm text-[color:var(--color-text-dim)]">{currentFolder.description}</p>
             ) : null}
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline-strong)]">
-              <FolderPlus className="h-4 w-4" /> Folder
+          <div className="flex flex-wrap gap-[8px]">
+            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[16px] text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline-strong)]">
+              <FolderPlus className="h-[16px] w-[16px]" /> Folder
             </button>
-            <button type="button" onClick={() => startNewVideo(activeFolderId)} className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm">
-              <PlusCircle className="h-4 w-4" /> Video
+            <button type="button" onClick={() => startNewVideo(activeFolderId)} className="btn-primary inline-flex min-h-[44px] items-center justify-center gap-[8px] px-[16px] text-sm">
+              <PlusCircle className="h-[16px] w-[16px]" /> Video
             </button>
             <button
               type="button"
               onClick={() => loadVideos(true)}
               disabled={refreshing}
               aria-label="Refresh library"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
             >
-              {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {refreshing ? <Loader2 className="h-[16px] w-[16px] animate-spin" /> : <RefreshCw className="h-[16px] w-[16px]" />}
             </button>
           </div>
         </header>
 
-        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mb-[20px] flex flex-col gap-[12px] lg:flex-row lg:items-center lg:justify-between">
           {browsing && chain.length > 0 ? (
             <Breadcrumbs
               chain={chain}
@@ -709,38 +709,38 @@ function PortalVideosLibrary() {
         </div>
 
         {error ? (
-          <div className="mb-4 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[16px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <AlertCircle className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p className="flex-1">{error}</p>
-            <button type="button" onClick={() => setError("")} className="flex-shrink-0 text-[color:var(--color-text)] hover:text-[color:var(--color-text)]" aria-label="Dismiss error"><X className="h-4 w-4" /></button>
+            <button type="button" onClick={() => setError("")} className="flex-shrink-0 text-[color:var(--color-text)] hover:text-[color:var(--color-text)]" aria-label="Dismiss error"><X className="h-[16px] w-[16px]" /></button>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-4 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[16px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <CheckCircle2 className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p className="flex-1">{notice}</p>
-            <button type="button" onClick={() => setNotice("")} className="flex-shrink-0 text-[color:var(--color-text)] hover:text-[color:var(--color-text)]" aria-label="Dismiss notice"><X className="h-4 w-4" /></button>
+            <button type="button" onClick={() => setNotice("")} className="flex-shrink-0 text-[color:var(--color-text)] hover:text-[color:var(--color-text)]" aria-label="Dismiss notice"><X className="h-[16px] w-[16px]" /></button>
           </div>
         ) : null}
 
-        <div className="relative mb-6 sm:max-w-md">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
+        <div className="relative mb-[24px] sm:max-w-md">
+          <Search className="pointer-events-none absolute left-[16px] top-[50%] h-[16px] w-[16px] -translate-y-1/2 text-[color:var(--color-text-faint)]" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            className="input-minimal min-h-11 pl-11 pr-10"
+            className="input-minimal min-h-[44px] pl-[44px] pr-[40px]"
             placeholder="Search all folders and lessons…"
           />
           {query ? (
-            <button type="button" onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]" aria-label="Clear search">
-              <X className="h-4 w-4" />
+            <button type="button" onClick={() => setQuery("")} className="absolute right-[12px] top-[50%] -translate-y-1/2 rounded-md p-[4px] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]" aria-label="Clear search">
+              <X className="h-[16px] w-[16px]" />
             </button>
           ) : null}
         </div>
 
         {!loading && browsing && !activeFolderId ? (
-          <div className="mb-7">
+          <div className="mb-[28px]">
             <SmartCollections
               unfiledCount={unfiledCount}
               draftsCount={draftsCount}
@@ -753,24 +753,24 @@ function PortalVideosLibrary() {
         ) : null}
 
         {browsing && activeFolderId ? (
-          <div className="mb-6 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]">
-              <FolderPlus className="h-3.5 w-3.5" /> Subfolder
+          <div className="mb-[24px] flex flex-wrap items-center gap-[8px]">
+            <button type="button" onClick={() => startNewFolder(activeFolderId)} className="inline-flex min-h-[44px] items-center gap-[6px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]">
+              <FolderPlus className="h-[14px] w-[14px]" /> Subfolder
             </button>
             <button
               type="button"
               onClick={() => photoInputRef.current?.click()}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
+              className="inline-flex min-h-[36px] items-center gap-[6px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
             >
-              <ImagePlus className="h-3.5 w-3.5" /> Photo guide
+              <ImagePlus className="h-[14px] w-[14px]" /> Photo guide
             </button>
             {currentFolder ? (
               <button
                 type="button"
                 onClick={() => void copyFolderLink(currentFolder)}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
+                className="inline-flex min-h-[36px] items-center gap-[6px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
               >
-                <Link2 className="h-3.5 w-3.5" /> Copy folder link
+                <Link2 className="h-[14px] w-[14px]" /> Copy folder link
               </button>
             ) : null}
             <p className="ml-auto hidden text-xs text-[color:var(--color-text-faint)] sm:block">Tip: drag lessons onto a folder or breadcrumb to re-file them.</p>

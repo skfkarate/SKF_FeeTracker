@@ -33,28 +33,28 @@ export function ContextMenuSurface({ menu, onClose }: { menu: MenuState; onClose
   const top = Math.min(menu.y + 8, window.innerHeight - menu.items.length * 46 - 80);
 
   return (
-    <div className="fixed inset-0 z-[70]" onClick={onClose} onContextMenu={(event) => { event.preventDefault(); onClose(); }}>
+    <div className="fixed inset-[0px] z-[70]" onClick={onClose} onContextMenu={(event) => { event.preventDefault(); onClose(); }}>
       {isCoarse ? (
         <div
-          className="absolute inset-x-0 bottom-0 animate-slide-up rounded-t-2xl border-t border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 pb-6 shadow-2xl shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl"
+          className="absolute inset-x-[0px] bottom-[0px] animate-slide-up rounded-t-2xl border-t border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px] pb-[24px] shadow-2xl shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl"
           onClick={(event) => event.stopPropagation()}
           style={{ left: 0, right: 0 }}
         >
-          <div className="mb-2 px-2 pt-1 text-center">
+          <div className="mb-[8px] px-[8px] pt-[4px] text-center">
             <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{menu.title}</p>
             {menu.subtitle ? <p className="truncate text-xs text-[color:var(--color-text-dim)]">{menu.subtitle}</p> : null}
           </div>
-          <div className="grid gap-1">
+          <div className="grid gap-[4px]">
             {menu.items.map((item) => (
               <button
                 key={item.label}
                 type="button"
                 onClick={() => { onClose(); item.onSelect(); }}
-                className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-4 text-left text-sm font-semibold ${
+                className={`flex min-h-[44px] w-full items-center gap-[12px] rounded-xl px-[16px] text-left text-sm font-semibold ${
                   item.destructive ? "text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)]" : "text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"
                 }`}
               >
-                {item.icon ? <item.icon className="h-4 w-4" /> : null}
+                {item.icon ? <item.icon className="h-[16px] w-[16px]" /> : null}
                 {item.label}
               </button>
             ))}
@@ -62,11 +62,11 @@ export function ContextMenuSurface({ menu, onClose }: { menu: MenuState; onClose
         </div>
       ) : (
         <div
-          className="absolute overflow-hidden rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] py-1 shadow-2xl shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl"
+          className="absolute overflow-hidden rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] py-[4px] shadow-2xl shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl"
           style={{ left, top, width }}
           onClick={(event) => event.stopPropagation()}
         >
-          <div className="border-b border-[color:var(--color-hairline)] px-3 py-2">
+          <div className="border-b border-[color:var(--color-hairline)] px-[12px] py-[8px]">
             <p className="truncate text-xs font-semibold text-[color:var(--color-text)]">{menu.title}</p>
             {menu.subtitle ? <p className="truncate text-[11px] text-[color:var(--color-text-dim)]">{menu.subtitle}</p> : null}
           </div>
@@ -75,11 +75,11 @@ export function ContextMenuSurface({ menu, onClose }: { menu: MenuState; onClose
               key={item.label}
               type="button"
               onClick={() => { onClose(); item.onSelect(); }}
-              className={`flex min-h-9 w-full items-center gap-2.5 px-3 text-left text-[13px] font-medium ${
+              className={`flex min-h-[36px] w-full items-center gap-[10px] px-[12px] text-left text-[13px] font-medium ${
                 item.destructive ? "text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)]" : "text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)]"
               }`}
             >
-              {item.icon ? <item.icon className="h-3.5 w-3.5" /> : null}
+              {item.icon ? <item.icon className="h-[14px] w-[14px]" /> : null}
               {item.label}
             </button>
           ))}

@@ -76,32 +76,32 @@ export default function TodayPreviewPage() {
           backHref: "/dashboard",
           bell: <span className="font-mono text-[11px] text-[color:var(--color-text-dim)]">12</span>,
         }}
-        mainClassName="py-6"
+        mainClassName="py-[24px]"
       >
-        <section className="hud-panel p-4">
-          <div className="flex items-center justify-between gap-4">
+        <section className="hud-panel p-[16px]">
+          <div className="flex items-center justify-between gap-[16px]">
             <div>
               <p className="eyebrow text-[color:var(--color-text-dim)]">Needs action</p>
-              <p className="numeric mt-2 text-[40px] leading-none text-[color:var(--color-text)]">12</p>
-              <p className="mt-2 text-xs text-[color:var(--color-text-dim)]">4 payment proofs · 3 admissions · 5 orders</p>
+              <p className="numeric mt-[8px] text-[40px] leading-none text-[color:var(--color-text)]">12</p>
+              <p className="mt-[8px] text-xs text-[color:var(--color-text-dim)]">4 payment proofs · 3 admissions · 5 orders</p>
             </div>
             <MeterRing value={68} caption="collection rate" tone="action" />
           </div>
         </section>
 
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatTile label="Collected" value="1,24,000" tone="settled" icon={<Wallet className="h-4 w-4" />} />
-          <StatTile label="Overdue" value="8" tone="overdue" icon={<Clock className="h-4 w-4" />} />
-          <StatTile label="Streak" value="3 months" tone="action" icon={<BadgeCheck className="h-4 w-4" />} />
-          <StatTile label="Events" value="2" icon={<CalendarCheck className="h-4 w-4" />} />
+        <div className="mt-[12px] grid grid-cols-2 gap-[12px] sm:grid-cols-4">
+          <StatTile label="Collected" value="1,24,000" tone="settled" icon={<Wallet className="h-[16px] w-[16px]" />} />
+          <StatTile label="Overdue" value="8" tone="overdue" icon={<Clock className="h-[16px] w-[16px]" />} />
+          <StatTile label="Streak" value="3 months" tone="action" icon={<BadgeCheck className="h-[16px] w-[16px]" />} />
+          <StatTile label="Events" value="2" icon={<CalendarCheck className="h-[16px] w-[16px]" />} />
         </div>
 
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-[24px] flex items-center justify-between">
           <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Run list</h2>
           <span className="eyebrow text-[color:var(--color-text-dim)]">Urgency first</span>
         </div>
 
-        <div className="mt-3 space-y-2">
+        <div className="mt-[12px] space-y-[8px]">
           {QUEUE.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -118,8 +118,8 @@ export default function TodayPreviewPage() {
                   </span>
                 }
                 trailing={
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-[color:var(--color-text-dim)]" aria-hidden="true" />
+                  <div className="flex items-center gap-[8px]">
+                    <Icon className="h-[16px] w-[16px] text-[color:var(--color-text-dim)]" aria-hidden="true" />
                     <StatusPill status={item.status} label={item.statusText} />
                   </div>
                 }
@@ -135,7 +135,7 @@ export default function TodayPreviewPage() {
         title={active?.title ?? "Queue item"}
         onClose={() => setActive(null)}
       >
-        <div className="space-y-4 pt-1">
+        <div className="space-y-[16px] pt-[4px]">
           <p className="numeric text-[28px] leading-none text-[color:var(--color-text)]">{active?.amount ?? "—"}</p>
           <p className="text-[13px] text-[color:var(--color-text-dim)]">{active?.subtitle}</p>
           <p className="font-mono text-[11px] text-[color:var(--color-text-dim)]">{active?.idLabel}</p>

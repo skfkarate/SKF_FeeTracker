@@ -284,7 +284,7 @@ export default function PendingFeesPage() {
     return (
       <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+          <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -303,20 +303,20 @@ export default function PendingFeesPage() {
         account: <AccountMenu />,
       }}
     >
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-[20px] flex flex-col gap-[12px] sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-2xl text-[13px] leading-relaxed text-[color:var(--color-text-dim)]">
           Review monthly dues, call parents, or send the current WhatsApp reminder template from Messages.
         </p>
         <Link
           href="/messages"
-          className="btn-ghost inline-flex min-h-11 shrink-0 items-center justify-center gap-2 px-4"
+          className="btn-ghost inline-flex min-h-[44px] shrink-0 items-center justify-center gap-[8px] px-[16px]"
         >
-          <MessageCircle className="h-4 w-4" />
+          <MessageCircle className="h-[16px] w-[16px]" />
           Edit Message
         </Link>
       </div>
 
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="mb-[20px] grid grid-cols-2 gap-[12px] sm:grid-cols-3">
         <StatTile label="Pending Students" value={num(filteredStudents.length)} tone="action" />
         <StatTile label="Pending Amount" value={num(totalPending)} tone="neutral" />
         <StatTile label="Missing Phone" value={num(missingPhone)} />
@@ -327,24 +327,24 @@ export default function PendingFeesPage() {
         value={scope}
         onChange={setScope}
         ariaLabel="Fee ledger scope"
-        className="mb-5"
+        className="mb-[20px]"
       />
 
-      <section className="hud-panel mb-5 p-3 sm:p-4">
-        <div className="grid gap-3 md:grid-cols-[1fr_180px_180px_auto]">
+      <section className="hud-panel mb-[20px] p-[12px] sm:p-[16px]">
+        <div className="grid gap-[12px] md:grid-cols-[1fr_180px_180px_auto]">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
+            <Search className="pointer-events-none absolute left-[16px] top-[50%] h-[16px] w-[16px] -translate-y-1/2 text-[color:var(--color-text-faint)]" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="input-minimal min-h-11 pl-11"
+              className="input-minimal min-h-[44px] pl-[44px]"
               placeholder="Search name, SKF ID, parent or phone"
             />
           </div>
           <select
             value={branch}
             onChange={(event) => setBranch(event.target.value as BranchFilter)}
-            className="input-minimal min-h-11"
+            className="input-minimal min-h-[44px]"
             aria-label="Branch filter"
           >
             {BRANCH_OPTIONS.map((option) => (
@@ -354,7 +354,7 @@ export default function PendingFeesPage() {
           <select
             value={month}
             onChange={(event) => setMonth(Number.parseInt(event.target.value, 10))}
-            className="input-minimal min-h-11"
+            className="input-minimal min-h-[44px]"
             aria-label="Month filter"
           >
             {MONTHS_SHORT.map((label, index) => (
@@ -369,41 +369,41 @@ export default function PendingFeesPage() {
             title="Refresh pending fees"
             aria-label="Refresh pending fees"
           >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-[16px] w-[16px] ${refreshing ? "animate-spin" : ""}`} />
           </button>
         </div>
       </section>
 
       {error ? (
-        <div className="mb-5 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+        <div className="mb-[20px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+          <AlertCircle className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
           <p>{error}</p>
         </div>
       ) : null}
 
       {notice ? (
-        <div className="mb-5 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
+        <div className="mb-[20px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+          <CheckCircle2 className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
           <p>{notice}</p>
         </div>
       ) : null}
 
       <section className="hud-panel overflow-hidden">
-        <div className="border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
+        <div className="border-b border-[color:var(--color-hairline)] p-[16px] sm:p-[20px]">
           <p className="eyebrow text-[color:var(--color-text-dim)]">{selectedMonthLabel}</p>
-          <h2 className="mt-1 text-[15px] font-semibold text-[color:var(--color-text)]">
+          <h2 className="mt-[4px] text-[15px] font-semibold text-[color:var(--color-text)]">
             {scope === "month" ? "Monthly ledger" : scope === "overdue" ? "Overdue ledger" : "Missing phone ledger"}
           </h2>
-          <p className="mt-1 text-xs text-[color:var(--color-text-faint)]">Sorted by students with the highest overdue month count first.</p>
+          <p className="mt-[4px] text-xs text-[color:var(--color-text-faint)]">Sorted by students with the highest overdue month count first.</p>
         </div>
 
         {loading ? (
-          <div className="flex min-h-72 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+          <div className="flex min-h-[288px] items-center justify-center">
+            <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
           </div>
         ) : visibleStudents.length === 0 ? (
-          <div className="flex min-h-72 flex-col items-center justify-center gap-3 p-8 text-center">
-            <CheckCircle2 className="h-9 w-9 text-[color:var(--color-text-dim)]" />
+          <div className="flex min-h-[288px] flex-col items-center justify-center gap-[12px] p-[32px] text-center">
+            <CheckCircle2 className="h-[44px] w-[44px] text-[color:var(--color-text-dim)]" />
             <p className="text-sm font-semibold text-[color:var(--color-text)]">No students in this ledger</p>
             <p className="text-sm text-[color:var(--color-text-dim)]">Change the scope, branch, or month filter to see another list.</p>
           </div>
@@ -426,8 +426,8 @@ export default function PendingFeesPage() {
                   amount={num(dueAmount)}
                   amountLabel="due"
                   trailing={
-                    <div className="flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4 text-[color:var(--color-text-dim)]" aria-hidden="true" />
+                    <div className="flex items-center gap-[8px]">
+                      <MessageCircle className="h-[16px] w-[16px] text-[color:var(--color-text-dim)]" aria-hidden="true" />
                       <StatusPill status={status} label={noPhone ? "No phone" : overdue ? "Overdue" : "Message"} />
                     </div>
                   }
@@ -448,28 +448,28 @@ export default function PendingFeesPage() {
           setPreviewMonthIndex(null);
         }}
         footer={
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-[8px] sm:grid-cols-2">
             <button
               type="button"
               onClick={() => void copyMessage()}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-sm text-[color:var(--color-text)]"
+              className="tap-target inline-flex items-center justify-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-sm text-[color:var(--color-text)]"
             >
-              <Copy className="h-4 w-4" />
+              <Copy className="h-[16px] w-[16px]" />
               Copy
             </button>
             <button
               type="button"
               onClick={openWhatsApp}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)]"
+              className="tap-target inline-flex items-center justify-center gap-[8px] rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)]"
             >
-              <MessageCircle className="h-4 w-4" />
+              <MessageCircle className="h-[16px] w-[16px]" />
               Open WhatsApp
             </button>
           </div>
         }
       >
         {previewStudent ? (
-          <div className="space-y-4 pt-1">
+          <div className="space-y-[16px] pt-[4px]">
             <div>
               <p className="text-[15px] font-semibold text-[color:var(--color-text)]">{studentName(previewStudent)}</p>
               <p className="font-mono text-[11px] text-[color:var(--color-text-dim)]">
@@ -477,28 +477,28 @@ export default function PendingFeesPage() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-[8px]">
               {telHref(previewStudent) ? (
                 <a
                   href={telHref(previewStudent)}
-                  className="tap-target inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs text-[color:var(--color-text)]"
+                  className="tap-target inline-flex items-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs text-[color:var(--color-text)]"
                 >
-                  <Phone className="h-4 w-4" />
+                  <Phone className="h-[16px] w-[16px]" />
                   Call
                 </a>
               ) : null}
               <Link
                 href={`/students/${previewStudent.branch}/${encodeURIComponent(previewStudent.id)}`}
-                className="tap-target inline-flex items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs text-[color:var(--color-text)]"
+                className="tap-target inline-flex items-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs text-[color:var(--color-text)]"
               >
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-[16px] w-[16px]" />
                 Profile
               </Link>
             </div>
 
-            <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
-              <p className="mb-2 eyebrow text-[color:var(--color-text-dim)]">Select pending month</p>
-              <div className="grid gap-2 sm:grid-cols-2">
+            <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px]">
+              <p className="mb-[8px] eyebrow text-[color:var(--color-text-dim)]">Select pending month</p>
+              <div className="grid gap-[8px] sm:grid-cols-2">
                 {previewStudent.pendingMonths.map((due) => {
                   const selected = due.monthIndex === previewDue?.monthIndex;
                   return (
@@ -506,14 +506,14 @@ export default function PendingFeesPage() {
                       key={`${previewStudent.branch}-${previewStudent.id}-${due.monthIndex}`}
                       type="button"
                       onClick={() => setPreviewMonthIndex(due.monthIndex)}
-                      className={`tap-target rounded-[var(--radius-row)] border px-3 py-2 text-left transition-colors ${
+                      className={`tap-target rounded-[var(--radius-row)] border px-[12px] py-[8px] text-left transition-colors ${
                         selected
                           ? "border-[color:var(--color-hairline)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
                           : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:text-[color:var(--color-text)]"
                       }`}
                     >
                       <span className="block text-xs font-semibold">{due.shortLabel}</span>
-                      <span className={`mt-1 block numeric text-[14px] ${selected ? "text-[color:var(--color-accent-ink)]" : "text-[color:var(--color-text-dim)]"}`}>
+                      <span className={`mt-[4px] block numeric text-[14px] ${selected ? "text-[color:var(--color-accent-ink)]" : "text-[color:var(--color-text-dim)]"}`}>
                         {num(due.amount)}
                       </span>
                     </button>
@@ -523,12 +523,12 @@ export default function PendingFeesPage() {
             </div>
 
             {previewIssues.length ? (
-              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[12px] text-sm text-[color:var(--color-text)]">
                 Unknown placeholders: {previewIssues.join(", ")}
               </div>
             ) : null}
 
-            <div className="max-h-[50vh] overflow-y-auto whitespace-pre-wrap rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4 text-sm leading-relaxed text-[color:var(--color-text)]">
+            <div className="max-h-[50vh] overflow-y-auto whitespace-pre-wrap rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[16px] text-sm leading-relaxed text-[color:var(--color-text)]">
               {previewMessage}
             </div>
           </div>

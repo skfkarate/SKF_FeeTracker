@@ -39,12 +39,12 @@ export default function Sheet({
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div className="fixed inset-[0px] z-50 flex items-end justify-center">
       <button
         type="button"
         aria-label="Close sheet"
         onClick={onClose}
-        className="absolute inset-0 bg-[color:var(--color-well)] backdrop-blur-md"
+        className="absolute inset-[0px] bg-[color:var(--color-well)] backdrop-blur-md"
       />
       <div
         role="dialog"
@@ -52,8 +52,8 @@ export default function Sheet({
         aria-label={title}
         className="relative flex max-h-[min(90dvh,780px)] w-full max-w-2xl flex-col rounded-t-[24px] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-raised)] shadow-[0_-24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl"
       >
-        <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-[color:var(--color-hairline-strong)]" aria-hidden="true" />
-        <header className="flex min-h-16 items-center justify-between gap-3 px-5 pb-2 pt-3">
+        <div className="mx-auto mt-[10px] h-[4px] w-[40px] rounded-full bg-[color:var(--color-hairline-strong)]" aria-hidden="true" />
+        <header className="flex min-h-[64px] items-center justify-between gap-[12px] px-[20px] pb-[8px] pt-[12px]">
           <h2 className="font-display text-[clamp(1.1rem,1rem+0.3vw,1.35rem)] text-[color:var(--color-text)]">
             {title}
           </h2>
@@ -67,9 +67,9 @@ export default function Sheet({
             <X className="h-[18px] w-[18px]" aria-hidden="true" />
           </button>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-6">{children}</div>
+        <div className="min-h-[0px] flex-1 overflow-y-auto px-[20px] pb-[24px]">{children}</div>
         {footer ? (
-          <div className="safe-bottom border-t border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-5">{footer}</div>
+          <div className="safe-bottom border-t border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[20px]">{footer}</div>
         ) : null}
       </div>
     </div>,

@@ -20,13 +20,13 @@ export default function AmountInput({
   className?: string;
 }) {
   return (
-    <label className={cx("block min-w-0", className)}>
+    <label className={cx("block min-w-[0px]", className)}>
       {label ? (
-        <span className="mb-2 block eyebrow text-[color:var(--color-text-faint)]">{label}</span>
+        <span className="mb-[8px] block eyebrow text-[color:var(--color-text-faint)]">{label}</span>
       ) : null}
       <span
         className={cx(
-          "aurora-well flex min-h-[60px] items-center gap-3 px-4 transition-colors",
+          "aurora-well flex min-h-[60px] items-center gap-[12px] px-[16px] transition-colors",
           invalid
             ? "border-[color:var(--color-hairline-strong)]"
             : "focus-within:border-[color:var(--color-accent-border)]",
@@ -44,10 +44,10 @@ export default function AmountInput({
           placeholder={placeholder}
           aria-invalid={invalid || undefined}
           onChange={(event) => onChange(event.target.value)}
-          className="numeric w-full min-w-0 bg-transparent py-3 text-right text-[clamp(1.35rem,1.2rem+0.6vw,1.75rem)] text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)] disabled:opacity-60"
+          className="numeric min-h-[44px] w-full min-w-[0px] bg-transparent py-[12px] text-right text-[clamp(1.35rem,1.2rem+0.6vw,1.75rem)] text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)] disabled:opacity-60"
         />
       </span>
-      {hint ? <span className="mt-2 block text-[13px] leading-relaxed text-[color:var(--color-text-faint)]">{hint}</span> : null}
+      {hint ? <span className="mt-[8px] block text-[13px] leading-relaxed text-[color:var(--color-text-faint)]">{hint}</span> : null}
     </label>
   );
 }

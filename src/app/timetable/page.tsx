@@ -163,7 +163,7 @@ export default function TimetablePage() {
     return (
       <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+          <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -178,40 +178,40 @@ export default function TimetablePage() {
       }}
     >
       <div>
-        <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <header className="mb-[32px] flex flex-col gap-[20px] md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
+            <div className="mb-[12px] flex items-center gap-[12px]">
+              <span className="h-[8px] w-[8px] rounded-full bg-[color:var(--color-accent)]" />
               <p className="eyebrow text-[color:var(--color-text-dim)]">Portal Operations</p>
             </div>
-            <h1 className="mt-1 text-[15px] font-semibold text-[color:var(--color-text)]">Branch Timetable</h1>
+            <h1 className="mt-[4px] text-[15px] font-semibold text-[color:var(--color-text)]">Branch Timetable</h1>
           </div>
           <button
             type="button"
             onClick={() => setEditorOpen(true)}
-            className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm"
+            className="btn-primary inline-flex min-h-[44px] items-center justify-center gap-[8px] px-[16px] text-sm"
           >
-            <Upload className="h-4 w-4" />
+            <Upload className="h-[16px] w-[16px]" />
             Replace Timetable
           </button>
         </header>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <AlertCircle className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {saved ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <CheckCircle2 className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{selectedBranch.label} timetable replaced for {saved.monthLabel || monthLabel || "current month"}.</p>
           </div>
         ) : null}
 
-        <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
-          <aside className="hud-panel h-fit overflow-hidden">
+        <div className="grid min-w-[0px] gap-[20px] lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)]">
+          <aside className="hud-panel h-fit min-w-[0px] overflow-hidden">
             <div className="divide-y divide-[color:var(--color-hairline)]">
               {BRANCHES.map((item, index) => {
                 const branchTimetable = timetables.find((entry) => entry.branchSlug === item.slug && entry.isActive)
@@ -236,40 +236,40 @@ export default function TimetablePage() {
             </div>
           </aside>
 
-          <section className="space-y-5">
-            <div className="hud-panel p-4 sm:p-5">
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
-                    <CalendarDays className="h-5 w-5" />
+          <section className="min-w-[0px] space-y-[20px]">
+            <div className="hud-panel p-[16px] sm:p-[20px]">
+              <div className="flex flex-col gap-[20px] lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center gap-[12px]">
+                  <div className="flex h-[44px] w-[44px] items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
+                    <CalendarDays className="h-[20px] w-[20px]" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-[0px]">
                     <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Monthly Replacement</p>
                     <h2 className="truncate text-lg font-semibold text-[color:var(--color-text)]">{selectedBranch.detail}</h2>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 sm:flex">
+                <div className="grid grid-cols-2 gap-[8px] sm:flex">
                   <button
                     type="button"
                     onClick={() => loadTimetables(true)}
                     disabled={refreshingTimetables}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[16px] text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] disabled:opacity-60"
                   >
-                    <RefreshCw className={`h-4 w-4 ${refreshingTimetables ? "animate-spin" : ""}`} />
+                    <RefreshCw className={`h-[16px] w-[16px] ${refreshingTimetables ? "animate-spin" : ""}`} />
                     Refresh
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditorOpen(true)}
-                    className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 px-4 text-sm"
+                    className="btn-primary inline-flex min-h-[44px] items-center justify-center gap-[8px] px-[16px] text-sm"
                   >
-                    <Upload className="h-4 w-4" />
+                    <Upload className="h-[16px] w-[16px]" />
                     Upload
                   </button>
                 </div>
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="mt-[20px] grid grid-cols-2 gap-[12px] sm:grid-cols-3">
                 <StatTile label="Branch" value={selectedBranch.label} />
                 <StatTile label="Active Month" value={currentTimetable?.monthLabel || monthLabel || "—"} />
                 <StatTile
@@ -281,10 +281,10 @@ export default function TimetablePage() {
             </div>
 
             <div className="hud-panel overflow-hidden">
-              <div className="flex flex-col gap-3 border-b border-[color:var(--color-hairline)] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+              <div className="flex flex-col gap-[12px] border-b border-[color:var(--color-hairline)] p-[16px] sm:flex-row sm:items-center sm:justify-between sm:p-[20px]">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Current Timetable Image</p>
-                  <h3 className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">
+                  <h3 className="mt-[4px] text-lg font-semibold text-[color:var(--color-text)]">
                     {currentTimetable?.title || `${selectedBranch.detail} Timetable`}
                   </h3>
                 </div>
@@ -293,18 +293,18 @@ export default function TimetablePage() {
                     href={currentImageUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLink className="h-[16px] w-[16px]" />
                     Open
                   </a>
                 ) : null}
               </div>
 
-              <div className="bg-[color:var(--color-well)] p-3 sm:p-4">
+              <div className="bg-[color:var(--color-well)] p-[12px] sm:p-[16px]">
                 {loadingTimetables ? (
                   <div className="flex min-h-[420px] items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
-                    <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+                    <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
                   </div>
                 ) : currentImageUrl ? (
                   <div className="mx-auto flex max-w-3xl justify-center overflow-hidden rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
@@ -316,15 +316,15 @@ export default function TimetablePage() {
                     />
                   </div>
                 ) : (
-                  <div className="flex min-h-[420px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-8 text-center">
-                    <ImagePlus className="h-10 w-10 text-[color:var(--color-text-faint)]" />
+                  <div className="flex min-h-[420px] flex-col items-center justify-center gap-[12px] rounded-lg border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[32px] text-center">
+                    <ImagePlus className="h-[44px] w-[44px] text-[color:var(--color-text-faint)]" />
                     <p className="text-sm text-[color:var(--color-text-dim)]">No active timetable image found for {selectedBranch.label}.</p>
                     <button
                       type="button"
                       onClick={() => setEditorOpen(true)}
-                      className="btn-primary mt-2 inline-flex min-h-10 items-center justify-center gap-2 px-4 text-sm"
+                      className="btn-primary mt-[8px] inline-flex min-h-[44px] items-center justify-center gap-[8px] px-[16px] text-sm"
                     >
-                      <Upload className="h-4 w-4" />
+                      <Upload className="h-[16px] w-[16px]" />
                       Upload Timetable
                     </button>
                   </div>
@@ -332,7 +332,7 @@ export default function TimetablePage() {
               </div>
 
               {currentTimetable?.notes ? (
-                <div className="border-t border-[color:var(--color-hairline)] px-4 py-3 text-sm text-[color:var(--color-text-dim)] sm:px-5">
+                <div className="border-t border-[color:var(--color-hairline)] px-[16px] py-[12px] text-sm text-[color:var(--color-text-dim)] sm:px-[20px]">
                   {currentTimetable.notes}
                 </div>
               ) : null}
@@ -345,7 +345,7 @@ export default function TimetablePage() {
           title={`Replace ${selectedBranch.label} timetable`}
           onClose={closeEditor}
           footer={
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-[8px]">
               <button
                 type="button"
                 onClick={closeEditor}
@@ -358,31 +358,31 @@ export default function TimetablePage() {
                 type="submit"
                 form="timetable-form"
                 disabled={saving || !file}
-                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
+                className="tap-target inline-flex items-center justify-center gap-[8px] rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
               >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {saving ? <Loader2 className="h-[16px] w-[16px] animate-spin" /> : <Upload className="h-[16px] w-[16px]" />}
                 Replace
               </button>
             </div>
           }
         >
-          <form id="timetable-form" onSubmit={handleSubmit} className="grid gap-4 pt-1">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
-              <div className="space-y-4">
+          <form id="timetable-form" onSubmit={handleSubmit} className="grid gap-[16px] pt-[4px]">
+            <div className="grid gap-[16px] lg:grid-cols-[minmax(0,1fr)_240px]">
+              <div className="space-y-[16px]">
                 <label className="block">
-                  <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">New timetable image</span>
+                  <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">New timetable image</span>
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
                     onChange={(event) => handleFile(event.currentTarget.files?.[0] || null)}
-                    className="w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-3 text-sm text-[color:var(--color-text)] file:mr-3 file:rounded-md file:border-0 file:bg-[color:var(--color-well)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[color:var(--color-text)]"
+                    className="w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] py-[12px] text-sm text-[color:var(--color-text)] file:mr-[12px] file:rounded-md file:border-0 file:bg-[color:var(--color-well)] file:px-[12px] file:py-[6px] file:text-xs file:font-semibold file:text-[color:var(--color-text)]"
                     required
                   />
                 </label>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-[16px] sm:grid-cols-2">
                   <label className="block">
-                    <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Month</span>
+                    <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Month</span>
                     <input
                       value={monthLabel}
                       onChange={(event) => setMonthLabel(event.target.value)}
@@ -390,7 +390,7 @@ export default function TimetablePage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Notes</span>
+                    <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Notes</span>
                     <input
                       value={notes}
                       onChange={(event) => setNotes(event.target.value)}
@@ -401,20 +401,20 @@ export default function TimetablePage() {
                 </div>
               </div>
 
-              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+              <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px]">
                 <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-md bg-[color:var(--color-well)]">
                   {preview ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={preview} alt={`${selectedBranch.label} timetable preview`} className="h-full w-full object-contain" />
                   ) : (
-                    <div className="flex flex-col items-center gap-3 text-[color:var(--color-text-faint)]">
-                      <ImagePlus className="h-8 w-8" />
+                    <div className="flex flex-col items-center gap-[12px] text-[color:var(--color-text-faint)]">
+                      <ImagePlus className="h-[32px] w-[32px]" />
                       <span className="text-xs uppercase tracking-wider">No image selected</span>
                     </div>
                   )}
                 </div>
                 {file ? (
-                  <p className="mt-3 truncate text-xs text-[color:var(--color-text-dim)]">{file.name}</p>
+                  <p className="mt-[12px] truncate text-xs text-[color:var(--color-text-dim)]">{file.name}</p>
                 ) : null}
               </div>
             </div>

@@ -26,7 +26,7 @@ export function SmartCollections({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+    <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-4">
       {tiles.map((tile) => {
         const isActive = active === tile.key;
         return (
@@ -34,14 +34,14 @@ export function SmartCollections({
             key={tile.key || "all"}
             type="button"
             onClick={() => onSelect(tile.key)}
-            className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all active:scale-[0.98] ${
+            className={`flex items-center gap-[12px] rounded-xl border p-[12px] text-left transition-all active:scale-[0.98] ${
               isActive
                 ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
                 : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
             }`}
           >
-            <tile.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? "" : tile.accent}`} strokeWidth={1.75} />
-            <span className="min-w-0">
+            <tile.icon className={`h-[20px] w-[20px] flex-shrink-0 ${isActive ? "" : tile.accent}`} strokeWidth={1.75} />
+            <span className="min-w-[0px]">
               <span className="block truncate text-[13px] font-semibold">{tile.label}</span>
               <span className={`block text-xs ${isActive ? "opacity-70" : "text-[color:var(--color-text-dim)]"}`}>
                 {tile.count === null ? "90-day leaders" : `${tile.count} ${tile.count === 1 ? "video" : "videos"}`}

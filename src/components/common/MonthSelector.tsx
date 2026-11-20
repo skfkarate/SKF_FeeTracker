@@ -9,6 +9,7 @@ interface MonthSelectorProps {
   onMonthChange: (month: number) => void;
   year?: number;
   className?: string;
+  compact?: boolean;
 }
 
 const MONTHS = [
@@ -21,12 +22,13 @@ export default function MonthSelector({
   onMonthChange,
   year = getCurrentFeeYear(),
   className = "",
+  compact = false,
 }: MonthSelectorProps) {
   const now = new Date();
   const maxMonth = year === now.getFullYear() ? Math.min(11, now.getMonth() + 1) : 11;
 
   return (
-    <div className={`surface-glass flex items-center justify-between rounded-[var(--radius-card)] p-2 ${className}`}>
+    <div className={`surface-glass flex items-center justify-between rounded-[var(--radius-card)] ${compact ? "p-[4px]" : "p-[8px]"} ${className}`}>
       <button
         type="button"
         onClick={() => onMonthChange(selectedMonth - 1)}
@@ -34,12 +36,12 @@ export default function MonthSelector({
         className="tap-target grid place-items-center rounded-[var(--radius-row)] text-[color:var(--color-text-dim)] transition-colors hover:bg-[color:var(--color-glass-hover)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30"
         aria-label="Previous month"
       >
-        <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+        <ChevronLeft className="h-[20px] w-[20px]" aria-hidden="true" />
       </button>
 
-      <div className="h-11 min-w-[112px] flex-1 overflow-hidden px-2">
-        <p key={selectedMonth} className="animate-fade-in text-center font-display text-base font-semibold uppercase tracking-[0.02em] text-[color:var(--color-text)]">
-          {MONTHS[selectedMonth]} <span className="ml-1.5 font-mono text-xs text-[color:var(--color-text-faint)]">{year}</span>
+      <div className={`h-[44px] flex-1 overflow-hidden ${compact ? "min-w-[52px] px-[2px]" : "min-w-[112px] px-[8px]"}`}>
+        <p key={selectedMonth} className={`animate-fade-in text-center font-display font-semibold uppercase tracking-[0.02em] text-[color:var(--color-text)] ${compact ? "text-[11px]" : "text-base"}`}>
+          {compact ? `${MONTHS[selectedMonth].slice(0, 3)} ${String(year).slice(-2)}` : MONTHS[selectedMonth]} {!compact ? <span className="ml-[6px] font-mono text-xs text-[color:var(--color-text-faint)]">{year}</span> : null}
         </p>
       </div>
 
@@ -50,7 +52,7 @@ export default function MonthSelector({
         className="tap-target grid place-items-center rounded-[var(--radius-row)] text-[color:var(--color-text-dim)] transition-colors hover:bg-[color:var(--color-glass-hover)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-30"
         aria-label="Next month"
       >
-        <ChevronRight className="h-5 w-5" aria-hidden="true" />
+        <ChevronRight className="h-[20px] w-[20px]" aria-hidden="true" />
       </button>
     </div>
   );

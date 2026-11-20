@@ -47,8 +47,8 @@ export default function LoginPage() {
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[color:var(--color-well)] px-4 text-[color:var(--color-text)]">
-        <div className="flex flex-col items-center gap-4">
+      <div className="min-h-screen flex items-center justify-center bg-[color:var(--color-well)] px-[16px] text-[color:var(--color-text)]">
+        <div className="flex flex-col items-center gap-[16px]">
           <Image
             src="/logo.png"
             alt="SKF Logo"
@@ -57,39 +57,39 @@ export default function LoginPage() {
             priority
             className="rounded-full opacity-90"
           />
-          <Loader2 className="h-5 w-5 animate-spin text-[color:var(--color-text-dim)]" />
+          <Loader2 className="h-[20px] w-[20px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-[color:var(--color-well)] relative">
+    <div className="min-h-screen flex flex-col items-center justify-center px-[16px] bg-[color:var(--color-well)] relative">
       {/* Extremely subtle ambient light */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[color:var(--color-accent-dim)] rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[color:var(--color-accent-dim)] rounded-full blur-[100px] pointer-events-none" />
 
       <div className="w-full max-w-[340px] z-10">
 
         {/* Header */}
-        <div className="flex flex-col items-center mb-10 animate-fade-in">
+        <div className="flex flex-col items-center mb-[40px] animate-fade-in">
           <Image
             src="/logo.png"
             alt="SKF Logo"
             width={48}
             height={48}
             priority
-            className="rounded-full mb-6 opacity-90"
+            className="rounded-full mb-[24px] opacity-90"
           />
-          <h1 className="font-sans text-2xl font-medium tracking-tight text-[color:var(--color-text)] mb-1">
+          <h1 className="font-sans text-2xl font-medium tracking-tight text-[color:var(--color-text)] mb-[4px]">
             SKF Treasury
           </h1>
           <p className="text-[color:var(--color-text-dim)] text-sm">Sign in to manage operations</p>
         </div>
 
         {/* Login Form */}
-        <form onSubmit={handleLogin} className="space-y-4 animate-slide-up delay-100">
+        <form onSubmit={handleLogin} className="space-y-[16px] animate-slide-up delay-100">
           <div>
-            <label htmlFor="feetrack-username" className="block text-xs font-medium text-[color:var(--color-text-dim)] mb-2 uppercase tracking-widest text-center">
+            <label htmlFor="feetrack-username" className="block text-xs font-medium text-[color:var(--color-text-dim)] mb-[8px] uppercase tracking-widest text-center">
               Username
             </label>
             <input
@@ -105,7 +105,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label htmlFor="feetrack-password" className="block text-xs font-medium text-[color:var(--color-text-dim)] mb-2 uppercase tracking-widest text-center">
+            <label htmlFor="feetrack-password" className="block text-xs font-medium text-[color:var(--color-text-dim)] mb-[8px] uppercase tracking-widest text-center">
               Password
             </label>
             <input
@@ -120,23 +120,23 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="pt-2">
+            <div className="pt-[8px]">
               <p className="text-[color:var(--color-text-dim)] text-xs text-center">{error}</p>
             </div>
           )}
 
-          <div className="pt-4">
+          <div className="pt-[16px]">
             <button
               type="submit"
               disabled={loading || !username.trim() || !password}
-              className="btn-primary w-full flex items-center justify-center gap-2"
+              className="btn-primary w-full flex items-center justify-center gap-[8px]"
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Access Treasury"}
+              {loading ? <Loader2 className="w-[16px] h-[16px] animate-spin" /> : "Access Treasury"}
             </button>
           </div>
         </form>
 
-        <div className="mt-12 text-center animate-fade-in delay-300">
+        <div className="mt-[48px] text-center animate-fade-in delay-300">
           <p className="text-[color:var(--color-text-faint)] text-[10px] uppercase tracking-widest">
             Internal Secure System
           </p>

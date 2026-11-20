@@ -125,18 +125,18 @@ function MetricCard({
     <button
       type="button"
       onClick={onClick}
-      className={`glass-card p-4 text-left relative overflow-hidden transition-all ${
+      className={`glass-card p-[16px] text-left relative overflow-hidden transition-all ${
         active ? "border-[color:var(--color-hairline)] bg-[color:var(--color-accent-dim)]" : "hover:border-[color:var(--color-hairline)]"
       }`}
     >
-      <Icon className={`absolute right-3 top-3 w-10 h-10 opacity-10 ${toneClass(tone)}`} />
-      <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-1">
+      <Icon className={`absolute right-[12px] top-[12px] w-[40px] h-[40px] opacity-10 ${toneClass(tone)}`} />
+      <p className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mb-[4px]">
         {label}
       </p>
       <p className={`font-sans text-xl ${toneClass(tone)}`}>
         {value}
       </p>
-      <p className="text-[10px] text-[var(--text-muted)] mt-1">{note}</p>
+      <p className="text-[10px] text-[var(--text-muted)] mt-[4px]">{note}</p>
     </button>
   );
 }
@@ -234,33 +234,31 @@ export default function FinancesPage() {
           monthLabel: month === null ? `FY ${feeYear}` : `${MONTHS[month - 1]} ${feeYear}`,
           branchLabel: branch === "Overall" ? "All branches" : branch,
           backHref: "/dashboard",
-          actions: (
-            <>
-              <GlobalSearch />
-              <div className="scale-90 origin-right">
-                <MonthSelector
-                  selectedMonth={month}
-                  year={feeYear}
-                  onMonthChange={(nextMonth) => {
-                    setActiveFormula("all");
-                    setMonth(nextMonth);
-                  }}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => loadData(true)}
-                className="tap-target grid place-items-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] transition-colors hover:text-[color:var(--color-text)] disabled:opacity-50"
-                aria-label="Refresh finance data"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </button>
-            </>
-          ),
+          actions: <GlobalSearch />,
           bell: <NotificationBell />,
           account: <AccountMenu />,
         }}
       >
+        <div className="mb-[16px] flex flex-wrap items-center justify-between gap-[12px]">
+          <MonthSelector
+            compact
+            selectedMonth={month}
+            year={feeYear}
+            onMonthChange={(nextMonth) => {
+              setActiveFormula("all");
+              setMonth(nextMonth);
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => loadData(true)}
+            className="tap-target inline-flex min-w-[44px] items-center justify-center gap-[8px] rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs font-semibold text-[color:var(--color-text)] transition-colors hover:text-[color:var(--color-text)] disabled:opacity-50"
+            aria-label="Refresh finance data"
+          >
+            <RefreshCw className="h-[16px] w-[16px]" />
+            Refresh
+          </button>
+        </div>
         <SegmentedTabs
           options={BRANCH_TABS}
           value={branch}
@@ -269,26 +267,26 @@ export default function FinancesPage() {
             setBranch(nextBranch);
           }}
           ariaLabel="Finance branch"
-          className="mb-3"
+          className="mb-[12px]"
         />
         <SegmentedTabs
           options={MONEY_SECTIONS}
           value={section}
           onChange={setSection}
           ariaLabel="Money section"
-          className="mb-6"
+          className="mb-[24px]"
         />
 
         {loading && (
-          <div className="text-center py-16">
-            <div className="spinner mx-auto mb-4" />
+          <div className="text-center py-[64px]">
+            <div className="spinner mx-auto mb-[16px]" />
             <p className="text-[var(--text-muted)] text-sm">Loading finance command center...</p>
           </div>
         )}
 
         {error && (
-          <div className="text-center py-16">
-            <p className="text-[color:var(--color-text-dim)] mb-4 text-sm">{error}</p>
+          <div className="text-center py-[64px]">
+            <p className="text-[color:var(--color-text-dim)] mb-[16px] text-sm">{error}</p>
             <button onClick={() => loadData(true)} className="btn-primary text-sm">
               Retry
             </button>
@@ -296,16 +294,16 @@ export default function FinancesPage() {
         )}
 
         {!loading && !error && data && (
-          <div className="space-y-6">
+          <div className="space-y-[24px]">
             {section === "overview" ? (
-            <section className="hud-panel p-5 sm:p-6">
-              <div className="flex items-center justify-between gap-4">
+            <section className="hud-panel p-[20px] sm:p-[24px]">
+              <div className="flex items-center justify-between gap-[16px]">
                 <div>
                   <p className="eyebrow text-[color:var(--color-text-dim)]">{data.branch} · {data.periodLabel}</p>
-                  <p className={`numeric mt-3 text-[40px] leading-none ${data.summary.availableBalance < 0 ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text)]"}`}>
+                  <p className={`numeric mt-[12px] text-[40px] leading-none ${data.summary.availableBalance < 0 ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text)]"}`}>
                     {num(data.summary.availableBalance)}
                   </p>
-                  <p className="mt-3 max-w-xl text-xs text-[color:var(--color-text-dim)]">{data.formulas.availableBalance}</p>
+                  <p className="mt-[12px] max-w-xl text-xs text-[color:var(--color-text-dim)]">{data.formulas.availableBalance}</p>
                 </div>
                 <MeterRing
                   value={data.summary.collectionRate}
@@ -314,7 +312,7 @@ export default function FinancesPage() {
                 />
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div className="mt-[20px] grid grid-cols-2 gap-[12px] lg:grid-cols-4">
                 <StatTile label="Income" value={num(data.summary.grossIncome)} tone="neutral" />
                 <StatTile
                   label="Expenses"
@@ -332,11 +330,11 @@ export default function FinancesPage() {
             ) : null}
 
             {section === "overview" && data.warnings.length > 0 && (
-              <section className="space-y-2">
+              <section className="space-y-[8px]">
                 {data.warnings.map((warning) => (
                   <div
                     key={warning.message}
-                    className={`glass-card p-3 flex items-start gap-3 ${
+                    className={`glass-card p-[12px] flex items-start gap-[12px] ${
                       warning.level === "danger"
                         ? "text-[color:var(--color-text)]"
                         : "text-[color:var(--color-text)]"
@@ -348,7 +346,7 @@ export default function FinancesPage() {
                           : "var(--color-hairline-strong)",
                     }}
                   >
-                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <AlertTriangle className="w-[16px] h-[16px] mt-[2px] flex-shrink-0" />
                     <p className="text-sm">{warning.message}</p>
                   </div>
                 ))}
@@ -356,12 +354,12 @@ export default function FinancesPage() {
             )}
 
             {section === "overview" ? (
-            <section className="hud-panel p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <BarChart3 className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+            <section className="hud-panel p-[24px]">
+              <div className="flex items-center gap-[8px] mb-[24px]">
+                <BarChart3 className="w-[20px] h-[20px] text-[color:var(--color-text-dim)]" />
                 <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Fee Position</h2>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-[12px]">
                 <MetricCard
                   label="Expected"
                   value={currency(data.summary.expected)}
@@ -402,16 +400,16 @@ export default function FinancesPage() {
             ) : null}
 
             {section === "ledger" ? (
-            <section className="hud-panel p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <Calculator className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+            <section className="hud-panel p-[24px]">
+              <div className="flex items-center justify-between mb-[24px]">
+                <div className="flex items-center gap-[8px]">
+                  <Calculator className="w-[20px] h-[20px] text-[color:var(--color-text-dim)]" />
                   <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Calculation</h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveFormula("all")}
-                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors border border-[color:var(--color-hairline)] px-3 py-1.5 rounded-md"
+                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors border border-[color:var(--color-hairline)] px-[12px] py-[6px] rounded-md"
                 >
                   Show all ledger rows
                 </button>
@@ -446,20 +444,20 @@ export default function FinancesPage() {
             ) : null}
 
             {section === "fund" ? (
-            <section className="hud-panel p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <Wallet className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+            <section className="hud-panel p-[24px]">
+              <div className="flex items-center justify-between mb-[24px]">
+                <div className="flex items-center gap-[8px]">
+                  <Wallet className="w-[20px] h-[20px] text-[color:var(--color-text-dim)]" />
                   <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Fund & Tools</h2>
                 </div>
                 <Link
                   href="/development"
-                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-1 border border-[color:var(--color-hairline-strong)] px-3 py-1.5 rounded-md bg-[color:var(--color-well)]"
+                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-[4px] border border-[color:var(--color-hairline-strong)] px-[12px] py-[6px] rounded-md bg-[color:var(--color-well)]"
                 >
-                  Expense report <ArrowRight className="w-3 h-3" />
+                  Expense report <ArrowRight className="w-[12px] h-[12px]" />
                 </Link>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-[12px]">
                 <MetricCard
                   label="Gross Income"
                   value={currency(data.summary.grossIncome)}
@@ -520,32 +518,32 @@ export default function FinancesPage() {
             ) : null}
 
             {section === "overview" ? (
-            <section className="hud-panel p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <Ticket className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+            <section className="hud-panel p-[24px]">
+              <div className="flex items-center justify-between mb-[24px]">
+                <div className="flex items-center gap-[8px]">
+                  <Ticket className="w-[20px] h-[20px] text-[color:var(--color-text-dim)]" />
                   <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Income Sources</h2>
                 </div>
                 <button
                   onClick={() => setShowAddIncome(true)}
-                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-1 border border-[color:var(--color-accent-border)] px-3 py-1.5 rounded-md bg-[color:var(--color-well)]"
+                  className="text-xs text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors flex items-center gap-[4px] border border-[color:var(--color-accent-border)] px-[12px] py-[6px] rounded-md bg-[color:var(--color-well)]"
                 >
-                  <Plus className="w-3 h-3" /> Add Income
+                  <Plus className="w-[12px] h-[12px]" /> Add Income
                 </button>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5">
-                  <Ticket className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
-                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-[12px]">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-[20px]">
+                  <Ticket className="w-[20px] h-[20px] text-[color:var(--color-text-dim)] mb-[12px]" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-[4px]">
                     Admission
                   </p>
                   <p className="font-sans text-2xl text-[color:var(--color-text-dim)]">
                     {currency(data.summary.admissionCollected)}
                   </p>
                 </div>
-                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5">
-                  <Shirt className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
-                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-[20px]">
+                  <Shirt className="w-[20px] h-[20px] text-[color:var(--color-text-dim)] mb-[12px]" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-[4px]">
                     Dress Profit
                   </p>
                   <p
@@ -556,9 +554,9 @@ export default function FinancesPage() {
                     {currency(data.summary.dressProfit)}
                   </p>
                 </div>
-                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5">
-                  <Wallet className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
-                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
+                <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-[20px]">
+                  <Wallet className="w-[20px] h-[20px] text-[color:var(--color-text-dim)] mb-[12px]" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-[4px]">
                     Extra Income
                   </p>
                   <p className="font-sans text-2xl text-[color:var(--color-text-dim)]">
@@ -567,10 +565,10 @@ export default function FinancesPage() {
                 </div>
                 <Link
                   href="/events"
-                  className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5 hover:border-[color:var(--color-hairline-strong)] transition-colors"
+                  className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-[20px] hover:border-[color:var(--color-hairline-strong)] transition-colors"
                 >
-                  <Ticket className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
-                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
+                  <Ticket className="w-[20px] h-[20px] text-[color:var(--color-text-dim)] mb-[12px]" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-[4px]">
                     Event Income
                   </p>
                   <p className="font-sans text-2xl text-[color:var(--color-text-dim)]">
@@ -579,10 +577,10 @@ export default function FinancesPage() {
                 </Link>
                 <Link
                   href="/referrals"
-                  className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-5 hover:border-[color:var(--color-accent-border)] transition-colors"
+                  className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl p-[20px] hover:border-[color:var(--color-accent-border)] transition-colors"
                 >
-                  <Gift className="w-5 h-5 text-[color:var(--color-text-dim)] mb-3" />
-                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-1">
+                  <Gift className="w-[20px] h-[20px] text-[color:var(--color-text-dim)] mb-[12px]" />
+                  <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider mb-[4px]">
                     Referral Credits
                   </p>
                   <p className="font-sans text-2xl text-[color:var(--color-text-dim)]">
@@ -594,30 +592,30 @@ export default function FinancesPage() {
             ) : null}
 
             {section === "fund" ? (
-            <section className="hud-panel p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <BarChart3 className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+            <section className="hud-panel p-[24px]">
+              <div className="flex items-center gap-[8px] mb-[24px]">
+                <BarChart3 className="w-[20px] h-[20px] text-[color:var(--color-text-dim)]" />
                 <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Year Cash Flow</h2>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-[16px]">
                 {data.cashFlowByMonth
                   .filter((row) => row.income !== 0 || row.expenses > 0)
                   .map((row) => {
                     const incomeMagnitude = Math.abs(row.income);
                     const incomeTone = row.income < 0 ? "red" : "green";
                     return (
-                      <div key={`${row.year}-${row.month}`} className="grid grid-cols-[44px_1fr_92px] gap-3 items-center">
+                      <div key={`${row.year}-${row.month}`} className="grid grid-cols-[44px_1fr_92px] gap-[12px] items-center">
                         <p className="text-xs text-[color:var(--color-text-dim)] font-sans">
                           {MONTHS[row.month]}
                         </p>
-                        <div className="space-y-1.5">
-                          <div className="h-2 rounded-full bg-[color:var(--color-well)] overflow-hidden">
+                        <div className="space-y-[6px]">
+                          <div className="h-[8px] rounded-full bg-[color:var(--color-well)] overflow-hidden">
                             <div
                               className={`h-full ${incomeTone === "red" ? "bg-[color:var(--color-text-faint)]" : "bg-[color:var(--color-accent)]"}`}
                               style={{ width: incomeMagnitude > 0 ? `${Math.max(4, (incomeMagnitude / maxFlow) * 100)}%` : 0 }}
                             />
                           </div>
-                          <div className="h-2 rounded-full bg-[color:var(--color-well)] overflow-hidden">
+                          <div className="h-[8px] rounded-full bg-[color:var(--color-well)] overflow-hidden">
                             <div
                               className="h-full bg-[color:var(--color-text-faint)]"
                               style={{ width: row.expenses > 0 ? `${Math.max(4, (row.expenses / maxFlow) * 100)}%` : 0 }}
@@ -634,7 +632,7 @@ export default function FinancesPage() {
                     );
                   })}
                 {data.cashFlowByMonth.every((row) => row.income === 0 && row.expenses === 0) && (
-                  <p className="text-sm text-[color:var(--color-text-dim)] text-center py-6">
+                  <p className="text-sm text-[color:var(--color-text-dim)] text-center py-[24px]">
                     No finance activity recorded for this year.
                   </p>
                 )}
@@ -643,13 +641,13 @@ export default function FinancesPage() {
             ) : null}
 
             {section === "ledger" ? (
-            <section className="hud-panel p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <Package className="w-5 h-5 text-[color:var(--color-text-dim)]" />
+            <section className="hud-panel p-[24px]">
+              <div className="flex items-center justify-between mb-[24px]">
+                <div className="flex items-center gap-[8px]">
+                  <Package className="w-[20px] h-[20px] text-[color:var(--color-text-dim)]" />
                   <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">Ledger Rows</h2>
                 </div>
-                <div className="px-3 py-1 bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-full">
+                <div className="px-[12px] py-[4px] bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-full">
                   <p className="text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-wider">
                     {filteredLedger.length} Records
                   </p>
@@ -657,7 +655,7 @@ export default function FinancesPage() {
               </div>
               <div className="divide-y divide-[color:var(--color-hairline)]">
                 {filteredLedger.length === 0 ? (
-                  <p className="py-8 text-center text-sm text-[color:var(--color-text-dim)]">
+                  <p className="py-[32px] text-center text-sm text-[color:var(--color-text-dim)]">
                     No rows match this calculation.
                   </p>
                 ) : (

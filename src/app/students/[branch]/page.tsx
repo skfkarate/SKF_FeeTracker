@@ -16,7 +16,7 @@ export default async function Page({
   return (
     <Suspense
       fallback={
-        <div className="text-center py-12 text-[color:var(--color-text-dim)]">
+        <div className="text-center py-[48px] text-[color:var(--color-text-dim)]">
           Loading student list...
         </div>
       }

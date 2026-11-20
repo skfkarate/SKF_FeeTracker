@@ -15,14 +15,14 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="min-h-dvh bg-[color:var(--color-well)] text-[color:var(--color-text)] flex items-center justify-center px-6">
+    <main className="min-h-dvh bg-[color:var(--color-well)] text-[color:var(--color-text)] flex items-center justify-center px-[24px]">
       <section className="max-w-md text-center">
-        <h1 className="text-2xl font-semibold mb-3">Something went wrong</h1>
-        <p className="text-[color:var(--color-text-dim)] mb-6">FeeTrack hit an unexpected error and the team has been notified.</p>
+        <h1 className="text-2xl font-semibold mb-[12px]">Something went wrong</h1>
+        <p className="text-[color:var(--color-text-dim)] mb-[24px]">FeeTrack hit an unexpected error and the team has been notified.</p>
         <button
           type="button"
           onClick={() => reset()}
-          className="min-h-11 rounded-md bg-[color:var(--color-accent)] px-5 py-2 text-sm font-semibold text-[color:var(--color-accent-ink)] cursor-pointer"
+          className="min-h-[44px] rounded-md bg-[color:var(--color-accent)] px-[20px] py-[8px] text-sm font-semibold text-[color:var(--color-accent-ink)] cursor-pointer"
         >
           Try again
         </button>

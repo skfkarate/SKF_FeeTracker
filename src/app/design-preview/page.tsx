@@ -34,43 +34,43 @@ export default function DesignPreviewPage() {
           onSearchClick: () => undefined,
           bell: <span className="font-mono text-[11px] text-[color:var(--color-text-dim)]">12</span>,
         }}
-        mainClassName="py-6"
+        mainClassName="py-[24px]"
       >
-        <section className="hud-panel p-4">
-          <div className="flex items-center justify-between gap-4">
+        <section className="hud-panel p-[16px]">
+          <div className="flex items-center justify-between gap-[16px]">
             <div>
               <p className="eyebrow text-[color:var(--color-text-dim)]">Collected</p>
-              <p className="numeric mt-2 text-[40px] leading-none text-[color:var(--color-text)]">Rs. 1,24,000</p>
+              <p className="numeric mt-[8px] text-[40px] leading-none text-[color:var(--color-text)]">Rs. 1,24,000</p>
             </div>
             <MeterRing value={68} label="Collection rate" caption="of monthly fees" />
           </div>
         </section>
 
-        <section className="mt-3 hud-panel p-4">
+        <section className="mt-[12px] hud-panel p-[16px]">
           <div className="flex items-center justify-between">
             <div>
               <p className="eyebrow text-[color:var(--color-text-dim)]">Fund target</p>
-              <p className="numeric mt-2 text-[20px] leading-none text-[color:var(--color-text)]">Rs. 1,50,000</p>
+              <p className="numeric mt-[8px] text-[20px] leading-none text-[color:var(--color-text)]">Rs. 1,50,000</p>
             </div>
             <span className="eyebrow text-[color:var(--color-text-dim)]">45%</span>
           </div>
-          <MeterBar value={45} label="Fund target" className="mt-3" />
+          <MeterBar value={45} label="Fund target" className="mt-[12px]" />
         </section>
 
-        <section className="mt-6 hud-panel p-4">
+        <section className="mt-[24px] hud-panel p-[16px]">
           <p className="eyebrow text-[color:var(--color-text-dim)]">Money type</p>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="mt-[12px] grid grid-cols-1 gap-[12px] sm:grid-cols-3">
             <p className="numeric text-[20px] text-[color:var(--color-text)]">2,000</p>
             <p className="numeric text-[20px] text-[color:var(--color-text)]">1,24,000</p>
             <p className="numeric text-[20px] text-[color:var(--color-text)]">10,25,500</p>
           </div>
         </section>
 
-        <div className="mt-6">
+        <div className="mt-[24px]">
           <SegmentedTabs options={TABS} value={tab} onChange={setTab} ariaLabel="Fees sections" />
         </div>
 
-        <section className="mt-6 space-y-2">
+        <section className="mt-[24px] space-y-[8px]">
           <LedgerRow
             index={0}
             status="due"
@@ -106,12 +106,12 @@ export default function DesignPreviewPage() {
           />
         </section>
 
-        <section className="mt-6 hud-panel p-4">
+        <section className="mt-[24px] hud-panel p-[16px]">
           <AmountInput label="Amount received" value={amount} onChange={setAmount} hint="Prorated rows keep the explanation in metadata." />
           <button
             type="button"
             onClick={() => setSheetOpen(true)}
-            className="tap-target mt-4 w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-4 eyebrow text-[color:var(--color-accent-ink)]"
+            className="tap-target mt-[16px] w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-[16px] eyebrow text-[color:var(--color-accent-ink)]"
           >
             Open sheet
           </button>
@@ -119,7 +119,7 @@ export default function DesignPreviewPage() {
       </PageShell>
 
       <Sheet open={sheetOpen} title="Mark paid" onClose={() => setSheetOpen(false)}>
-        <div className="space-y-4">
+        <div className="space-y-[16px]">
           <p className="numeric text-[28px] leading-none text-[color:var(--color-text)]">Rs. {amount || "0"}</p>
           <p className="text-[13px] text-[color:var(--color-text-dim)]">Payment receipt will snapshot the stored charged amount.</p>
           <LedgerRow

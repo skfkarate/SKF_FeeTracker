@@ -268,7 +268,7 @@ export default function GalleryManagerPage() {
     return (
       <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+          <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -283,52 +283,52 @@ export default function GalleryManagerPage() {
       }}
     >
       <div>
-        <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <header className="mb-[32px] flex flex-col gap-[20px] lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
+            <div className="mb-[12px] flex items-center gap-[12px]">
+              <span className="h-[8px] w-[8px] rounded-full bg-[color:var(--color-accent)]" />
               <p className="eyebrow text-[color:var(--color-text-dim)]">Public Website Gallery</p>
             </div>
-            <h1 className="mt-1 text-[15px] font-semibold text-[color:var(--color-text)]">Gallery Photos</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[color:var(--color-text-dim)]">
+            <h1 className="mt-[4px] text-[15px] font-semibold text-[color:var(--color-text)]">Gallery Photos</h1>
+            <p className="mt-[12px] max-w-2xl text-sm leading-relaxed text-[color:var(--color-text-dim)]">
               Upload public gallery images, assign categories, feature the best moments, and hide drafts until they are ready.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:flex">
+          <div className="grid grid-cols-2 gap-[8px] sm:flex">
             <button
               type="button"
               onClick={() => loadPhotos(true)}
               disabled={refreshing}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm text-[color:var(--color-text)] disabled:opacity-50"
+              className="tap-target inline-flex items-center justify-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[16px] text-sm text-[color:var(--color-text)] disabled:opacity-50"
             >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-[16px] w-[16px] ${refreshing ? "animate-spin" : ""}`} />
               Refresh
             </button>
             <button
               type="button"
               onClick={openCreateModal}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-4 eyebrow text-[color:var(--color-accent-ink)]"
+              className="tap-target inline-flex items-center justify-center gap-[8px] rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-[16px] eyebrow text-[color:var(--color-accent-ink)]"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-[16px] w-[16px]" />
               Upload
             </button>
           </div>
         </header>
 
-        <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <section className="mb-[24px] grid grid-cols-2 gap-[12px] sm:grid-cols-4">
           <StatTile label="Total" value={String(counts.total)} />
           <StatTile label="Uploaded" value={String(counts.live)} />
           <StatTile label="Published" value={String(counts.published)} tone="neutral" />
           <StatTile label="Featured" value={String(counts.featured)} tone="action" />
         </section>
 
-        <section className="mb-6 grid gap-3 lg:grid-cols-[1fr_auto]">
+        <section className="mb-[24px] grid gap-[12px] lg:grid-cols-[1fr_auto]">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
+            <Search className="pointer-events-none absolute left-[16px] top-[50%] h-[16px] w-[16px] -translate-y-1/2 text-[color:var(--color-text-faint)]" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="input-minimal min-h-12 pl-11"
+              className="input-minimal min-h-[48px] pl-[44px]"
               placeholder="Search title, category or photo ID"
             />
           </div>
@@ -345,30 +345,30 @@ export default function GalleryManagerPage() {
         </section>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <AlertCircle className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <CheckCircle2 className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{notice}</p>
           </div>
         ) : null}
 
         {loading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-[16px] sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="h-72 animate-pulse rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]" />
+              <div key={index} className="h-[288px] animate-pulse rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]" />
             ))}
           </div>
         ) : filteredPhotos.length === 0 ? (
-          <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-10 text-center">
-            <Images className="mx-auto mb-4 h-9 w-9 text-[color:var(--color-text-faint)]" />
+          <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[40px] text-center">
+            <Images className="mx-auto mb-[16px] h-[44px] w-[44px] text-[color:var(--color-text-faint)]" />
             <h2 className="text-lg font-semibold text-[color:var(--color-text)]">No gallery photos found</h2>
-            <p className="mt-2 text-sm text-[color:var(--color-text-dim)]">Change the filter or upload a new photo.</p>
+            <p className="mt-[8px] text-sm text-[color:var(--color-text-dim)]">Change the filter or upload a new photo.</p>
           </div>
         ) : (
           <div className="hud-panel overflow-hidden">
@@ -384,12 +384,12 @@ export default function GalleryManagerPage() {
                     subtitle={`${photo.cat} · ${photo.isSeed ? "Seed photo" : "Uploaded photo"}`}
                     idLabel={`ORDER ${photo.sortOrder || 0} · ${photo.id}`}
                     trailing={
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-[8px]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={normalizeKarateMediaUrl(photo.src)}
                           alt={photo.title}
-                          className="h-10 w-10 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] object-cover"
+                          className="h-[44px] w-[44px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] object-cover"
                         />
                         {photo.pinned ? <StatusPill status="neutral" label="Featured" ariaLabel="Featured photo" /> : null}
                         <StatusPill status={status} label={photo.isPublished ? "Live" : "Draft"} />
@@ -398,18 +398,18 @@ export default function GalleryManagerPage() {
                           onClick={() => openEditModal(photo)}
                           disabled={photo.isSeed}
                           aria-label={`Edit ${photo.title}`}
-                          className="tap-target grid w-10 place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] disabled:opacity-40"
+                          className="tap-target grid w-[40px] place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)] disabled:opacity-40"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-[16px] w-[16px]" />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDelete(photo)}
                           disabled={photo.isSeed || deletingId === photo.id}
                           aria-label={`Delete ${photo.title}`}
-                          className="tap-target grid w-10 place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-[color:var(--color-text)] disabled:opacity-40"
+                          className="tap-target grid w-[40px] place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-[color:var(--color-text)] disabled:opacity-40"
                         >
-                          {deletingId === photo.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          {deletingId === photo.id ? <Loader2 className="h-[16px] w-[16px] animate-spin" /> : <Trash2 className="h-[16px] w-[16px]" />}
                         </button>
                       </div>
                     }
@@ -426,7 +426,7 @@ export default function GalleryManagerPage() {
         title={editingPhoto ? "Edit Photo" : "Upload Photos"}
         onClose={closeModal}
         footer={
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-[8px]">
             <button
               type="button"
               onClick={closeModal}
@@ -439,16 +439,16 @@ export default function GalleryManagerPage() {
               type="button"
               onClick={() => void handleSave()}
               disabled={saving}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
+              className="tap-target inline-flex items-center justify-center gap-[8px] rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
             >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {saving ? <Loader2 className="h-[16px] w-[16px] animate-spin" /> : <Upload className="h-[16px] w-[16px]" />}
               Save
             </button>
           </div>
         }
       >
-        <div className="grid gap-4 pt-1">
-          <label className="grid gap-2">
+        <div className="grid gap-[16px] pt-[4px]">
+          <label className="grid gap-[8px]">
             <span className="eyebrow text-[color:var(--color-text-dim)]">
               {editingPhoto ? "Title" : "Title / Batch Label"}
             </span>
@@ -460,8 +460,8 @@ export default function GalleryManagerPage() {
             />
           </label>
 
-          <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
-            <label className="grid gap-2">
+          <div className="grid gap-[16px] sm:grid-cols-[1fr_140px]">
+            <label className="grid gap-[8px]">
               <span className="eyebrow text-[color:var(--color-text-dim)]">Category</span>
               <select
                 value={form.category}
@@ -474,7 +474,7 @@ export default function GalleryManagerPage() {
               </select>
             </label>
 
-            <label className="grid gap-2">
+            <label className="grid gap-[8px]">
               <span className="eyebrow text-[color:var(--color-text-dim)]">Sort</span>
               <input
                 type="number"
@@ -485,34 +485,34 @@ export default function GalleryManagerPage() {
             </label>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="tap-target flex cursor-pointer items-center justify-between gap-3 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm text-[color:var(--color-text)]">
-              <span className="inline-flex items-center gap-2">
-                <Star className="h-4 w-4 text-[color:var(--color-text)]" />
+          <div className="grid gap-[12px] sm:grid-cols-2">
+            <label className="tap-target flex cursor-pointer items-center justify-between gap-[12px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[16px] text-sm text-[color:var(--color-text)]">
+              <span className="inline-flex items-center gap-[8px]">
+                <Star className="h-[16px] w-[16px] text-[color:var(--color-text)]" />
                 Featured
               </span>
               <input
                 type="checkbox"
                 checked={form.pinned}
                 onChange={(event) => setForm((current) => ({ ...current, pinned: event.target.checked }))}
-                className="h-4 w-4 accent-[color:var(--color-brand)]"
+                className="h-[16px] w-[16px] accent-[color:var(--color-brand)]"
               />
             </label>
-            <label className="tap-target flex cursor-pointer items-center justify-between gap-3 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm text-[color:var(--color-text)]">
-              <span className="inline-flex items-center gap-2">
-                {form.isPublished ? <Eye className="h-4 w-4 text-[color:var(--color-text)]" /> : <EyeOff className="h-4 w-4 text-[color:var(--color-text-dim)]" />}
+            <label className="tap-target flex cursor-pointer items-center justify-between gap-[12px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[16px] text-sm text-[color:var(--color-text)]">
+              <span className="inline-flex items-center gap-[8px]">
+                {form.isPublished ? <Eye className="h-[16px] w-[16px] text-[color:var(--color-text)]" /> : <EyeOff className="h-[16px] w-[16px] text-[color:var(--color-text-dim)]" />}
                 Published
               </span>
               <input
                 type="checkbox"
                 checked={form.isPublished}
                 onChange={(event) => setForm((current) => ({ ...current, isPublished: event.target.checked }))}
-                className="h-4 w-4 accent-[color:var(--color-brand)]"
+                className="h-[16px] w-[16px] accent-[color:var(--color-brand)]"
               />
             </label>
           </div>
 
-          <label className="grid cursor-pointer gap-3 rounded-[var(--radius-row)] border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-5 text-center transition-colors hover:border-[color:var(--color-hairline-strong)]">
+          <label className="grid cursor-pointer gap-[12px] rounded-[var(--radius-row)] border border-dashed border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[20px] text-center transition-colors hover:border-[color:var(--color-hairline-strong)]">
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"
@@ -520,7 +520,7 @@ export default function GalleryManagerPage() {
               className="sr-only"
               onChange={(event) => handleFiles(event.currentTarget.files)}
             />
-            <ImagePlus className="mx-auto h-8 w-8 text-[color:var(--color-text-dim)]" />
+            <ImagePlus className="mx-auto h-[32px] w-[32px] text-[color:var(--color-text-dim)]" />
             <span className="text-sm text-[color:var(--color-text)]">
               {editingPhoto ? "Replace image (optional)" : "Choose one or multiple photos"}
             </span>
@@ -528,12 +528,12 @@ export default function GalleryManagerPage() {
           </label>
 
           {files.length ? (
-            <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
-              <p className="mb-2 eyebrow text-[color:var(--color-text-faint)]">Selected</p>
-              <div className="grid gap-2">
+            <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px]">
+              <p className="mb-[8px] eyebrow text-[color:var(--color-text-faint)]">Selected</p>
+              <div className="grid gap-[8px]">
                 {files.map((file) => (
-                  <div key={`${file.name}-${file.size}`} className="flex items-center justify-between gap-3 rounded-[var(--radius-row)] bg-[color:var(--color-well)] px-3 py-2 text-sm">
-                    <span className="min-w-0 truncate text-[color:var(--color-text)]">{file.name}</span>
+                  <div key={`${file.name}-${file.size}`} className="flex items-center justify-between gap-[12px] rounded-[var(--radius-row)] bg-[color:var(--color-well)] px-[12px] py-[8px] text-sm">
+                    <span className="min-w-[0px] truncate text-[color:var(--color-text)]">{file.name}</span>
                     <span className="flex-shrink-0 text-xs text-[color:var(--color-text-faint)]">{Math.round(file.size / 1024)} KB</span>
                   </div>
                 ))}

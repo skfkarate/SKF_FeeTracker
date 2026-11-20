@@ -21,13 +21,13 @@ export function SortViewControls({
   onSortChange: (sort: SortMode) => void;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <label className="relative inline-flex items-center">
-        <ArrowUpDown className="pointer-events-none absolute left-3 h-3.5 w-3.5 text-[color:var(--color-text-faint)]" />
+    <div className="flex min-w-[0px] flex-wrap items-center gap-[8px]">
+      <label className="relative inline-flex min-w-[0px] max-w-full items-center">
+        <ArrowUpDown className="pointer-events-none absolute left-[12px] h-[14px] w-[14px] text-[color:var(--color-text-faint)]" />
         <select
           value={sort}
           onChange={(event) => onSortChange(event.target.value as SortMode)}
-          className="input-minimal min-h-10 !w-auto appearance-none py-0 pl-9 pr-8 text-xs font-semibold capitalize"
+          className="input-minimal min-h-[44px] min-w-[0px] max-w-full appearance-none py-[0px] pl-[36px] pr-[32px] text-xs font-semibold capitalize sm:!w-auto"
           aria-label="Sort content"
         >
           {(Object.keys(SORT_LABELS) as SortMode[]).map((mode) => (
@@ -35,24 +35,24 @@ export function SortViewControls({
           ))}
         </select>
       </label>
-      <div className="flex rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-0.5" role="group" aria-label="View mode">
+      <div className="flex rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[2px]" role="group" aria-label="View mode">
         <button
           type="button"
           onClick={() => onViewChange("grid")}
           aria-label="Grid view"
           aria-pressed={view === "grid"}
-          className={`flex h-9 w-9 items-center justify-center rounded-md transition-colors ${view === "grid" ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]" : "text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+          className={`flex h-[44px] w-[44px] items-center justify-center rounded-md transition-colors ${view === "grid" ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]" : "text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
         >
-          <LayoutGrid className="h-4 w-4" />
+          <LayoutGrid className="h-[16px] w-[16px]" />
         </button>
         <button
           type="button"
           onClick={() => onViewChange("list")}
           aria-label="List view"
           aria-pressed={view === "list"}
-          className={`flex h-9 w-9 items-center justify-center rounded-md transition-colors ${view === "list" ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]" : "text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+          className={`flex h-[44px] w-[44px] items-center justify-center rounded-md transition-colors ${view === "list" ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]" : "text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
         >
-          <List className="h-4 w-4" />
+          <List className="h-[16px] w-[16px]" />
         </button>
       </div>
     </div>

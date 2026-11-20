@@ -47,37 +47,37 @@ export function AddExtraIncomeModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[color:var(--color-well)] backdrop-blur-sm">
+    <div className="fixed inset-[0px] z-50 flex items-center justify-center p-[16px] bg-[color:var(--color-well)] backdrop-blur-sm">
       <div className="bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-2xl w-full max-w-md overflow-hidden relative">
-        <div className="p-5 border-b border-[color:var(--color-hairline)] flex items-center justify-between">
+        <div className="p-[20px] border-b border-[color:var(--color-hairline)] flex items-center justify-between">
           <h2 className="text-lg text-[color:var(--color-text)] font-medium">Add Extra Income</h2>
-          <button onClick={onClose} className="p-2 text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] rounded-lg hover:bg-[color:var(--color-well)]">
-            <X className="w-5 h-5" />
+          <button onClick={onClose} className="p-[8px] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] rounded-lg hover:bg-[color:var(--color-well)]">
+            <X className="w-[20px] h-[20px]" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          {error && <div className="p-3 bg-[color:var(--color-well)] border border-[color:var(--color-hairline-strong)] text-[color:var(--color-text-dim)] rounded-lg text-sm">{error}</div>}
+        <form onSubmit={handleSubmit} className="p-[20px] space-y-[16px]">
+          {error && <div className="p-[12px] bg-[color:var(--color-well)] border border-[color:var(--color-hairline-strong)] text-[color:var(--color-text-dim)] rounded-lg text-sm">{error}</div>}
 
           <div>
-            <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-2">Title / Reason</label>
+            <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-[8px]">Title / Reason</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-faint)] focus:outline-none focus:border-[color:var(--color-accent-border)]"
+              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-[16px] py-[12px] text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-faint)] focus:outline-none focus:border-[color:var(--color-accent-border)]"
               placeholder="e.g. Summer Camp Fees"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-2">Amount (₹)</label>
+            <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-[8px]">Amount (₹)</label>
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-faint)] focus:outline-none focus:border-[color:var(--color-accent-border)] font-sans"
+              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-[16px] py-[12px] text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-faint)] focus:outline-none focus:border-[color:var(--color-accent-border)] font-sans"
               placeholder="500"
               min="1"
               required
@@ -85,11 +85,11 @@ export function AddExtraIncomeModal({
           </div>
 
           <div>
-            <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-2">Description (Optional)</label>
+            <label className="block text-xs text-[color:var(--color-text-dim)] uppercase tracking-wider mb-[8px]">Description (Optional)</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-4 py-3 text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-faint)] focus:outline-none focus:border-[color:var(--color-accent-border)] min-h-[80px]"
+              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-lg px-[16px] py-[12px] text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-faint)] focus:outline-none focus:border-[color:var(--color-accent-border)] min-h-[80px]"
               placeholder="Additional details..."
             />
           </div>
@@ -97,9 +97,9 @@ export function AddExtraIncomeModal({
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary py-3 rounded-lg flex items-center justify-center gap-2"
+            className="w-full btn-primary py-[12px] rounded-lg flex items-center justify-center gap-[8px]"
           >
-            {loading ? <div className="spinner w-5 h-5" /> : <Plus className="w-5 h-5" />}
+            {loading ? <div className="spinner w-[20px] h-[20px]" /> : <Plus className="w-[20px] h-[20px]" />}
             {loading ? "Adding..." : "Add Income"}
           </button>
         </form>

@@ -42,26 +42,26 @@ export function FolderTile({
       onDragOver={onDragOverTile ? (event) => onDragOverTile(event, folder.id) : undefined}
       onDragLeave={onDragLeaveTile ? () => onDragLeaveTile(folder.id) : undefined}
       onDrop={onDropOnTile ? (event) => onDropOnTile(event, folder.id) : undefined}
-      className={`group relative flex flex-col rounded-2xl border p-4 text-left transition-all active:scale-[0.98] ${
+      className={`group relative flex flex-col rounded-2xl border p-[16px] text-left transition-all active:scale-[0.98] ${
         isDropTarget
           ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] ring-2 ring-[color:var(--color-accent)]"
           : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
       }`}
     >
-      <div className="mb-3 flex items-start justify-between">
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[color:var(--color-hairline)] bg-gradient-to-br from-[color:var(--color-panel)] to-[color:var(--color-panel)] text-[color:var(--color-text)] shadow-inner shadow-[0_18px_45px_rgba(0,0,0,0.28)] group-hover:border-[color:var(--color-hairline)]">
-          <Folder className="h-5 w-5" strokeWidth={1.75} />
+      <div className="mb-[12px] flex items-start justify-between">
+        <span className="flex h-[44px] w-[44px] items-center justify-center rounded-xl border border-[color:var(--color-hairline)] bg-gradient-to-br from-[color:var(--color-panel)] to-[color:var(--color-panel)] text-[color:var(--color-text)] shadow-inner shadow-[0_18px_45px_rgba(0,0,0,0.28)] group-hover:border-[color:var(--color-hairline)]">
+          <Folder className="h-[20px] w-[20px]" strokeWidth={1.75} />
         </span>
         {!folder.isPublished ? (
-          <span className="rounded-md border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text)]">Draft</span>
+          <span className="rounded-md border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[8px] py-[2px] text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text)]">Draft</span>
         ) : null}
       </div>
       <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{folder.title}</p>
-      <p className="mt-0.5 truncate text-xs text-[color:var(--color-text-dim)]">{subtitleParts.join(" · ")}</p>
+      <p className="mt-[2px] truncate text-xs text-[color:var(--color-text-dim)]">{subtitleParts.join(" · ")}</p>
     </button>
   );
 }
 
 export function FolderSkeleton() {
-  return <div className="h-36 animate-pulse rounded-2xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]" aria-hidden />;
+  return <div className="h-[144px] animate-pulse rounded-2xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]" aria-hidden />;
 }

@@ -152,7 +152,7 @@ function ImagePreview({ src, alt, className = "" }: { src?: string; alt: string;
   if (!imageUrl) {
     return (
       <div className={`flex items-center justify-center bg-[color:var(--color-well)] text-[color:var(--color-text-faint)] ${className}`}>
-        <ImageIcon className="h-6 w-6" />
+        <ImageIcon className="h-[24px] w-[24px]" />
       </div>
     );
   }
@@ -429,7 +429,7 @@ export default function ShopPage() {
     return (
       <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+          <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -446,26 +446,26 @@ export default function ShopPage() {
       }}
     >
       <div>
-        <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <header className="mb-[32px] flex flex-col gap-[20px] md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
+            <div className="mb-[12px] flex items-center gap-[12px]">
+              <span className="h-[8px] w-[8px] rounded-full bg-[color:var(--color-accent)]" />
               <p className="eyebrow text-[color:var(--color-text-dim)]">Store Operations</p>
             </div>
-            <h1 className="mt-1 text-[15px] font-semibold text-[color:var(--color-text)]">Shop Manager</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[color:var(--color-text-dim)]">
+            <h1 className="mt-[4px] text-[15px] font-semibold text-[color:var(--color-text)]">Shop Manager</h1>
+            <p className="mt-[12px] max-w-2xl text-sm leading-relaxed text-[color:var(--color-text-dim)]">
               Manage products, images, variants, stock and order progress from one simple control screen.
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-[12px]">
             <StatTile label="Products" value={String(productSummary.count)} />
             <StatTile label="Stock" value={String(productSummary.stock)} />
             <StatTile label="Pending" value={String(orderSummary.pending)} tone="action" />
           </div>
         </header>
 
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-[24px] flex flex-col gap-[12px] sm:flex-row sm:items-center sm:justify-between">
           <SegmentedTabs
             ariaLabel="Shop section"
             value={activeTab}
@@ -479,32 +479,32 @@ export default function ShopPage() {
           <button
             type="button"
             onClick={() => activeTab === "products" ? void loadProducts(true) : void loadOrders(true)}
-            className="btn-ghost inline-flex min-h-10 items-center justify-center gap-2"
+            className="btn-ghost inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-[8px]"
             disabled={refreshingProducts || refreshingOrders}
           >
-            <RefreshCw className={`h-4 w-4 ${refreshingProducts || refreshingOrders ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-[16px] w-[16px] ${refreshingProducts || refreshingOrders ? "animate-spin" : ""}`} />
             Refresh
           </button>
         </div>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <AlertCircle className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <CheckCircle2 className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{notice}</p>
           </div>
         ) : null}
 
         {activeTab === "products" ? (
-          <section className="space-y-5">
-            <div className="hud-panel p-4">
-              <div className="mb-4 flex items-center justify-between gap-3">
+          <section className="space-y-[20px]">
+            <div className="hud-panel p-[16px]">
+              <div className="mb-[16px] flex flex-wrap items-center justify-between gap-[12px]">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Catalog</p>
                   <h2 className="text-lg font-semibold text-[color:var(--color-text)]">Products</h2>
@@ -512,29 +512,29 @@ export default function ShopPage() {
                 <button
                   type="button"
                   onClick={startNewProduct}
-                  className="btn-primary inline-flex min-h-10 items-center justify-center gap-2 px-4 py-2 text-sm"
+                  className="btn-primary inline-flex min-h-[44px] items-center justify-center gap-[8px] px-[16px] py-[8px] text-sm"
                   aria-label="Add product"
                 >
-                  <PackagePlus className="h-4 w-4" />
+                  <PackagePlus className="h-[16px] w-[16px]" />
                   Create Product
                 </button>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-                <div className="flex items-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3">
-                  <Search className="h-4 w-4 text-[color:var(--color-text-faint)]" />
+              <div className="grid min-w-[0px] grid-cols-[minmax(0,1fr)] gap-[12px] md:grid-cols-[minmax(0,1fr)_220px]">
+                <div className="flex min-w-[0px] items-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px]">
+                  <Search className="h-[16px] w-[16px] text-[color:var(--color-text-faint)]" />
                   <input
                     value={productSearch}
                     onChange={(event) => setProductSearch(event.target.value)}
                     placeholder="Search products"
-                    className="min-h-11 flex-1 bg-transparent text-sm text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)]"
+                    className="min-h-[44px] min-w-[0px] flex-1 bg-transparent text-sm text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)]"
                   />
                 </div>
 
                 <select
                   value={categoryFilter}
                   onChange={(event) => setCategoryFilter(event.target.value as "all" | ShopProductCategory)}
-                  className="input-minimal"
+                  className="input-minimal min-w-[0px] max-w-full"
                 >
                   <option value="all">All categories</option>
                   {CATEGORY_OPTIONS.map((category) => (
@@ -547,15 +547,15 @@ export default function ShopPage() {
             </div>
 
               {loadingProducts ? (
-                <div className="flex h-56 items-center justify-center">
-                  <Loader2 className="h-5 w-5 animate-spin text-[color:var(--color-text-dim)]" />
+                <div className="flex h-[224px] items-center justify-center">
+                  <Loader2 className="h-[20px] w-[20px] animate-spin text-[color:var(--color-text-dim)]" />
                 </div>
               ) : filteredProducts.length === 0 ? (
-                <div className="card-panel flex min-h-56 flex-col items-center justify-center gap-4 p-8 text-center">
-                  <ShoppingBag className="h-8 w-8 text-[color:var(--color-text-faint)]" />
+                <div className="card-panel flex min-h-[224px] flex-col items-center justify-center gap-[16px] p-[32px] text-center">
+                  <ShoppingBag className="h-[32px] w-[32px] text-[color:var(--color-text-faint)]" />
                   <p className="text-sm text-[color:var(--color-text-dim)]">No products found.</p>
-                  <button type="button" onClick={startNewProduct} className="btn-primary inline-flex items-center gap-2">
-                    <PackagePlus className="h-4 w-4" />
+                  <button type="button" onClick={startNewProduct} className="btn-primary inline-flex items-center gap-[8px]">
+                    <PackagePlus className="h-[16px] w-[16px]" />
                     Create Product
                   </button>
                 </div>
@@ -573,11 +573,11 @@ export default function ShopPage() {
                         amount={currency(product.price)}
                         amountLabel="price"
                         trailing={
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-[8px]">
                             <ImagePreview
                               src={product.images[0] || ""}
                               alt={product.name}
-                              className="h-10 w-10 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)]"
+                              className="h-[44px] w-[44px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)]"
                             />
                             <StatusPill
                               status="neutral"
@@ -599,7 +599,7 @@ export default function ShopPage() {
                 if (!savingProduct) setEditorOpen(false);
               }}
               footer={
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_1.5fr]">
+                <div className="grid grid-cols-2 gap-[8px] sm:grid-cols-[1fr_1fr_1.5fr]">
                   <button
                     type="button"
                     onClick={resetDraft}
@@ -620,20 +620,20 @@ export default function ShopPage() {
                     type="submit"
                     form="product-form"
                     disabled={savingProduct}
-                    className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
+                    className="tap-target inline-flex items-center justify-center gap-[8px] rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-[color:var(--color-accent-ink)] disabled:opacity-50"
                   >
-                    {savingProduct ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {savingProduct ? <Loader2 className="h-[16px] w-[16px] animate-spin" /> : <Save className="h-[16px] w-[16px]" />}
                     {savingProduct ? "Saving" : "Save Product"}
                   </button>
                 </div>
               }
             >
-              <form id="product-form" onSubmit={handleProductSave} className="grid gap-5 pt-1 lg:grid-cols-[minmax(0,1fr)_260px]">
-                <section className="hud-panel p-4 sm:p-5">
-                <div className="space-y-6">
-                  <div className="grid gap-4 sm:grid-cols-2">
+              <form id="product-form" onSubmit={handleProductSave} className="grid gap-[20px] pt-[4px] lg:grid-cols-[minmax(0,1fr)_260px]">
+                <section className="hud-panel p-[16px] sm:p-[20px]">
+                <div className="space-y-[24px]">
+                  <div className="grid gap-[16px] sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Product Name</span>
+                      <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Product Name</span>
                       <input
                         value={draft.name}
                         onChange={(event) => updateDraft({ name: event.target.value })}
@@ -643,7 +643,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Product ID</span>
+                      <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Product ID</span>
                       <input
                         value={draft.id}
                         onChange={(event) => updateDraft({ id: event.target.value })}
@@ -654,9 +654,9 @@ export default function ShopPage() {
                     </label>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-[16px] sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Category</span>
+                      <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Category</span>
                       <select
                         value={draft.category}
                         onChange={(event) => updateDraft({ category: event.target.value as ShopProductCategory })}
@@ -671,7 +671,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Price</span>
+                      <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Price</span>
                       <input
                         type="number"
                         min="0"
@@ -683,28 +683,28 @@ export default function ShopPage() {
                   </div>
 
                   <label className="block">
-                    <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Description</span>
+                    <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Description</span>
                     <textarea
                       value={draft.description}
                       onChange={(event) => updateDraft({ description: event.target.value })}
                       rows={5}
-                      className="input-minimal min-h-32 resize-y"
+                      className="input-minimal min-h-[128px] resize-y"
                       required
                     />
                   </label>
 
                   <div>
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Images</span>
+                      <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Images</span>
                       <textarea
                         value={draft.imagesText}
                         onChange={(event) => updateDraft({ imagesText: event.target.value })}
                         rows={4}
-                        className="input-minimal min-h-28 resize-y"
+                        className="input-minimal min-h-[112px] resize-y"
                         placeholder="One image URL per line"
                       />
                     </label>
-                    <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6">
+                    <div className="mt-[12px] grid grid-cols-4 gap-[8px] sm:grid-cols-6">
                       {draftImages.length ? draftImages.slice(0, 6).map((image, index) => (
                         <ImagePreview
                           key={`${image}-${index}`}
@@ -713,16 +713,16 @@ export default function ShopPage() {
                           className="aspect-square w-full rounded-[var(--radius-row)] border border-[color:var(--color-hairline)]"
                         />
                       )) : (
-                        <div className="col-span-full rounded-[var(--radius-row)] border border-dashed border-[color:var(--color-hairline)] p-4 text-sm text-[color:var(--color-text-faint)]">
+                        <div className="col-span-full rounded-[var(--radius-row)] border border-dashed border-[color:var(--color-hairline)] p-[16px] text-sm text-[color:var(--color-text-faint)]">
                           Add image URLs to preview product photos.
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="grid gap-[16px] sm:grid-cols-2 lg:grid-cols-4">
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Access</span>
+                      <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Access</span>
                       <select
                         value={draft.isPublic ? "public" : "athlete"}
                         onChange={(event) => updateDraft({ isPublic: event.target.value === "public" })}
@@ -734,7 +734,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Required Belt</span>
+                      <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Required Belt</span>
                       <select
                         value={draft.isPublic ? "None" : draft.requiresBelt}
                         onChange={(event) => updateDraft({ requiresBelt: event.target.value })}
@@ -750,7 +750,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Rating</span>
+                      <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Rating</span>
                       <input
                         type="number"
                         min="0"
@@ -763,7 +763,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block eyebrow text-[color:var(--color-text-dim)]">Reviews</span>
+                      <span className="mb-[8px] block eyebrow text-[color:var(--color-text-dim)]">Reviews</span>
                       <input
                         type="number"
                         min="0"
@@ -775,7 +775,7 @@ export default function ShopPage() {
                   </div>
 
                   <section>
-                    <div className="mb-3 flex items-center justify-between gap-3">
+                    <div className="mb-[12px] flex items-center justify-between gap-[12px]">
                       <div>
                         <p className="eyebrow text-[color:var(--color-text-dim)]">Variants and Stock</p>
                         <h3 className="text-sm font-semibold text-[color:var(--color-text)]">Sizes, units and approval rules</h3>
@@ -783,20 +783,20 @@ export default function ShopPage() {
                       <button
                         type="button"
                         onClick={addVariant}
-                        className="btn-ghost inline-flex min-h-10 items-center gap-2"
+                        className="btn-ghost inline-flex min-h-[44px] items-center gap-[8px]"
                       >
-                        <PackagePlus className="h-4 w-4" />
+                        <PackagePlus className="h-[16px] w-[16px]" />
                         Add
                       </button>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-[12px]">
                       {draft.variants.map((variant, index) => (
-                        <div key={`${variant.id || "variant"}-${index}`} className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
-                          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_130px_auto] sm:items-end">
-                            <div className="grid gap-3 sm:grid-cols-2">
+                        <div key={`${variant.id || "variant"}-${index}`} className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px]">
+                          <div className="grid gap-[12px] sm:grid-cols-[minmax(0,1fr)_130px_auto] sm:items-end">
+                            <div className="grid gap-[12px] sm:grid-cols-2">
                               <label className="block">
-                                <span className="mb-2 block eyebrow text-[color:var(--color-text-faint)]">Size</span>
+                                <span className="mb-[8px] block eyebrow text-[color:var(--color-text-faint)]">Size</span>
                                 <input
                                   value={variant.size}
                                   onChange={(event) => updateVariant(index, { size: event.target.value })}
@@ -805,7 +805,7 @@ export default function ShopPage() {
                                 />
                               </label>
                               <label className="block">
-                                <span className="mb-2 block eyebrow text-[color:var(--color-text-faint)]">Variant ID</span>
+                                <span className="mb-[8px] block eyebrow text-[color:var(--color-text-faint)]">Variant ID</span>
                                 <input
                                   value={variant.id}
                                   onChange={(event) => updateVariant(index, { id: event.target.value })}
@@ -816,7 +816,7 @@ export default function ShopPage() {
                             </div>
 
                             <label className="block">
-                              <span className="mb-2 block eyebrow text-[color:var(--color-text-faint)]">Stock</span>
+                              <span className="mb-[8px] block eyebrow text-[color:var(--color-text-faint)]">Stock</span>
                               <input
                                 type="number"
                                 min="0"
@@ -826,8 +826,8 @@ export default function ShopPage() {
                               />
                             </label>
 
-                            <div className="flex items-center gap-2 sm:flex-col sm:items-stretch">
-                              <label className="flex min-h-11 flex-1 items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text-dim)]">
+                            <div className="flex items-center gap-[8px] sm:flex-col sm:items-stretch">
+                              <label className="flex min-h-[44px] flex-1 items-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs font-semibold text-[color:var(--color-text-dim)]">
                                 <input
                                   type="checkbox"
                                   checked={variant.requiresApproval}
@@ -839,10 +839,10 @@ export default function ShopPage() {
                                 type="button"
                                 onClick={() => removeVariant(index)}
                                 disabled={draft.variants.length === 1}
-                                className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-40"
+                                className="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] disabled:cursor-not-allowed disabled:opacity-40"
                                 aria-label="Remove variant"
                               >
-                                <X className="h-4 w-4" />
+                                <X className="h-[16px] w-[16px]" />
                               </button>
                             </div>
                           </div>
@@ -862,28 +862,28 @@ export default function ShopPage() {
                     className="h-full w-full"
                   />
                 </div>
-                <div className="p-4">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <span className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">
+                <div className="p-[16px]">
+                  <div className="mb-[12px] flex items-center justify-between gap-[12px]">
+                    <span className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[8px] py-[4px] text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">
                       {draft.category}
                     </span>
                     <span className="text-sm font-semibold text-[color:var(--color-text)]">{currency(draft.price)}</span>
                   </div>
                   <h3 className="text-lg font-semibold text-[color:var(--color-text)]">{draft.name || "Product preview"}</h3>
-                  <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-[color:var(--color-text-dim)]">
+                  <p className="mt-[8px] line-clamp-4 text-sm leading-relaxed text-[color:var(--color-text-dim)]">
                     {draft.description || "Description preview will appear here."}
                   </p>
-                  <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+                  <div className="mt-[16px] grid grid-cols-2 gap-[8px] text-xs">
+                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px]">
                       <p className="text-[color:var(--color-text-faint)]">Images</p>
-                      <p className="mt-1 font-semibold text-[color:var(--color-text)]">{draftImages.length}</p>
+                      <p className="mt-[4px] font-semibold text-[color:var(--color-text)]">{draftImages.length}</p>
                     </div>
-                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+                    <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px]">
                       <p className="text-[color:var(--color-text-faint)]">Variants</p>
-                      <p className="mt-1 font-semibold text-[color:var(--color-text)]">{draft.variants.length}</p>
+                      <p className="mt-[4px] font-semibold text-[color:var(--color-text)]">{draft.variants.length}</p>
                     </div>
                   </div>
-                  <div className="mt-3 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 text-xs text-[color:var(--color-text-dim)]">
+                  <div className="mt-[12px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px] text-xs text-[color:var(--color-text-dim)]">
                     {draft.isPublic ? "Available for public checkout." : `Athlete-only${draft.requiresBelt !== "None" ? `, ${draft.requiresBelt}+ belt` : ""}.`}
                   </div>
                 </div>
@@ -892,28 +892,28 @@ export default function ShopPage() {
             </Sheet>
           </section>
         ) : (
-          <section className="space-y-5">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <section className="space-y-[20px]">
+            <div className="grid grid-cols-2 gap-[12px] sm:grid-cols-3">
               <StatTile label="Orders" value={String(orderSummary.count)} />
               <StatTile label="Revenue" value={currency(orderSummary.revenue)} tone="settled" />
               <StatTile label="Pending Work" value={String(orderSummary.pending)} tone="action" />
             </div>
 
-            <div className="card-panel p-4">
-              <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-                <div className="flex items-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3">
-                  <Search className="h-4 w-4 text-[color:var(--color-text-faint)]" />
+            <div className="card-panel p-[16px]">
+              <div className="grid min-w-[0px] grid-cols-[minmax(0,1fr)] gap-[12px] md:grid-cols-[minmax(0,1fr)_220px]">
+                <div className="flex min-w-[0px] items-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px]">
+                  <Search className="h-[16px] w-[16px] text-[color:var(--color-text-faint)]" />
                   <input
                     value={orderSearch}
                     onChange={(event) => setOrderSearch(event.target.value)}
                     placeholder="Search order, customer, SKF ID, phone or product"
-                    className="min-h-11 flex-1 bg-transparent text-sm text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)]"
+                    className="min-h-[44px] min-w-[0px] flex-1 bg-transparent text-sm text-[color:var(--color-text)] outline-none placeholder:text-[color:var(--color-text-faint)]"
                   />
                 </div>
                 <select
                   value={orderStatusFilter}
                   onChange={(event) => setOrderStatusFilter(event.target.value as "all" | ShopOrderStatus)}
-                  className="input-minimal"
+                  className="input-minimal min-w-[0px] max-w-full"
                 >
                   <option value="all">All statuses</option>
                   {ORDER_STATUS_OPTIONS.map((status) => (
@@ -926,12 +926,12 @@ export default function ShopPage() {
             </div>
 
             {loadingOrders ? (
-              <div className="flex h-56 items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+              <div className="flex h-[224px] items-center justify-center">
+                <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
               </div>
             ) : filteredOrders.length === 0 ? (
-              <div className="card-panel flex min-h-56 flex-col items-center justify-center gap-3 p-8 text-center">
-                <ShoppingBag className="h-8 w-8 text-[color:var(--color-text-faint)]" />
+              <div className="card-panel flex min-h-[224px] flex-col items-center justify-center gap-[12px] p-[32px] text-center">
+                <ShoppingBag className="h-[32px] w-[32px] text-[color:var(--color-text-faint)]" />
                 <p className="text-sm text-[color:var(--color-text-dim)]">No shop orders found.</p>
               </div>
             ) : (
@@ -950,14 +950,14 @@ export default function ShopPage() {
                         amount={currency(order.total)}
                         amountLabel="total"
                         trailing={
-                          <div className="flex flex-col items-end gap-2">
+                          <div className="flex flex-col items-end gap-[8px]">
                             <StatusPill status={status} label={order.statusLabel} />
                             <select
                               value={order.status}
                               onChange={(event) => void handleOrderStatus(order, event.target.value as ShopOrderStatus)}
                               disabled={updatingOrderId === order.orderId}
                               aria-label={`Update status for ${order.orderId}`}
-                              className="input-minimal min-h-10 px-2 text-xs"
+                              className="input-minimal min-h-[44px] px-[8px] text-xs"
                             >
                               {ORDER_STATUS_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>

@@ -60,9 +60,9 @@ export default function FeesPreviewPage() {
           onBranchClick: () => undefined,
           bell: <span className="font-mono text-[11px] text-[color:var(--color-text-dim)]">12</span>,
         }}
-        mainClassName="py-6"
+        mainClassName="py-[24px]"
       >
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-[12px] lg:grid-cols-4">
           <StatTile label="Collected" value="1,24,000" tone="settled" />
           <StatTile label="Pending" value="36,000" tone="action" />
           <StatTile label="Overdue" value="12,000" tone="overdue" />
@@ -74,17 +74,17 @@ export default function FeesPreviewPage() {
           value={section}
           onChange={setSection}
           ariaLabel="Fees section"
-          className="mt-6"
+          className="mt-[24px]"
         />
 
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-[12px] flex items-center justify-between">
           <h2 className="text-[15px] font-semibold text-[color:var(--color-text)]">
             {section === "month" ? "October ledger" : section === "overdue" ? "Overdue ledger" : "Credit ledger"}
           </h2>
           <span className="eyebrow text-[color:var(--color-text-dim)]">MPSC</span>
         </div>
 
-        <div className="mt-3 space-y-2">
+        <div className="mt-[12px] space-y-[8px]">
           {ROWS[section].map((row, index) => (
             <LedgerRow
               key={row.key}
@@ -106,7 +106,7 @@ export default function FeesPreviewPage() {
         title={active?.status === "credit" ? "Credit detail" : "Mark paid"}
         onClose={() => setActive(null)}
       >
-        <div className="space-y-4 pt-1">
+        <div className="space-y-[16px] pt-[4px]">
           <p className="text-[15px] font-semibold text-[color:var(--color-text)]">{active?.name}</p>
           <AmountInput label="Amount received" value={amount} onChange={setAmount} hint="Stored charged amount is used for receipts." />
           <button

@@ -42,7 +42,7 @@ export function ConfirmModal({
       title={title}
       onClose={onCancel}
       footer={
-        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-[10px] sm:flex-row sm:justify-end">
           <button type="button" onClick={onCancel} disabled={loading} className="btn-ghost text-sm">
             {cancelLabel}
           </button>
@@ -58,10 +58,10 @@ export function ConfirmModal({
         </div>
       }
     >
-      <div className="flex items-start gap-3 pt-1">
+      <div className="flex items-start gap-[12px] pt-[4px]">
         {variant === "danger" ? (
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
-            <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+          <span className="grid h-[44px] w-[44px] shrink-0 place-items-center rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
+            <AlertTriangle className="h-[20px] w-[20px]" aria-hidden="true" />
           </span>
         ) : null}
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-[color:var(--color-text-dim)]">{message}</p>

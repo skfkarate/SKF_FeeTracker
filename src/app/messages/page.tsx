@@ -288,7 +288,7 @@ export default function MessagesPage() {
     return (
       <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+          <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -299,93 +299,94 @@ export default function MessagesPage() {
       hud={{
         title: "Messages",
         backHref: "/dashboard",
-        actions: (
-          <>
-            <GlobalSearch />
-            <button
-              type="button"
-              onClick={() => setShowPromptModal(true)}
-              className="tap-target grid place-items-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)]"
-              title="Message prompt"
-              aria-label="Message prompt"
-            >
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowHelpModal(true)}
-              className="tap-target grid place-items-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)]"
-              title="Placeholder guide"
-              aria-label="Placeholder guide"
-            >
-              <HelpCircle className="h-4 w-4" aria-hidden="true" />
-            </button>
-          </>
-        ),
+        actions: <GlobalSearch />,
         bell: <NotificationBell />,
         account: <AccountMenu />,
       }}
     >
-        <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <header className="mb-[32px] flex flex-col gap-[20px] md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
+            <div className="mb-[12px] flex items-center gap-[12px]">
+              <span className="h-[8px] w-[8px] rounded-full bg-[color:var(--color-accent)]" />
               <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--color-text-dim)]">Manual WhatsApp Queue</p>
             </div>
-            <h1 className="font-sans text-3xl font-semibold tracking-tight text-[color:var(--color-text)] sm:text-4xl">
+            <h1 className="font-sans text-[clamp(1.5rem,1.1rem+1vw,2.25rem)] font-semibold tracking-tight text-[color:var(--color-text)]">
               Fee Reminders
             </h1>
           </div>
-          <div className="grid grid-cols-3 gap-2 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2 text-center text-xs">
-            <div className="px-3 py-2">
+          <div className="grid grid-cols-3 gap-[8px] rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[8px] text-center text-xs">
+            <div className="px-[12px] py-[8px]">
               <p className="font-semibold text-[color:var(--color-text)]">{pendingStudents.length}</p>
-              <p className="mt-1 text-[color:var(--color-text-faint)]">Pending</p>
+              <p className="mt-[4px] text-[color:var(--color-text-faint)]">Pending</p>
             </div>
-            <div className="border-x border-[color:var(--color-hairline)] px-3 py-2">
+            <div className="border-x border-[color:var(--color-hairline)] px-[12px] py-[8px]">
               <p className="font-semibold text-[color:var(--color-text)]">{selectedStudentsList.length}</p>
-              <p className="mt-1 text-[color:var(--color-text-faint)]">Selected</p>
+              <p className="mt-[4px] text-[color:var(--color-text-faint)]">Selected</p>
             </div>
-            <div className="px-3 py-2">
+            <div className="px-[12px] py-[8px]">
               <p className="font-semibold text-[color:var(--color-text)]">₹{totalPendingAmount.toLocaleString("en-IN")}</p>
-              <p className="mt-1 text-[color:var(--color-text-faint)]">Amount</p>
+              <p className="mt-[4px] text-[color:var(--color-text-faint)]">Amount</p>
             </div>
           </div>
         </header>
 
+        <div className="mb-[20px] flex flex-wrap justify-end gap-[8px]">
+          <button
+            type="button"
+            onClick={() => setShowPromptModal(true)}
+            className="tap-target inline-flex min-w-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs font-semibold text-[color:var(--color-text-dim)] hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)]"
+            title="Message prompt"
+            aria-label="Message prompt"
+          >
+            <Sparkles className="h-[16px] w-[16px]" aria-hidden="true" />
+            Prompt
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowHelpModal(true)}
+            className="tap-target inline-flex min-w-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs font-semibold text-[color:var(--color-text-dim)] hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)]"
+            title="Placeholder guide"
+            aria-label="Placeholder guide"
+          >
+            <HelpCircle className="h-[16px] w-[16px]" aria-hidden="true" />
+            Guide
+          </button>
+        </div>
+
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <AlertCircle className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {notice ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <CheckCircle2 className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{notice}</p>
           </div>
         ) : null}
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <section className="space-y-5">
-            <div className="card-panel p-4 sm:p-5">
-              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="grid gap-[20px] lg:grid-cols-[minmax(0,1fr)_380px]">
+          <section className="space-y-[20px]">
+            <div className="card-panel p-[16px] sm:p-[20px]">
+              <div className="mb-[16px] flex flex-col gap-[12px] sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Message Template</p>
                   <h2 className="text-lg font-semibold text-[color:var(--color-text)]">Composer</h2>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" onClick={() => wrapSelection("*")} className="btn-ghost flex h-10 w-10 items-center justify-center p-0" title="Bold">
-                    <Bold className="h-4 w-4" />
+                <div className="flex flex-wrap gap-[8px]">
+                  <button type="button" onClick={() => wrapSelection("*")} className="btn-ghost flex h-[44px] w-[44px] items-center justify-center p-[0px]" title="Bold">
+                    <Bold className="h-[16px] w-[16px]" />
                   </button>
-                  <button type="button" onClick={() => wrapSelection("_")} className="btn-ghost flex h-10 w-10 items-center justify-center p-0" title="Italic">
-                    <Italic className="h-4 w-4" />
+                  <button type="button" onClick={() => wrapSelection("_")} className="btn-ghost flex h-[44px] w-[44px] items-center justify-center p-[0px]" title="Italic">
+                    <Italic className="h-[16px] w-[16px]" />
                   </button>
-                  <button type="button" onClick={() => wrapSelection("~")} className="btn-ghost flex h-10 w-10 items-center justify-center p-0" title="Strikethrough">
-                    <Strikethrough className="h-4 w-4" />
+                  <button type="button" onClick={() => wrapSelection("~")} className="btn-ghost flex h-[44px] w-[44px] items-center justify-center p-[0px]" title="Strikethrough">
+                    <Strikethrough className="h-[16px] w-[16px]" />
                   </button>
-                  <button type="button" onClick={() => wrapSelection("```", "```")} className="btn-ghost flex h-10 w-10 items-center justify-center p-0" title="Monospace">
-                    <Code2 className="h-4 w-4" />
+                  <button type="button" onClick={() => wrapSelection("```", "```")} className="btn-ghost flex h-[44px] w-[44px] items-center justify-center p-[0px]" title="Monospace">
+                    <Code2 className="h-[16px] w-[16px]" />
                   </button>
                 </div>
               </div>
@@ -395,17 +396,17 @@ export default function MessagesPage() {
                 id="message-template"
                 value={messageTemplate}
                 onChange={(event) => setMessageTemplate(event.target.value)}
-                className="input-minimal min-h-72 resize-y font-mono text-sm leading-relaxed"
+                className="input-minimal min-h-[288px] resize-y font-mono text-sm leading-relaxed"
                 placeholder="Type the message template"
               />
 
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-[16px] flex flex-wrap gap-[8px]">
                 {PLACEHOLDERS.map((placeholder) => (
                   <button
                     key={placeholder.key}
                     type="button"
                     onClick={() => insertText(placeholder.key)}
-                    className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-2 text-xs font-semibold text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
+                    className="min-h-[44px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs font-semibold text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                   >
                     {placeholder.label}
                   </button>
@@ -413,14 +414,14 @@ export default function MessagesPage() {
               </div>
             </div>
 
-            <div className="card-panel p-4 sm:p-5">
-              <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_160px_160px_auto]">
+            <div className="card-panel p-[16px] sm:p-[20px]">
+              <div className="mb-[16px] grid gap-[12px] sm:grid-cols-[1fr_160px_160px_auto]">
                 <div className="relative">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
+                  <Search className="pointer-events-none absolute left-[16px] top-[50%] h-[16px] w-[16px] -translate-y-1/2 text-[color:var(--color-text-faint)]" />
                   <input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    className="input-minimal min-h-11 pl-11"
+                    className="input-minimal min-h-[44px] pl-[44px]"
                     placeholder="Search student, SKF ID or phone"
                   />
                 </div>
@@ -430,7 +431,7 @@ export default function MessagesPage() {
                     setSelectedBranch(event.target.value);
                     setQueueIndex(0);
                   }}
-                  className="input-minimal min-h-11"
+                  className="input-minimal min-h-[44px]"
                 >
                   {BRANCH_OPTIONS.map((branchOption) => (
                     <option key={branchOption.value} value={branchOption.value}>
@@ -444,7 +445,7 @@ export default function MessagesPage() {
                     setSelectedMonth(Number.parseInt(event.target.value, 10));
                     setQueueIndex(0);
                   }}
-                  className="input-minimal min-h-11"
+                  className="input-minimal min-h-[44px]"
                 >
                   {MONTHS_SHORT.map((month, index) => (
                     <option key={month} value={index}>
@@ -456,42 +457,42 @@ export default function MessagesPage() {
                   type="button"
                   onClick={() => loadStudents(true)}
                   disabled={refreshing}
-                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] disabled:opacity-60"
+                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] disabled:opacity-60"
                   title="Refresh students"
                 >
-                  <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+                  <RefreshCw className={`h-[16px] w-[16px] ${refreshing ? "animate-spin" : ""}`} />
                 </button>
               </div>
 
               <button
                 type="button"
                 onClick={toggleAllPending}
-                className={`mb-4 flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border px-4 text-left text-sm font-semibold transition-colors ${
+                className={`mb-[16px] flex min-h-[44px] w-full items-center justify-between gap-[12px] rounded-lg border px-[16px] text-left text-sm font-semibold transition-colors ${
                   selectedStudents.size === pendingStudents.length && pendingStudents.length > 0
                     ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
                     : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                 }`}
               >
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-[8px]">
                   {selectedStudents.size === pendingStudents.length && pendingStudents.length > 0
-                    ? <CheckSquare className="h-4 w-4" />
-                    : <Square className="h-4 w-4" />}
+                    ? <CheckSquare className="h-[16px] w-[16px]" />
+                    : <Square className="h-[16px] w-[16px]" />}
                   All pending students
                 </span>
                 <span>{pendingStudents.length}</span>
               </button>
 
               {loading ? (
-                <div className="flex min-h-72 items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+                <div className="flex min-h-[288px] items-center justify-center">
+                  <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
                 </div>
               ) : visibleStudents.length === 0 ? (
-                <div className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-8 text-center">
-                  <Users className="h-8 w-8 text-[color:var(--color-text-faint)]" />
+                <div className="flex min-h-[288px] flex-col items-center justify-center gap-[12px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[32px] text-center">
+                  <Users className="h-[32px] w-[32px] text-[color:var(--color-text-faint)]" />
                   <p className="text-sm text-[color:var(--color-text-dim)]">No pending students found for {selectedMonthLabel}.</p>
                 </div>
               ) : (
-                <div className="max-h-[560px] space-y-2 overflow-y-auto pr-1">
+                <div className="max-h-[560px] space-y-[8px] overflow-y-auto pr-[4px]">
                   {visibleStudents.map((student) => {
                     const selected = selectedStudents.has(student.id);
                     const hasPhone = Boolean(cleanIndianPhone(phoneValue(student)));
@@ -500,25 +501,25 @@ export default function MessagesPage() {
                         key={student.id}
                         type="button"
                         onClick={() => toggleStudent(student.id)}
-                        className={`w-full rounded-lg border p-3 text-left transition-colors ${
+                        className={`w-full rounded-lg border p-[12px] text-left transition-colors ${
                           selected
                             ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]"
                             : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] hover:border-[color:var(--color-hairline)]"
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex min-w-0 items-start gap-3">
+                        <div className="flex items-start justify-between gap-[12px]">
+                          <div className="flex min-w-[0px] items-start gap-[12px]">
                             {selected ? (
-                              <CheckSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-[color:var(--color-text)]" />
+                              <CheckSquare className="mt-[2px] h-[20px] w-[20px] flex-shrink-0 text-[color:var(--color-text)]" />
                             ) : (
-                              <Square className="mt-0.5 h-5 w-5 flex-shrink-0 text-[color:var(--color-text-faint)]" />
+                              <Square className="mt-[2px] h-[20px] w-[20px] flex-shrink-0 text-[color:var(--color-text-faint)]" />
                             )}
-                            <div className="min-w-0">
+                            <div className="min-w-[0px]">
                               <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{studentName(student)}</p>
-                              <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">
+                              <p className="mt-[4px] truncate text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)]">
                                 {student.id} • {student.parentName || "Parent"}
                               </p>
-                              <p className={`mt-1 truncate text-xs ${hasPhone ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text)]"}`}>
+                              <p className={`mt-[4px] truncate text-xs ${hasPhone ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text)]"}`}>
                                 {phoneValue(student) || "No WhatsApp number"}
                               </p>
                             </div>
@@ -535,9 +536,9 @@ export default function MessagesPage() {
             </div>
           </section>
 
-          <aside className="space-y-5">
-            <div className="card-panel p-4 sm:p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
+          <aside className="space-y-[20px]">
+            <div className="card-panel p-[16px] sm:p-[20px]">
+              <div className="mb-[16px] flex items-center justify-between gap-[12px]">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Preview</p>
                   <h2 className="text-lg font-semibold text-[color:var(--color-text)]">
@@ -548,32 +549,32 @@ export default function MessagesPage() {
                   type="button"
                   onClick={() => firstPreviewStudent && setPreviewStudent(firstPreviewStudent)}
                   disabled={!firstPreviewStudent}
-                  className="btn-ghost flex h-10 w-10 items-center justify-center p-0 disabled:opacity-50"
+                  className="btn-ghost flex h-[44px] w-[44px] items-center justify-center p-[0px] disabled:opacity-50"
                   title="Open preview"
                 >
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-[16px] w-[16px]" />
                 </button>
               </div>
-              <div className="min-h-72 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4 text-sm leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap">
+              <div className="min-h-[288px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[16px] text-sm leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap">
                 {firstPreviewStudent ? replacePlaceholders(messageTemplate, firstPreviewStudent) : "Select a pending student to preview the message."}
               </div>
             </div>
 
-            <div className="card-panel p-4 sm:p-5">
+            <div className="card-panel p-[16px] sm:p-[20px]">
               <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Queue</p>
-              <h2 className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">{sendableStudents.length} Ready</h2>
-              <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+              <h2 className="mt-[4px] text-lg font-semibold text-[color:var(--color-text)]">{sendableStudents.length} Ready</h2>
+              <div className="mt-[16px] grid grid-cols-2 gap-[8px] text-xs">
+                <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px]">
                   <p className="text-[color:var(--color-text-faint)]">Missing Phone</p>
-                  <p className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">{missingPhoneCount}</p>
+                  <p className="mt-[4px] text-lg font-semibold text-[color:var(--color-text)]">{missingPhoneCount}</p>
                 </div>
-                <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3">
+                <div className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px]">
                   <p className="text-[color:var(--color-text-faint)]">Opened</p>
-                  <p className="mt-1 text-lg font-semibold text-[color:var(--color-text)]">{queueDone}/{sendableStudents.length}</p>
+                  <p className="mt-[4px] text-lg font-semibold text-[color:var(--color-text)]">{queueDone}/{sendableStudents.length}</p>
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-2">
+              <div className="mt-[16px] grid gap-[8px]">
                 <button
                   type="button"
                   onClick={() => {
@@ -581,18 +582,18 @@ export default function MessagesPage() {
                     setQueueIndex(0);
                   }}
                   disabled={sendableStudents.length === 0}
-                  className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 disabled:opacity-50"
+                  className="btn-primary inline-flex min-h-[44px] items-center justify-center gap-[8px] disabled:opacity-50"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-[16px] w-[16px]" />
                   Open Queue
                 </button>
                 <button
                   type="button"
                   onClick={() => sendableStudents[0] && copyText(replacePlaceholders(messageTemplate, sendableStudents[0]), "Preview message copied.")}
                   disabled={!sendableStudents[0]}
-                  className="btn-ghost inline-flex min-h-11 items-center justify-center gap-2 disabled:opacity-50"
+                  className="btn-ghost inline-flex min-h-[44px] items-center justify-center gap-[8px] disabled:opacity-50"
                 >
-                  <Copy className="h-4 w-4" />
+                  <Copy className="h-[16px] w-[16px]" />
                   Copy Preview
                 </button>
               </div>
@@ -602,8 +603,8 @@ export default function MessagesPage() {
 
       {showHelpModal ? (
         <div className="glass-modal-overlay" onClick={(event) => event.target === event.currentTarget && setShowHelpModal(false)}>
-          <div className="glass-modal !max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="glass-modal !max-w-lg max-h-[85vh] overflow-y-auto p-[16px] sm:p-[20px]">
+            <div className="mb-[16px] flex items-center justify-between gap-[12px]">
               <div>
                 <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Message Fields</p>
                 <h2 className="text-lg font-semibold text-[color:var(--color-text)]">Placeholders</h2>
@@ -611,24 +612,24 @@ export default function MessagesPage() {
               <button
                 type="button"
                 onClick={() => setShowHelpModal(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
+                className="flex h-[44px] w-[44px] items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
               >
-                <X className="h-4 w-4" />
+                <X className="h-[16px] w-[16px]" />
               </button>
             </div>
-            <div className="grid gap-3">
+            <div className="grid gap-[12px]">
               {PLACEHOLDERS.map((placeholder) => (
                 <button
                   key={placeholder.key}
                   type="button"
                   onClick={() => insertText(placeholder.key)}
-                  className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-3 text-left hover:border-[color:var(--color-hairline)]"
+                  className="rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[12px] text-left hover:border-[color:var(--color-hairline)]"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <code className="rounded bg-[color:var(--color-well)] px-2 py-1 text-xs text-[color:var(--color-text)]">{placeholder.key}</code>
+                  <div className="flex items-center justify-between gap-[12px]">
+                    <code className="rounded bg-[color:var(--color-well)] px-[8px] py-[4px] text-xs text-[color:var(--color-text)]">{placeholder.key}</code>
                     <span className="text-xs text-[color:var(--color-text-dim)]">{placeholder.example}</span>
                   </div>
-                  <p className="mt-2 text-sm font-semibold text-[color:var(--color-text)]">{placeholder.label}</p>
+                  <p className="mt-[8px] text-sm font-semibold text-[color:var(--color-text)]">{placeholder.label}</p>
                 </button>
               ))}
             </div>
@@ -638,8 +639,8 @@ export default function MessagesPage() {
 
       {showPromptModal ? (
         <div className="glass-modal-overlay" onClick={(event) => event.target === event.currentTarget && setShowPromptModal(false)}>
-          <div className="glass-modal !max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="glass-modal !max-w-2xl max-h-[85vh] overflow-y-auto p-[16px] sm:p-[20px]">
+            <div className="mb-[16px] flex items-center justify-between gap-[12px]">
               <div>
                 <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">AI Prompt</p>
                 <h2 className="text-lg font-semibold text-[color:var(--color-text)]">Message Guidelines</h2>
@@ -647,23 +648,23 @@ export default function MessagesPage() {
               <button
                 type="button"
                 onClick={() => setShowPromptModal(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
+                className="flex h-[44px] w-[44px] items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
               >
-                <X className="h-4 w-4" />
+                <X className="h-[16px] w-[16px]" />
               </button>
             </div>
             <textarea
               readOnly
               value={MESSAGE_GENERATION_PROMPT}
-              className="input-minimal min-h-96 resize-y font-mono text-xs leading-relaxed"
+              className="input-minimal min-h-[384px] resize-y font-mono text-xs leading-relaxed"
             />
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="mt-[16px] grid gap-[8px] sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() => copyText(MESSAGE_GENERATION_PROMPT, "Message prompt copied.")}
-                className="btn-primary inline-flex min-h-11 items-center justify-center gap-2"
+                className="btn-primary inline-flex min-h-[44px] items-center justify-center gap-[8px]"
               >
-                <Copy className="h-4 w-4" />
+                <Copy className="h-[16px] w-[16px]" />
                 Copy Prompt
               </button>
               <button
@@ -672,9 +673,9 @@ export default function MessagesPage() {
                   setShowPromptModal(false);
                   setShowHelpModal(true);
                 }}
-                className="btn-ghost inline-flex min-h-11 items-center justify-center gap-2"
+                className="btn-ghost inline-flex min-h-[44px] items-center justify-center gap-[8px]"
               >
-                <HelpCircle className="h-4 w-4" />
+                <HelpCircle className="h-[16px] w-[16px]" />
                 Placeholders
               </button>
             </div>
@@ -684,8 +685,8 @@ export default function MessagesPage() {
 
       {previewStudent ? (
         <div className="glass-modal-overlay" onClick={(event) => event.target === event.currentTarget && setPreviewStudent(null)}>
-          <div className="glass-modal !max-w-lg p-4 sm:p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="glass-modal !max-w-lg p-[16px] sm:p-[20px]">
+            <div className="mb-[16px] flex items-center justify-between gap-[12px]">
               <div>
                 <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Preview</p>
                 <h2 className="text-lg font-semibold text-[color:var(--color-text)]">{studentName(previewStudent)}</h2>
@@ -693,34 +694,34 @@ export default function MessagesPage() {
               <button
                 type="button"
                 onClick={() => setPreviewStudent(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
+                className="flex h-[44px] w-[44px] items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
               >
-                <X className="h-4 w-4" />
+                <X className="h-[16px] w-[16px]" />
               </button>
             </div>
             {previewIssues.length ? (
-              <div className="mb-4 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-3 text-sm text-[color:var(--color-text)]">
+              <div className="mb-[16px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[12px] text-sm text-[color:var(--color-text)]">
                 Unknown placeholders: {previewIssues.join(", ")}
               </div>
             ) : null}
-            <div className="max-h-[55vh] overflow-y-auto rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4 text-sm leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap">
+            <div className="max-h-[55vh] overflow-y-auto rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[16px] text-sm leading-relaxed text-[color:var(--color-text)] whitespace-pre-wrap">
               {previewMessage}
             </div>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="mt-[16px] grid gap-[8px] sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() => copyText(previewMessage, "Message copied.")}
-                className="btn-ghost inline-flex min-h-11 items-center justify-center gap-2"
+                className="btn-ghost inline-flex min-h-[44px] items-center justify-center gap-[8px]"
               >
-                <Copy className="h-4 w-4" />
+                <Copy className="h-[16px] w-[16px]" />
                 Copy
               </button>
               <button
                 type="button"
                 onClick={() => openSingle(previewStudent)}
-                className="btn-primary inline-flex min-h-11 items-center justify-center gap-2"
+                className="btn-primary inline-flex min-h-[44px] items-center justify-center gap-[8px]"
               >
-                <MessageCircle className="h-4 w-4" />
+                <MessageCircle className="h-[16px] w-[16px]" />
                 Open WhatsApp
               </button>
             </div>
@@ -730,61 +731,61 @@ export default function MessagesPage() {
 
       {queueOpen ? (
         <div className="glass-modal-overlay" onClick={(event) => event.target === event.currentTarget && setQueueOpen(false)}>
-          <div className="glass-modal !max-w-3xl max-h-[88vh] overflow-y-auto p-4 sm:p-5">
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="glass-modal !max-w-3xl max-h-[88vh] overflow-y-auto p-[16px] sm:p-[20px]">
+            <div className="mb-[16px] flex flex-col gap-[12px] sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs uppercase tracking-widest text-[color:var(--color-text-dim)]">Bulk Queue</p>
                 <h2 className="text-lg font-semibold text-[color:var(--color-text)]">{queueDone}/{sendableStudents.length} Opened</h2>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-[8px]">
                 <button
                   type="button"
                   onClick={openNextBatch}
                   disabled={queueIndex >= sendableStudents.length}
-                  className="btn-primary inline-flex min-h-10 items-center justify-center gap-2 px-4 text-sm disabled:opacity-50"
+                  className="btn-primary inline-flex min-h-[44px] items-center justify-center gap-[8px] px-[16px] text-sm disabled:opacity-50"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-[16px] w-[16px]" />
                   Open Next {BATCH_SIZE}
                 </button>
                 <button
                   type="button"
                   onClick={() => setQueueOpen(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
+                  className="flex h-[44px] w-[44px] items-center justify-center rounded-lg border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-[16px] w-[16px]" />
                 </button>
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-[8px]">
               {sendableStudents.map((student, index) => {
                 const opened = index < queueIndex;
                 return (
                   <div
                     key={student.id}
-                    className={`rounded-lg border p-3 ${
+                    className={`rounded-lg border p-[12px] ${
                       opened ? "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)]" : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)]"
                     }`}
                   >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0">
+                    <div className="flex flex-col gap-[12px] sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-[0px]">
                         <p className="truncate text-sm font-semibold text-[color:var(--color-text)]">{studentName(student)}</p>
-                        <p className="mt-1 truncate text-xs text-[color:var(--color-text-dim)]">{student.id} • {phoneValue(student)}</p>
+                        <p className="mt-[4px] truncate text-xs text-[color:var(--color-text-dim)]">{student.id} • {phoneValue(student)}</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 sm:flex">
+                      <div className="grid grid-cols-2 gap-[8px] sm:flex">
                         <button
                           type="button"
                           onClick={() => copyText(replacePlaceholders(messageTemplate, student), `${studentName(student)} message copied.`)}
-                          className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline)] px-3 text-sm text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
+                          className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[color:var(--color-hairline)] px-[12px] text-sm text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                         >
-                          <Copy className="h-4 w-4" />
+                          <Copy className="h-[16px] w-[16px]" />
                         </button>
                         <button
                           type="button"
                           onClick={() => openSingle(student)}
-                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-3 text-sm font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"
+                          className="inline-flex min-h-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] px-[12px] text-sm font-semibold text-[color:var(--color-text)] hover:bg-[color:var(--color-well)]"
                         >
-                          <MessageCircle className="h-4 w-4" />
+                          <MessageCircle className="h-[16px] w-[16px]" />
                           Open
                         </button>
                       </div>

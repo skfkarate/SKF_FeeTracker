@@ -55,31 +55,31 @@ export default function AccountMenu() {
         aria-label={`Account: ${displayName}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="tap-target flex items-center gap-2 rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] px-1.5 text-[color:var(--color-text-dim)] transition-colors hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)] sm:px-2.5"
+        className="tap-target flex items-center gap-[8px] rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[color:var(--color-panel)] px-[6px] text-[color:var(--color-text-dim)] transition-colors hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)] sm:px-[10px]"
       >
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[color:var(--color-accent)] font-semibold text-[13px] text-[color:var(--color-accent-ink)]">
+        <span className="grid h-[32px] w-[32px] shrink-0 place-items-center rounded-full bg-[color:var(--color-accent)] font-semibold text-[13px] text-[color:var(--color-accent-ink)]">
           {initial}
         </span>
         <span className="hidden max-w-[96px] truncate text-xs font-semibold sm:block">{displayName}</span>
-        <ChevronDown className={`hidden h-3.5 w-3.5 transition-transform sm:block ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+        <ChevronDown className={`hidden h-[14px] w-[14px] transition-transform sm:block ${open ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
 
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 top-[calc(100%+10px)] z-[80] w-[min(224px,calc(100vw-1.5rem))] rounded-[var(--radius-card)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-raised)] p-3 shadow-[0_24px_70px_rgba(0,0,0,0.48)] backdrop-blur-xl animate-slide-up"
+          className="absolute right-[0px] top-[calc(100%+10px)] z-[80] w-[min(224px,calc(100vw-1.5rem))] rounded-[var(--radius-card)] border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-raised)] p-[12px] shadow-[0_24px_70px_rgba(0,0,0,0.48)] backdrop-blur-xl animate-slide-up"
         >
           <p className="eyebrow text-[color:var(--color-text-faint)]">Signed in as</p>
-          <p className="mt-1 truncate text-sm font-semibold text-[color:var(--color-text)]">{displayName}</p>
-          <div className="my-3 h-px bg-[color:var(--color-hairline)]" aria-hidden="true" />
+          <p className="mt-[4px] truncate text-sm font-semibold text-[color:var(--color-text)]">{displayName}</p>
+          <div className="my-[12px] h-px bg-[color:var(--color-hairline)]" aria-hidden="true" />
           <button
             type="button"
             role="menuitem"
             onClick={handleLogout}
             disabled={loggingOut}
-            className="tap-target flex w-full items-center gap-2 rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 text-xs font-semibold text-[color:var(--color-text-dim)] transition-colors hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)] disabled:opacity-60"
+            className="tap-target flex w-full items-center gap-[8px] rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] text-xs font-semibold text-[color:var(--color-text-dim)] transition-colors hover:border-[color:var(--color-accent-border)] hover:text-[color:var(--color-text)] disabled:opacity-60"
           >
-            <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <LogOut className="h-[16px] w-[16px] shrink-0" aria-hidden="true" />
             {loggingOut ? "Signing out…" : "Logout"}
           </button>
         </div>

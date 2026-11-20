@@ -505,7 +505,7 @@ textarea {
 .content-shell {
   width: min(100%, 1280px);
   margin-inline: auto;
-  padding-inline: clamp(0.875rem, 0.5rem + 1.4vw, 1.75rem);
+  padding-inline: clamp(14px, 4px + 1.4vw, 28px);
 }
 
 .stack-sm > * + * { margin-top: 0.5rem; }

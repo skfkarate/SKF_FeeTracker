@@ -22,20 +22,20 @@ export function Breadcrumbs({
   ];
 
   return (
-    <nav className="flex flex-wrap items-center gap-1 text-sm" aria-label="Folder path">
+    <nav className="flex flex-wrap items-center gap-[4px] text-sm" aria-label="Folder path">
       {crumbs.map((crumb, index) => {
         const isLast = index === crumbs.length - 1;
         const isDropTarget = dropTargetId != null && (crumb.id ? dropTargetId === crumb.id : dropTargetId === "__root__");
         return (
-          <span key={crumb.id || "root"} className="flex items-center gap-1">
-            {index > 0 ? <ChevronRight className="h-3.5 w-3.5 text-[color:var(--color-text-faint)]" /> : null}
+          <span key={crumb.id || "root"} className="flex items-center gap-[4px]">
+            {index > 0 ? <ChevronRight className="h-[14px] w-[14px] text-[color:var(--color-text-faint)]" /> : null}
             <button
               type="button"
               onClick={() => onNavigate(crumb.id)}
               onDragOver={(event) => event.preventDefault()}
               onDragEnter={() => onDragEnterNode?.(crumb.id)}
               onDrop={(event) => onDropOnNode?.(event, crumb.id)}
-              className={`max-w-44 truncate rounded-md px-2 py-1 font-semibold transition-colors ${
+              className={`max-w-[176px] truncate rounded-md px-[8px] py-[4px] font-semibold transition-colors ${
                 isLast
                   ? "text-[color:var(--color-text)]"
                   : "text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)]"

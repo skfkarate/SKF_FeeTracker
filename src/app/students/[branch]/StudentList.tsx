@@ -571,12 +571,12 @@ export default function StudentList({ branch }: { branch: string }) {
         onTouchStart={() => handleLongPressStart(student)}
         onTouchEnd={handleLongPressEnd}
         onTouchMove={handleLongPressEnd}
-        className="card-panel p-4 animate-slide-up hover:border-[color:var(--color-hairline)] group cursor-pointer select-none"
+        className="card-panel p-[16px] animate-slide-up hover:border-[color:var(--color-hairline)] group cursor-pointer select-none"
         style={{ ...statusStyle, animationDelay: `${Math.min(index * 30, 300)}ms`, animationFillMode: "both", WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
       >
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-start gap-3">
-            <div className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
+        <div className="flex items-start justify-between gap-[12px]">
+          <div className="flex min-w-[0px] flex-1 items-start gap-[12px]">
+            <div className="relative h-[44px] w-[44px] flex-shrink-0 overflow-hidden rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
               {photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={photoUrl} alt="" className="h-full w-full object-cover" />
@@ -586,8 +586,8 @@ export default function StudentList({ branch }: { branch: string }) {
                 </div>
               )}
             </div>
-            <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="min-w-[0px] flex-1">
+            <div className="flex items-center gap-[8px] mb-[4px]">
               <h3 className={`font-sans text-base tracking-wide transition-colors truncate ${
                 isBreak
                   ? "text-[color:var(--color-text)] group-hover:text-[color:var(--color-text)]"
@@ -597,42 +597,42 @@ export default function StudentList({ branch }: { branch: string }) {
               </h3>
               {/* Status Tags */}
               {isBreak && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] uppercase tracking-wider">Break</span>
+                <span className="text-[10px] px-[6px] py-[2px] rounded border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] uppercase tracking-wider">Break</span>
               )}
               {isDiscontinued && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] uppercase tracking-wider">Discontinued</span>
+                <span className="text-[10px] px-[6px] py-[2px] rounded border border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] uppercase tracking-wider">Discontinued</span>
               )}
             </div>
 
-            <div className="flex items-center gap-2 text-[color:var(--color-text-dim)] text-xs">
+            <div className="flex items-center gap-[8px] text-[color:var(--color-text-dim)] text-xs">
               <span className="font-mono opacity-70">{student.id}</span>
-              <span className="flex items-center gap-1">
-                <IndianRupee className="w-3 h-3" /> {student.fee}
+              <span className="flex items-center gap-[4px]">
+                <IndianRupee className="w-[12px] h-[12px]" /> {student.fee}
                 {student.isExamInstallment && (
-                  <span className="ml-1 text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-widest border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-1.5 py-0.5 rounded">Exam Installment</span>
+                  <span className="ml-[4px] text-[10px] text-[color:var(--color-text-dim)] uppercase tracking-widest border border-[color:var(--color-due-border)] bg-[color:var(--color-well)] px-[6px] py-[2px] rounded">Exam Installment</span>
                 )}
               </span>
             </div>
 
             {(student.creditApplied || 0) > 0 && (
-              <div className="mt-2 inline-flex items-center gap-1.5 text-[10px] bg-[color:var(--color-well)] text-[color:var(--color-text)] px-2 py-1 rounded-md border border-[color:var(--color-accent-border)]">
-                <Gift className="w-3 h-3" />
+              <div className="mt-[8px] inline-flex items-center gap-[6px] text-[10px] bg-[color:var(--color-well)] text-[color:var(--color-text)] px-[8px] py-[4px] rounded-md border border-[color:var(--color-accent-border)]">
+                <Gift className="w-[12px] h-[12px]" />
                 <span>Credit Applied: ₹{student.creditApplied}</span>
               </div>
             )}
 
             {/* Pending Admission/Dress/Event Badges */}
             {(student.admissionStatus === "Pending" || student.dressStatus === "Pending" || (student.eventDues || []).some((due) => due.status !== "paid" && due.status !== "waived")) && (
-              <div className="mt-2 flex gap-2 flex-wrap">
+              <div className="mt-[8px] flex gap-[8px] flex-wrap">
                 {student.admissionStatus === "Pending" && (
-                  <div className="inline-flex items-center gap-1.5 text-[10px] bg-[color:var(--color-well)] text-[color:var(--color-text)] px-2 py-1 rounded-md border border-[color:var(--color-accent-border)]">
-                    <Ticket className="w-3 h-3" />
+                  <div className="inline-flex items-center gap-[6px] text-[10px] bg-[color:var(--color-well)] text-[color:var(--color-text)] px-[8px] py-[4px] rounded-md border border-[color:var(--color-accent-border)]">
+                    <Ticket className="w-[12px] h-[12px]" />
                     <span>Adm Due</span>
                   </div>
                 )}
                 {student.dressStatus === "Pending" && (
-                  <div className="inline-flex items-center gap-1.5 text-[10px] bg-[color:var(--color-well)] text-[color:var(--color-text)] px-2 py-1 rounded-md border border-[color:var(--color-accent-border)]">
-                    <Shirt className="w-3 h-3" />
+                  <div className="inline-flex items-center gap-[6px] text-[10px] bg-[color:var(--color-well)] text-[color:var(--color-text)] px-[8px] py-[4px] rounded-md border border-[color:var(--color-accent-border)]">
+                    <Shirt className="w-[12px] h-[12px]" />
                     <span>Dress Due</span>
                   </div>
                 )}
@@ -640,8 +640,8 @@ export default function StudentList({ branch }: { branch: string }) {
                   .filter((due) => due.status !== "paid" && due.status !== "waived")
                   .slice(0, 2)
                   .map((due) => (
-                    <div key={due.id || due.label} className="inline-flex items-center gap-1.5 text-[10px] bg-[color:var(--color-well)] text-[color:var(--color-text)] px-2 py-1 rounded-md border border-[color:var(--color-due-border)]">
-                      <Ticket className="w-3 h-3" />
+                    <div key={due.id || due.label} className="inline-flex items-center gap-[6px] text-[10px] bg-[color:var(--color-well)] text-[color:var(--color-text)] px-[8px] py-[4px] rounded-md border border-[color:var(--color-due-border)]">
+                      <Ticket className="w-[12px] h-[12px]" />
                       <span>{due.label || "Event Due"} ₹{due.amount}</span>
                     </div>
                   ))}
@@ -650,33 +650,33 @@ export default function StudentList({ branch }: { branch: string }) {
             </div>
           </div>
           {/* Action Button */}
-          <div className="flex-shrink-0 flex items-center gap-2">
+          <div className="flex-shrink-0 flex items-center gap-[8px]">
             {(student.eventDues || []).filter(d => d.status !== 'paid' && d.status !== 'waived' && (!d.month || d.month === selectedMonthName)).map((due) => (
               <button
                 key={due.id}
                 onClick={(e) => handleBeltExamClick(e, student, due)}
                 disabled={markingPaid === student.id || markingStatus === student.id}
-                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-md ${due.status === 'pending_verification' ? 'border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] shadow-[0_18px_45px_rgba(0,0,0,0.28)]' : 'border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] shadow-[0_18px_45px_rgba(0,0,0,0.28)]'}`}
+                className={`w-[44px] h-[44px] rounded-full flex items-center justify-center transition-all shadow-md ${due.status === 'pending_verification' ? 'border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] shadow-[0_18px_45px_rgba(0,0,0,0.28)]' : 'border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] shadow-[0_18px_45px_rgba(0,0,0,0.28)]'}`}
                 title={due.status === 'pending_verification' ? `Verify ${due.label || 'Payment'}` : `Approve ${due.label || 'Payment'}`}
               >
                 {markingPaid === student.id ? (
-                  <div className="spinner !w-4 !h-4" />
+                  <div className="spinner !w-[16px] !h-[16px]" />
                 ) : due.status === 'pending_verification' ? (
-                  <Clock className="w-4 h-4" />
+                  <Clock className="w-[16px] h-[16px]" />
                 ) : due.feeType === 'belt_exam' ? (
-                  <Award className="w-4 h-4" />
+                  <Award className="w-[16px] h-[16px]" />
                 ) : (
-                  <Ticket className="w-4 h-4" />
+                  <Ticket className="w-[16px] h-[16px]" />
                 )}
               </button>
             ))}
             {student.monthStatus === "Paid" ? (
               student.isExamInstallment ? (
                 <div
-                  className="w-11 h-11 rounded-full bg-[color:var(--color-well)] flex items-center justify-center shadow-md shadow-[0_18px_45px_rgba(0,0,0,0.28)] cursor-default"
+                  className="w-[44px] h-[44px] rounded-full bg-[color:var(--color-well)] flex items-center justify-center shadow-md shadow-[0_18px_45px_rgba(0,0,0,0.28)] cursor-default"
                   title="Installment Paid (No Receipt)"
                 >
-                  <svg className="w-4 h-4 text-[color:var(--color-text)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-[16px] h-[16px] text-[color:var(--color-text)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </div>
@@ -686,21 +686,21 @@ export default function StudentList({ branch }: { branch: string }) {
                     e.stopPropagation();
                     setReceiptStudent(student);
                   }}
-                  className="w-11 h-11 rounded-full bg-[color:var(--color-accent)] flex items-center justify-center text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-accent-strong)] transition-all shadow-md shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+                  className="w-[44px] h-[44px] rounded-full bg-[color:var(--color-accent)] flex items-center justify-center text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-accent-strong)] transition-all shadow-md shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
                   title="View Receipt"
                 >
-                  <svg className="w-4 h-4 text-[color:var(--color-text)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-[16px] h-[16px] text-[color:var(--color-text)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </button>
               )
             ) : student.monthStatus === "Pending Verification" ? (
-              <Link href="/pending-fees" className="w-11 h-11 rounded-full bg-[color:var(--color-well)] border border-[color:var(--color-accent-border)] flex items-center justify-center text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors" title="Payment proof waiting in notifications">
-                <Clock className="w-4 h-4 animate-pulse" />
+              <Link href="/pending-fees" className="w-[44px] h-[44px] rounded-full bg-[color:var(--color-well)] border border-[color:var(--color-accent-border)] flex items-center justify-center text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors" title="Payment proof waiting in notifications">
+                <Clock className="w-[16px] h-[16px] animate-pulse" />
               </Link>
             ) : isInactive ? (
-              <div className="w-11 h-11 rounded-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] flex items-center justify-center text-[color:var(--color-text-dim)]">
-                <AlertCircle className="w-4 h-4" />
+              <div className="w-[44px] h-[44px] rounded-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] flex items-center justify-center text-[color:var(--color-text-dim)]">
+                <AlertCircle className="w-[16px] h-[16px]" />
               </div>
             ) : (
               <button
@@ -709,16 +709,16 @@ export default function StudentList({ branch }: { branch: string }) {
                   markingPaid === student.id ||
                   markingStatus === student.id
                 }
-                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all select-none ${markingPaid === student.id || markingStatus === student.id
+                className={`w-[44px] h-[44px] rounded-full flex items-center justify-center transition-all select-none ${markingPaid === student.id || markingStatus === student.id
                   ? "bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]"
                   : "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] hover:bg-[color:var(--color-panel-strong)] shadow-[0_0_12px_rgba(255,255,255,0.15)]"
                   }`}
                 title="Mark Paid"
               >
                 {markingPaid === student.id || markingStatus === student.id ? (
-                  <div className="spinner !w-4 !h-4" />
+                  <div className="spinner !w-[16px] !h-[16px]" />
                 ) : (
-                  <IndianRupee className="w-4 h-4" />
+                  <IndianRupee className="w-[16px] h-[16px]" />
                 )}
               </button>
             )}
@@ -742,7 +742,7 @@ export default function StudentList({ branch }: { branch: string }) {
         account: <AccountMenu />,
       }}
     >
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:mb-6">
+      <div className="mb-[20px] flex flex-col gap-[12px] sm:flex-row sm:items-center sm:justify-between md:mb-[24px]">
         <p className="text-[13px] leading-relaxed text-[color:var(--color-text-dim)]">
           {stats.paidCount}/{stats.totalStudents} paid this month
         </p>
@@ -760,53 +760,53 @@ export default function StudentList({ branch }: { branch: string }) {
       </div>
         {/* Stats Dashboard */}
         {!loading && !error && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 animate-fade-in">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-[12px] mb-[24px] animate-fade-in">
             {/* Expected */}
-            <div className="card-panel p-4 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Target className="w-12 h-12 text-[color:var(--color-text-dim)]" />
+            <div className="card-panel p-[16px] relative overflow-hidden group">
+              <div className="absolute top-[0px] right-[0px] p-[8px] opacity-5 group-hover:opacity-10 transition-opacity">
+                <Target className="w-[48px] h-[48px] text-[color:var(--color-text-dim)]" />
               </div>
-              <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest mb-2 flex items-center gap-1.5 font-semibold">
-                <Target className="w-3 h-3 text-[color:var(--color-text-dim)]" /> Expected
+              <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest mb-[8px] flex items-center gap-[6px] font-semibold">
+                <Target className="w-[12px] h-[12px] text-[color:var(--color-text-dim)]" /> Expected
               </p>
               <p className="font-sans text-xl sm:text-2xl text-[color:var(--color-text)] font-medium tracking-tight">
-                <span className="text-[color:var(--color-text-dim)] mr-1">₹</span>{stats.expectedAmount.toLocaleString()}
+                <span className="text-[color:var(--color-text-dim)] mr-[4px]">₹</span>{stats.expectedAmount.toLocaleString()}
               </p>
             </div>
 
             {/* Collected */}
-            <div className="card-panel p-4 relative overflow-hidden group border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]">
-              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                <CheckCircle2 className="w-12 h-12 text-[color:var(--color-text-dim)]" />
+            <div className="card-panel p-[16px] relative overflow-hidden group border-[color:var(--color-paid-border)] bg-[color:var(--color-well)]">
+              <div className="absolute top-[0px] right-[0px] p-[8px] opacity-5 group-hover:opacity-10 transition-opacity">
+                <CheckCircle2 className="w-[48px] h-[48px] text-[color:var(--color-text-dim)]" />
               </div>
-              <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest mb-2 flex items-center gap-1.5 font-semibold">
-                <CheckCircle2 className="w-3 h-3" /> Collected
+              <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest mb-[8px] flex items-center gap-[6px] font-semibold">
+                <CheckCircle2 className="w-[12px] h-[12px]" /> Collected
               </p>
               <p className="font-sans text-xl sm:text-2xl text-[color:var(--color-text-dim)] font-medium tracking-tight">
-                <span className="text-[color:var(--color-text-dim)] mr-1">₹</span>{stats.collectedAmount.toLocaleString()}
+                <span className="text-[color:var(--color-text-dim)] mr-[4px]">₹</span>{stats.collectedAmount.toLocaleString()}
               </p>
             </div>
 
             {/* Pending */}
-            <div className="card-panel p-4 relative overflow-hidden group border-[color:var(--color-due-border)] bg-[color:var(--color-well)]">
-              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                <Clock className="w-12 h-12 text-[color:var(--color-text-dim)]" />
+            <div className="card-panel p-[16px] relative overflow-hidden group border-[color:var(--color-due-border)] bg-[color:var(--color-well)]">
+              <div className="absolute top-[0px] right-[0px] p-[8px] opacity-5 group-hover:opacity-10 transition-opacity">
+                <Clock className="w-[48px] h-[48px] text-[color:var(--color-text-dim)]" />
               </div>
-              <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest mb-2 flex items-center gap-1.5 font-semibold">
-                <Clock className="w-3 h-3" /> Pending
+              <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest mb-[8px] flex items-center gap-[6px] font-semibold">
+                <Clock className="w-[12px] h-[12px]" /> Pending
               </p>
               <p className="font-sans text-xl sm:text-2xl text-[color:var(--color-text-dim)] font-medium tracking-tight">
-                <span className="text-[color:var(--color-text-dim)] mr-1">₹</span>{stats.pendingAmount.toLocaleString()}
+                <span className="text-[color:var(--color-text-dim)] mr-[4px]">₹</span>{stats.pendingAmount.toLocaleString()}
               </p>
             </div>
 
             {/* Rate */}
-            <div className="card-panel p-4 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                <TrendingDown className="w-12 h-12 text-[color:var(--color-text-dim)]" />
+            <div className="card-panel p-[16px] relative overflow-hidden group">
+              <div className="absolute top-[0px] right-[0px] p-[8px] opacity-5 group-hover:opacity-10 transition-opacity">
+                <TrendingDown className="w-[48px] h-[48px] text-[color:var(--color-text-dim)]" />
               </div>
-              <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest mb-2 flex items-center gap-1.5 font-semibold">
-                <TrendingDown className="w-3 h-3 text-[color:var(--color-text-dim)]" /> Rate
+              <p className="text-[color:var(--color-text-dim)] text-[10px] uppercase tracking-widest mb-[8px] flex items-center gap-[6px] font-semibold">
+                <TrendingDown className="w-[12px] h-[12px] text-[color:var(--color-text-dim)]" /> Rate
               </p>
               <p
                 className={`font-sans text-xl sm:text-2xl font-medium tracking-tight ${
@@ -817,42 +817,42 @@ export default function StudentList({ branch }: { branch: string }) {
                     : "text-[color:var(--color-text-dim)]"
                 }`}
               >
-                {stats.collectionRate}<span className="text-[color:var(--color-text-faint)] text-base ml-0.5">%</span>
+                {stats.collectionRate}<span className="text-[color:var(--color-text-faint)] text-base ml-[2px]">%</span>
               </p>
             </div>
           </div>
         )}
 
         {!loading && !error && stats.onBreakCount > 0 && (
-          <div className="mb-6 -mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)] animate-fade-in">
-            <span className="rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-3 py-1 text-[color:var(--color-text-dim)]">
+          <div className="mb-[24px] mt-[-12px] flex flex-wrap gap-[8px] text-[10px] uppercase tracking-wider text-[color:var(--color-text-dim)] animate-fade-in">
+            <span className="rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[12px] py-[4px] text-[color:var(--color-text-dim)]">
               {stats.onBreakCount} break excluded
             </span>
           </div>
         )}
 
         {/* Search & Actions */}
-        <div className="mb-6 space-y-3">
+        <div className="mb-[24px] space-y-[12px]">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[color:var(--color-text-dim)]" />
+            <Search className="absolute left-[16px] top-[50%] -translate-y-1/2 w-[16px] h-[16px] text-[color:var(--color-text-dim)]" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search student..."
-              className="w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl py-3 pl-11 pr-4 text-[color:var(--color-text)] text-sm focus:outline-none focus:border-[color:var(--color-hairline)] transition-colors placeholder:text-[color:var(--color-text-dim)]"
+              className="min-h-[44px] min-w-[0px] w-full max-w-full bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] rounded-xl py-[12px] pl-[44px] pr-[16px] text-[color:var(--color-text)] text-sm focus:outline-none focus:border-[color:var(--color-hairline)] transition-colors placeholder:text-[color:var(--color-text-dim)]"
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col sm:flex-row gap-[8px]">
             <button
               onClick={() => setShowPendingOnly(!showPendingOnly)}
-              className={`flex-1 px-4 py-2.5 text-sm rounded-lg border transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-2 ${showPendingOnly
+              className={`flex-1 px-[16px] min-h-[44px] text-sm rounded-lg border transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-[8px] ${showPendingOnly
                 ? "bg-[color:var(--color-well)] border-[color:var(--color-accent-border)] text-[color:var(--color-text-dim)]"
                 : "bg-[color:var(--color-well)] border-[color:var(--color-hairline)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)]"
                 }`}
             >
-              <Filter className="w-3 h-3" />
+              <Filter className="w-[12px] h-[12px]" />
               {showPendingOnly ? "Pending View" : "All Students"}
             </button>
             {adminStudentsUrl ? (
@@ -860,18 +860,18 @@ export default function StudentList({ branch }: { branch: string }) {
                 href={adminStudentsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-accent-strong)] hover:text-[color:var(--color-accent-ink)] transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-2"
+                className="flex-1 px-[16px] min-h-[44px] text-sm rounded-lg border border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-accent-strong)] hover:text-[color:var(--color-accent-ink)] transition-all duration-200 font-medium tracking-wide flex items-center justify-center gap-[8px]"
               >
-                <ExternalLink className="w-3 h-3" />
+                <ExternalLink className="w-[12px] h-[12px]" />
                 <span>Add in Admin</span>
               </a>
             ) : (
               <button
                 disabled
-                className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] font-medium tracking-wide flex items-center justify-center gap-2 cursor-not-allowed"
+                className="flex-1 px-[16px] min-h-[44px] text-sm rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] font-medium tracking-wide flex items-center justify-center gap-[8px] cursor-not-allowed"
                 title="Student creation is managed in SKF-Karate admin."
               >
-                <ExternalLink className="w-3 h-3" />
+                <ExternalLink className="w-[12px] h-[12px]" />
                 <span>Add in Admin</span>
               </button>
             )}
@@ -880,15 +880,15 @@ export default function StudentList({ branch }: { branch: string }) {
 
         {/* Loading */}
         {loading && (
-          <div className="py-8">
+          <div className="py-[32px]">
             <SkeletonTable rows={8} cols={4} />
           </div>
         )}
 
         {/* Error */}
         {error && (
-          <div className="text-center py-16">
-            <p className="text-[color:var(--color-text-dim)] mb-4 text-sm">{error}</p>
+          <div className="text-center py-[64px]">
+            <p className="text-[color:var(--color-text-dim)] mb-[16px] text-sm">{error}</p>
             <button
               onClick={() => loadStudents(true)}
               className="btn-primary text-sm"
@@ -900,7 +900,7 @@ export default function StudentList({ branch }: { branch: string }) {
 
         {/* Student List */}
         {!loading && !error && (
-          <div className="space-y-2">
+          <div className="space-y-[8px]">
             {visibleStudentsCount === 0 ? (
               <EmptyState
                 icon={SearchX}
@@ -911,7 +911,7 @@ export default function StudentList({ branch }: { branch: string }) {
               <>
                 {activeStudents.map((student, index) => renderStudentCard(student, index))}
                 {breakStudents.length > 0 && (
-                  <div className={activeStudents.length > 0 ? "pt-4 space-y-2" : "space-y-2"}>
+                  <div className={activeStudents.length > 0 ? "pt-[16px] space-y-[8px]" : "space-y-[8px]"}>
                     {breakStudents.map((student, index) =>
                       renderStudentCard(student, activeStudents.length + index),
                     )}
@@ -920,19 +920,19 @@ export default function StudentList({ branch }: { branch: string }) {
 
                 {/* Discontinued Students Collapsible */}
                 {discontinuedStudents.length > 0 && (
-                  <div className="mt-4">
+                  <div className="mt-[16px]">
                     <button
                       onClick={() => setShowDiscontinued((v) => !v)}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] hover:bg-[color:var(--color-well)] transition-colors text-sm"
+                      className="w-full flex items-center justify-between px-[16px] py-[12px] rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] hover:bg-[color:var(--color-well)] transition-colors text-sm"
                     >
-                      <span className="flex items-center gap-2 text-[color:var(--color-text-dim)] font-medium">
-                        <AlertCircle className="w-4 h-4" />
+                      <span className="flex items-center gap-[8px] text-[color:var(--color-text-dim)] font-medium">
+                        <AlertCircle className="w-[16px] h-[16px]" />
                         Discontinued ({discontinuedStudents.length})
                       </span>
-                      <ChevronDown className={`w-4 h-4 text-[color:var(--color-text-dim)] transition-transform duration-200 ${showDiscontinued ? "rotate-180" : ""}`} />
+                      <ChevronDown className={`w-[16px] h-[16px] text-[color:var(--color-text-dim)] transition-transform duration-200 ${showDiscontinued ? "rotate-180" : ""}`} />
                     </button>
                     {showDiscontinued && (
-                      <div className="space-y-2 mt-2">
+                      <div className="space-y-[8px] mt-[8px]">
                         {discontinuedStudents.map((student, index) =>
                           renderStudentCard(student, activeStudents.length + breakStudents.length + index),
                         )}
@@ -947,22 +947,22 @@ export default function StudentList({ branch }: { branch: string }) {
 
       {/* Confirm Payment Modal (Keep existing logic, just check styles if needed) */}
       {confirmStudent && (
-        <div className="fixed inset-0 bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="card-panel max-w-sm w-full p-6">
-            <div className="p-6">
-              <h2 className="font-sans text-xl tracking-wider mb-4 text-center">
+        <div className="fixed inset-[0px] bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-[16px]">
+          <div className="card-panel max-w-sm w-full p-[24px]">
+            <div className="p-[24px]">
+              <h2 className="font-sans text-xl tracking-wider mb-[16px] text-center">
                 CONFIRM PAYMENT
               </h2>
-              <div className="surface-glass p-4 mb-4">
-                <p className="text-[color:var(--color-text-dim)] text-xs mb-1">Student</p>
+              <div className="surface-glass p-[16px] mb-[16px]">
+                <p className="text-[color:var(--color-text-dim)] text-xs mb-[4px]">Student</p>
                 <p className="font-sans text-lg">
                   {confirmStudent.name}
                 </p>
                 <p className="text-[color:var(--color-text-dim)] text-xs font-mono">
                   {confirmStudent.id}
                 </p>
-                <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-[color:var(--color-text-dim)] text-xs mb-1">{confirmStudent.isExamInstallment ? "Black Belt Exam Installment" : "Original Fee"}</p>
+                <div className="mt-[12px] pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[color:var(--color-text-dim)] text-xs mb-[4px]">{confirmStudent.isExamInstallment ? "Black Belt Exam Installment" : "Original Fee"}</p>
                   <p className="text-xl font-bold text-[color:var(--color-text)]">
                     ₹{confirmStudent.fee}
                   </p>
@@ -970,18 +970,18 @@ export default function StudentList({ branch }: { branch: string }) {
 
                 {/* Referral Credit Section */}
                 {loadingCredits ? (
-                  <div className="mt-3 pt-3 border-t border-[var(--border)]">
+                  <div className="mt-[12px] pt-[12px] border-t border-[var(--border)]">
                     <p className="text-[color:var(--color-text-dim)] text-sm">
                       Checking for credits...
                     </p>
                   </div>
                 ) : studentCredits && studentCredits.credits.length > 0 ? (
-                  <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2 text-[color:var(--color-text-dim)] text-sm">
-                        <Gift className="w-3 h-3" /> Referral Credit Available
+                  <div className="mt-[12px] pt-[12px] border-t border-[var(--border)]">
+                    <div className="flex items-center justify-between mb-[8px]">
+                      <div className="flex items-center gap-[8px] text-[color:var(--color-text-dim)] text-sm">
+                        <Gift className="w-[12px] h-[12px]" /> Referral Credit Available
                       </div>
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label className="flex items-center gap-[8px] cursor-pointer">
                         <input
                           type="checkbox"
                           checked={!!selectedCreditId}
@@ -992,7 +992,7 @@ export default function StudentList({ branch }: { branch: string }) {
                                 : null,
                             )
                           }
-                          className="w-4 h-4 accent-[color:var(--color-accent)] rounded"
+                          className="w-[16px] h-[16px] accent-[color:var(--color-accent)] rounded"
                         />
                         <span className="text-sm text-[color:var(--color-text-dim)]">Apply</span>
                       </label>
@@ -1001,15 +1001,15 @@ export default function StudentList({ branch }: { branch: string }) {
                       -₹{studentCredits.totalAvailable}
                     </p>
                     {studentCredits.credits[0].reason && (
-                      <p className="text-[var(--text-muted)] text-xs mt-1">
+                      <p className="text-[var(--text-muted)] text-xs mt-[4px]">
                         {studentCredits.credits[0].reason}
                       </p>
                     )}
                   </div>
                 ) : null}
 
-                <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">Amount to Collect</p>
+                <div className="mt-[12px] pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-[4px]">Amount to Collect</p>
                   <p className="text-2xl font-bold text-[color:var(--color-text-dim)]">
                     ₹
                     {selectedCreditId && studentCredits
@@ -1020,17 +1020,17 @@ export default function StudentList({ branch }: { branch: string }) {
                       : confirmStudent.fee}
                   </p>
                 </div>
-                <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">Month</p>
+                <div className="mt-[12px] pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-[4px]">Month</p>
                   <p className="text-[color:var(--color-text)]">{MONTHS[month]} {selectedYear}</p>
                 </div>
               </div>
-              <p className="text-[var(--text-secondary)] text-center text-sm mb-4">
+              <p className="text-[var(--text-secondary)] text-center text-sm mb-[16px]">
                 {selectedCreditId && studentCredits
                   ? `Collect ₹${Math.max(0, confirmStudent.fee - studentCredits.totalAvailable)} (₹${studentCredits.totalAvailable} credit applied)`
                   : `Collect ₹${confirmStudent.fee}?`}
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-[12px]">
                 <button
                   onClick={() => {
                     setConfirmStudent(null);
@@ -1043,7 +1043,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
                 <button
                   onClick={handleConfirmPaid}
-                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
+                  className="flex-1 py-[12px] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
                 >
                   ✓ CONFIRM
                 </button>
@@ -1057,40 +1057,40 @@ export default function StudentList({ branch }: { branch: string }) {
 
       {/* Belt Exam Approval Modal */}
       {confirmBeltExam && (
-        <div className="fixed inset-0 bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="card-panel max-w-sm w-full p-6">
-            <div className="p-6">
-              <h2 className="font-sans text-xl tracking-wider mb-4 text-center">
+        <div className="fixed inset-[0px] bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-[16px]">
+          <div className="card-panel max-w-sm w-full p-[24px]">
+            <div className="p-[24px]">
+              <h2 className="font-sans text-xl tracking-wider mb-[16px] text-center">
                 {confirmBeltExam.due.status === 'pending_verification' ? 'VERIFY PAYMENT' : 'APPROVE PAYMENT'}
               </h2>
-              <div className="surface-glass p-4 mb-4 space-y-3">
+              <div className="surface-glass p-[16px] mb-[16px] space-y-[12px]">
                 <div>
-                  <p className="text-[color:var(--color-text-dim)] text-xs mb-1">Student</p>
+                  <p className="text-[color:var(--color-text-dim)] text-xs mb-[4px]">Student</p>
                   <p className="font-sans text-lg">{confirmBeltExam.student.name}</p>
                   <p className="text-[color:var(--color-text-dim)] text-xs font-mono">{confirmBeltExam.student.id}</p>
                 </div>
-                <div className="pt-3 border-t border-[var(--border)]">
-                  <p className="text-[color:var(--color-text-dim)] text-xs mb-1">{confirmBeltExam.due.feeType === 'belt_exam' ? 'Belt Examination' : 'Fee'}</p>
+                <div className="pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[color:var(--color-text-dim)] text-xs mb-[4px]">{confirmBeltExam.due.feeType === 'belt_exam' ? 'Belt Examination' : 'Fee'}</p>
                   <p className="text-[color:var(--color-text)] font-medium">{confirmBeltExam.due.label}</p>
                 </div>
-                <div className="pt-3 border-t border-[var(--border)]">
-                  <p className="text-[color:var(--color-text-dim)] text-xs mb-1">Amount</p>
+                <div className="pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[color:var(--color-text-dim)] text-xs mb-[4px]">Amount</p>
                   <p className="text-xl font-bold text-[color:var(--color-text-dim)]">₹{confirmBeltExam.due.amount}</p>
                 </div>
-                <div className="pt-3 border-t border-[var(--border)]">
-                  <p className="text-[color:var(--color-text-dim)] text-xs mb-1">Status</p>
+                <div className="pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[color:var(--color-text-dim)] text-xs mb-[4px]">Status</p>
                   <p className="text-[color:var(--color-text)]">
                     {confirmBeltExam.due.status === 'pending_verification' ? 'Pending Verification (student submitted proof)' : 'Due - Awaiting Payment'}
                   </p>
                 </div>
                 {confirmBeltExam.due.dueDate && (
-                  <div className="pt-3 border-t border-[var(--border)]">
-                    <p className="text-[color:var(--color-text-dim)] text-xs mb-1">Due Date</p>
+                  <div className="pt-[12px] border-t border-[var(--border)]">
+                    <p className="text-[color:var(--color-text-dim)] text-xs mb-[4px]">Due Date</p>
                     <p className="text-[color:var(--color-text)]">{confirmBeltExam.due.dueDate}</p>
                   </div>
                 )}
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-[12px]">
                 <button
                   onClick={() => setConfirmBeltExam(null)}
                   className="btn-ghost flex-1 font-sans tracking-wider text-sm"
@@ -1101,12 +1101,12 @@ export default function StudentList({ branch }: { branch: string }) {
                 <button
                   onClick={handleApproveBeltExam}
                   disabled={markingPaid === confirmBeltExam.student.id}
-                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-[12px] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors flex items-center justify-center gap-[8px]"
                 >
                   {markingPaid === confirmBeltExam.student.id ? (
-                    <><div className="spinner !w-4 !h-4" /> Approving...</>
+                    <><div className="spinner !w-[16px] !h-[16px]" /> Approving...</>
                   ) : (
-                    <>{confirmBeltExam.due.feeType === 'belt_exam' ? <Award className="w-4 h-4" /> : <Ticket className="w-4 h-4" />} APPROVE PAYMENT</>
+                    <>{confirmBeltExam.due.feeType === 'belt_exam' ? <Award className="w-[16px] h-[16px]" /> : <Ticket className="w-[16px] h-[16px]" />} APPROVE PAYMENT</>
                   )}
                 </button>
               </div>
@@ -1117,11 +1117,11 @@ export default function StudentList({ branch }: { branch: string }) {
 
       {/* Student Detail Modal */}
       {detailStudent && (
-        <div className="fixed inset-0 bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setDetailStudent(null)}>
-          <div className="card-panel max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-6">
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
+        <div className="fixed inset-[0px] bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-[16px]" onClick={() => setDetailStudent(null)}>
+          <div className="card-panel max-w-sm w-full p-[24px]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-start mb-[24px]">
+              <div className="flex min-w-[0px] items-center gap-[12px]">
+                <div className="relative h-[48px] w-[48px] flex-shrink-0 overflow-hidden rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
                   {normalizeProfilePhotoUrl(detailStudent.photoUrl) ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={normalizeProfilePhotoUrl(detailStudent.photoUrl)} alt="" className="h-full w-full object-cover" />
@@ -1131,71 +1131,71 @@ export default function StudentList({ branch }: { branch: string }) {
                     </div>
                   )}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-[0px]">
                   <h2 className="truncate font-sans text-xl tracking-wider text-[color:var(--color-text)]">
                     {detailStudent.name}
                   </h2>
-                  <p className="text-[var(--text-muted)] text-sm font-mono mt-1">
+                  <p className="text-[var(--text-muted)] text-sm font-mono mt-[4px]">
                     {detailStudent.id}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setDetailStudent(null)}
-                className="p-2 hover:bg-[color:var(--color-well)] rounded-full transition-colors"
+                className="p-[8px] hover:bg-[color:var(--color-well)] rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-[var(--text-muted)]" />
+                <X className="w-[20px] h-[20px] text-[var(--text-muted)]" />
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-[16px]">
               {/* Contact Actions */}
-              <div className="flex gap-3 mb-6">
+              <div className="flex gap-[12px] mb-[24px]">
                 <a
                   href={`tel:${String(detailStudent.phone || '')}`}
-                  className="flex-1 py-3 bg-[color:var(--color-well)] border border-[color:var(--color-hairline-strong)] text-[color:var(--color-text-dim)] rounded-lg flex items-center justify-center gap-2 hover:bg-[color:var(--color-well)] transition-colors"
+                  className="flex-1 py-[12px] bg-[color:var(--color-well)] border border-[color:var(--color-hairline-strong)] text-[color:var(--color-text-dim)] rounded-lg flex items-center justify-center gap-[8px] hover:bg-[color:var(--color-well)] transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Phone className="w-4 h-4" /> Call
+                  <Phone className="w-[16px] h-[16px]" /> Call
                 </a>
                 <a
                   href={`https://wa.me/${String(detailStudent.whatsapp || detailStudent.phone || '').replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 py-3 bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] rounded-lg flex items-center justify-center gap-2 hover:bg-[color:var(--color-well)] transition-colors"
+                  className="flex-1 py-[12px] bg-[color:var(--color-well)] border border-[color:var(--color-hairline)] text-[color:var(--color-text)] rounded-lg flex items-center justify-center gap-[8px] hover:bg-[color:var(--color-well)] transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MessageCircle className="w-4 h-4" /> WhatsApp
+                  <MessageCircle className="w-[16px] h-[16px]" /> WhatsApp
                 </a>
               </div>
 
-              <div className="surface-glass p-4 space-y-3">
-                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-2">
+              <div className="surface-glass p-[16px] space-y-[12px]">
+                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-[8px]">
                   <span className="text-[var(--text-muted)] text-sm">Parent</span>
                   <span className="text-[color:var(--color-text)] text-sm font-medium">{detailStudent.parentName || "-"}</span>
                 </div>
-                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-2">
+                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-[8px]">
                   <span className="text-[var(--text-muted)] text-sm">DOB</span>
                   <span className="text-[color:var(--color-text)] text-sm font-medium">{detailStudent.dateOfBirth && detailStudent.dateOfBirth !== '' ? (() => { try { const d = new Date(detailStudent.dateOfBirth); return isNaN(d.getTime()) ? '-' : d.toLocaleDateString(); } catch { return '-'; } })() : "-"}</span>
                 </div>
-                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-2">
+                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-[8px]">
                   <span className="text-[var(--text-muted)] text-sm">Join Month</span>
                   <span className="text-[color:var(--color-text)] text-sm font-medium">{MONTHS[detailStudent.joinMonth] ?? '-'}</span>
                 </div>
-                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-2">
+                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-[8px]">
                   <span className="text-[var(--text-muted)] text-sm">Training Experience</span>
                   <span className="text-[color:var(--color-text)] text-sm font-medium">{detailStudent.trainingExperience || "0m"}</span>
                 </div>
-                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-2">
+                <div className="flex justify-between border-b border-[color:var(--color-hairline)] pb-[8px]">
                   <span className="text-[var(--text-muted)] text-sm">{detailStudent.isExamInstallment ? "Black Belt Exam Installment" : "Monthly Fee"}</span>
                   <span className="text-[color:var(--color-text)] text-sm font-medium">₹{detailStudent.fee ?? 0}</span>
                 </div>
                 {(detailStudent.eventDues || []).length > 0 && (
-                  <div className="border-b border-[color:var(--color-hairline)] pb-2">
+                  <div className="border-b border-[color:var(--color-hairline)] pb-[8px]">
                     <span className="text-[var(--text-muted)] text-sm">Event Dues</span>
-                    <div className="mt-2 space-y-1">
+                    <div className="mt-[8px] space-y-[4px]">
                       {(detailStudent.eventDues || []).map((due) => (
-                        <div key={due.id || due.label} className="flex justify-between gap-3 text-xs">
+                        <div key={due.id || due.label} className="flex justify-between gap-[12px] text-xs">
                           <span className="text-[color:var(--color-text-dim)] truncate">{due.label}</span>
                           <span className={due.status === "paid" ? "text-[color:var(--color-text-dim)]" : "text-[color:var(--color-text-dim)]"}>
                             ₹{due.amount}
@@ -1231,20 +1231,20 @@ export default function StudentList({ branch }: { branch: string }) {
       {/* Long Press Status Menu */}
       {showStatusMenu && longPressStudent && (
         <div
-          className="fixed inset-0 bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-4"
+          className="fixed inset-[0px] bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-[16px]"
           onClick={() => setShowStatusMenu(false)}
         >
           <div
             className="glass-modal !max-w-xs"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider p-4 border-b border-[var(--border)]">
+            <p className="text-[var(--text-muted)] text-xs uppercase tracking-wider p-[16px] border-b border-[var(--border)]">
               {longPressStudent.name}
             </p>
             {!isBreakStudent(longPressStudent) && !isDiscontinuedStudent(longPressStudent) && (
               <button
                 onClick={handleBreakClick}
-                className="w-full text-left px-4 py-4 text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-3"
+                className="w-full text-left px-[16px] py-[16px] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-[12px]"
               >
                 <span className="text-xl">⏸</span>
                 <div>
@@ -1261,9 +1261,9 @@ export default function StudentList({ branch }: { branch: string }) {
             {(isBreakStudent(longPressStudent) || isDiscontinuedStudent(longPressStudent)) && (
               <button
                 onClick={handleResumeClick}
-                className="w-full text-left px-4 py-4 text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+                className="w-full text-left px-[16px] py-[16px] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-[12px] border-t border-[var(--border)]"
               >
-                <RotateCcw className="w-5 h-5" />
+                <RotateCcw className="w-[20px] h-[20px]" />
                 <div>
                   <p className="font-sans tracking-wider text-sm">
                     RESUME BILLING
@@ -1281,9 +1281,9 @@ export default function StudentList({ branch }: { branch: string }) {
                   setShowStatusMenu(false);
                   setConfirmFeePayment({ student: longPressStudent, type: "Admission" });
                 }}
-                className="w-full text-left px-4 py-4 text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+                className="w-full text-left px-[16px] py-[16px] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-[12px] border-t border-[var(--border)]"
               >
-                <Ticket className="w-5 h-5" />
+                <Ticket className="w-[20px] h-[20px]" />
                 <div>
                   <p className="font-sans tracking-wider text-sm">
                     MARK ADMISSION PAID
@@ -1301,9 +1301,9 @@ export default function StudentList({ branch }: { branch: string }) {
                   setShowStatusMenu(false);
                   setConfirmFeePayment({ student: longPressStudent, type: "Dress" });
                 }}
-                className="w-full text-left px-4 py-4 text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+                className="w-full text-left px-[16px] py-[16px] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-[12px] border-t border-[var(--border)]"
               >
-                <Shirt className="w-5 h-5" />
+                <Shirt className="w-[20px] h-[20px]" />
                 <div>
                   <p className="font-sans tracking-wider text-sm">
                     MARK DRESS PAID
@@ -1320,10 +1320,10 @@ export default function StudentList({ branch }: { branch: string }) {
                 href={`/api/feetrack/receipts/${encodeURIComponent(longPressStudent.admissionReceiptId)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full text-left px-4 py-4 text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+                className="w-full text-left px-[16px] py-[16px] text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-[12px] border-t border-[var(--border)]"
                 onClick={() => setShowStatusMenu(false)}
               >
-                <Download className="w-5 h-5" />
+                <Download className="w-[20px] h-[20px]" />
                 <div>
                   <p className="font-sans tracking-wider text-sm">
                     ADMISSION RECEIPT
@@ -1340,10 +1340,10 @@ export default function StudentList({ branch }: { branch: string }) {
                 href={`/api/feetrack/receipts/${encodeURIComponent(longPressStudent.dressReceiptId)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full text-left px-4 py-4 text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+                className="w-full text-left px-[16px] py-[16px] text-[color:var(--color-text)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-[12px] border-t border-[var(--border)]"
                 onClick={() => setShowStatusMenu(false)}
               >
-                <Download className="w-5 h-5" />
+                <Download className="w-[20px] h-[20px]" />
                 <div>
                   <p className="font-sans tracking-wider text-sm">
                     DRESS RECEIPT
@@ -1358,7 +1358,7 @@ export default function StudentList({ branch }: { branch: string }) {
             {!isDiscontinuedStudent(longPressStudent) && (
               <button
                 onClick={handleDiscontinuedClick}
-                className="w-full text-left px-4 py-4 text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-3 border-t border-[var(--border)]"
+                className="w-full text-left px-[16px] py-[16px] text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] transition-colors flex items-center gap-[12px] border-t border-[var(--border)]"
               >
                 <span className="text-xl">⛔</span>
                 <div>
@@ -1377,29 +1377,29 @@ export default function StudentList({ branch }: { branch: string }) {
 
       {/* Confirm Break Modal */}
       {confirmBreakStudent && (
-        <div className="fixed inset-0 bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="card-panel max-w-sm w-full p-6">
-            <div className="p-6">
-              <h2 className="font-sans text-xl tracking-wider mb-4 text-center text-[color:var(--color-text-dim)]">
+        <div className="fixed inset-[0px] bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-[16px]">
+          <div className="card-panel max-w-sm w-full p-[24px]">
+            <div className="p-[24px]">
+              <h2 className="font-sans text-xl tracking-wider mb-[16px] text-center text-[color:var(--color-text-dim)]">
                 MARK AS BREAK
               </h2>
-              <div className="surface-glass p-4 mb-6">
-                <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
+              <div className="surface-glass p-[16px] mb-[24px]">
+                <p className="text-[var(--text-muted)] text-xs mb-[4px]">Student</p>
                 <p className="font-sans text-lg">
                   {confirmBreakStudent.name}
                 </p>
                 <p className="text-[var(--text-muted)] text-xs font-mono">
                   {confirmBreakStudent.id}
                 </p>
-                <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">Month</p>
+                <div className="mt-[12px] pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-[4px]">Month</p>
                   <p className="text-[color:var(--color-text)]">{MONTHS[month]} {selectedYear}</p>
                 </div>
               </div>
-              <p className="text-[var(--text-secondary)] text-center text-sm mb-6">
+              <p className="text-[var(--text-secondary)] text-center text-sm mb-[24px]">
                 This student will not be counted in pending fees for this month.
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-[12px]">
                 <button
                   onClick={() => setConfirmBreakStudent(null)}
                   className="btn-ghost flex-1 font-sans tracking-wider text-sm"
@@ -1408,7 +1408,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
                 <button
                   onClick={handleConfirmBreak}
-                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
+                  className="flex-1 py-[12px] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
                 >
                   ⏸ CONFIRM
                 </button>
@@ -1420,30 +1420,30 @@ export default function StudentList({ branch }: { branch: string }) {
 
       {/* Confirm Discontinued Modal */}
       {confirmDiscontinuedStudent && (
-        <div className="fixed inset-0 bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="card-panel max-w-sm w-full p-6">
-            <div className="p-6">
-              <h2 className="font-sans text-xl tracking-wider mb-4 text-center text-[color:var(--color-text-dim)]">
+        <div className="fixed inset-[0px] bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-[16px]">
+          <div className="card-panel max-w-sm w-full p-[24px]">
+            <div className="p-[24px]">
+              <h2 className="font-sans text-xl tracking-wider mb-[16px] text-center text-[color:var(--color-text-dim)]">
                 MARK AS DISCONTINUED
               </h2>
-              <div className="surface-glass p-4 mb-6">
-                <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
+              <div className="surface-glass p-[16px] mb-[24px]">
+                <p className="text-[var(--text-muted)] text-xs mb-[4px]">Student</p>
                 <p className="font-sans text-lg">
                   {confirmDiscontinuedStudent.name}
                 </p>
                 <p className="text-[var(--text-muted)] text-xs font-mono">
                   {confirmDiscontinuedStudent.id}
                 </p>
-                <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">From Month</p>
+                <div className="mt-[12px] pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-[4px]">From Month</p>
                   <p className="text-[color:var(--color-text)]">{MONTHS[month]} {selectedYear}</p>
                 </div>
               </div>
-              <p className="text-[var(--text-secondary)] text-center text-sm mb-6">
+              <p className="text-[var(--text-secondary)] text-center text-sm mb-[24px]">
                 This student will be marked as discontinued and moved to the
                 bottom of the list.
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-[12px]">
                 <button
                   onClick={() => setConfirmDiscontinuedStudent(null)}
                   className="btn-ghost flex-1 font-sans tracking-wider text-sm"
@@ -1452,7 +1452,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
                 <button
                   onClick={handleConfirmDiscontinued}
-                  className="flex-1 py-3 bg-[color:var(--color-panel-strong)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-panel-strong)] transition-colors"
+                  className="flex-1 py-[12px] bg-[color:var(--color-panel-strong)] text-[color:var(--color-text)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-panel-strong)] transition-colors"
                 >
                   ⛔ CONFIRM
                 </button>
@@ -1464,33 +1464,33 @@ export default function StudentList({ branch }: { branch: string }) {
 
       {/* Confirm Resume Modal */}
       {confirmResumeStudent && (
-        <div className="fixed inset-0 bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="card-panel max-w-sm w-full p-6">
-            <div className="p-6">
-              <h2 className="font-sans text-xl tracking-wider mb-4 text-center text-[color:var(--color-text-dim)]">
+        <div className="fixed inset-[0px] bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-[16px]">
+          <div className="card-panel max-w-sm w-full p-[24px]">
+            <div className="p-[24px]">
+              <h2 className="font-sans text-xl tracking-wider mb-[16px] text-center text-[color:var(--color-text-dim)]">
                 RESUME BILLING
               </h2>
-              <div className="surface-glass p-4 mb-6">
-                <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
+              <div className="surface-glass p-[16px] mb-[24px]">
+                <p className="text-[var(--text-muted)] text-xs mb-[4px]">Student</p>
                 <p className="font-sans text-lg">
                   {confirmResumeStudent.name}
                 </p>
                 <p className="text-[var(--text-muted)] text-xs font-mono">
                   {confirmResumeStudent.id}
                 </p>
-                <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">Resume From</p>
+                <div className="mt-[12px] pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-[4px]">Resume From</p>
                   <p className="text-[color:var(--color-text)]">{MONTHS[month]} {selectedYear}</p>
                 </div>
-                <div className="mt-3 pt-3 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">{confirmResumeStudent.isExamInstallment ? "Black Belt Exam Installment" : "Monthly Fee"}</p>
+                <div className="mt-[12px] pt-[12px] border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-[4px]">{confirmResumeStudent.isExamInstallment ? "Black Belt Exam Installment" : "Monthly Fee"}</p>
                   <p className="text-[color:var(--color-text)]">₹{confirmResumeStudent.originalFee || confirmResumeStudent.fee || 0}</p>
                 </div>
               </div>
-              <p className="text-[var(--text-secondary)] text-center text-sm mb-6">
+              <p className="text-[var(--text-secondary)] text-center text-sm mb-[24px]">
                 Fee tracking will restart from this month. Earlier break or discontinued months stay excluded.
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-[12px]">
                 <button
                   onClick={() => setConfirmResumeStudent(null)}
                   className="btn-ghost flex-1 font-sans tracking-wider text-sm"
@@ -1499,7 +1499,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
                 <button
                   onClick={handleConfirmResume}
-                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
+                  className="flex-1 py-[12px] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
                 >
                   RESUME
                 </button>
@@ -1523,25 +1523,25 @@ export default function StudentList({ branch }: { branch: string }) {
       )}
       {/* Confirm Fee Payment Modal */}
       {confirmFeePayment && (
-        <div className="fixed inset-0 bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="card-panel max-w-sm w-full p-6">
-            <div className="p-6">
-              <h2 className="font-sans text-xl tracking-wider mb-4 text-center">
+        <div className="fixed inset-[0px] bg-[color:var(--color-well)] backdrop-blur-sm flex items-center justify-center z-[100] p-[16px]">
+          <div className="card-panel max-w-sm w-full p-[24px]">
+            <div className="p-[24px]">
+              <h2 className="font-sans text-xl tracking-wider mb-[16px] text-center">
                 CONFIRM {confirmFeePayment.type.toUpperCase()} FEE
               </h2>
-              <div className="surface-glass p-4 mb-6">
-                <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
+              <div className="surface-glass p-[16px] mb-[24px]">
+                <p className="text-[var(--text-muted)] text-xs mb-[4px]">Student</p>
                 <p className="font-sans text-lg">
                   {confirmFeePayment.student.name}
                 </p>
-                <div className="mt-4 pt-4 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">Amount to Collect</p>
+                <div className="mt-[16px] pt-[16px] border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-[4px]">Amount to Collect</p>
                   <p className="text-2xl font-bold text-[color:var(--color-text-dim)]">
                     ₹{confirmFeePayment.type === "Admission" ? confirmFeePayment.student.admissionFee : confirmFeePayment.student.dressFee}
                   </p>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-[12px]">
                 <button
                   onClick={() => setConfirmFeePayment(null)}
                   className="btn-ghost flex-1 font-sans tracking-wider text-sm"
@@ -1550,7 +1550,7 @@ export default function StudentList({ branch }: { branch: string }) {
                 </button>
                 <button
                   onClick={handleMarkNonRecurringPaid}
-                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
+                  className="flex-1 py-[12px] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors"
                 >
                   ✓ CONFIRM PAID
                 </button>
@@ -1562,23 +1562,23 @@ export default function StudentList({ branch }: { branch: string }) {
       {nonRecurringReceipt && (
         <div className="glass-modal-overlay">
           <div className="glass-modal !max-w-sm">
-            <div className="p-6">
-              <h2 className="font-sans text-xl tracking-wider mb-4 text-center text-[color:var(--color-text-dim)]">
+            <div className="p-[24px]">
+              <h2 className="font-sans text-xl tracking-wider mb-[16px] text-center text-[color:var(--color-text-dim)]">
                 {nonRecurringReceipt.type.toUpperCase()} PAID
               </h2>
-              <div className="glass-surface p-4 mb-6">
-                <p className="text-[var(--text-muted)] text-xs mb-1">Student</p>
+              <div className="glass-surface p-[16px] mb-[24px]">
+                <p className="text-[var(--text-muted)] text-xs mb-[4px]">Student</p>
                 <p className="font-sans text-lg">
                   {nonRecurringReceipt.studentName}
                 </p>
-                <div className="mt-4 pt-4 border-t border-[var(--border)]">
-                  <p className="text-[var(--text-muted)] text-xs mb-1">Receipt</p>
+                <div className="mt-[16px] pt-[16px] border-t border-[var(--border)]">
+                  <p className="text-[var(--text-muted)] text-xs mb-[4px]">Receipt</p>
                   <p className="text-[color:var(--color-text)] text-sm font-mono break-all">
                     {nonRecurringReceipt.receiptId}
                   </p>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-[12px]">
                 <button
                   onClick={() => setNonRecurringReceipt(null)}
                   className="btn-ghost flex-1 font-sans tracking-wider text-sm"
@@ -1589,9 +1589,9 @@ export default function StudentList({ branch }: { branch: string }) {
                   href={`/api/feetrack/receipts/${encodeURIComponent(nonRecurringReceipt.receiptId)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 py-3 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-[12px] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-lg font-sans tracking-wider text-sm hover:bg-[color:var(--color-accent-strong)] transition-colors flex items-center justify-center gap-[8px]"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-[16px] h-[16px]" />
                   RECEIPT
                 </a>
               </div>

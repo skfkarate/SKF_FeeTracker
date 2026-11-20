@@ -242,17 +242,17 @@ export default function ProfilePhotosPage() {
         account: <AccountMenu />,
       }}
     >
-        <header className="mb-8 animate-fade-in">
-          <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <header className="mb-[32px] animate-fade-in">
+          <div className="flex flex-col gap-[20px] md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="flex items-center gap-3 mb-3">
-                <span className="w-2 h-2 rounded-full bg-[color:var(--color-accent)]" />
+              <div className="flex items-center gap-[12px] mb-[12px]">
+                <span className="w-[8px] h-[8px] rounded-full bg-[color:var(--color-accent)]" />
                 <p className="text-[color:var(--color-text-dim)] text-xs font-mono uppercase tracking-widest">Portal Profiles</p>
               </div>
               <h1 className="font-sans text-3xl md:text-4xl font-semibold tracking-tight text-[color:var(--color-text)]">
                 Profile Photos
               </h1>
-              <p className="mt-2 max-w-xl text-sm text-[color:var(--color-text-dim)]">
+              <p className="mt-[8px] max-w-xl text-sm text-[color:var(--color-text-dim)]">
                 Add a missing photo or replace an existing one. Changes appear on the student portal immediately.
               </p>
             </div>
@@ -261,44 +261,44 @@ export default function ProfilePhotosPage() {
               type="button"
               onClick={() => loadStudents(true)}
               disabled={refreshing}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[16px] text-sm font-semibold text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {refreshing ? <Loader2 className="h-[16px] w-[16px] animate-spin" /> : <RefreshCw className="h-[16px] w-[16px]" />}
               Refresh
             </button>
           </div>
         </header>
 
-        <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto]">
+        <section className="mb-[32px] grid grid-cols-1 gap-[16px] md:grid-cols-[1fr_auto]">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--color-text-faint)]" />
+            <Search className="pointer-events-none absolute left-[16px] top-[50%] h-[16px] w-[16px] -translate-y-1/2 text-[color:var(--color-text-faint)]" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              className="input-minimal min-h-12 pl-11"
+              className="input-minimal min-h-[48px] pl-[44px]"
               placeholder="Search student, ID, parent, phone"
             />
           </div>
 
-          <div className="flex min-h-12 overflow-hidden rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
+          <div className="flex min-h-[48px] overflow-hidden rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
             {(["All", "MPSC", "Herohalli"] as const).map((branch) => (
               <button
                 key={branch}
                 type="button"
                 onClick={() => setBranchFilter(branch)}
-                className={`min-w-20 px-4 text-xs font-bold uppercase tracking-wider transition-colors ${
+                className={`min-w-[80px] px-[16px] text-xs font-bold uppercase tracking-wider transition-colors ${
                   branchFilter === branch
                     ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
                     : "text-[color:var(--color-text-dim)] hover:bg-[color:var(--color-well)] hover:text-[color:var(--color-text)]"
                 }`}
               >
                 {branch === "All" ? "All" : branchDisplayName(branch)}
-                <span className="ml-2 opacity-60">{counts[branch]}</span>
+                <span className="ml-[8px] opacity-60">{counts[branch]}</span>
               </button>
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 md:col-span-2">
+          <div className="flex flex-wrap items-center gap-[8px] md:col-span-2">
             {([
               ["all", "All students", photoCounts.all],
               ["missing", "Missing photo", photoCounts.missing],
@@ -308,13 +308,13 @@ export default function ProfilePhotosPage() {
                 key={value}
                 type="button"
                 onClick={() => setPhotoFilter(value)}
-                className={`inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold transition-colors ${
+                className={`inline-flex min-h-[36px] items-center gap-[8px] rounded-lg border px-[12px] text-xs font-semibold transition-colors ${
                   photoFilter === value
                     ? "border-[color:var(--color-hairline)] bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
                     : "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)]"
                 }`}
               >
-                {value === "missing" ? <Camera className="h-3.5 w-3.5" /> : value === "has" ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
+                {value === "missing" ? <Camera className="h-[14px] w-[14px]" /> : value === "has" ? <CheckCircle2 className="h-[14px] w-[14px]" /> : null}
                 {label}
                 <span className="opacity-60">{count}</span>
               </button>
@@ -323,37 +323,37 @@ export default function ProfilePhotosPage() {
         </section>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <AlertCircle className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
         {success ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <CheckCircle2 className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{success}</p>
           </div>
         ) : null}
 
         {loading ? (
-          <div className="space-y-3">
+          <div className="space-y-[12px]">
             {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="card-panel h-28 animate-pulse bg-[color:var(--color-well)]" />
+              <div key={index} className="card-panel h-[112px] animate-pulse bg-[color:var(--color-well)]" />
             ))}
           </div>
         ) : filteredStudents.length === 0 ? (
-          <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-10 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
-              <Camera className="h-5 w-5" />
+          <div className="rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[40px] text-center">
+            <div className="mx-auto mb-[16px] flex h-[48px] w-[48px] items-center justify-center rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
+              <Camera className="h-[20px] w-[20px]" />
             </div>
             <h2 className="text-lg font-semibold text-[color:var(--color-text)]">
               {photoFilter === "missing" ? "No missing photos" : photoFilter === "has" ? "No students with photos" : "No students found"}
             </h2>
-            <p className="mt-2 text-sm text-[color:var(--color-text-dim)]">Try another filter or search term.</p>
+            <p className="mt-[8px] text-sm text-[color:var(--color-text-dim)]">Try another filter or search term.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-[16px]">
             {filteredStudents.map((student) => {
               const key = studentKey(student);
               const preview = previews[key];
@@ -362,10 +362,10 @@ export default function ProfilePhotosPage() {
               const inputId = `profile-photo-${encodeURIComponent(key)}`;
 
               return (
-                <article key={key} className="card-panel p-4 md:p-5">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center">
-                    <div className="flex flex-1 items-center gap-4 min-w-0">
-                      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
+                <article key={key} className="card-panel p-[16px] md:p-[20px]">
+                  <div className="flex flex-col gap-[16px] md:flex-row md:items-center">
+                    <div className="flex flex-1 items-center gap-[16px] min-w-[0px]">
+                      <div className="relative h-[64px] w-[64px] flex-shrink-0 overflow-hidden rounded-full border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
                         {preview ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={preview} alt="" className="h-full w-full object-cover" />
@@ -379,13 +379,13 @@ export default function ProfilePhotosPage() {
                         )}
                       </div>
 
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
+                      <div className="min-w-[0px]">
+                        <div className="flex flex-wrap items-center gap-[8px]">
                           <h2 className="truncate text-base font-semibold text-[color:var(--color-text)]">{student.name}</h2>
-                          <span className="rounded-md border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">
+                          <span className="rounded-md border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[8px] py-[2px] text-[10px] font-bold uppercase tracking-wider text-[color:var(--color-text-dim)]">
                             {branchDisplayName(student.branch)}
                           </span>
-                          <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                          <span className={`rounded-md border px-[8px] py-[2px] text-[10px] font-bold uppercase tracking-wider ${
                             needsProfilePhoto(student)
                               ? "border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
                               : "border-[color:var(--color-accent-border)] bg-[color:var(--color-well)] text-[color:var(--color-text)]"
@@ -393,18 +393,18 @@ export default function ProfilePhotosPage() {
                             {needsProfilePhoto(student) ? "Missing photo" : "Has photo"}
                           </span>
                         </div>
-                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[color:var(--color-text-dim)]">
+                        <div className="mt-[4px] flex flex-wrap items-center gap-x-[12px] gap-y-[4px] text-xs text-[color:var(--color-text-dim)]">
                           <span>{student.id}</span>
                           {student.parentName ? <span>{student.parentName}</span> : null}
                           {student.phone ? <span>{student.phone}</span> : null}
                         </div>
                         {selectedFile ? (
-                          <p className="mt-2 max-w-full truncate text-xs text-[color:var(--color-text-dim)]">{selectedFile.name}</p>
+                          <p className="mt-[8px] max-w-full truncate text-xs text-[color:var(--color-text-dim)]">{selectedFile.name}</p>
                         ) : null}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 md:flex md:flex-shrink-0">
+                    <div className="grid grid-cols-2 gap-[8px] md:flex md:flex-shrink-0">
                       <input
                         id={inputId}
                         type="file"
@@ -414,9 +414,9 @@ export default function ProfilePhotosPage() {
                       />
                       <label
                         htmlFor={inputId}
-                        className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
+                        className="inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[16px] text-sm font-semibold text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
                       >
-                        {preview ? <ImagePlus className="h-4 w-4" /> : <UserRound className="h-4 w-4" />}
+                        {preview ? <ImagePlus className="h-[16px] w-[16px]" /> : <UserRound className="h-[16px] w-[16px]" />}
                         {preview ? "Change" : needsProfilePhoto(student) ? "Add photo" : "Replace"}
                       </label>
 
@@ -424,18 +424,18 @@ export default function ProfilePhotosPage() {
                         type="button"
                         onClick={() => handleUpload(student)}
                         disabled={!selectedFile || isUploading}
-                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[color:var(--color-accent)] px-4 text-sm font-semibold text-[color:var(--color-accent-ink)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="inline-flex min-h-[44px] items-center justify-center gap-[8px] rounded-lg bg-[color:var(--color-accent)] px-[16px] text-sm font-semibold text-[color:var(--color-accent-ink)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
                       >
-                        {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                        {isUploading ? <Loader2 className="h-[16px] w-[16px] animate-spin" /> : <Upload className="h-[16px] w-[16px]" />}
                         Save
                       </button>
 
                       <Link
                         href={`/students/${student.branch}/${encodeURIComponent(student.id)}`}
-                        className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text-dim)] transition-colors hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] md:col-span-1"
+                        className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[16px] text-sm font-semibold text-[color:var(--color-text-dim)] transition-colors hover:border-[color:var(--color-hairline)] hover:text-[color:var(--color-text)] md:col-span-1"
                       >
                         Profile
-                        <ArrowUpRight className="h-4 w-4" />
+                        <ArrowUpRight className="h-[16px] w-[16px]" />
                       </Link>
                     </div>
                   </div>

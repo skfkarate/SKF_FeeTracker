@@ -145,7 +145,7 @@ export default function BlackBeltPage() {
     return (
       <div className="min-h-screen bg-[color:var(--color-well)] text-[color:var(--color-text)]">
         <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+          <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
         </div>
       </div>
     );
@@ -161,55 +161,55 @@ export default function BlackBeltPage() {
         account: <AccountMenu />,
       }}
     >
-        <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <header className="mb-[32px] flex flex-col gap-[20px] md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="mb-3 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-[color:var(--color-accent)]" />
+            <div className="mb-[12px] flex items-center gap-[12px]">
+              <span className="h-[8px] w-[8px] rounded-full bg-[color:var(--color-accent)]" />
               <p className="text-xs font-mono uppercase tracking-widest text-[color:var(--color-text-dim)]">Examinations</p>
             </div>
             <h1 className="font-sans text-3xl font-semibold tracking-tight text-[color:var(--color-text)] sm:text-4xl">
               Black Belt 2026
             </h1>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-[12px]">
             <button
               type="button"
               onClick={() => loadCandidates(true)}
               disabled={refreshing}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-4 text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
+              className="inline-flex min-h-[44px] items-center justify-center gap-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] px-[16px] text-sm font-semibold text-[color:var(--color-text)] hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)]"
             >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-[16px] w-[16px] ${refreshing ? "animate-spin" : ""}`} />
               Refresh
             </button>
           </div>
         </header>
 
         {error ? (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-4 text-sm text-[color:var(--color-text)]">
-            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <div className="mb-[24px] flex items-start gap-[12px] rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] p-[16px] text-sm text-[color:var(--color-text)]">
+            <AlertCircle className="mt-[2px] h-[16px] w-[16px] flex-shrink-0" />
             <p>{error}</p>
           </div>
         ) : null}
 
-        <div className="card-panel overflow-hidden p-4 sm:p-5">
-          <div className="mb-6 max-w-md relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[color:var(--color-text-dim)]" />
+        <div className="card-panel overflow-hidden p-[16px] sm:p-[20px]">
+          <div className="mb-[24px] max-w-md relative">
+            <Search className="absolute left-[12px] top-[50%] -translate-y-1/2 h-[16px] w-[16px] text-[color:var(--color-text-dim)]" />
             <input
               type="text"
               placeholder="Search candidate..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="input-minimal pl-10"
+              className="input-minimal pl-[40px]"
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-[12px] sm:grid-cols-2 lg:grid-cols-3">
             {loading ? (
-              <div className="col-span-full py-12 flex justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-[color:var(--color-text-dim)]" />
+              <div className="col-span-full py-[48px] flex justify-center">
+                <Loader2 className="h-[24px] w-[24px] animate-spin text-[color:var(--color-text-dim)]" />
               </div>
             ) : filteredCandidates.length === 0 ? (
-              <div className="col-span-full py-12 text-center text-[color:var(--color-text-dim)]">
+              <div className="col-span-full py-[48px] text-center text-[color:var(--color-text-dim)]">
                 No candidates found.
               </div>
             ) : (
@@ -217,27 +217,27 @@ export default function BlackBeltPage() {
                 <button
                   key={candidate.id}
                   onClick={() => openEditor(candidate)}
-                  className="flex flex-col rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-4 text-left transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] group"
+                  className="flex flex-col rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[16px] text-left transition-colors hover:border-[color:var(--color-hairline)] hover:bg-[color:var(--color-well)] group"
                 >
                   <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
-                        <Trophy className="h-5 w-5" />
+                    <div className="flex items-center gap-[12px]">
+                      <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
+                        <Trophy className="h-[20px] w-[20px]" />
                       </div>
                       <div>
                         <p className="font-semibold text-[color:var(--color-text)]">{candidate.display_name}</p>
                         <p className="text-xs text-[color:var(--color-text-dim)]">{candidate.skf_id}</p>
                       </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-[color:var(--color-text-faint)] transition-colors group-hover:text-[color:var(--color-text)]" />
+                    <ChevronRight className="h-[20px] w-[20px] text-[color:var(--color-text-faint)] transition-colors group-hover:text-[color:var(--color-text)]" />
                   </div>
                   
-                  <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2">
+                  <div className="mt-[16px] grid grid-cols-2 gap-[8px] text-xs">
+                    <div className="rounded border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[8px]">
                       <span className="block text-[color:var(--color-text-dim)]">Readiness</span>
                       <span className="font-medium capitalize text-[color:var(--color-text)]">{candidate.readiness.replace('_', ' ')}</span>
                     </div>
-                    <div className="rounded border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-2">
+                    <div className="rounded border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] p-[8px]">
                       <span className="block text-[color:var(--color-text-dim)]">Teaching Hrs</span>
                       <span className="font-medium text-[color:var(--color-text)]">{candidate.teaching_hours || 0} hrs</span>
                     </div>
@@ -250,11 +250,11 @@ export default function BlackBeltPage() {
 
         {selectedCandidate ? (
           <div className="glass-modal-overlay" onClick={(e) => e.target === e.currentTarget && closeEditor()}>
-            <form onSubmit={handleSubmit} className="glass-modal max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-5">
-              <div className="mb-5 flex items-center justify-between gap-3 sticky top-0 bg-[color:var(--color-well)] backdrop-blur-md pb-4 border-b border-[color:var(--color-hairline)] z-10 -mt-4 pt-4 -mx-4 px-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
-                    <ShieldCheck className="h-5 w-5" />
+            <form onSubmit={handleSubmit} className="glass-modal max-w-2xl max-h-[90vh] overflow-y-auto p-[16px] sm:p-[20px]">
+              <div className="mb-[20px] flex items-center justify-between gap-[12px] sticky top-[0px] bg-[color:var(--color-well)] backdrop-blur-md pb-[16px] border-b border-[color:var(--color-hairline)] z-10 mt-[-16px] pt-[16px] mx-[-16px] px-[16px]">
+                <div className="flex items-center gap-[12px]">
+                  <div className="flex h-[44px] w-[44px] items-center justify-center rounded-lg border border-[color:var(--color-hairline-strong)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)]">
+                    <ShieldCheck className="h-[20px] w-[20px]" />
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-[color:var(--color-text)]">{selectedCandidate.display_name}</h2>
@@ -265,49 +265,49 @@ export default function BlackBeltPage() {
                   type="button"
                   onClick={closeEditor}
                   disabled={saving}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors"
+                  className="inline-flex h-[44px] w-[44px] items-center justify-center rounded-lg hover:bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)] transition-colors"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-[16px] w-[16px]" />
                 </button>
               </div>
 
-              <div className="flex border-b border-[color:var(--color-hairline)] mb-4 overflow-x-auto hide-scrollbar">
+              <div className="flex border-b border-[color:var(--color-hairline)] mb-[16px] overflow-x-auto hide-scrollbar">
                 <button
                   type="button"
                   onClick={() => setActiveTab("status")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "status" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+                  className={`px-[16px] py-[8px] text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "status" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Overview & Status
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("academics")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "academics" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+                  className={`px-[16px] py-[8px] text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "academics" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Academics & Rules
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("practical")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "practical" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+                  className={`px-[16px] py-[8px] text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "practical" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Practical & Combat
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("continuous")}
-                  className={`px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "continuous" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
+                  className={`px-[16px] py-[8px] text-sm font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === "continuous" ? "border-[color:var(--color-accent-border)] text-[color:var(--color-text)]" : "border-transparent text-[color:var(--color-text-dim)] hover:text-[color:var(--color-text)]"}`}
                 >
                   Continuous Tasks
                 </button>
               </div>
 
-              <div className="space-y-6 pt-2">
+              <div className="space-y-[24px] pt-[8px]">
                 {activeTab === "status" && (
                   <section>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-[16px] sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Overall Readiness</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Overall Readiness</span>
                         <select
                           className="input-minimal"
                           value={editForm.readiness || "on_track"}
@@ -320,7 +320,7 @@ export default function BlackBeltPage() {
                       </label>
 
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Final Result</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Final Result</span>
                         <select
                           className="input-minimal"
                           value={editForm.exam_result || ""}
@@ -334,7 +334,7 @@ export default function BlackBeltPage() {
                       </label>
 
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Final Score</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Final Score</span>
                         <input
                           type="number"
                           step="0.1"
@@ -344,8 +344,8 @@ export default function BlackBeltPage() {
                         />
                       </label>
 
-                      <label className="block mt-4 sm:col-span-2">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Instructor Notes</span>
+                      <label className="block mt-[16px] sm:col-span-2">
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Instructor Notes</span>
                         <textarea
                           className="input-minimal min-h-[100px] resize-y"
                           value={editForm.instructor_notes || ""}
@@ -359,9 +359,9 @@ export default function BlackBeltPage() {
 
                 {activeTab === "academics" && (
                   <section>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-[16px] sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">First Aid Certification</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">First Aid Certification</span>
                         <select
                           className="input-minimal"
                           value={editForm.first_aid_status || "not_started"}
@@ -373,7 +373,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">WKF Kumite Rules</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">WKF Kumite Rules</span>
                         <select
                           className="input-minimal"
                           value={editForm.wkf_kumite_status || "not_started"}
@@ -385,7 +385,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">WKF Kata Rules</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">WKF Kata Rules</span>
                         <select
                           className="input-minimal"
                           value={editForm.wkf_kata_status || "not_started"}
@@ -397,7 +397,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">WKF Referee Status</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">WKF Referee Status</span>
                         <select
                           className="input-minimal"
                           value={editForm.wkf_referee_status || "not_started"}
@@ -414,9 +414,9 @@ export default function BlackBeltPage() {
 
                 {activeTab === "practical" && (
                   <section>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-[16px] sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Weapon Mastery</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Weapon Mastery</span>
                         <select
                           className="input-minimal"
                           value={editForm.weapon_status || "not_started"}
@@ -428,7 +428,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Bunkai Mechanics</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Bunkai Mechanics</span>
                         <select
                           className="input-minimal"
                           value={editForm.bunkai_status || "not_done"}
@@ -440,7 +440,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Tournament Kata</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Tournament Kata</span>
                         <select
                           className="input-minimal"
                           value={editForm.tournament_kata_status || "not_won"}
@@ -451,7 +451,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Tournament Kumite</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Tournament Kumite</span>
                         <select
                           className="input-minimal"
                           value={editForm.tournament_kumite_status || "not_won"}
@@ -467,9 +467,9 @@ export default function BlackBeltPage() {
 
                 {activeTab === "continuous" && (
                   <section>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-[16px] sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Teaching Status</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Teaching Status</span>
                         <select
                           className="input-minimal"
                           value={editForm.teaching_status || "ongoing"}
@@ -481,7 +481,7 @@ export default function BlackBeltPage() {
                         </select>
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Teaching Hours</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Teaching Hours</span>
                         <input
                           type="number"
                           className="input-minimal"
@@ -490,7 +490,7 @@ export default function BlackBeltPage() {
                         />
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Video Submissions</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Video Submissions</span>
                         <input
                           type="number"
                           className="input-minimal"
@@ -499,7 +499,7 @@ export default function BlackBeltPage() {
                         />
                       </label>
                       <label className="block">
-                        <span className="mb-2 block text-xs font-semibold text-[color:var(--color-text-dim)]">Marketing Enrollment</span>
+                        <span className="mb-[8px] block text-xs font-semibold text-[color:var(--color-text-dim)]">Marketing Enrollment</span>
                         <select
                           className="input-minimal"
                           value={editForm.marketing_status || "in_progress"}
@@ -509,12 +509,12 @@ export default function BlackBeltPage() {
                           <option value="enrolled">Student Enrolled</option>
                         </select>
                       </label>
-                      <label className="block flex items-center gap-3 p-3 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] mt-4 sm:col-span-2">
+                      <label className="block flex items-center gap-[12px] p-[12px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)] mt-[16px] sm:col-span-2">
                         <input
                           type="checkbox"
                           checked={editForm.mock_exam_done || false}
                           onChange={(e) => handleFieldChange("mock_exam_done", e.target.checked)}
-                          className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-accent)] focus:ring-offset-[color:var(--color-base-deep)]"
+                          className="h-[16px] w-[16px] rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-accent)] focus:ring-offset-[color:var(--color-base-deep)]"
                         />
                         <div>
                           <span className="block text-sm font-semibold text-[color:var(--color-text)]">Mock Examinations Completed</span>
@@ -523,19 +523,19 @@ export default function BlackBeltPage() {
                       </label>
                     </div>
 
-                    <div className="mt-6">
-                      <h4 className="mb-3 text-xs font-semibold text-[color:var(--color-text-dim)]">Self-Defense Monthly Check-ins</h4>
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                    <div className="mt-[24px]">
+                      <h4 className="mb-[12px] text-xs font-semibold text-[color:var(--color-text-dim)]">Self-Defense Monthly Check-ins</h4>
+                      <div className="grid grid-cols-2 gap-[12px] sm:grid-cols-5">
                         {[1, 2, 3, 4, 5].map((monthNum) => {
                           const key = `month_${monthNum}`;
                           const isChecked = editForm.self_defense_months?.[key] ?? selectedCandidate?.self_defense_months?.[key] ?? false;
                           return (
-                            <label key={key} className="flex items-center gap-2 p-2 rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
+                            <label key={key} className="flex items-center gap-[8px] p-[8px] rounded-lg border border-[color:var(--color-hairline)] bg-[color:var(--color-well)]">
                               <input
                                 type="checkbox"
                                 checked={isChecked}
                                 onChange={(e) => handleSelfDefenseChange(key, e.target.checked)}
-                                className="h-4 w-4 rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-accent)] focus:ring-offset-[color:var(--color-base-deep)]"
+                                className="h-[16px] w-[16px] rounded border-[color:var(--color-hairline)] bg-[color:var(--color-well)] text-[color:var(--color-text-dim)] focus:ring-[color:var(--color-accent)] focus:ring-offset-[color:var(--color-base-deep)]"
                               />
                               <span className="text-xs text-[color:var(--color-text)]">Month {monthNum}</span>
                             </label>
@@ -546,21 +546,21 @@ export default function BlackBeltPage() {
                   </section>
                 )}
 
-                <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end border-t border-[color:var(--color-hairline)] mt-6">
+                <div className="flex flex-col-reverse gap-[12px] pt-[16px] sm:flex-row sm:justify-end border-t border-[color:var(--color-hairline)] mt-[24px]">
                   <button
                     type="button"
                     onClick={closeEditor}
                     disabled={saving}
-                    className="btn-ghost inline-flex min-h-11 items-center justify-center"
+                    className="btn-ghost inline-flex min-h-[44px] items-center justify-center"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={saving}
-                    className="btn-primary bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-strong)] text-[color:var(--color-text)] inline-flex min-h-11 items-center justify-center gap-2"
+                    className="btn-primary bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-strong)] text-[color:var(--color-text)] inline-flex min-h-[44px] items-center justify-center gap-[8px]"
                   >
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    {saving ? <Loader2 className="h-[16px] w-[16px] animate-spin" /> : <CheckCircle2 className="h-[16px] w-[16px]" />}
                     Save Candidate
                   </button>
                 </div>

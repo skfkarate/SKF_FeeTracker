@@ -33,7 +33,7 @@ export default function MeterRing({
   const color = TONE_COLOR[tone];
 
   return (
-    <div className={cx("flex min-w-0 flex-wrap items-center gap-3.5", className)}>
+    <div className={cx("flex min-w-[0px] flex-wrap items-center gap-[14px]", className)}>
       <svg
         width={size}
         height={size}
@@ -74,7 +74,7 @@ export default function MeterRing({
           {clamped}
         </text>
       </svg>
-      {caption ? <p className="min-w-0 flex-1 basis-[110px] text-xs leading-snug text-[color:var(--color-text-faint)]">{caption}</p> : null}
+      {caption ? <p className="min-w-[0px] flex-1 basis-[110px] break-words text-xs leading-snug text-[color:var(--color-text-faint)]">{caption}</p> : null}
     </div>
   );
 }
@@ -95,7 +95,7 @@ export function MeterBar({
 
   return (
     <div
-      className={cx("h-2 w-full overflow-hidden rounded-[var(--radius-pill)] bg-[color:var(--color-well)]", className)}
+      className={cx("h-[8px] w-full overflow-hidden rounded-[var(--radius-pill)] bg-[color:var(--color-well)]", className)}
       role="progressbar"
       aria-valuenow={clamped}
       aria-valuemin={0}

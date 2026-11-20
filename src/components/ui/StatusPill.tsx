@@ -85,7 +85,7 @@ export default function StatusPill({
   return (
     <span
       className={cx(
-        "inline-flex h-6 items-center rounded-[var(--radius-pill)] border px-2.5 text-[10px] font-semibold uppercase tracking-[0.06em] whitespace-nowrap",
+        "inline-flex h-[24px] items-center rounded-[var(--radius-pill)] border px-[10px] text-[10px] font-semibold uppercase tracking-[0.06em] whitespace-nowrap",
         className,
       )}
       style={style}
