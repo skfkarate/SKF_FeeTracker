@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SKF Karate FeeTrack
 
-## Getting Started
+FeeTrack is the staff-facing fee, admission and operations ledger for SKF Karate. It runs on Next.js 16 with the App Router and Tailwind CSS 4.
 
-First, run the development server:
+## Design contract
+
+- [`DESIGN.md`](./DESIGN.md) is the only visual contract: **Aurora Glass**.
+- [`SKF-FeeTrack-STATUS.md`](./SKF-FeeTrack-STATUS.md) records scope, decisions, verification and current git state.
+- Navigation is a bottom bar on phones, a slim rail on desktop, the More sheet for the full destination list, and a compact top-right account control. There is no hamburger or full drawer.
+- Teal is the only accent. Green/amber/red are reserved for genuine payment statuses.
+- The UI is mobile-first at 320px and verified at 200% text zoom without horizontal overflow or sub-44px controls.
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`. The app expects its FeeTrack backend through the configured API proxy; copy the required environment values into `.env.local` locally. Never commit secrets.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production checks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npx tsc --noEmit
+npm run lint
+NODE_OPTIONS=--max-old-space-size=4096 npx next build
+git diff --check
+```
 
-## Learn More
+To serve a production build locally:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+PORT=3200 npm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Additional operational scripts are available:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run audit:production
+npm run smoke:production
+```
 
-## Deploy on Vercel
+## Working rules
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Commit only after type-check, lint and build pass.
+- Keep money rules unchanged: stored charged amounts win; no new formula variants.
+- Do not change backend logic, database state, roles or access while doing UI work.
+- Direct pushes to `origin/main` are used for this repo; no PR or deploy is created by this workflow.

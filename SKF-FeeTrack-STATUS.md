@@ -10,10 +10,10 @@
 
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
-- The final design direction is **Sumi Ledger** — ink-green panels, warm paper text, one vermillion seal accent, and tabular numerals. The earlier Dojo Ledger HUD is retired.
-- Implementation commits are on `main` and pushed to `origin/main`. They cover the shared shell, ten destinations, sheets, redirects, navigation cleanup, the Sumi Ledger theme, the simplified dashboard, and the full website signal funnel.
+- The final design direction is **Aurora Glass** — deep night-blue base, frosted blue-grey glass, near-black contrast wells, large clean numbers, and one soft teal glow. Sumi Ledger and Dojo Ledger HUD are retired.
+- Implementation commits are on `main` and pushed directly to `origin/main`. They cover the shared shell, ten destinations, sheets, redirects, navigation cleanup, the Aurora Glass theme, the simplified dashboard, and the full website signal funnel.
 - No PR was opened and no deploy was triggered. No database, backend logic, Black Belt cleanup, or proration work has been changed.
-- Working tree is **clean** after each verified step.
+- Working tree is **clean** after each verified step. Browser QA covered 320/375/414/768/1280px at 100% zoom plus 320/1280px at 67%/200% text zoom; all 208 cases report zero horizontal overflow and no sub-44px controls.
 
 ---
 
@@ -225,7 +225,7 @@ Desktop:             left rail instead of bottom bar
 
 Navigation → shared kit → BB cleanup → proration → Fees → Today → People → Money → Events/Media/Shop/Settings → Insights → final cleanup.
 
-**Actual order so far:** shared kit first, then `/custom` adoption. Navigation remains untouched.
+**Actual order so far:** shared kit first, `/custom` adoption, all ten destinations, then the Aurora Glass theme pass and browser-QA alignment fixes. Hamburger/full-drawer navigation was removed in favour of bottom tabs, a desktop rail, the More sheet, and a compact top-right account control.
 
 ---
 
@@ -243,12 +243,13 @@ The structure plan scored **5/10** as a design plan: strong IA (8/10), but weak 
 | Gamified, playful, heavy color | Rejected — wrong for thousands of money rows. |
 | Marketing-style hero pages | Rejected — beautiful first, slow forever. |
 | Ledger Flow | Good base, but not creative enough for your ask. |
-| Dojo Ledger HUD | Retired — you rejected the game chrome and pixel type. |
-| **Sumi Ledger** | **Chosen.** Quiet ink karate ledger; one vermillion seal, paper text, tabular numerals. |
+| Dojo Ledger HUD | Retired — game chrome and pixel type rejected. |
+| Sumi Ledger | Superseded — quiet ink ledger with one vermillion seal; replaced by the supplied Aurora Glass reference. |
+| **Aurora Glass** | **Chosen.** Deep night blue, frosted glass, near-black wells, large clean numbers, and one soft teal glow. |
 
-### 4.3 Retired theme: Dojo Ledger HUD (historical record)
+### 4.3 Retired themes (historical record)
 
-> Historical only. The current contract is `DESIGN.md` → Sumi Ledger.
+> Historical only. The current contract is `DESIGN.md` → Aurora Glass. Dojo Ledger HUD and Sumi Ledger remain here only as decision history; their tokens are no longer active.
 
 **Vibe:** black dojo console. Hairline panels. Tabular money. Progress rings. Streak chips. Belt rank chips. Receipts feel like a stamp.
 
@@ -260,37 +261,35 @@ The structure plan scored **5/10** as a design plan: strong IA (8/10), but weak 
 4. One accent: SKF red `#ff3333`, used only for primary action, brand mark, active tab.
 5. Sheets, not dialogs. Game chrome never hides or delays a money action.
 
-### 4.4 Locked tokens
+### 4.4 Locked tokens (current)
 
 | Token | Value |
 |---|---|
-| Base | `#000000` |
-| Panel | `#0a0a0a` |
-| Raised | `#121214` |
-| Hairline | `#1f1f22` |
-| Text | `#ffffff` / `#a1a1aa` / `#71717a` |
-| Action | `#f5b841` |
-| Settled | `#2dd4bf` |
-| Overdue | `#ef4444` |
-| Brand | `#ff3333` |
-| Focus | white 2px, offset 3px |
-| Spacing | 4, 8, 12, 16, 24 |
-| Radius | rows 10, cards 14, pills 999 |
-| Motion | sheets 180ms, row stagger 20ms, count-up 320ms, status flash 240ms |
-| Touch | 44px minimum |
-| Contrast | 4.5:1, visible focus, screen reader labels, 200% zoom |
+| Base | `#1a1c23` |
+| Deep / well | `#101219` / `#0f1118` |
+| Panel | `rgba(38, 49, 55, 0.54)` / `rgba(38, 49, 55, 0.78)` |
+| Raised | `rgba(29, 34, 44, 0.94)` |
+| Hairline | `rgba(189, 211, 222, 0.12)` / `rgba(189, 211, 222, 0.24)` |
+| Text | `#f1f4fa` / `#b7c2d1` / `#8794a6` |
+| Accent | `#4ae0bd` (single accent: focus, active nav, primary, soft glow) |
+| Payment statuses | paid `#6fdca4`, due `#fcd24e`, overdue `#ff9b9b` — payment rows only |
+| Focus | 2px accent, offset 3px |
+| Spacing | 4, 8, 12, 16, 20, 24, 32 |
+| Radius | rows 12, cards 18, pills 999 |
+| Motion | sheets 180ms, fades 220ms, row stagger 18ms; no money count-up |
+| Touch | fixed-px 44px minimum, stable at 67%/200% text zoom |
+| Contrast | 4.5:1, visible focus, screen reader labels, 200% zoom without horizontal overflow |
 
 ### 4.5 Typography decision (current)
 
 | Job | Font | Class |
 |---|---|---|
-| UI, labels and eyebrows | DM Sans | default body, `.eyebrow` |
-| Titles and hero numbers | Newsreader | `.font-display` |
-| Money, dates and dense numbers | IBM Plex Mono | `.numeric`, `.font-mono`, `.tnum` |
+| UI, titles and labels | DM Sans | default body, `.font-display` |
+| Money, dates, IDs and dense numbers | IBM Plex Mono | `.numeric`, `.font-mono`, `.tnum` |
 
+- Two fonts only. Newsreader and pixel fonts are retired; neither suited the Aurora Glass contract.
 - Fluid sizes replace the old fixed 11/13/15/17/20/24/40 scale.
-- Pixel fonts were tried and rejected because digits became ambiguous and the look was wrong for a karate accountant's desk.
-- The old Dojo Ledger HUD token table above is kept only as a record of what was retired.
+- Body text stays at least 15px; labels stay at least 11px.
 
 ### 4.6 Screen feel
 
@@ -343,8 +342,17 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 | `4ab1c20` | `feat(feetrack): add transitional redirects for retired routes` | Temporary 307s map `/verifications`, `/profile-photos`, and `/analytics` to their rebuilt destinations |
 | `1343836` | `refactor(feetrack): unify navigation in one destination list` | Bottom tabs, More sheet, account drawer, and dashboard shortcuts derive from one `DESTINATION_TILES` config |
 | `f5d88a7` | `refactor(feetrack): remove unused api wrappers` | Eight unreferenced client wrappers and their private types removed; backend actions untouched |
+| `b97ec46` | `design: establish Aurora Glass foundation and remove hamburger navigation` | New visual contract, tokens, fonts, account control, and bottom/rail navigation |
+| `06186be` | `design: wire account control across all routes` | Compact top-right account control replaces the drawer account surface |
+| `c810d18` | `design: sweep legacy palette into Aurora Glass tokens` | Mechanical palette sweep across legacy Tailwind utilities |
+| `2cac656` | `design: remove residual legacy palette utilities` | Final stale Sumi/legacy token references removed |
+| `575c7ae` | `design: align shared surfaces and fix 320px overflow` | Shared shell, HUD, sheets, rows, pills and controls aligned to one axis |
+| `2f5b8d3` | `design: align student list with shared shell` | Student list shell and controls follow the same alignment system |
+| `ac501a2` | `design: restrict status colors to payment states` | Green/amber/red limited to genuine payment status; neutral/teal elsewhere |
+| `56e39aa` | `design: align legacy routes with shared shell` | Legacy/public routes moved to `PageShell` with actions, bell and account preserved |
+| `2bb0e36` | `design: fix compact controls and 200% zoom overflow` | Fixed-px tap targets, compact HUD controls, wrapping filters and zoom-safe headings; full browser crawl clean |
 
-**Nothing has been pushed.** The 29 commits above are the only code changes. Documentation commits for this status file are separate and not listed here.
+**Pushed directly to `origin/main`; no PR and no deploy.** The 38 commit messages above record the code changes. Documentation commits for this status file are separate.
 
 ### 5.2 Files created
 
@@ -369,8 +377,10 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 
 ### 5.3 Files modified
 
-- `src/app/globals.css` — Sumi Ledger tokens, semantic `.eyebrow`/`.numeric` utilities, hairlines, safe-area helpers, tap targets
-- `src/app/layout.tsx` — loads DM Sans, Newsreader and IBM Plex Mono
+- `src/app/globals.css` — Aurora Glass tokens, frosted surfaces, near-black wells, hairlines, focus rings, safe-area helpers and fixed-px tap targets
+- `src/app/layout.tsx` — loads DM Sans and IBM Plex Mono only; dark theme color
+- `src/components/common/AccountMenu.tsx` — compact top-right account/logout control
+- `src/components/common/NavMenu.tsx` — removed with the hamburger/full drawer
 - `src/components/common/ConfirmModal.tsx` — now wraps shared `Sheet`
 - `src/components/ui/HudBar.tsx` — optional `backHref`
 - `src/app/custom/CustomPageClient.tsx` — uses `PageShell`, `Sheet`, `SegmentedTabs`, `StatTile`, `LedgerRow`, `StatusPill`
@@ -390,10 +400,11 @@ npm run lint
 NODE_OPTIONS=--max-old-space-size=4096 npx next build
 ```
 
-Visual check: dev server `PORT=3100 npm run dev`, preview at `http://127.0.0.1:3100/design-preview`.  
-Screenshot checked at `/tmp/skf-design-preview3.png`; it caught and fixed the Pixelify `2,000` → `8,000` problem.  
-Shell screenshots: `/tmp/skf-shell-375.png` and `/tmp/skf-shell-1280.png`.  
-Hero mockups: `/tmp/skf-today-{375,1280}.png`, `/tmp/skf-fees-{375,1280}.png`, `/tmp/skf-money-{375,1280}.png`.
+Visual QA used the production server `PORT=3200 npm run start` at `http://127.0.0.1:3200` after each build. The dev server on `3100` was unreliable for browser QA because of HMR hydration skeletons and WebSocket console noise.
+
+Final browser crawl: 26 routes × 8 viewport/zoom cases = 208 checks. Every case reports `overflow = 0` and no control below 44px. Results are in `/tmp/opencode/aurora/crawl-results.txt`; the crawl driver is `/tmp/opencode/aurora/crawl.sh`.
+
+The earlier static screenshots (`/tmp/skf-shell-*.png`, `/tmp/skf-*-{375,1280}.png`) remain as historical Sumi-era evidence and are not the current visual contract.
 
 ### 5.5 Current git state
 
@@ -407,19 +418,27 @@ deploy: none
 
 ---
 
-## 6. What is NOT done
+## 6. Done and NOT done
 
-- All ten destinations use the shared HUD shell, rebuilt ledger-first layouts, and shared `Sheet` dialogs.
-- `/custom` remains a partially adopted proof page with its old description, balance-math card, month grouping, and empty state.
-- Legacy pages outside the ten destinations still use their old navigation and modal styles; they remain live until their features are absorbed.
-- Transitional 307 redirects exist for `/verifications`, `/profile-photos`, and `/analytics`. Those pages stay for one release before removal.
+**Done in this theme pass:**
+
+- All ten destinations use the shared `PageShell`, Aurora Glass tokens, the compact HUD, and shared `Sheet` dialogs.
+- Hamburger/full-drawer navigation is gone; phone uses the bottom bar, desktop the slim rail, and all destinations remain reachable through More.
+- Legacy/public routes still live where unique write workflows remain, but they now use `PageShell` with their actions, bell and account control preserved.
+- Transitional 307 redirects exist for `/verifications`, `/profile-photos`, and `/analytics`.
 - Navigation tiles share one `DESTINATION_TILES` config in `src/lib/navigation.ts`; dashboard shortcut copies were removed.
 - Eight unreferenced client wrappers in `src/lib/api.ts` are removed; their backend actions remain available.
+- 320px and 200% text-zoom browser QA is clean across all checked routes.
+
+**Still NOT done (out of scope or awaiting owner decisions):**
+
 - No BB cleanup in either app.
 - No proration work, no new tables, no schedule actions.
-- No receipt recomputation removal.
-- No finance definition choice applied.
-- No PR or deploy.
+- No receipt recomputation removal; stored charged amount remains the rule.
+- No finance definition choice applied; money waits for owner-confirmed bank balance.
+- No role-based tab hiding or access changes.
+- No backend, API, DB or money-rule changes.
+- No PR or deploy; commits were pushed directly to `origin/main`.
 - No DB reads or writes by this agent.
 
 ---
@@ -428,9 +447,9 @@ deploy: none
 
 1. Decide which remaining legacy routes are absorbed into the ten destinations and extend redirects before removing their pages.
 2. After one release of redirects, remove `/verifications`, `/profile-photos`, and `/analytics`.
-3. Only after owner answers: BB cleanup, proration, receipts fix, finance definition, and remaining route absorption.
+3. Only after owner answers: real bank balance, receipts fix, BB cleanup order, proration, finance definition, and remaining route absorption.
 4. Recheck audit parity after route retirement.
-5. Push / ship when you approve.
+5. The theme pass is already pushed to `origin/main`; no PR or deploy is pending.
 
 ---
 
@@ -452,14 +471,14 @@ deploy: none
 
 Read this file first, then `DESIGN.md` for the visual contract.  
 Current working directory: `/home/krish/SKF Karate/website/SKF-FeeTrack`.  
-Use `git log --oneline -13` to confirm the foundation and four-destination shell commits are present before continuing.
+Use `git log --oneline -20` to confirm the shell, legacy-route alignment and Aurora Glass commits are present before continuing.
 
 ---
 ---
 
 # Appendix A — Full audit detail
 
-This appendix exists so this document stands alone. The original machine-readable report is still at `/home/krish/.opencode/plan/SKF-plan-verification.md`.
+This appendix exists so this document stands alone. It records the **original pre-implementation audit**; paths, counts and findings in it are historical and some files/tokens have since changed. The original machine-readable report is still at `/home/krish/.opencode/plan/SKF-plan-verification.md`.
 
 ## A.1 Part 1 — all 15 plan claims checked
 
@@ -470,7 +489,7 @@ This appendix exists so this document stands alone. The original machine-readabl
 | 3 | Analysis file line counts accurate | **PASS** | 9 files spot-checked exactly: `api.ts` 3028, `events/page.tsx` 2537, `NotificationBell.tsx` 1895, `StudentList.tsx` 1608, `CustomPageClient.tsx` 1226, integration `route.ts` 3369, `fee-operations.service.ts` 4751. |
 | 4 | Shell files are small | **PASS** | `layout.tsx` 57, `error.tsx` 32, `global-error.tsx` 36, `not-found.tsx` 18. |
 | 5 | Every page renders own Navbar + auth | **PASS** | 20 files render `<Navbar>` and 20 call `useFeeTrackAuth`; exceptions `/` and `/custom/page.tsx`. |
-| 6 | All modals centered `fixed inset-0` | **DIFFERS** | Three shared components already portal: `CustomPageClient.tsx:876`, `NavMenu.tsx:311`, `ConfirmModal.tsx:55`. |
+| 6 | All modals centered `fixed inset-0` | **DIFFERS (historical)** | At audit time three shared components already portalled: `CustomPageClient.tsx:876`, `NavMenu.tsx:311` (file since removed), `ConfirmModal.tsx:55`. |
 | 7 | Bell polls every 5s | **DIFFERS** | Bell refresh is 2 min (`NotificationBell.tsx:48`, `:874-877`); 5s is dashboard error retry (`dashboard/page.tsx:69`, `:132`). |
 | 8 | `/custom?tab=dues` opens dues tab | **DIFFERS** | Dashboard links there (`dashboard/page.tsx:62`) but no `useSearchParams` in `CustomPageClient`; link is a no-op. |
 | 9 | `/verifications` is live to retire | **DIFFERS** | Already a redirect at `verifications/page.tsx:1-5` → `/pending-fees`. |
@@ -493,7 +512,7 @@ This appendix exists so this document stands alone. The original machine-readabl
 8. **Receipts stay correct — DIFFERS.** Karate snapshots `row.amount` (`fee-receipts.service.ts:214-236`); FeeTrack recomputes `baseFee = originalFee || fee` and `amountReceived = baseFee - creditApplied` (`src/lib/receipts/monthly.ts:140-142`).
 9. **BB removal safe — UNKNOWN (DB state), code verified.** Tables in `018`, six candidate IDs in `034`, ₹2000 in `038` for five candidates Jun–Oct 2026 (Roshan excluded), balance rows in `039`. Protected assets verified. Only SQL can reveal unpaid rows / labels / outstanding balances.
 10. **Proxy can enforce roles — DIFFERS.** `src/app/api/feetrack/data/route.ts:11-27` forwards anything. Roles exist (`fee-operations.service.ts:46`), checks limited to event writes at `route.ts:390, 2837, 2972, 2978`.
-11. **Design alignment is a token pass — DIFFERS.** Partial color tokens only; no radius/spacing/control tokens. Vertical rhythm drifts (`pt-24`, `pt-24 sm:pt-28`, `pt-24 sm:pt-32`); `finances`/`development` have no static `<h1>`; 5 currency helpers; a 28px control at `NavMenu.tsx:305`.
+11. **Design alignment is a token pass — DIFFERS (historical, superseded).** The audit found partial color tokens only, no radius/spacing/control tokens, drifting rhythm and a 28px `NavMenu` control. The Aurora Glass pass introduced full tokens, a shared shell, fixed 44px controls, and clean 320px/200% browser QA.
 
 ## A.3 Part 3 — inventories
 

@@ -58,7 +58,7 @@ Two fonts only. No serif display face, no pixel fonts, no decorative caps. Use `
 ## Alignment system
 
 - Content width: `min(100%, 1280px)`.
-- Page padding: `clamp(0.875rem, 0.5rem + 1.4vw, 1.75rem)`.
+- Page padding: `clamp(14px, 4px + 1.4vw, 28px)`; compact controls use fixed-px minimums so 200% text zoom cannot shrink tap targets.
 - Vertical rhythm: 4, 8, 12, 16, 20, 24, 32.
 - Section gap: 20px on phone, 24px from tablet.
 - Header: 68px; active rail mark and bottom tab mark use the same 28px teal pill.
