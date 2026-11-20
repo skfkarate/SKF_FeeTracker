@@ -17,7 +17,7 @@ import {
     clearFeeTrackSessionStorage,
     getStoredFeeTrackUser,
 } from "@/lib/client-auth";
-import { DRAWER_GROUPS, type NavigationTile } from "@/lib/navigation";
+import { DESTINATION_GROUPS, type NavigationTile } from "@/lib/navigation";
 
 function isActivePath(pathname: string | null, href: string) {
     if (!pathname) return false;
@@ -53,37 +53,6 @@ function DrawerLink({ tile, active, onNavigate }: { tile: NavigationTile; active
                 </span>
             </span>
             <ChevronRight className={`h-4 w-4 flex-shrink-0 transition-colors ${active ? "text-black/50" : "text-zinc-700 group-hover:text-white"}`} />
-        </Link>
-    );
-}
-
-function DashboardLink({
-    active,
-    onNavigate,
-}: {
-    active: boolean;
-    onNavigate: () => void;
-}) {
-    return (
-        <Link
-            href="/dashboard"
-            onClick={onNavigate}
-            className={`group flex min-h-[60px] items-center gap-3 rounded-xl border px-3 transition-colors ${
-                active
-                    ? "border-white/25 bg-white text-black"
-                    : "border-white/[0.08] bg-[#0b0b0b] text-zinc-200 hover:border-white/15 hover:bg-[#111111] hover:text-white"
-            }`}
-        >
-            <span className={`flex h-10 w-10 items-center justify-center rounded-lg border ${active ? "border-black/10 bg-black/10" : "border-white/[0.08] bg-black text-zinc-500 group-hover:text-white"}`}>
-                <LayoutDashboard className="h-4.5 w-4.5" />
-            </span>
-            <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold">Dashboard</span>
-                <span className={`mt-1 block truncate text-xs ${active ? "text-black/55" : "text-zinc-600"}`}>
-                    Collections, branches and priority work
-                </span>
-            </span>
-            <ChevronRight className={`h-4 w-4 ${active ? "text-black/50" : "text-zinc-700 group-hover:text-white"}`} />
         </Link>
     );
 }
@@ -246,12 +215,7 @@ export default function NavMenu() {
                 </div>
 
                 <nav className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4" aria-label="FeeTrack sections">
-                    <DashboardLink
-                        active={isActivePath(pathname, "/dashboard")}
-                        onNavigate={() => setOpen(false)}
-                    />
-
-                    {DRAWER_GROUPS.map((group) => {
+                    {DESTINATION_GROUPS.map((group) => {
                         const active = group.tiles.some((tile) => isActivePath(pathname, tile.href));
                         const expanded = active || expandedGroups.has(group.title);
                         return (

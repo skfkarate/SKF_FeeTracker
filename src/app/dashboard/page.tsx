@@ -6,10 +6,6 @@ import {
   Activity,
   AlertCircle,
   ArrowUpRight,
-  CalendarDays,
-  Clock3,
-  Globe2,
-  HandCoins,
   LayoutGrid,
   Wallet,
 } from "lucide-react";
@@ -26,48 +22,13 @@ import StatTile from "@/components/ui/StatTile";
 import StatusPill, { type LedgerStatus } from "@/components/ui/StatusPill";
 import { getDashboardStats, type DashboardStats } from "@/lib/api";
 import { useFeeTrackAuth } from "@/lib/client-auth";
+import { DASHBOARD_PRIORITY_TILES, DASHBOARD_SECONDARY_TILES } from "@/lib/navigation";
 
 type BranchSummary = DashboardStats & {
   branch: "MPSC" | "Herohalli";
   label: string;
   href: string;
 };
-
-const priorityLinks = [
-  {
-    href: "/pending-fees",
-    title: "Pending Fees",
-    description: "Follow up monthly dues",
-    icon: Clock3,
-  },
-  {
-    href: "/notification-timeline",
-    title: "Notification Timeline",
-    description: "Events, birthdays and poster days",
-    icon: CalendarDays,
-  },
-  {
-    href: "/finances",
-    title: "Master Ledger",
-    description: "Open receipts and fee ledger",
-    icon: Wallet,
-  },
-];
-
-const secondaryLinks = [
-  {
-    href: "/website-analytics",
-    title: "Website Analytics",
-    description: "Visitor traffic and page insights",
-    icon: Globe2,
-  },
-  {
-    href: "/custom?tab=dues",
-    title: "Custom Operations",
-    description: "Dues and removals from master ledger",
-    icon: HandCoins,
-  },
-];
 
 const DASHBOARD_RETRY_DELAY_MS = 5000;
 
@@ -262,7 +223,7 @@ export default function DashboardPage() {
               <span className="font-pixel-label text-zinc-500">Open</span>
             </div>
             <div className="space-y-2">
-              {priorityLinks.map((item, index) => {
+              {DASHBOARD_PRIORITY_TILES.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <LedgerRow
@@ -282,11 +243,11 @@ export default function DashboardPage() {
                 );
               })}
             </div>
-            {secondaryLinks.length ? (
+            {DASHBOARD_SECONDARY_TILES.length ? (
               <div className="mt-6">
                 <p className="mb-2 font-pixel-label text-zinc-500">More</p>
                 <div className="space-y-2">
-                  {secondaryLinks.map((item, index) => {
+                  {DASHBOARD_SECONDARY_TILES.map((item, index) => {
                     const Icon = item.icon;
                     return (
                       <LedgerRow

@@ -3,65 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BarChart3,
-  CalendarDays,
-  CalendarRange,
-  HandCoins,
-  Images,
-  MoreHorizontal,
-  Settings2,
-  ShoppingBag,
-  Users,
-  Wallet,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 
 import { cx } from "@/lib/cx";
+import { MORE_TILES, PRIMARY_TILES } from "@/lib/navigation";
+import type { NavigationTile } from "@/lib/navigation";
 import Sheet from "./Sheet";
-
-type PrimaryTab = {
-  key: string;
-  label: string;
-  href: string;
-  icon: LucideIcon;
-  match: string[];
-};
-
-type MoreItem = {
-  label: string;
-  description: string;
-  href: string;
-  icon: LucideIcon;
-};
-
-const PRIMARY_TABS: PrimaryTab[] = [
-  { key: "today", label: "Today", href: "/dashboard", icon: CalendarDays, match: ["/dashboard"] },
-  {
-    key: "fees",
-    label: "Fees",
-    href: "/pending-fees",
-    icon: HandCoins,
-    match: ["/pending-fees", "/students", "/messages", "/referrals"],
-  },
-  { key: "people", label: "People", href: "/admissions", icon: Users, match: ["/admissions", "/profile-photos"] },
-  {
-    key: "money",
-    label: "Money",
-    href: "/finances",
-    icon: Wallet,
-    match: ["/finances", "/development", "/analytics", "/custom"],
-  },
-];
-
-const MORE_ITEMS: MoreItem[] = [
-  { label: "Events", description: "Workflow, fees and results", href: "/events", icon: CalendarRange },
-  { label: "Media", description: "Practice library and gallery", href: "/gallery", icon: Images },
-  { label: "Shop", description: "Products and orders", href: "/shop", icon: ShoppingBag },
-  { label: "Insights", description: "Website and practice analytics", href: "/website-analytics", icon: BarChart3 },
-  { label: "Settings", description: "Timetable and branch config", href: "/timetable", icon: Settings2 },
-  { label: "Custom Ops", description: "Year ledger and manual entries", href: "/custom", icon: Wallet },
-];
 
 function isActivePath(pathname: string | null, paths: string[]) {
   if (!pathname) return false;
@@ -71,11 +18,11 @@ function isActivePath(pathname: string | null, paths: string[]) {
 export default function BottomNav() {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
-  const moreActive = MORE_ITEMS.some((item) => isActivePath(pathname, [item.href]));
+  const moreActive = MORE_TILES.some((item) => isActivePath(pathname, [item.href]));
 
-  const renderPrimary = (tab: PrimaryTab, compact: boolean) => {
+  const renderPrimary = (tab: NavigationTile, compact: boolean) => {
     const Icon = tab.icon;
-    const active = isActivePath(pathname, tab.match);
+    const active = isActivePath(pathname, tab.match || [tab.href]);
     return (
       <Link
         key={tab.key}
@@ -120,7 +67,7 @@ export default function BottomNav() {
         className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-[color:var(--color-hairline)] bg-black/95 backdrop-blur md:hidden"
       >
         <div className="mx-auto grid max-w-6xl grid-cols-5">
-          {PRIMARY_TABS.map((tab) => renderPrimary(tab, false))}
+          {PRIMARY_TILES.map((tab) => renderPrimary(tab, false))}
           {renderMore(false)}
         </div>
       </nav>
@@ -129,13 +76,13 @@ export default function BottomNav() {
         aria-label="Primary navigation"
         className="fixed bottom-0 left-0 top-16 z-40 hidden w-16 flex-col items-center gap-1 border-r border-[color:var(--color-hairline)] bg-black/95 py-4 backdrop-blur md:flex"
       >
-        {PRIMARY_TABS.map((tab) => renderPrimary(tab, true))}
+        {PRIMARY_TILES.map((tab) => renderPrimary(tab, true))}
         {renderMore(true)}
       </nav>
 
       <Sheet open={moreOpen} title="More" onClose={() => setMoreOpen(false)}>
         <div className="grid gap-2">
-          {MORE_ITEMS.map((item) => {
+          {MORE_TILES.map((item) => {
             const Icon = item.icon;
             const active = isActivePath(pathname, [item.href]);
             return (
