@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { createPortal } from "react-dom";
 import {
   AlertCircle,
   ArrowDownRight,
@@ -18,13 +17,13 @@ import {
   Trash2,
   UserRound,
   Wallet,
-  X,
 } from "lucide-react";
 
 import Navbar from "@/components/common/Navbar";
 import NavMenu from "@/components/common/NavMenu";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { PageTransition } from "@/components/common/PageTransition";
+import Sheet from "@/components/ui/Sheet";
 import {
   addRemoval,
   createManualStudentFee,
@@ -873,30 +872,13 @@ export default function CustomPageClient() {
           ) : null}
         </main>
 
-        {sheet ? createPortal(
-          <div className="glass-modal-overlay" role="dialog" aria-modal="true">
-            <div className="glass-modal animate-slide-up">
-              <div className="flex items-start justify-between gap-4 border-b border-zinc-800 p-5">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-                    {sheet === "due" ? "Custom due" : "Money out"}
-                  </p>
-                  <h2 className="mt-1 text-lg font-semibold text-white">
-                    {sheet === "due" ? "Add student due" : "Record withdrawal"}
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSheet(null)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-800 text-zinc-500 transition-colors hover:border-zinc-600 hover:text-white"
-                  aria-label="Close"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
+        <Sheet
+          open={Boolean(sheet)}
+          title={sheet === "due" ? "Custom due" : "Money out"}
+          onClose={() => setSheet(null)}
+        >
               {sheet === "out" ? (
-                <form onSubmit={handleSubmitOut} className="space-y-4 p-5">
+                <form onSubmit={handleSubmitOut} className="space-y-4">
                   <div className={`rounded-xl border p-4 ${projectedBalance !== null && projectedBalance < 0 ? "border-red-500/30 bg-red-500/10" : "border-zinc-800 bg-zinc-950"}`}>
                     <div className="flex items-center justify-between gap-3 text-sm">
                       <span className="text-zinc-400">Available now</span>
@@ -1012,7 +994,7 @@ export default function CustomPageClient() {
                   </button>
                 </form>
               ) : (
-                <form onSubmit={handleSubmitDue} className="space-y-4 p-5">
+                <form onSubmit={handleSubmitDue} className="space-y-4">
                   <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-4">
                     <div className="flex items-center justify-between gap-3 text-sm">
                       <span className="text-amber-100/70">Pending dues now</span>
@@ -1199,10 +1181,7 @@ export default function CustomPageClient() {
                   </button>
                 </form>
               )}
-            </div>
-          </div>,
-          document.body,
-        ) : null}
+        </Sheet>
 
         <ConfirmModal
           open={Boolean(deleteTarget)}
