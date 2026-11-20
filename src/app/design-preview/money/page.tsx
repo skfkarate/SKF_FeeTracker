@@ -59,8 +59,8 @@ export default function MoneyPreviewPage() {
             <section className="hud-panel mt-3 p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-pixel-label text-zinc-400">Available now</p>
-                  <p className="font-pixel mt-3 text-[40px] leading-none text-white">3,42,500</p>
+                  <p className="eyebrow text-zinc-400">Available now</p>
+                  <p className="numeric mt-3 text-[40px] leading-none text-white">3,42,500</p>
                   <p className="mt-3 text-xs text-zinc-500">Opening reserve included · cash basis</p>
                 </div>
                 <MeterRing value={72} caption="of target" tone="settled" />
@@ -81,7 +81,7 @@ export default function MoneyPreviewPage() {
           <section className="hud-panel mt-3 p-4">
             <div className="flex items-center justify-between">
               <h2 className="text-[15px] font-semibold text-white">October activity</h2>
-              <span className="font-pixel-label text-zinc-500">Cash basis</span>
+              <span className="eyebrow text-zinc-500">Cash basis</span>
             </div>
             <div className="mt-3 space-y-2">
               {ACTIVITY.map((row, index) => (
@@ -108,8 +108,8 @@ export default function MoneyPreviewPage() {
           <section className="hud-panel mt-3 p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-pixel-label text-zinc-400">Development fund</p>
-                <p className="font-pixel mt-3 text-[40px] leading-none text-white">1,50,000</p>
+                <p className="eyebrow text-zinc-400">Development fund</p>
+                <p className="numeric mt-3 text-[40px] leading-none text-white">1,50,000</p>
                 <p className="mt-3 text-xs text-zinc-500">Target 3,00,000 · 45% collected</p>
               </div>
               <BadgeCheck className="h-6 w-6 text-emerald-400" aria-hidden="true" />
@@ -125,7 +125,7 @@ export default function MoneyPreviewPage() {
         onClose={() => setActive(null)}
       >
         <div className="space-y-4 pt-1">
-          <p className="font-pixel text-[28px] leading-none text-white">
+          <p className="numeric text-[28px] leading-none text-white">
             {active?.prefix}{active?.amount}
           </p>
           <p className="font-mono text-[11px] text-zinc-500">{active?.idLabel}</p>

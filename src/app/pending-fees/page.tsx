@@ -390,7 +390,7 @@ export default function PendingFeesPage() {
 
       <section className="hud-panel overflow-hidden">
         <div className="border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
-          <p className="font-pixel-label text-zinc-500">{selectedMonthLabel}</p>
+          <p className="eyebrow text-zinc-500">{selectedMonthLabel}</p>
           <h2 className="mt-1 text-[15px] font-semibold text-white">
             {scope === "month" ? "Monthly ledger" : scope === "overdue" ? "Overdue ledger" : "Missing phone ledger"}
           </h2>
@@ -460,7 +460,7 @@ export default function PendingFeesPage() {
             <button
               type="button"
               onClick={openWhatsApp}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black"
             >
               <MessageCircle className="h-4 w-4" />
               Open WhatsApp
@@ -497,7 +497,7 @@ export default function PendingFeesPage() {
             </div>
 
             <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] p-3">
-              <p className="mb-2 font-pixel-label text-zinc-500">Select pending month</p>
+              <p className="mb-2 eyebrow text-zinc-500">Select pending month</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {previewStudent.pendingMonths.map((due) => {
                   const selected = due.monthIndex === previewDue?.monthIndex;
@@ -513,7 +513,7 @@ export default function PendingFeesPage() {
                       }`}
                     >
                       <span className="block text-xs font-semibold">{due.shortLabel}</span>
-                      <span className={`mt-1 block font-pixel text-[14px] ${selected ? "text-black/70" : "text-zinc-400"}`}>
+                      <span className={`mt-1 block numeric text-[14px] ${selected ? "text-black/70" : "text-zinc-400"}`}>
                         {num(due.amount)}
                       </span>
                     </button>

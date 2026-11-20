@@ -39,8 +39,8 @@ export default function DesignPreviewPage() {
         <section className="hud-panel p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="font-pixel-label text-zinc-400">Collected</p>
-              <p className="font-pixel mt-2 text-[40px] leading-none text-white">Rs. 1,24,000</p>
+              <p className="eyebrow text-zinc-400">Collected</p>
+              <p className="numeric mt-2 text-[40px] leading-none text-white">Rs. 1,24,000</p>
             </div>
             <MeterRing value={68} label="Collection rate" caption="of monthly fees" />
           </div>
@@ -49,20 +49,20 @@ export default function DesignPreviewPage() {
         <section className="mt-3 hud-panel p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-pixel-label text-zinc-400">Fund target</p>
-              <p className="font-pixel mt-2 text-[20px] leading-none text-white">Rs. 1,50,000</p>
+              <p className="eyebrow text-zinc-400">Fund target</p>
+              <p className="numeric mt-2 text-[20px] leading-none text-white">Rs. 1,50,000</p>
             </div>
-            <span className="font-pixel-label text-zinc-400">45%</span>
+            <span className="eyebrow text-zinc-400">45%</span>
           </div>
           <MeterBar value={45} label="Fund target" className="mt-3" />
         </section>
 
         <section className="mt-6 hud-panel p-4">
-          <p className="font-pixel-label text-zinc-400">Money type</p>
+          <p className="eyebrow text-zinc-400">Money type</p>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <p className="font-pixel text-[20px] text-white">2,000</p>
-            <p className="font-pixel text-[20px] text-white">1,24,000</p>
-            <p className="font-pixel text-[20px] text-white">10,25,500</p>
+            <p className="numeric text-[20px] text-white">2,000</p>
+            <p className="numeric text-[20px] text-white">1,24,000</p>
+            <p className="numeric text-[20px] text-white">10,25,500</p>
           </div>
         </section>
 
@@ -111,7 +111,7 @@ export default function DesignPreviewPage() {
           <button
             type="button"
             onClick={() => setSheetOpen(true)}
-            className="tap-target mt-4 w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-4 font-pixel-label text-black"
+            className="tap-target mt-4 w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-4 eyebrow text-black"
           >
             Open sheet
           </button>
@@ -120,7 +120,7 @@ export default function DesignPreviewPage() {
 
       <Sheet open={sheetOpen} title="Mark paid" onClose={() => setSheetOpen(false)}>
         <div className="space-y-4">
-          <p className="font-pixel text-[28px] leading-none text-white">Rs. {amount || "0"}</p>
+          <p className="numeric text-[28px] leading-none text-white">Rs. {amount || "0"}</p>
           <p className="text-[13px] text-zinc-400">Payment receipt will snapshot the stored charged amount.</p>
           <LedgerRow
             status="partial"

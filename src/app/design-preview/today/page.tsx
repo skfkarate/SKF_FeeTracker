@@ -81,8 +81,8 @@ export default function TodayPreviewPage() {
         <section className="hud-panel p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="font-pixel-label text-zinc-400">Needs action</p>
-              <p className="font-pixel mt-2 text-[40px] leading-none text-white">12</p>
+              <p className="eyebrow text-zinc-400">Needs action</p>
+              <p className="numeric mt-2 text-[40px] leading-none text-white">12</p>
               <p className="mt-2 text-xs text-zinc-500">4 payment proofs · 3 admissions · 5 orders</p>
             </div>
             <MeterRing value={68} caption="collection rate" tone="settled" />
@@ -98,7 +98,7 @@ export default function TodayPreviewPage() {
 
         <div className="mt-6 flex items-center justify-between">
           <h2 className="text-[15px] font-semibold text-white">Run list</h2>
-          <span className="font-pixel-label text-zinc-500">Urgency first</span>
+          <span className="eyebrow text-zinc-500">Urgency first</span>
         </div>
 
         <div className="mt-3 space-y-2">
@@ -136,12 +136,12 @@ export default function TodayPreviewPage() {
         onClose={() => setActive(null)}
       >
         <div className="space-y-4 pt-1">
-          <p className="font-pixel text-[28px] leading-none text-white">{active?.amount ?? "—"}</p>
+          <p className="numeric text-[28px] leading-none text-white">{active?.amount ?? "—"}</p>
           <p className="text-[13px] text-zinc-400">{active?.subtitle}</p>
           <p className="font-mono text-[11px] text-zinc-500">{active?.idLabel}</p>
           <button
             type="button"
-            className="tap-target w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black"
+            className="tap-target w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black"
             onClick={() => setActive(null)}
           >
             Resolve

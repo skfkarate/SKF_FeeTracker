@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 
 export type NavigationGroup = "Core" | "More";
-export type DashboardShortcut = "priority" | "secondary";
 
 export type NavigationTile = {
   key: string;
@@ -27,13 +26,11 @@ export type NavigationTile = {
   primary?: boolean;
   match?: string[];
   more?: boolean;
-  dashboard?: DashboardShortcut;
 };
 
 /**
- * Single source of truth for the ten HUD destinations plus the Custom Ops
- * proof page. Bottom tabs, the More sheet, the account drawer, and dashboard
- * shortcuts all derive from this list.
+ * Single source of truth for the ten destinations plus the Custom Ops proof
+ * page. Bottom tabs, the More sheet and the account drawer derive from this list.
  */
 export const DESTINATION_TILES: NavigationTile[] = [
   {
@@ -57,7 +54,6 @@ export const DESTINATION_TILES: NavigationTile[] = [
     group: "Core",
     primary: true,
     match: ["/pending-fees", "/students", "/messages", "/referrals"],
-    dashboard: "priority",
   },
   {
     key: "people",
@@ -69,7 +65,6 @@ export const DESTINATION_TILES: NavigationTile[] = [
     group: "Core",
     primary: true,
     match: ["/admissions", "/profile-photos"],
-    dashboard: "priority",
   },
   {
     key: "money",
@@ -81,7 +76,6 @@ export const DESTINATION_TILES: NavigationTile[] = [
     group: "Core",
     primary: true,
     match: ["/finances", "/development", "/analytics", "/custom"],
-    dashboard: "priority",
   },
   {
     key: "events",
@@ -92,7 +86,6 @@ export const DESTINATION_TILES: NavigationTile[] = [
     icon: CalendarRange,
     group: "More",
     more: true,
-    dashboard: "secondary",
   },
   {
     key: "media",
@@ -103,7 +96,6 @@ export const DESTINATION_TILES: NavigationTile[] = [
     icon: Images,
     group: "More",
     more: true,
-    dashboard: "secondary",
   },
   {
     key: "shop",
@@ -114,7 +106,6 @@ export const DESTINATION_TILES: NavigationTile[] = [
     icon: ShoppingBag,
     group: "More",
     more: true,
-    dashboard: "secondary",
   },
   {
     key: "insights",
@@ -125,7 +116,6 @@ export const DESTINATION_TILES: NavigationTile[] = [
     icon: BarChart3,
     group: "More",
     more: true,
-    dashboard: "secondary",
   },
   {
     key: "settings",
@@ -136,7 +126,6 @@ export const DESTINATION_TILES: NavigationTile[] = [
     icon: Settings2,
     group: "More",
     more: true,
-    dashboard: "secondary",
   },
   {
     key: "custom",
@@ -147,15 +136,11 @@ export const DESTINATION_TILES: NavigationTile[] = [
     icon: SlidersHorizontal,
     group: "More",
     more: true,
-    dashboard: "secondary",
   },
 ];
 
 export const PRIMARY_TILES = DESTINATION_TILES.filter((tile) => tile.primary);
 export const MORE_TILES = DESTINATION_TILES.filter((tile) => tile.more);
-export const DASHBOARD_PRIORITY_TILES = DESTINATION_TILES.filter((tile) => tile.dashboard === "priority");
-export const DASHBOARD_SECONDARY_TILES = DESTINATION_TILES.filter((tile) => tile.dashboard === "secondary");
-
 export const DESTINATION_GROUPS: Array<{ title: NavigationGroup; tiles: NavigationTile[] }> = [
   { title: "Core", tiles: DESTINATION_TILES.filter((tile) => tile.group === "Core") },
   { title: "More", tiles: DESTINATION_TILES.filter((tile) => tile.group === "More") },

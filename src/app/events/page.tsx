@@ -1066,7 +1066,7 @@ export default function EventCollectionsPage() {
       <div className="mb-6 flex flex-col gap-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="font-pixel-label text-zinc-500">SKF Karate Operations</p>
+              <p className="eyebrow text-zinc-500">SKF Karate Operations</p>
               <h1 className="mt-2 text-[15px] font-semibold text-white">Event Center</h1>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -1311,7 +1311,7 @@ export default function EventCollectionsPage() {
                 type="submit"
                 form="event-form"
                 disabled={creatingEvent}
-                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black disabled:opacity-50"
               >
                 {creatingEvent ? <Loader2 className="h-4 w-4 animate-spin" /> : editingEventId ? <PencilLine className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                 {editingEventId ? "Save" : "Create"}
@@ -1359,7 +1359,7 @@ function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "ne
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="space-y-2">
-      <span className="font-pixel-label text-zinc-500">{label}</span>
+      <span className="eyebrow text-zinc-500">{label}</span>
       {children}
     </label>
   );
@@ -1525,7 +1525,7 @@ function DetailsStep({
           <input value={eventForm.affiliatedBody} onChange={(e) => setEventForm({ ...eventForm, affiliatedBody: e.target.value })} className={baseInputClass()} />
         </Field>
         <label className="space-y-1 md:col-span-2">
-          <span className="font-pixel-label text-zinc-500">Description</span>
+          <span className="eyebrow text-zinc-500">Description</span>
           <textarea value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} rows={3} className={`${baseInputClass()} resize-none`} required={isTournamentEvent} />
         </label>
       </div>

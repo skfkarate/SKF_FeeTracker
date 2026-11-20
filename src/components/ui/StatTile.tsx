@@ -34,7 +34,7 @@ export default function StatTile({
 
   return (
     <div className={cx("hud-panel p-3.5 sm:p-4", className)}>
-      <div className="flex items-center gap-2 font-pixel-label text-[color:var(--color-text-faint)]">
+      <div className="flex items-center gap-2 eyebrow text-[color:var(--color-text-faint)]">
         {icon ? (
           <span style={iconStyle} className="flex items-center">
             {icon}
@@ -44,7 +44,7 @@ export default function StatTile({
       </div>
       <p
         className={cx(
-          "font-pixel mt-3 break-words text-[color:var(--color-text)]",
+          "numeric mt-3 break-words text-[color:var(--color-text)]",
           size === "lg"
             ? "text-[clamp(1.6rem,1.35rem+1vw,2.15rem)]"
             : "text-[clamp(1.15rem,1.05rem+0.45vw,1.5rem)]",

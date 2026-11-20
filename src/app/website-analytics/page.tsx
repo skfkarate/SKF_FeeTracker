@@ -222,7 +222,7 @@ function DailyTrafficGrid({ rows }: { rows: DailyWebsiteTraffic[] }) {
     <section className="hud-panel p-4 sm:p-5">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p className="font-pixel-label text-[color:var(--color-text-faint)]">Traffic rhythm</p>
+          <p className="eyebrow text-[color:var(--color-text-faint)]">Traffic rhythm</p>
           <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Daily activity</h3>
         </div>
         <p className="text-xs text-[color:var(--color-text-faint)]">Latest {visible.length} days</p>
@@ -293,7 +293,7 @@ function PageList({ title, rows }: { title: string; rows: WebsiteAnalyticsData["
   return (
     <section className="hud-panel overflow-hidden">
       <div className="border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
-        <h3 className="font-pixel-label text-[color:var(--color-text-faint)]">{title}</h3>
+        <h3 className="eyebrow text-[color:var(--color-text-faint)]">{title}</h3>
       </div>
       {rows.length ? (
         <div className="divide-y divide-[color:var(--color-hairline)]">
@@ -323,7 +323,7 @@ function VisitorList({ visitors }: { visitors: WebsiteAnalyticsData["audience"][
     <section className="hud-panel overflow-hidden">
       <div className="flex items-center gap-2 border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
         <UserRound className="h-4 w-4 text-[color:var(--color-text-faint)]" />
-        <h3 className="font-pixel-label text-[color:var(--color-text-faint)]">Recent visitor journeys</h3>
+        <h3 className="eyebrow text-[color:var(--color-text-faint)]">Recent visitor journeys</h3>
       </div>
       {visitors.length ? (
         <div className="divide-y divide-[color:var(--color-hairline)]">
@@ -359,7 +359,7 @@ function SignalRegister({ data }: { data: WebsiteAnalyticsData }) {
     <section className="hud-panel overflow-hidden">
       <div className="flex flex-wrap items-end justify-between gap-2 border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
         <div>
-          <p className="font-pixel-label text-[color:var(--color-text-faint)]">Complete signal register</p>
+          <p className="eyebrow text-[color:var(--color-text-faint)]">Complete signal register</p>
           <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Every event SKF tracks</h3>
         </div>
         <p className="font-mono tnum text-xs text-[color:var(--color-text-faint)]">
@@ -396,7 +396,7 @@ function SignalFeed({ signals }: { signals: Signal[] }) {
       <div className="border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
-            <p className="font-pixel-label text-[color:var(--color-text-faint)]">Minute-by-minute</p>
+            <p className="eyebrow text-[color:var(--color-text-faint)]">Minute-by-minute</p>
             <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Signal feed</h3>
           </div>
           <p className="text-xs text-[color:var(--color-text-faint)]">Newest first · latest {filtered.length}</p>
@@ -448,7 +448,7 @@ function LoginHealth({ data }: { data: WebsiteAnalyticsData }) {
     <section className="hud-panel p-4 sm:p-5">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-pixel-label text-[color:var(--color-text-faint)]">Access control</p>
+          <p className="eyebrow text-[color:var(--color-text-faint)]">Access control</p>
           <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Login health</h3>
         </div>
         <MeterRing
@@ -466,7 +466,7 @@ function LoginHealth({ data }: { data: WebsiteAnalyticsData }) {
         ].map(([label, value]) => (
           <div key={label} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-3">
             <p className="truncate text-[11px] text-[color:var(--color-text-faint)]">{label}</p>
-            <p className="font-pixel mt-2 break-words text-lg text-[color:var(--color-text)]">{value}</p>
+            <p className="numeric mt-2 break-words text-lg text-[color:var(--color-text)]">{value}</p>
           </div>
         ))}
       </div>
@@ -487,7 +487,7 @@ function LeadHealth({ data }: { data: WebsiteAnalyticsData }) {
   return (
     <section className="hud-panel p-4 sm:p-5">
       <div className="mb-4">
-        <p className="font-pixel-label text-[color:var(--color-text-faint)]">Inbound work</p>
+        <p className="eyebrow text-[color:var(--color-text-faint)]">Inbound work</p>
         <h3 className="font-display mt-1 text-lg text-[color:var(--color-text)]">Leads and submissions</h3>
       </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -499,7 +499,7 @@ function LeadHealth({ data }: { data: WebsiteAnalyticsData }) {
         ].map(([label, value, tone]) => (
           <div key={label} className="min-w-0 rounded-xl border border-[color:var(--color-hairline)] bg-[color:var(--color-base)]/40 p-3">
             <p className="truncate text-[11px] text-[color:var(--color-text-faint)]">{label}</p>
-            <p className={`font-pixel mt-2 break-words text-lg ${tone === "overdue" ? "text-[color:var(--color-overdue)]" : tone === "settled" ? "text-[color:var(--color-settled)]" : tone === "action" ? "text-[color:var(--color-action)]" : "text-[color:var(--color-text)]"}`}>
+            <p className={`numeric mt-2 break-words text-lg ${tone === "overdue" ? "text-[color:var(--color-overdue)]" : tone === "settled" ? "text-[color:var(--color-settled)]" : tone === "action" ? "text-[color:var(--color-action)]" : "text-[color:var(--color-text)]"}`}>
               {value}
             </p>
           </div>
@@ -514,7 +514,7 @@ function HomePracticePerformance({ analytics }: { analytics: HomePracticeAnalyti
     <section className="hud-panel overflow-hidden">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[color:var(--color-hairline)] p-4 sm:p-5">
         <div>
-          <p className="font-pixel-label text-[color:var(--color-text-faint)]">Athlete portal</p>
+          <p className="eyebrow text-[color:var(--color-text-faint)]">Athlete portal</p>
           <h3 className="font-display mt-1 flex items-center gap-2 text-lg text-[color:var(--color-text)]">
             <BookOpenCheck className="h-5 w-5 text-[color:var(--color-settled)]" />
             Home practice
@@ -674,7 +674,7 @@ export default function WebsiteAnalyticsPage() {
         <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2">
             <Globe2 className="h-4 w-4 text-[color:var(--color-brand)]" />
-            <p className="font-pixel-label text-[color:var(--color-text-faint)]">Website intelligence</p>
+            <p className="eyebrow text-[color:var(--color-text-faint)]">Website intelligence</p>
           </div>
           <h2 className="font-display text-[clamp(1.2rem,1.05rem+0.7vw,1.6rem)] text-[color:var(--color-text)]">
             The whole funnel, not just traffic
@@ -740,7 +740,7 @@ export default function WebsiteAnalyticsPage() {
               ["Last signal", formatDateTime(analytics.history.lastRecordedAt)],
             ].map(([label, value]) => (
               <div key={label} className="min-w-0">
-                <span className="font-pixel-label mr-2 text-[color:var(--color-text-faint)]">{label}</span>
+                <span className="eyebrow mr-2 text-[color:var(--color-text-faint)]">{label}</span>
                 <span className="font-mono tnum text-[color:var(--color-text-dim)]">{value}</span>
               </div>
             ))}
@@ -749,7 +749,7 @@ export default function WebsiteAnalyticsPage() {
           <section>
             <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="font-display text-lg text-[color:var(--color-text)]">Visitor funnel</h3>
-              <p className="font-pixel-label text-[color:var(--color-text-faint)]">People first, then events</p>
+              <p className="eyebrow text-[color:var(--color-text-faint)]">People first, then events</p>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
               <MetricCard icon={Users} label="People visited" value={number(analytics.overview.uniqueVisitors)} detail={`${number(analytics.overview.returningVisitors)} returning`} tone="settled" />

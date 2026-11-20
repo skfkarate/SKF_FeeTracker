@@ -452,7 +452,7 @@ export default function ShopPage() {
           <div>
             <div className="mb-3 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="font-pixel-label text-zinc-500">Store Operations</p>
+              <p className="eyebrow text-zinc-500">Store Operations</p>
             </div>
             <h1 className="mt-1 text-[15px] font-semibold text-white">Shop Manager</h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500">
@@ -621,7 +621,7 @@ export default function ShopPage() {
                     type="submit"
                     form="product-form"
                     disabled={savingProduct}
-                    className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
+                    className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black disabled:opacity-50"
                   >
                     {savingProduct ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {savingProduct ? "Saving" : "Save Product"}
@@ -634,7 +634,7 @@ export default function ShopPage() {
                 <div className="space-y-6">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block font-pixel-label text-zinc-500">Product Name</span>
+                      <span className="mb-2 block eyebrow text-zinc-500">Product Name</span>
                       <input
                         value={draft.name}
                         onChange={(event) => updateDraft({ name: event.target.value })}
@@ -644,7 +644,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block font-pixel-label text-zinc-500">Product ID</span>
+                      <span className="mb-2 block eyebrow text-zinc-500">Product ID</span>
                       <input
                         value={draft.id}
                         onChange={(event) => updateDraft({ id: event.target.value })}
@@ -657,7 +657,7 @@ export default function ShopPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block font-pixel-label text-zinc-500">Category</span>
+                      <span className="mb-2 block eyebrow text-zinc-500">Category</span>
                       <select
                         value={draft.category}
                         onChange={(event) => updateDraft({ category: event.target.value as ShopProductCategory })}
@@ -672,7 +672,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block font-pixel-label text-zinc-500">Price</span>
+                      <span className="mb-2 block eyebrow text-zinc-500">Price</span>
                       <input
                         type="number"
                         min="0"
@@ -684,7 +684,7 @@ export default function ShopPage() {
                   </div>
 
                   <label className="block">
-                    <span className="mb-2 block font-pixel-label text-zinc-500">Description</span>
+                    <span className="mb-2 block eyebrow text-zinc-500">Description</span>
                     <textarea
                       value={draft.description}
                       onChange={(event) => updateDraft({ description: event.target.value })}
@@ -696,7 +696,7 @@ export default function ShopPage() {
 
                   <div>
                     <label className="block">
-                      <span className="mb-2 block font-pixel-label text-zinc-500">Images</span>
+                      <span className="mb-2 block eyebrow text-zinc-500">Images</span>
                       <textarea
                         value={draft.imagesText}
                         onChange={(event) => updateDraft({ imagesText: event.target.value })}
@@ -723,7 +723,7 @@ export default function ShopPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <label className="block">
-                      <span className="mb-2 block font-pixel-label text-zinc-500">Access</span>
+                      <span className="mb-2 block eyebrow text-zinc-500">Access</span>
                       <select
                         value={draft.isPublic ? "public" : "athlete"}
                         onChange={(event) => updateDraft({ isPublic: event.target.value === "public" })}
@@ -735,7 +735,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block font-pixel-label text-zinc-500">Required Belt</span>
+                      <span className="mb-2 block eyebrow text-zinc-500">Required Belt</span>
                       <select
                         value={draft.isPublic ? "None" : draft.requiresBelt}
                         onChange={(event) => updateDraft({ requiresBelt: event.target.value })}
@@ -751,7 +751,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block font-pixel-label text-zinc-500">Rating</span>
+                      <span className="mb-2 block eyebrow text-zinc-500">Rating</span>
                       <input
                         type="number"
                         min="0"
@@ -764,7 +764,7 @@ export default function ShopPage() {
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block font-pixel-label text-zinc-500">Reviews</span>
+                      <span className="mb-2 block eyebrow text-zinc-500">Reviews</span>
                       <input
                         type="number"
                         min="0"
@@ -778,7 +778,7 @@ export default function ShopPage() {
                   <section>
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-pixel-label text-zinc-500">Variants and Stock</p>
+                        <p className="eyebrow text-zinc-500">Variants and Stock</p>
                         <h3 className="text-sm font-semibold text-white">Sizes, units and approval rules</h3>
                       </div>
                       <button
@@ -797,7 +797,7 @@ export default function ShopPage() {
                           <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_130px_auto] sm:items-end">
                             <div className="grid gap-3 sm:grid-cols-2">
                               <label className="block">
-                                <span className="mb-2 block font-pixel-label text-zinc-600">Size</span>
+                                <span className="mb-2 block eyebrow text-zinc-600">Size</span>
                                 <input
                                   value={variant.size}
                                   onChange={(event) => updateVariant(index, { size: event.target.value })}
@@ -806,7 +806,7 @@ export default function ShopPage() {
                                 />
                               </label>
                               <label className="block">
-                                <span className="mb-2 block font-pixel-label text-zinc-600">Variant ID</span>
+                                <span className="mb-2 block eyebrow text-zinc-600">Variant ID</span>
                                 <input
                                   value={variant.id}
                                   onChange={(event) => updateVariant(index, { id: event.target.value })}
@@ -817,7 +817,7 @@ export default function ShopPage() {
                             </div>
 
                             <label className="block">
-                              <span className="mb-2 block font-pixel-label text-zinc-600">Stock</span>
+                              <span className="mb-2 block eyebrow text-zinc-600">Stock</span>
                               <input
                                 type="number"
                                 min="0"

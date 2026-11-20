@@ -10,10 +10,10 @@
 
 - We verified a condensed restructuring plan against the real code in **FeeTrack** and **SKF-Karate**. No app behaviour was changed during the audit.
 - The plan is: **same data, same money rules, 22 old screens → 10 destinations**, with one shared design system.
-- The final design direction is **Dojo Ledger HUD** — a dark ledger with game-HUD chrome and pixel type used only for money and status words.
-- **29 implementation commits are on `main`.** They create the design foundation, add the shared shell/navigation, mock up the three hero screens, adopt the shell on all ten destinations, rebuild all ten destinations with HUD primitives, move secondary create/edit dialogs into the shared `Sheet`, add three transitional redirects, unify navigation in one destination config, and remove unused API wrappers. Documentation commits for this status file are separate and are not implementation work.
-- Nothing is pushed. No database, backend logic, Black Belt cleanup, or proration work has been changed yet.
-- Working tree is **clean**.
+- The final design direction is **Sumi Ledger** — ink-green panels, warm paper text, one vermillion seal accent, and tabular numerals. The earlier Dojo Ledger HUD is retired.
+- Implementation commits are on `main` and pushed to `origin/main`. They cover the shared shell, ten destinations, sheets, redirects, navigation cleanup, the Sumi Ledger theme, the simplified dashboard, and the full website signal funnel.
+- No PR was opened and no deploy was triggered. No database, backend logic, Black Belt cleanup, or proration work has been changed.
+- Working tree is **clean** after each verified step.
 
 ---
 
@@ -243,9 +243,12 @@ The structure plan scored **5/10** as a design plan: strong IA (8/10), but weak 
 | Gamified, playful, heavy color | Rejected — wrong for thousands of money rows. |
 | Marketing-style hero pages | Rejected — beautiful first, slow forever. |
 | Ledger Flow | Good base, but not creative enough for your ask. |
-| **Dojo Ledger HUD** | **Chosen.** Ledger with game-HUD chrome; pixel type for money and status only. |
+| Dojo Ledger HUD | Retired — you rejected the game chrome and pixel type. |
+| **Sumi Ledger** | **Chosen.** Quiet ink karate ledger; one vermillion seal, paper text, tabular numerals. |
 
-### 4.3 Final theme: Dojo Ledger HUD
+### 4.3 Retired theme: Dojo Ledger HUD (historical record)
+
+> Historical only. The current contract is `DESIGN.md` → Sumi Ledger.
 
 **Vibe:** black dojo console. Hairline panels. Tabular money. Progress rings. Streak chips. Belt rank chips. Receipts feel like a stamp.
 
@@ -277,18 +280,17 @@ The structure plan scored **5/10** as a design plan: strong IA (8/10), but weak 
 | Touch | 44px minimum |
 | Contrast | 4.5:1, visible focus, screen reader labels, 200% zoom |
 
-### 4.5 Typography decision (important correction)
+### 4.5 Typography decision (current)
 
 | Job | Font | Class |
 |---|---|---|
-| UI | Manrope | default body |
-| Pixel labels and money | **Silkscreen** | `.font-pixel-label`, `.font-pixel` |
-| Dates, IDs, dense numbers | JetBrains Mono | `.font-mono` |
+| UI, labels and eyebrows | DM Sans | default body, `.eyebrow` |
+| Titles and hero numbers | Newsreader | `.font-display` |
+| Money, dates and dense numbers | IBM Plex Mono | `.numeric`, `.font-mono`, `.tnum` |
 
-- Type scale: 11 pixel caps, 13 body, 15 subtitle, 17 title, 20 stat, 24 panel number, 40 hero money.
-- **Pixelify Sans was tried and rejected** — in a screenshot `2,000` read like `8,000`.
-- **Press Start 2P was tried and rejected** — too heavy for dense numbers.
-- **Silkscreen won.** Never use pixel font for dates or IDs where `O`/`0` or `I`/`1` can be misread.
+- Fluid sizes replace the old fixed 11/13/15/17/20/24/40 scale.
+- Pixel fonts were tried and rejected because digits became ambiguous and the look was wrong for a karate accountant's desk.
+- The old Dojo Ledger HUD token table above is kept only as a record of what was retired.
 
 ### 4.6 Screen feel
 
@@ -367,8 +369,8 @@ Card grid as main layout, carousels, fancy shadows/3D, XP/leaderboards/fake scor
 
 ### 5.3 Files modified
 
-- `src/app/globals.css` — HUD tokens, pixel/mono utilities, hairlines, safe-area helpers, tap targets
-- `src/app/layout.tsx` — loads Silkscreen and JetBrains Mono
+- `src/app/globals.css` — Sumi Ledger tokens, semantic `.eyebrow`/`.numeric` utilities, hairlines, safe-area helpers, tap targets
+- `src/app/layout.tsx` — loads DM Sans, Newsreader and IBM Plex Mono
 - `src/components/common/ConfirmModal.tsx` — now wraps shared `Sheet`
 - `src/components/ui/HudBar.tsx` — optional `backHref`
 - `src/app/custom/CustomPageClient.tsx` — uses `PageShell`, `Sheet`, `SegmentedTabs`, `StatTile`, `LedgerRow`, `StatusPill`
@@ -398,6 +400,9 @@ Hero mockups: `/tmp/skf-today-{375,1280}.png`, `/tmp/skf-fees-{375,1280}.png`, `
 ```
 branch: main
 status: clean
+remote: pushed to origin/main
+pr: none
+deploy: none
 ```
 
 ---
@@ -408,13 +413,13 @@ status: clean
 - `/custom` remains a partially adopted proof page with its old description, balance-math card, month grouping, and empty state.
 - Legacy pages outside the ten destinations still use their old navigation and modal styles; they remain live until their features are absorbed.
 - Transitional 307 redirects exist for `/verifications`, `/profile-photos`, and `/analytics`. Those pages stay for one release before removal.
-- Navigation tiles and dashboard shortcuts now share one `DESTINATION_TILES` config in `src/lib/navigation.ts`.
+- Navigation tiles share one `DESTINATION_TILES` config in `src/lib/navigation.ts`; dashboard shortcut copies were removed.
 - Eight unreferenced client wrappers in `src/lib/api.ts` are removed; their backend actions remain available.
 - No BB cleanup in either app.
 - No proration work, no new tables, no schedule actions.
 - No receipt recomputation removal.
 - No finance definition choice applied.
-- No push to remote.
+- No PR or deploy.
 - No DB reads or writes by this agent.
 
 ---

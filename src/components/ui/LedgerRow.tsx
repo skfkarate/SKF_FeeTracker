@@ -55,11 +55,11 @@ export default function LedgerRow({
         <div className="ml-auto flex max-w-full flex-wrap items-center justify-end gap-2 sm:gap-3">
           {amount ? (
             <div className="text-right">
-              <p className="font-pixel text-[clamp(1.05rem,0.95rem+0.4vw,1.35rem)] text-[color:var(--color-text)]">
+              <p className="numeric text-[clamp(1.05rem,0.95rem+0.4vw,1.35rem)] text-[color:var(--color-text)]">
                 {amount}
               </p>
               {amountLabel ? (
-                <p className="mt-1 font-pixel-label text-[color:var(--color-text-faint)]">{amountLabel}</p>
+                <p className="mt-1 eyebrow text-[color:var(--color-text-faint)]">{amountLabel}</p>
               ) : null}
             </div>
           ) : null}

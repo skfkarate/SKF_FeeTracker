@@ -149,7 +149,7 @@ export default function DashboardPage() {
         }}
       >
         <header className="mb-4">
-          <p className="font-pixel-label text-[color:var(--color-text-faint)]">{monthLabel}</p>
+          <p className="eyebrow text-[color:var(--color-text-faint)]">{monthLabel}</p>
           <h2 className="font-display mt-2 text-[clamp(1.45rem,1.2rem+1vw,2rem)] leading-tight text-[color:var(--color-text)]">
             {greeting()}, {getDisplayName(user)}.
           </h2>
@@ -172,8 +172,8 @@ export default function DashboardPage() {
         <section className="hud-panel p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="min-w-0">
-              <p className="font-pixel-label text-[color:var(--color-text-faint)]">Needs attention</p>
-              <p className="font-pixel mt-3 break-words text-[clamp(2rem,1.5rem+2.2vw,3rem)] leading-none text-[color:var(--color-text)]">
+              <p className="eyebrow text-[color:var(--color-text-faint)]">Needs attention</p>
+              <p className="numeric mt-3 break-words text-[clamp(2rem,1.5rem+2.2vw,3rem)] leading-none text-[color:var(--color-text)]">
                 ₹{stats.loaded ? num(stats.pendingAmount) : "—"}
               </p>
               <p className="mt-3 text-xs leading-relaxed text-[color:var(--color-text-dim)] sm:text-sm">
@@ -202,7 +202,7 @@ export default function DashboardPage() {
             <h2 className="font-display text-[clamp(1.05rem,1rem+0.35vw,1.3rem)] text-[color:var(--color-text)]">
               Branch run list
             </h2>
-            <span className="font-pixel-label text-[color:var(--color-text-faint)]">Highest dues first</span>
+            <span className="eyebrow text-[color:var(--color-text-faint)]">Highest dues first</span>
           </div>
 
           <div className="space-y-2">

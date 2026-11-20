@@ -41,9 +41,10 @@ Focus ring: 2px `--color-action`, offset 3px.
 |---|---|---|
 | UI and labels | DM Sans | default body |
 | Titles and hero numbers | Newsreader | `.font-display` |
-| Money, dates, IDs, dense numbers | IBM Plex Mono | `.font-pixel`, `.font-mono`, `.tnum` |
+| Eyebrow labels | DM Sans | `.eyebrow` |
+| Money, dates, IDs, dense numbers | IBM Plex Mono | `.numeric`, `.font-mono`, `.tnum` |
 
-Sizes are fluid. Never use Silkscreen, Press Start 2P or Pixelify Sans. Do not use mono for long prose. Do not use decorative caps where a normal label reads faster.
+Sizes are fluid. Never use pixel or game fonts. Do not use mono for long prose. Do not use decorative caps where a normal label reads faster.
 
 ## Spacing, radius, motion
 

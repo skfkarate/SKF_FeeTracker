@@ -182,7 +182,7 @@ export default function TimetablePage() {
           <div>
             <div className="mb-3 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="font-pixel-label text-zinc-500">Portal Operations</p>
+              <p className="eyebrow text-zinc-500">Portal Operations</p>
             </div>
             <h1 className="mt-1 text-[15px] font-semibold text-white">Branch Timetable</h1>
           </div>
@@ -358,7 +358,7 @@ export default function TimetablePage() {
                 type="submit"
                 form="timetable-form"
                 disabled={saving || !file}
-                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                 Replace
@@ -370,7 +370,7 @@ export default function TimetablePage() {
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
               <div className="space-y-4">
                 <label className="block">
-                  <span className="mb-2 block font-pixel-label text-zinc-500">New timetable image</span>
+                  <span className="mb-2 block eyebrow text-zinc-500">New timetable image</span>
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
@@ -382,7 +382,7 @@ export default function TimetablePage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="block">
-                    <span className="mb-2 block font-pixel-label text-zinc-500">Month</span>
+                    <span className="mb-2 block eyebrow text-zinc-500">Month</span>
                     <input
                       value={monthLabel}
                       onChange={(event) => setMonthLabel(event.target.value)}
@@ -390,7 +390,7 @@ export default function TimetablePage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-2 block font-pixel-label text-zinc-500">Notes</span>
+                    <span className="mb-2 block eyebrow text-zinc-500">Notes</span>
                     <input
                       value={notes}
                       onChange={(event) => setNotes(event.target.value)}

@@ -301,8 +301,8 @@ export default function FinancesPage() {
             <section className="hud-panel p-5 sm:p-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-pixel-label text-zinc-400">{data.branch} · {data.periodLabel}</p>
-                  <p className={`font-pixel mt-3 text-[40px] leading-none ${data.summary.availableBalance < 0 ? "text-red-400" : "text-white"}`}>
+                  <p className="eyebrow text-zinc-400">{data.branch} · {data.periodLabel}</p>
+                  <p className={`numeric mt-3 text-[40px] leading-none ${data.summary.availableBalance < 0 ? "text-red-400" : "text-white"}`}>
                     {num(data.summary.availableBalance)}
                   </p>
                   <p className="mt-3 max-w-xl text-xs text-zinc-500">{data.formulas.availableBalance}</p>

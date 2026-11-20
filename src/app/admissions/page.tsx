@@ -402,7 +402,7 @@ function ApprovalsTab({
           <div className="space-y-5 pt-1">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-pixel text-[26px] leading-none text-white">
+                <p className="numeric text-[26px] leading-none text-white">
                   {active.feeTrackingEnabled ? num(active.quotedJoiningTotal) : "Branch"}
                 </p>
                 <p className="mt-2 font-mono text-[11px] text-zinc-500">
@@ -417,16 +417,16 @@ function ApprovalsTab({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <span className="font-pixel-label rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-zinc-200">
+              <span className="eyebrow rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-zinc-200">
                 {active.branchName}
               </span>
               {!active.feeTrackingEnabled ? (
-                <span className="font-pixel-label rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-zinc-400">
+                <span className="eyebrow rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-zinc-400">
                   Branch-managed fees
                 </span>
               ) : null}
               {active.promoCode ? (
-                <span className="font-pixel-label rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-zinc-200">
+                <span className="eyebrow rounded-[var(--radius-pill)] border border-[color:var(--color-hairline)] bg-[#0a0a0a] px-3 text-zinc-200">
                   {active.promoCode}
                 </span>
               ) : null}
@@ -599,7 +599,7 @@ function ApprovalsTab({
                 <button
                   type="submit"
                   disabled={actioning === active.id}
-                  className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
+                  className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black disabled:opacity-50"
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Approve

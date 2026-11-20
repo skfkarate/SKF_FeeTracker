@@ -81,7 +81,7 @@ export default function FeesPreviewPage() {
           <h2 className="text-[15px] font-semibold text-white">
             {section === "month" ? "October ledger" : section === "overdue" ? "Overdue ledger" : "Credit ledger"}
           </h2>
-          <span className="font-pixel-label text-zinc-500">MPSC</span>
+          <span className="eyebrow text-zinc-500">MPSC</span>
         </div>
 
         <div className="mt-3 space-y-2">
@@ -111,7 +111,7 @@ export default function FeesPreviewPage() {
           <AmountInput label="Amount received" value={amount} onChange={setAmount} hint="Stored charged amount is used for receipts." />
           <button
             type="button"
-            className="tap-target w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black"
+            className="tap-target w-full rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black"
             onClick={() => setActive(null)}
           >
             Confirm payment

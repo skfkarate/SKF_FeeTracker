@@ -287,7 +287,7 @@ export default function GalleryManagerPage() {
           <div>
             <div className="mb-3 flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-fuchsia-400" />
-              <p className="font-pixel-label text-zinc-500">Public Website Gallery</p>
+              <p className="eyebrow text-zinc-500">Public Website Gallery</p>
             </div>
             <h1 className="mt-1 text-[15px] font-semibold text-white">Gallery Photos</h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500">
@@ -307,7 +307,7 @@ export default function GalleryManagerPage() {
             <button
               type="button"
               onClick={openCreateModal}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-4 font-pixel-label text-black"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] px-4 eyebrow text-black"
             >
               <Plus className="h-4 w-4" />
               Upload
@@ -439,7 +439,7 @@ export default function GalleryManagerPage() {
               type="button"
               onClick={() => void handleSave()}
               disabled={saving}
-              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] font-pixel-label text-black disabled:opacity-50"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-[var(--radius-row)] bg-[color:var(--color-brand)] eyebrow text-black disabled:opacity-50"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Save
@@ -449,7 +449,7 @@ export default function GalleryManagerPage() {
       >
         <div className="grid gap-4 pt-1">
           <label className="grid gap-2">
-            <span className="font-pixel-label text-zinc-500">
+            <span className="eyebrow text-zinc-500">
               {editingPhoto ? "Title" : "Title / Batch Label"}
             </span>
             <input
@@ -462,7 +462,7 @@ export default function GalleryManagerPage() {
 
           <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
             <label className="grid gap-2">
-              <span className="font-pixel-label text-zinc-500">Category</span>
+              <span className="eyebrow text-zinc-500">Category</span>
               <select
                 value={form.category}
                 onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
@@ -475,7 +475,7 @@ export default function GalleryManagerPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="font-pixel-label text-zinc-500">Sort</span>
+              <span className="eyebrow text-zinc-500">Sort</span>
               <input
                 type="number"
                 value={form.sortOrder}
@@ -529,7 +529,7 @@ export default function GalleryManagerPage() {
 
           {files.length ? (
             <div className="rounded-[var(--radius-row)] border border-[color:var(--color-hairline)] bg-black p-3">
-              <p className="mb-2 font-pixel-label text-zinc-600">Selected</p>
+              <p className="mb-2 eyebrow text-zinc-600">Selected</p>
               <div className="grid gap-2">
                 {files.map((file) => (
                   <div key={`${file.name}-${file.size}`} className="flex items-center justify-between gap-3 rounded-[var(--radius-row)] bg-[#0a0a0a] px-3 py-2 text-sm">
